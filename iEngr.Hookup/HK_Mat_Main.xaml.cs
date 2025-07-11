@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Odbc;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,10 +47,21 @@ namespace iEngr.Hookup
                 NameEn = "All Connections"
                 }
             };
+        private ObservableCollection<HKPortType> hKPortTypesP2 = new ObservableCollection<HKPortType>
+            {
+                new HKPortType
+                {
+                ID = "%",
+                NameCn = "所有连接类型",
+                NameEn = "All Connections"
+                }
+            };
+        private string strTypeP1;
+        private string strTypeP2;   
         public HK_Mat_Main()
         {
             InitializeComponent();
-            intLan = 1;
+            intLan = 0; // 0: 中文； 其它为英文
             conn = GetConnection();
             hKMatMainCats = GetHKMatMainCats();
             cbMainCat.ItemsSource = hKMatMainCats;
@@ -64,7 +76,9 @@ namespace iEngr.Hookup
  
         private void btnToBeChk_Click(object sender, RoutedEventArgs e)
         {
-            string test = GeneralFun.ConvertToSqlInString("  FL, BW, SW , ");
+            //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
+            string test = GeneralFun.ConvertToSqlString("Class:<=>=: 13~45");
+            var t1 = GeneralFun.ParseNumber("123444444444444445.0");
 
         }
 
@@ -82,8 +96,12 @@ namespace iEngr.Hookup
 
         private void cbSubCat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
-
+            if (cbSubCat.SelectedItem != null && cbSubCat.SelectedIndex != 0)
+            {
+                strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
+            }
+            hKPortTypesP1 = GetHKPortTypes(strTypeP1, 1);
+            cbTypeP1.SelectedIndex = 0;
 
         }
         private static OdbcConnection GetConnection()
@@ -162,6 +180,7 @@ namespace iEngr.Hookup
             //    }
             //};
             ObservableCollection<HKMatSubCat> subCats = hKMatSubCats;
+            strTypeP1 = "";
             subCats.Clear();
             subCats.Add(
                 new HKMatSubCat
@@ -195,6 +214,7 @@ namespace iEngr.Hookup
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"])
                     };
+                    strTypeP1 += Convert.ToString(reader["TypeP1"]);
                     subCats.Add(subCat);
                 }
 
@@ -208,20 +228,21 @@ namespace iEngr.Hookup
             }
             return subCats;
         }
-        private ObservableCollection<HKPortType> GetHKPortTypes(string strType)
+        private ObservableCollection<HKPortType> GetHKPortTypes(string strType, int intPort)
         {
-            ObservableCollection<HKPortType> portTypes = new ObservableCollection<HKPortType>
-            {
+            ObservableCollection<HKPortType> portTypes = (intPort == 1) ? hKPortTypesP1 : hKPortTypesP2;
+            portTypes.Clear();
+            portTypes.Add(
                 new HKPortType
                 {
                 ID = "%",
                 NameCn = "所有连接类型",
                 NameEn = "All Connections"
                 }
-            };
+            );
 
             // 构建 SQL 查询语句
-            string query = "select * from HK_LibPortType where OrderNum < 101 and " + GeneralFun.ConvertToSqlInString(strType) + " order by OrderNum ID";
+            string query = "select * from HK_LibPortType where OrderNum < 101 and ID in " + GeneralFun.ConvertToStringScope(strType, ',') + " order by OrderNum";
             try
             {
                 if (conn == null || conn.State != ConnectionState.Open)
@@ -233,8 +254,8 @@ namespace iEngr.Hookup
                     HKPortType portType = new HKPortType
                     {
                         ID = Convert.ToString(reader["ID"]),
-                        NameCn = Convert.ToString(reader["SpecCn"]),
-                        NameEn = Convert.ToString(reader["SpecEn"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
                         SpecCn = Convert.ToString(reader["SpecCn"]),
                         SpecEn = Convert.ToString(reader["SpecEn"]),
                         Remarks = Convert.ToString(reader["Remarks"]),
@@ -244,7 +265,23 @@ namespace iEngr.Hookup
                 }
 
                 reader.Close();
-            }
+                if (portTypes.Count == 1 || portTypes.Count == 2 && portTypes.ElementAt(1).ID == "NA")
+                {
+                    portTypes.Clear();
+                    portTypes.Add(
+                        new HKPortType
+                        {
+                            ID = "%",
+                            NameCn = "无",
+                            NameEn = "NA"
+                        }
+                    );
+                }
+                 if (portTypes.Count == 2 && portTypes.ElementAt(1).ID == "IS")
+                {
+                    portTypes.RemoveAt(0);
+                }
+           }
             catch (Exception ex)
             {
                 // 处理异常

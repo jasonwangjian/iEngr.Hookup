@@ -42,7 +42,7 @@
             </StackPanel>
             <Label Grid.Row="2" Grid.Column="0">端口一：</Label>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" >
-                <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="True" SelectionChanged="cbTypeP1_SelectionChanged"></ComboBox>
+                <ComboBox x:Name="cbTypeP1" MinWidth="100"  Margin="2" IsEditable="True" SelectionChanged="cbTypeP1_SelectionChanged"></ComboBox>
             </StackPanel>
 
         </Grid>
