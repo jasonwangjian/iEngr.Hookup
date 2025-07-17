@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace iEngr.Hookup
 {
-    public class HKPortType
+    public class HKLibPortType
     {
         public string ID { get; set; }
         public string NameCn { get; set; }

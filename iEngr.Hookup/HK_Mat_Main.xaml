@@ -46,6 +46,9 @@
             </StackPanel>
 
         </Grid>
+        <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+            
+        </DataGrid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
             <Button x:Name="btnToBeChk" IsEnabled="True" Margin="5,2,2,2" Content="测试" FontSize="11" Click="btnToBeChk_Click"/>
         </StackPanel>

@@ -28,7 +28,9 @@ namespace iEngr.Hookup
     {
         public static int intLan;
         private static OdbcConnection conn;
+        private static OdbcConnection xlsConn;
         private ObservableCollection<HKMatMainCat> hKMatMainCats;
+        private ObservableCollection<HKLibThread> hKLibThreads;
         private ObservableCollection<HKMatSubCat> hKMatSubCats = new ObservableCollection<HKMatSubCat>
             {
                 new HKMatSubCat
@@ -38,18 +40,18 @@ namespace iEngr.Hookup
                 NameEn = "All Sub Categories"
                 }
             };
-        private ObservableCollection<HKPortType> hKPortTypesP1 = new ObservableCollection<HKPortType>
+        private ObservableCollection<HKLibPortType> hKPortTypesP1 = new ObservableCollection<HKLibPortType>
             {
-                new HKPortType
+                new HKLibPortType
                 {
                 ID = "%",
                 NameCn = "所有连接类型",
                 NameEn = "All Connections"
                 }
             };
-        private ObservableCollection<HKPortType> hKPortTypesP2 = new ObservableCollection<HKPortType>
+        private ObservableCollection<HKLibPortType> hKPortTypesP2 = new ObservableCollection<HKLibPortType>
             {
-                new HKPortType
+                new HKLibPortType
                 {
                 ID = "%",
                 NameCn = "所有连接类型",
@@ -63,22 +65,24 @@ namespace iEngr.Hookup
             InitializeComponent();
             intLan = 0; // 0: 中文； 其它为英文
             conn = GetConnection();
+            xlsConn = GetXlsConnection();
             hKMatMainCats = GetHKMatMainCats();
             cbMainCat.ItemsSource = hKMatMainCats;
             cbMainCat.DisplayMemberPath = "Name";
             cbSubCat.ItemsSource = hKMatSubCats;
             cbSubCat.DisplayMemberPath = "Name";
-            cbTypeP1.ItemsSource = hKPortTypesP1;
-            cbTypeP1.DisplayMemberPath = "Name";
             cbMainCat.SelectedIndex = 0;
+
+            hKLibThreads = GetXlsLibThread();
+            dgResult.ItemsSource = hKLibThreads;
        }
 
  
         private void btnToBeChk_Click(object sender, RoutedEventArgs e)
         {
             //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
-            string test = GeneralFun.ConvertToSqlString("Class:<=>=: 13~45");
-            var t1 = GeneralFun.ParseNumber("123444444444444445.0");
+            string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
+            var t1 = GeneralFun.ParseNumber("12345.0");
 
         }
 
@@ -101,6 +105,8 @@ namespace iEngr.Hookup
                 strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
             }
             hKPortTypesP1 = GetHKPortTypes(strTypeP1, 1);
+            cbTypeP1.ItemsSource = hKPortTypesP1;
+            cbTypeP1.DisplayMemberPath = "Name";
             cbTypeP1.SelectedIndex = 0;
 
         }
@@ -228,12 +234,12 @@ namespace iEngr.Hookup
             }
             return subCats;
         }
-        private ObservableCollection<HKPortType> GetHKPortTypes(string strType, int intPort)
+        private ObservableCollection<HKLibPortType> GetHKPortTypes(string strType, int intPort)
         {
-            ObservableCollection<HKPortType> portTypes = (intPort == 1) ? hKPortTypesP1 : hKPortTypesP2;
+            ObservableCollection<HKLibPortType> portTypes = (intPort == 1) ? hKPortTypesP1 : hKPortTypesP2;
             portTypes.Clear();
             portTypes.Add(
-                new HKPortType
+                new HKLibPortType
                 {
                 ID = "%",
                 NameCn = "所有连接类型",
@@ -251,7 +257,7 @@ namespace iEngr.Hookup
                 OdbcDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    HKPortType portType = new HKPortType
+                    HKLibPortType portType = new HKLibPortType
                     {
                         ID = Convert.ToString(reader["ID"]),
                         NameCn = Convert.ToString(reader["NameCn"]),
@@ -269,7 +275,7 @@ namespace iEngr.Hookup
                 {
                     portTypes.Clear();
                     portTypes.Add(
-                        new HKPortType
+                        new HKLibPortType
                         {
                             ID = "%",
                             NameCn = "无",
@@ -296,5 +302,60 @@ namespace iEngr.Hookup
 
         }
 
+        private static OdbcConnection GetXlsConnection()
+        {
+            try
+            {
+                // 定义 DSN 名称
+                string dsnName = "LibHookup"; //"ComosExt";
+
+                // 创建 OdbcConnection 对象并传入 DSN 连接字符串
+                OdbcConnection connection = new OdbcConnection($"DSN={dsnName}");
+
+                // 打开数据库连接
+                connection.Open();
+
+                // 返回连接对象
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                return null;
+            }
+        }
+        private ObservableCollection<HKLibThread> GetXlsLibThread()
+        {
+            ObservableCollection<HKLibThread> libThreads = new ObservableCollection<HKLibThread>();
+            // 构建 SQL 查询语句
+            string query = "select * from [LibThread$]";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    HKLibThread libThread = new HKLibThread
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                    };
+                    libThreads.Add(libThread);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return libThreads;
+        }
     }
 }
