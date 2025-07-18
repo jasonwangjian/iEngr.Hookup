@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -28,7 +29,6 @@ namespace iEngr.Hookup
     {
         public static int intLan;
         private static OdbcConnection conn;
-        private static OdbcConnection xlsConn;
         private ObservableCollection<HKMatMainCat> hKMatMainCats;
         private ObservableCollection<HKLibThread> hKLibThreads;
         private ObservableCollection<HKMatSubCat> hKMatSubCats = new ObservableCollection<HKMatSubCat>
@@ -36,8 +36,8 @@ namespace iEngr.Hookup
                 new HKMatSubCat
                 {
                 ID = "%",
-                NameCn = "所有小类",
-                NameEn = "All Sub Categories"
+                SpecCn = "所有小类",
+                SpecEn = "All Sub Categories"
                 }
             };
         private ObservableCollection<HKLibPortType> hKPortTypesP1 = new ObservableCollection<HKLibPortType>
@@ -65,7 +65,6 @@ namespace iEngr.Hookup
             InitializeComponent();
             intLan = 0; // 0: 中文； 其它为英文
             conn = GetConnection();
-            xlsConn = GetXlsConnection();
             hKMatMainCats = GetHKMatMainCats();
             cbMainCat.ItemsSource = hKMatMainCats;
             cbMainCat.DisplayMemberPath = "Name";
@@ -73,7 +72,7 @@ namespace iEngr.Hookup
             cbSubCat.DisplayMemberPath = "Name";
             cbMainCat.SelectedIndex = 0;
 
-            hKLibThreads = GetXlsLibThread();
+            hKLibThreads = GetLibThread();
             dgResult.ItemsSource = hKLibThreads;
        }
 
@@ -192,8 +191,8 @@ namespace iEngr.Hookup
                 new HKMatSubCat
                 {
                     ID = "%",
-                    NameCn = mainCat.ID == "%" ? "所有小类" : "所有" + mainCat.Name,
-                    NameEn = mainCat.ID == "%" ? "All Sub Categories" : "All " + mainCat.Name
+                    SpecCn = mainCat.ID == "%" ? "所有小类" : "所有" + mainCat.Name,
+                    SpecEn = mainCat.ID == "%" ? "All Sub Categories" : "All " + mainCat.Name
                 });
 
             // 构建 SQL 查询语句
@@ -210,8 +209,6 @@ namespace iEngr.Hookup
                     {
                         ID = Convert.ToString(reader["ID"]),
                         CatID = Convert.ToString(reader["CatID"]),
-                        NameCn = Convert.ToString(reader["SpecCn"]),
-                        NameEn = Convert.ToString(reader["SpecEn"]),
                         SpecCn = Convert.ToString(reader["SpecCn"]),
                         SpecEn = Convert.ToString(reader["SpecEn"]),
                         Remarks = Convert.ToString(reader["Remarks"]),
@@ -302,49 +299,39 @@ namespace iEngr.Hookup
 
         }
 
-        private static OdbcConnection GetXlsConnection()
-        {
-            try
-            {
-                // 定义 DSN 名称
-                string dsnName = "LibHookup"; //"ComosExt";
-
-                // 创建 OdbcConnection 对象并传入 DSN 连接字符串
-                OdbcConnection connection = new OdbcConnection($"DSN={dsnName}");
-
-                // 打开数据库连接
-                connection.Open();
-
-                // 返回连接对象
-                return connection;
-            }
-            catch (Exception ex)
-            {
-                // 处理异常
-                MessageBox.Show($"Error: {ex.Message}");
-                return null;
-            }
-        }
-        private ObservableCollection<HKLibThread> GetXlsLibThread()
+        private ObservableCollection<HKLibThread> GetLibThread()
         {
             ObservableCollection<HKLibThread> libThreads = new ObservableCollection<HKLibThread>();
             // 构建 SQL 查询语句
-            string query = "select * from [LibThread$]";
+            string query = "select * from HK_LibThread";
             try
             {
-                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
-                    xlsConn = GetXlsConnection();
-                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
                 OdbcDataReader reader = command.ExecuteReader();
+                int? nullInt = null;  
+                int i = 0;
                 while (reader.Read())
                 {
+                    i++;
+                    Debug.Print(i.ToString());
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
                     HKLibThread libThread = new HKLibThread
                     {
                         ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        SubClass = Convert.ToString(reader["SubClass"]),
                         SpecCn = Convert.ToString(reader["SpecCn"]),
                         SpecEn = Convert.ToString(reader["SpecEn"]),
+                        Value = Convert.ToDecimal(reader["Value"]),
+                        Pitch = Convert.ToDecimal(reader["Pitch"]),
+                        Qty = !string.IsNullOrEmpty(Convert.ToString(reader["Qty"])) ? Convert.ToInt32(reader["Qty"]) : nullInt,
+                        ClassEx = Convert.ToString(reader["ClassEx"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
                     };
-                    libThreads.Add(libThread);
+                   libThreads.Add(libThread);
                 }
 
                 reader.Close();

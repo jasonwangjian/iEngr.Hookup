@@ -12,6 +12,7 @@ namespace iEngr.Hookup
         public string NameCn { get; set; }
         public string NameEn { get; set; }
         public string Remarks { get; set; }
+        public int SortNum { get; set; }
         public string Name
         {
             get

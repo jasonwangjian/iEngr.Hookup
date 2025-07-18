@@ -1,0 +1,40 @@
+﻿<Window x:Class="xlsLibHookup.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:xlsLibHookup"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="17*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation ="Vertical" Grid.Row="1">
+            <Button x:Name="btnMainCat" Content="材料大类"  Click="btnMainCat_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnSubCat" Content="材料小类"  Click="btnSubCat_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibPortType" Content="端口连接类型"  Click="btnLibPortType_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibThread" Content="螺纹规格"  Click="btnLibThread_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+        </StackPanel>
+        <StackPanel Orientation ="Horizontal" Grid.Column="1">
+            <Button x:Name="btnUpload" IsEnabled="True" Margin="5" Content="Upload" FontSize="11" Click="btnUpload_Click"/>
+        </StackPanel>
+        <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3">
+
+        </DataGrid>
+
+    </Grid>
+</Window>

@@ -11,11 +11,11 @@ namespace iEngr.Hookup
     {
         public string ID { get; set; }
         public string CatID { get; set; }
-        public string NameCn { get; set; }
-        public string NameEn { get; set; }
+        public string SubCatID { get; set; }
         public string SpecCn { get; set; }
         public string SpecEn { get; set; }
         public string Remarks { get; set; }
+        public int  SortNum { get; set; }
         public string TypeP1 { get; set; }
         public string TypeP2 { get; set; }
         public string TechSpecMain{ get; set; }
@@ -26,9 +26,9 @@ namespace iEngr.Hookup
             get
             {
                 if (HK_Mat_Main.intLan == 0)
-                    return NameCn;
+                    return SpecCn;
                 else
-                    return NameEn;
+                    return SpecEn;
             }
         }
     }
