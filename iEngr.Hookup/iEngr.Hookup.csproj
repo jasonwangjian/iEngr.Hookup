@@ -60,6 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\GeneralFun.cs" />
+    <Compile Include="Models\HKLibGland.cs" />
+    <Compile Include="Models\HKLibPipeOD.cs" />
+    <Compile Include="Models\HKLibGenOption.cs" />
+    <Compile Include="Models\HKLibSpecDic.cs" />
+    <Compile Include="Models\HKLibTubeOD.cs" />
     <Compile Include="Models\HKLibThread.cs" />
     <Compile Include="Models\HKLibPortType.cs" />
     <Compile Include="Models\HKGeneral.cs" />

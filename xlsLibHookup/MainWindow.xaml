@@ -28,6 +28,21 @@
             <Button x:Name="btnLibThread" Content="螺纹规格"  Click="btnLibThread_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibGland" Content="电缆接头"  Click="btnLibGland_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibTubeOD" Content="Tube管外径"  Click="btnLibTubeOD_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibPipeOD" Content="Pipe管外径"  Click="btnLibPipeOD_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnSpecDic" Content="技术规格项"  Click="btnLibSpecDic_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnGemOption" Content="常用下拉选项"  Click="btnLibGenOption_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
         </StackPanel>
         <StackPanel Orientation ="Horizontal" Grid.Column="1">
             <Button x:Name="btnUpload" IsEnabled="True" Margin="5" Content="Upload" FontSize="11" Click="btnUpload_Click"/>
