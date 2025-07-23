@@ -285,9 +285,9 @@ namespace iEngr.Hookup.Models
             if (linkExp.Count == 0)
                 return null;
             if (linkExp.Count <= 1)
-                return "Select * From " + linkExp[0];
+                return $"Select * From HK_{linkExp[0]} Order by SortNum";
             if (linkExp.Count == 3)
-                return "Select * From " + linkExp[0] + ParseConditionExp(linkExp[2]);
+                return $"Select * From HK_{linkExp[0]} {ParseConditionExp(linkExp[2])}  Order by SortNum";
            return linkWhereExp;
         }
 

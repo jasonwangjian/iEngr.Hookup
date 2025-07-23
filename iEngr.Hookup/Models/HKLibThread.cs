@@ -17,7 +17,16 @@ namespace iEngr.Hookup
         public decimal Pitch { get; set; }
         public int? Qty { get; set; }
         public string ClassEx { get; set; }
-        public int SortNum { get; set; }    
-        public string Name { get; set; }
+        public int SortNum { get; set; }
+        public string Name
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return SpecCn;
+                else
+                    return SpecEn;
+            }
+        }
     }
 }

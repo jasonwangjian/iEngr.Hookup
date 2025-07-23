@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:iEngr.Hookup"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="900">
+             d:DesignHeight="768" d:DesignWidth="1024">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,12 +13,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Margin="20" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
-            <Grid.RowDefinitions>
+        <Grid Margin="20" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1">
+            <!--<Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -30,20 +30,33 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Grid.Column="0">材料大类： </Label>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" >
-                <ComboBox x:Name="cbMainCat"  MinWidth="200" Margin="2" IsEditable="True" 
-                          SelectionChanged="cbMainCat_SelectionChanged"/>
+            </Grid.ColumnDefinitions>-->
+             <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbMainCat"  MinWidth="300" Margin="2" IsEditable="True" SelectionChanged="cbMainCat_SelectionChanged"/>
+                    </WrapPanel>
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                    <ComboBox x:Name="cbSubCat" MinWidth="300"  Margin="2" IsEditable="True" SelectionChanged="cbSubCat_SelectionChanged"></ComboBox>
+                </WrapPanel>
+                <WrapPanel x:Name="wpPort1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                    <Label >端口一：</Label>
+                    <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="True" SelectionChanged="cbTypeP1_SelectionChanged"></ComboBox>
+                    <ComboBox x:Name="cbSpecP1" MinWidth="120"  Margin="2" IsEditable="True" SelectionChanged="cbSpecP1_SelectionChanged"></ComboBox>
+                </WrapPanel>
+                <WrapPanel x:Name="wpPort2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                    <Label >端口二：</Label>
+                    <ComboBox x:Name="cbTypeP2" MinWidth="120"  Margin="2" IsEditable="True" SelectionChanged="cbTypeP2_SelectionChanged"></ComboBox>
+                    <ComboBox x:Name="cbSpecP2" MinWidth="120"  Margin="2" IsEditable="True" SelectionChanged="cbSpecP2_SelectionChanged"></ComboBox>
+                </WrapPanel>
             </StackPanel>
-            <Label Grid.Row="1" Grid.Column="0">材料小类：</Label>
+            <!--<Label Grid.Row="1" Grid.Column="0">材料小类：</Label>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" >
                 <ComboBox x:Name="cbSubCat" MinWidth="200"  Margin="2" IsEditable="True" SelectionChanged="cbSubCat_SelectionChanged"></ComboBox>
             </StackPanel>
             <Label Grid.Row="2" Grid.Column="0">端口一：</Label>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" >
                 <ComboBox x:Name="cbTypeP1" MinWidth="100"  Margin="2" IsEditable="True" SelectionChanged="cbTypeP1_SelectionChanged"></ComboBox>
-            </StackPanel>
+            </StackPanel>-->
 
         </Grid>
         <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">

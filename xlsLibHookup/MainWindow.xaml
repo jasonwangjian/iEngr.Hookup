@@ -43,6 +43,9 @@
             <Button x:Name="btnGemOption" Content="常用下拉选项"  Click="btnLibGenOption_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnSteel" Content="槽钢工字钢"  Click="btnLibSteel_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
         </StackPanel>
         <StackPanel Orientation ="Horizontal" Grid.Column="1">
             <Button x:Name="btnUpload" IsEnabled="True" Margin="5" Content="Upload" FontSize="11" Click="btnUpload_Click"/>

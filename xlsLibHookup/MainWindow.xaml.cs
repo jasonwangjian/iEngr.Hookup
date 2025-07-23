@@ -374,6 +374,44 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibSteel":
+                        string cSb = ((result as HKLibSteel).CSb == null) ? "Null" : (result as HKLibSteel).CSb.ToString();
+                        string cSd = ((result as HKLibSteel).CSd == null) ? "Null" : (result as HKLibSteel).CSd.ToString();
+                        string iBb = ((result as HKLibSteel).IBb == null) ? "Null" : (result as HKLibSteel).IBb.ToString();
+                        string iBd = ((result as HKLibSteel).IBd == null) ? "Null" : (result as HKLibSteel).IBd.ToString();
+                        if (isDataExisting("HK_LibSteel", (result as HKLibSteel).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibSteel SET " +
+                                $"CSSpecCn=N'{(result as HKLibSteel).CSSpecCn}'," +
+                                $"CSSpecEn=N'{(result as HKLibSteel).CSSpecEn}'," +
+                                $"IBSpecCn=N'{(result as HKLibSteel).IBSpecCn}'," +
+                                $"IBSpecEn=N'{(result as HKLibSteel).IBSpecEn}'," +
+                                $"Width={(result as HKLibSteel).Width}," +
+                                $"CSb={cSb}," +
+                                $"CSd={cSd}," +
+                                $"IBb={iBb}," +
+                                $"IBd={iBd}," +
+                                $"SortNum={(result as HKLibSteel).SortNum} " +
+                                $"WHERE ID='{(result as HKLibSteel).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibSteel (ID, CSSpecCn, CSSpecEn, IBSpecCn, IBSpecEn, Width, CSb, CSd, IBb, IBd, SortNum) VALUES (" +
+                                $"'{(result as HKLibSteel).ID}'," +
+                                $"N'{(result as HKLibSteel).CSSpecCn}'," +
+                                $"N'{(result as HKLibSteel).CSSpecEn}'," +
+                                $"N'{(result as HKLibSteel).IBSpecCn}'," +
+                                $"N'{(result as HKLibSteel).IBSpecEn}'," +
+                                $"{(result as HKLibSteel).Width}," +
+                                $"{cSb}," +
+                                $"{cSd}," +
+                                $"{iBb}," +
+                                $"{iBd}," +
+                                $"{(result as HKLibSteel).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -809,6 +847,49 @@ namespace xlsLibHookup
             }
             return data;
         }
+        private ObservableCollection<HKLibSteel> GetXlsLibSteel(string id = null)
+        {
+            ObservableCollection<HKLibSteel> libSteels = new ObservableCollection<HKLibSteel>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibSteel$]"
+                                     : $"select * from [LibSteel$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibSteel libSteel = new HKLibSteel
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        CSSpecCn = Convert.ToString(reader["CSSpecCn"]),
+                        CSSpecEn = Convert.ToString(reader["CSSpecEn"]),
+                        IBSpecCn = Convert.ToString(reader["IBSpecCn"]),
+                        IBSpecEn = Convert.ToString(reader["IBSpecEn"]),
+                        Width = Convert.ToDecimal(reader["Width"]),
+                        CSb = !string.IsNullOrEmpty(Convert.ToString(reader["CSb"])) ? Convert.ToDecimal(reader["CSb"]) : nullDecimal,
+                        CSd = !string.IsNullOrEmpty(Convert.ToString(reader["CSd"])) ? Convert.ToDecimal(reader["CSd"]) : nullDecimal,
+                        IBb = !string.IsNullOrEmpty(Convert.ToString(reader["IBb"])) ? Convert.ToDecimal(reader["IBb"]) : nullDecimal,
+                        IBd = !string.IsNullOrEmpty(Convert.ToString(reader["IBd"])) ? Convert.ToDecimal(reader["IBd"]) : nullDecimal,
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    libSteels.Add(libSteel);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return libSteels;
+        }
 
 
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
@@ -846,6 +927,10 @@ namespace xlsLibHookup
         private void btnLibGenOption_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibGenOption();
+        }
+        private void btnLibSteel_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsLibSteel();
         }
     }
 }
