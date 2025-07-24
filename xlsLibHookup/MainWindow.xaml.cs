@@ -412,6 +412,84 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibPN":
+                        if (isDataExisting("HK_LibPN", (result as HKLibPN).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibPN SET " +
+                                $"Class='{(result as HKLibPN).Class}'," +
+                                $"SpecCn='{(result as HKLibPN).SpecCn}'," +
+                                $"SpecEn='{(result as HKLibPN).SpecEn}'," +
+                                $"ISOS1='{(result as HKLibPN).ISOS1}'," +
+                                $"ISOS2='{(result as HKLibPN).ISOS2}'," +
+                                $"GBDIN='{(result as HKLibPN).GBDIN}'," +
+                                $"GBANSI='{(result as HKLibPN).GBANSI}'," +
+                                $"ASME='{(result as HKLibPN).ASME}'," +
+                                $"SortNum={(result as HKLibPN).SortNum} " +
+                                $"WHERE ID='{(result as HKLibPN).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibPN (ID, Class, SpecCn, SpecEn, ISOS1, ISOS2, GBDIN, GBANSI, ASME, SortNum) VALUES (" +
+                                $"'{(result as HKLibPN).ID}'," +
+                                $"'{(result as HKLibPN).Class}'," +
+                                $"'{(result as HKLibPN).SpecCn}'," +
+                                $"'{(result as HKLibPN).SpecEn}'," +
+                                $"'{(result as HKLibPN).ISOS1}'," +
+                                $"'{(result as HKLibPN).ISOS2}'," +
+                                $"'{(result as HKLibPN).GBDIN}'," +
+                                $"'{(result as HKLibPN).GBANSI}'," +
+                                $"'{(result as HKLibPN).ASME}'," +
+                                $"{(result as HKLibPN).SortNum} " +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
+                    case "HKMatGenLib":
+                        if (isDataExisting("HK_MatGenLib", (result as HKMatGenLib).ID))
+                        {
+                            sqlString = $"UPDATE HK_MatGenLib SET " +
+                                $"CatID='{(result as HKMatGenLib).CatID}'," +
+                                $"SubCatID='{(result as HKMatGenLib).SubCatID}'," +
+                                $"TechSpecMain='{(result as HKMatGenLib).TechSpecMain}'," +
+                                $"TechSpecAux='{(result as HKMatGenLib).TechSpecAux}'," +
+                                $"TypeP1='{(result as HKMatGenLib).TypeP1}'," +
+                                $"SizeP1='{(result as HKMatGenLib).SizeP1}'," +
+                                $"TypeP2='{(result as HKMatGenLib).TypeP2}'," +
+                                $"SizeP2='{(result as HKMatGenLib).SizeP2}'," +
+                                $"MatSpec='{(result as HKMatGenLib).MatSpec}'," +
+                                $"PClass='{(result as HKMatGenLib).PClass}'," +
+                                $"MoreSpecCn='{(result as HKMatGenLib).MoreSpecCn}'," +
+                                $"MoreSpecEn='{(result as HKMatGenLib).MoreSpecEn}'," +
+                                $"AppStd='{(result as HKMatGenLib).AppStd}'," +
+                                $"RemarksCn='{(result as HKMatGenLib).RemarksCn}'," +
+                                $"RemarksEn='{(result as HKMatGenLib).RemarksEn}'," +
+                                $"Comments='{(result as HKMatGenLib).Comments}' " +
+                                $"WHERE ID='{(result as HKMatGenLib).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, AppStd, RemarksCn, RemarksEn, Comments) VALUES (" +
+                                $"'{(result as HKMatGenLib).ID}'," +
+                                $"'{(result as HKMatGenLib).CatID}'," +
+                                $"'{(result as HKMatGenLib).SubCatID}'," +
+                                $"'{(result as HKMatGenLib).TechSpecMain}'," +
+                                $"'{(result as HKMatGenLib).TechSpecAux}'," +
+                                $"'{(result as HKMatGenLib).TypeP1}'," +
+                                $"'{(result as HKMatGenLib).SizeP1}'," +
+                                $"'{(result as HKMatGenLib).TypeP2}'," +
+                                $"'{(result as HKMatGenLib).SizeP2}'," +
+                                $"'{(result as HKMatGenLib).MatSpec}'," +
+                                $"'{(result as HKMatGenLib).PClass}'," +
+                                $"'{(result as HKMatGenLib).MoreSpecCn}'," +
+                                $"'{(result as HKMatGenLib).MoreSpecEn}'," +
+                                $"'{(result as HKMatGenLib).AppStd}'," +
+                                $"'{(result as HKMatGenLib).RemarksCn}'," +
+                                $"'{(result as HKMatGenLib).RemarksEn}'," +
+                                $"'{(result as HKMatGenLib).Comments}' " +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -890,6 +968,97 @@ namespace xlsLibHookup
             }
             return libSteels;
         }
+        private ObservableCollection<HKLibPN> GetXlsLibPN(string id = null)
+        {
+            ObservableCollection<HKLibPN> data = new ObservableCollection<HKLibPN>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibPN$]"
+                                      : $"select * from [LibPN$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibPN item = new HKLibPN
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        ISOS1 = Convert.ToString(reader["ISOS1"]),
+                        ISOS2 = Convert.ToString(reader["ISOS2"]),
+                        GBDIN = Convert.ToString(reader["GBDIN"]),
+                        GBANSI = Convert.ToString(reader["GBANSI"]),
+                        ASME = Convert.ToString(reader["ASME"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
+        private ObservableCollection<HKMatGenLib> GetXlsMatGenLib(string id = null)
+        {
+            ObservableCollection<HKMatGenLib> data = new ObservableCollection<HKMatGenLib>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [MatGenLib$]"
+                                      : $"select * from [MatGenLib$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKMatGenLib item = new HKMatGenLib
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        CatID = Convert.ToString(reader["CatID"]),
+                        SubCatID = Convert.ToString(reader["SubCatID"]),
+                        TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
+                        TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                        TypeP1 = Convert.ToString(reader["TypeP1"]),
+                        SizeP1 = Convert.ToString(reader["SizeP1"]),
+                        TypeP2 = Convert.ToString(reader["TypeP2"]),
+                        SizeP2 = Convert.ToString(reader["SizeP2"]),
+                        MatSpec = Convert.ToString(reader["MatSpec"]),
+                        PClass = Convert.ToString(reader["PClass"]),
+                        MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
+                        MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
+                        AppStd = Convert.ToString(reader["AppStd"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Comments = Convert.ToString(reader["Comments"])
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
 
 
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
@@ -931,6 +1100,14 @@ namespace xlsLibHookup
         private void btnLibSteel_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibSteel();
+        }
+        private void btnLibPN_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsLibPN();
+        }
+        private void btnMatGenLib_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsMatGenLib();
         }
     }
 }

@@ -58,8 +58,8 @@ namespace iEngr.Hookup
                 NameEn = "All Connections"
                 }
             };
-        private object hKPortSpecP1, hKPortSpecP2;
-        //private ObservableCollection<HKLibThread> hKPortSpecP2 = new ObservableCollection<HKLibThread>
+        private object hKPortSizeP1, hKPortSizeP2;
+        //private ObservableCollection<HKLibThread> hKPortSizeP2 = new ObservableCollection<HKLibThread>
         //    {
         //        new HKLibThread
         //        {
@@ -69,8 +69,12 @@ namespace iEngr.Hookup
         //        }
         //    };
         private string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
-        private string strTypeP1, strTypeP1S, strSpecP1S;
-        private string strTypeP2, strTypeP2S, strSpecP2S;
+        ObservableCollection<Prompt> mainSpecT1 = new ObservableCollection<Prompt>();
+        ObservableCollection<Prompt> mainSpecT2 = new ObservableCollection<Prompt>();
+        ObservableCollection<Prompt> mainSpecT3 = new ObservableCollection<Prompt>();
+        private string strSpecMain, strSpecAux;
+        private string strTypeP1, strTypeP1S, strSizeP1S;
+        private string strTypeP2, strTypeP2S, strSizeP2S;
         public HK_Mat_Main()
         {
             InitializeComponent();
@@ -78,10 +82,10 @@ namespace iEngr.Hookup
             conn = GetConnection();
             hKMatMainCats = GetHKMatMainCats();
             cbMainCat.ItemsSource = hKMatMainCats;
-            cbMainCat.DisplayMemberPath = "Name";
             cbSubCat.ItemsSource = hKMatSubCats;
-            cbSubCat.DisplayMemberPath = "Name";
             cbMainCat.SelectedIndex = 0;
+            cbMainSpecT1.ItemsSource = mainSpecT1;
+
 
             hKLibThreads = GetLibThread();
             dgResult.ItemsSource = hKLibThreads;
@@ -443,6 +447,29 @@ namespace iEngr.Hookup
 
         private void cbSubCat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // 处理主参数 TechSpecMain
+            var lstSpecMain = (cbSubCat.SelectedItem as HKMatSubCat)?.TechSpecMain.Split(',')
+                         .Select(item => item.Trim())
+                         .Where(item => !string.IsNullOrWhiteSpace(item))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .ToList();
+            if (lstSpecMain.Count > 0)
+            {
+                if (lstSpecMain[0])
+
+            }
+            else
+            {
+                cbMainSpecT1.Visibility = Visibility.Collapsed;
+                cbMainSpec1.Visibility = Visibility.Collapsed;
+                cbMainSpecT2.Visibility = Visibility.Collapsed;
+                cbMainSpec2.Visibility = Visibility.Collapsed;
+                cbMainSpecT3.Visibility = Visibility.Collapsed;
+                cbMainSpec3.Visibility = Visibility.Collapsed;
+                wpMainSpec.Visibility = Visibility.Collapsed;
+            }
+
+            // 处理端口一、二
             if (cbSubCat.SelectedItem != null && cbSubCat.SelectedIndex != 0)
             {
                 strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
@@ -456,23 +483,42 @@ namespace iEngr.Hookup
                 hKPortTypesP2 = GetHKPortTypes(strTypeP2, 2);
 
             cbTypeP2.ItemsSource = hKPortTypesP2;
-            cbTypeP1.DisplayMemberPath = "Name";
+            //cbTypeP1.DisplayMemberPath = "Name";
             cbTypeP1.SelectedIndex = 0;
-            cbTypeP2.DisplayMemberPath = "Name";
+            //cbTypeP2.DisplayMemberPath = "Name";
                 cbTypeP2.SelectedIndex = 0;
 
             if (strTypeP2 == "AS1")
             {
                 cbTypeP2.IsEnabled = false;
-                cbSpecP2.IsEnabled = false;
+                cbSizeP2.IsEnabled = false;
             }
             else
             {
                 cbTypeP2.IsEnabled = true;
-                cbSpecP2.IsEnabled = true;
+                cbSizeP2.IsEnabled = true;
             }
 
         }
+
+        private void cbMainSpecT1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+        private void cbMainSpecT2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+        private void cbMainSpecT3_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void cbMainSpec_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
         private void cbTypeP1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cbTypeP1.SelectedItem != null && cbTypeP1.SelectedIndex != 0)
@@ -480,33 +526,33 @@ namespace iEngr.Hookup
                 string link = (cbTypeP1.SelectedItem as HKLibPortType)?.Link;
                 if (link.StartsWith("LibThread"))
                 {
-                    hKPortSpecP1 = GetHKPortSpecs(1);
-                    cbSpecP1.ItemsSource = hKPortSpecP1 as ObservableCollection<HKLibThread>;
-                    cbSpecP1.DisplayMemberPath = "Name";
-                    cbSpecP1.SelectedIndex = 0;
+                    hKPortSizeP1 = GetHKPortSpecs(1);
+                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibThread>;
+                    //cbSizeP1.DisplayMemberPath = "Name";
+                    cbSizeP1.SelectedIndex = 0;
                 }
                 else if (link.StartsWith("LibTubeOD"))
                 {
-                    hKPortSpecP1 = GetHKPortSpecs(1);
-                    cbSpecP1.ItemsSource = hKPortSpecP1 as ObservableCollection<HKLibTubeOD>;
-                    cbSpecP1.DisplayMemberPath = "Name";
-                    cbSpecP1.SelectedIndex = 0;
+                    hKPortSizeP1 = GetHKPortSpecs(1);
+                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibTubeOD>;
+                    //cbSizeP1.DisplayMemberPath = "Name";
+                    cbSizeP1.SelectedIndex = 0;
                 }
                 else if (link.StartsWith("LibPipeOD"))
                 {
-                    hKPortSpecP1 = GetHKPortSpecs(1);
-                    cbSpecP1.ItemsSource = hKPortSpecP1 as ObservableCollection<HKLibPipeOD>;
-                    cbSpecP1.DisplayMemberPath = "Name";
-                    cbSpecP1.SelectedIndex = 0;
+                    hKPortSizeP1 = GetHKPortSpecs(1);
+                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibPipeOD>;
+                    //cbSizeP1.DisplayMemberPath = "Name";
+                    cbSizeP1.SelectedIndex = 0;
                 }
                 else
                 {
-                    cbSpecP1.ItemsSource = null;
+                    cbSizeP1.ItemsSource = null;
                 }
             }
             else
             {
-                cbSpecP1.ItemsSource = null;
+                cbSizeP1.ItemsSource = null;
             }
 
             if ((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1")
@@ -522,44 +568,44 @@ namespace iEngr.Hookup
                 string link = (cbTypeP2.SelectedItem as HKLibPortType)?.Link;
                 if (link.StartsWith("LibThread"))
                 {
-                    hKPortSpecP2 = GetHKPortSpecs(2);
-                    cbSpecP2.ItemsSource = hKPortSpecP2 as ObservableCollection<HKLibThread>;
-                    cbSpecP2.DisplayMemberPath = "Name";
-                    cbSpecP2.SelectedIndex = 0;
+                    hKPortSizeP2 = GetHKPortSpecs(2);
+                    cbSizeP2.ItemsSource = hKPortSizeP2 as ObservableCollection<HKLibThread>;
+                    //cbSizeP2.DisplayMemberPath = "Name";
+                    cbSizeP2.SelectedIndex = 0;
                 }
                 else if (link.StartsWith("LibTubeOD"))
                 {
-                    hKPortSpecP2 = GetHKPortSpecs(2);
-                    cbSpecP2.ItemsSource = hKPortSpecP2 as ObservableCollection<HKLibTubeOD>;
-                    cbSpecP2.DisplayMemberPath = "Name";
-                    cbSpecP2.SelectedIndex = 0;
+                    hKPortSizeP2 = GetHKPortSpecs(2);
+                    cbSizeP2.ItemsSource = hKPortSizeP2 as ObservableCollection<HKLibTubeOD>;
+                    //cbSizeP2.DisplayMemberPath = "Name";
+                    cbSizeP2.SelectedIndex = 0;
                 }
                 else if (link.StartsWith("LibPipeOD"))
                 {
-                    hKPortSpecP2 = GetHKPortSpecs(2);
-                    cbSpecP2.ItemsSource = hKPortSpecP2 as ObservableCollection<HKLibPipeOD>;
-                    cbSpecP2.DisplayMemberPath = "Name";
-                    cbSpecP2.SelectedIndex = 0;
+                    hKPortSizeP2 = GetHKPortSpecs(2);
+                    cbSizeP2.ItemsSource = hKPortSizeP2 as ObservableCollection<HKLibPipeOD>;
+                    //cbSizeP2.DisplayMemberPath = "Name";
+                    cbSizeP2.SelectedIndex = 0;
                 }
                 else
                 {
-                    cbSpecP2.ItemsSource = null;
+                    cbSizeP2.ItemsSource = null;
                 }
             }
             else
             {
-                cbSpecP2.ItemsSource = null;
+                cbSizeP2.ItemsSource = null;
             }
 
         }
-        private void cbSpecP1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void cbSizeP1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1") && cbSpecP2.ItemsSource != null)
+            if (((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1") && cbSizeP2.ItemsSource != null)
             {
-                cbSpecP2.SelectedIndex = cbSpecP1.SelectedIndex;
+                cbSizeP2.SelectedIndex = cbSizeP1.SelectedIndex;
             }
         }
-        private void cbSpecP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void cbSizeP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
