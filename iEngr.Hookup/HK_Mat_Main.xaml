@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid Margin="20" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1">
-            <!--<Grid.RowDefinitions>
+            <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -28,36 +28,32 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>-->
-             <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <ComboBox x:Name="cbMainCat"  MinWidth="300" Margin="2" IsEditable="False" SelectionChanged="cbMainCat_SelectionChanged" DisplayMemberPath="Name"/>
-                    </WrapPanel>
-                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <ComboBox x:Name="cbSubCat" MinWidth="300"  Margin="2" IsEditable="False" SelectionChanged="cbSubCat_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                </WrapPanel>
-                <WrapPanel x:Name="wpMainSpec" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <Label >主参数：</Label>
-                    <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT1_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec1" Margin="2" IsEditable="False" SelectionChanged="cbMainSpec_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                    <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT2_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec2" Margin="2" IsEditable="False" SelectionChanged="cbMainSpec_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                    <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT3_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec3" Margin="2" IsEditable="False" SelectionChanged="cbMainSpec_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                </WrapPanel>
-                <WrapPanel x:Name="wpPort1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <Label >端口一：</Label>
-                    <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbTypeP1_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                    <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                </WrapPanel>
-                <WrapPanel x:Name="wpPort2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <Label >端口二：</Label>
-                    <ComboBox x:Name="cbTypeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbTypeP2_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                    <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                </WrapPanel>
-            </StackPanel>
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="cbMainCat"  Margin="2" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  IsEditable="False" SelectionChanged="cbMainCat_SelectionChanged" DisplayMemberPath="Name"/>
+            <ComboBox x:Name="cbSubCat"  Margin="2" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" IsEditable="False" SelectionChanged="cbSubCat_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+            <Label x:Name="lbMainSpec" Grid.Row="2" Grid.Column="0" >主参数：</Label>
+            <WrapPanel Grid.Row="2" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
+                <ComboBox x:Name="cbMainSpec1" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" LostFocus="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
+                <ComboBox x:Name="cbMainSpec2" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0"></ComboBox>
+                <ComboBox x:Name="cbMainSpec3" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+            </WrapPanel>
+            <WrapPanel  Grid.Row="3" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <Label  x:Name="lbPort1" Grid.Row="3" Grid.Column="0">端口一：</Label>
+            </WrapPanel>
+            <WrapPanel Grid.Row="3" Grid.Column="1" x:Name="wpPort1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbTypeP1_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+            </WrapPanel>
+            <WrapPanel  Grid.Row="4" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <Label  x:Name="lbPort2" Grid.Row="4" Grid.Column="0">端口二：</Label>
+            </WrapPanel>
+            <WrapPanel Grid.Row="4" Grid.Column="1" x:Name="wpPort2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbTypeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbTypeP2_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+            </WrapPanel>
             <!--<Label Grid.Row="1" Grid.Column="0">材料小类：</Label>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" >
                 <ComboBox x:Name="cbSubCat" MinWidth="200"  Margin="2" IsEditable="True" SelectionChanged="cbSubCat_SelectionChanged"></ComboBox>
@@ -69,7 +65,7 @@
 
         </Grid>
         <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
-            
+
         </DataGrid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
             <Button x:Name="btnToBeChk" IsEnabled="True" Margin="5,2,2,2" Content="测试" FontSize="11" Click="btnToBeChk_Click"/>
