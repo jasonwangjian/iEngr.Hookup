@@ -156,8 +156,10 @@ namespace xlsLibHookup
                                 $"SubClass='{(result as HKLibPortType).SubClass}'," +
                                 $"NameCn='{(result as HKLibPortType).NameCn}'," +
                                 $"NameEn='{(result as HKLibPortType).NameEn}'," +
-                                $"SpecCn='{(result as HKLibPortType).SpecCn}'," +
-                                $"SpecEn='{(result as HKLibPortType).SpecEn}'," +
+                                $"PrefixCn=N'{(result as HKLibPortType).PrefixCn}'," +
+                                $"PrefixEn=N'{(result as HKLibPortType).PrefixEn}'," +
+                                $"SuffixCn=N'{(result as HKLibPortType).SuffixCn}'," +
+                                $"SuffixEn=N'{(result as HKLibPortType).SuffixEn}'," +
                                 $"Link='{(result as HKLibPortType).Link}'," +
                                 $"Remarks='{(result as HKLibPortType).Remarks}'," +
                                 $"SortNum={(result as HKLibPortType).SortNum} " +
@@ -165,14 +167,16 @@ namespace xlsLibHookup
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibPortType (ID, Class, SubClass, NameCn, NameEn, SpecCn, SpecEn, Link, Remarks, SortNum) VALUES (" +
+                            sqlString = $"INSERT INTO HK_LibPortType (ID, Class, SubClass, NameCn, NameEn, PrefixCn, PrefixEn, SuffixCn, SuffixEn, Link, Remarks, SortNum) VALUES (" +
                                 $"'{(result as HKLibPortType).ID}'," +
                                 $"'{(result as HKLibPortType).Class}'," +
                                 $"'{(result as HKLibPortType).SubClass}'," +
                                 $"'{(result as HKLibPortType).NameCn}'," +
                                 $"'{(result as HKLibPortType).NameEn}'," +
-                                $"'{(result as HKLibPortType).SpecCn}'," +
-                                $"'{(result as HKLibPortType).SpecEn}'," +
+                                $"N'{(result as HKLibPortType).PrefixCn}'," +
+                                $"N'{(result as HKLibPortType).PrefixEn}'," +
+                                $"N'{(result as HKLibPortType).SuffixCn}'," +
+                                $"N'{(result as HKLibPortType).SuffixEn}'," +
                                 $"'{(result as HKLibPortType).Link}'," +
                                 $"'{(result as HKLibPortType).Remarks}'," +
                                 $"{(result as HKLibPortType).SortNum} " +
@@ -658,8 +662,10 @@ namespace xlsLibHookup
                         SubClass = Convert.ToString(reader["SubClass"]),
                         NameCn = Convert.ToString(reader["NameCn"]),
                         NameEn = Convert.ToString(reader["NameEn"]),
-                        SpecCn = Convert.ToString(reader["SpecCn"]),
-                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        PrefixCn = Convert.ToString(reader["PrefixCn"]),
+                        PrefixEn = Convert.ToString(reader["PrefixEn"]),
+                        SuffixCn = Convert.ToString(reader["SuffixCn"]),
+                        SuffixEn = Convert.ToString(reader["SuffixEn"]),
                         Link = Convert.ToString(reader["Link"]),
                          SortNum = Convert.ToInt32(reader["SortNum"]),
                         Remarks = Convert.ToString(reader["Remarks"]),

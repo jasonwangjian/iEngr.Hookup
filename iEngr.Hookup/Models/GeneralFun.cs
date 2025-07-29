@@ -149,7 +149,7 @@ namespace iEngr.Hookup.Models
 
                 case "isnull":
                     return $"{field} IS NULL OR {field} = ''";
-                case "notnull":
+                case "nonull":
                     return $"{field} IS NOT NULL AND {field} <> ''";
                 case "like":
                     return $"{field} LIKE '%{value}%'";
