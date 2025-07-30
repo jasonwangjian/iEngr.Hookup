@@ -43,16 +43,16 @@
             <Label x:Name="lbMainSpec" Grid.Row="2" Grid.Column="0" >主参数：</Label>
             <WrapPanel Grid.Row="2" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec1" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbMainSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbMainSpec1" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec2" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbMainSpec2" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbMainSpec3" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbMainSpec3" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
             </WrapPanel>
             <WrapPanel  Grid.Row="3" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
@@ -60,28 +60,28 @@
             </WrapPanel>
             <WrapPanel Grid.Row="3" Grid.Column="1" x:Name="wpPort1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                 <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
             </WrapPanel>
             <WrapPanel  Grid.Row="4" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
                 <Label  x:Name="lbPort2" Grid.Row="4" Grid.Column="0">端口二：</Label>
             </WrapPanel>
             <WrapPanel Grid.Row="4" Grid.Column="1" x:Name="wpPort2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                 <ComboBox x:Name="cbTypeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
-                <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
             </WrapPanel>
             <Label x:Name="lbAuxSpec" Grid.Row="5" Grid.Column="0" >副参数：</Label>
             <WrapPanel Grid.Row="5" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbAuxSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbAuxSpec1" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" LostFocus="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpec1" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbAuxSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbAuxSpec2" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" LostFocus="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpec2" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                    <ComboBox x:Name="cbAuxSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbMainSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
-                    <ComboBox x:Name="cbAuxSpec3" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" LostFocus="cbMainSpec_LostFocus" DisplayMemberPath="Name"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent"></ComboBox>
+                    <ComboBox x:Name="cbAuxSpec3" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
                 </StackPanel>
             </WrapPanel>
             <Label x:Name="lbMoreSpecCn" Grid.Row="6" Grid.Column="0" >描述(中):</Label>

@@ -30,13 +30,15 @@ namespace iEngr.Hookup
     {
         public static int intLan;
         private static OdbcConnection conn;
-        private ObservableCollection<HKMatMainCat> hKMatMainCats;
-        private ObservableCollection<HKLibThread> hKLibThreads;
+        private ObservableCollection<HKMatGenLib> result = new ObservableCollection<HKMatGenLib>();
+
+        //private ObservableCollection<HKMatMainCat> hKMatMainCats;
+        //private ObservableCollection<HKLibThread> hKLibThreads;
         private ObservableCollection<HKMatSubCat> hKMatSubCats = new ObservableCollection<HKMatSubCat>
             {
                 new HKMatSubCat
                 {
-                ID = "%",
+                ID = string.Empty,
                 SpecCn = "所有小类",
                 SpecEn = "All Sub Categories"
                 }
@@ -45,7 +47,7 @@ namespace iEngr.Hookup
             {
                 new HKLibPortType
                 {
-                ID = "%",
+                ID =  string.Empty,
                 NameCn = "所有连接类型",
                 NameEn = "All Connections"
                 }
@@ -54,39 +56,33 @@ namespace iEngr.Hookup
             {
                 new HKLibPortType
                 {
-                ID = "%",
+                ID =  string.Empty,
                 NameCn = "所有连接类型",
                 NameEn = "All Connections"
                 }
             };
         private object hKPortSizeP1, hKPortSizeP2;
-        //private ObservableCollection<HKLibThread> hKPortSizeP2 = new ObservableCollection<HKLibThread>
-        //    {
-        //        new HKLibThread
-        //        {
-        //        ID = "%",
-        //        SpecCn = "所有规格",
-        //        SpecEn = "All Specification"
-        //        }
-        //    };
         private string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         private Dictionary<string, ObservableCollection<string>> dicNoLinkSpecStr = new Dictionary<string, ObservableCollection<string>>();
         private Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
-        private string strTypeAll, strTypeP1, strTypeP2;
+        private string strTypeP1All, strTypeP2All, strTypeP1, strTypeP2, strCondP1, strCondP2, strCondSubCat;
         private string strSpecMainAll, strSpecMain, strSpecAuxAll, strSpecAux;
+        private List<string> lstMainSpec = new List<string>();
+        private List<string> lstAuxSpec = new List<string>();
         public HK_Mat_Main()
         {
             InitializeComponent();
             intLan = 0; // 0: 中文； 其它为英文
             conn = GetConnection();
-            hKMatMainCats = GetHKMatMainCats();
-            cbMainCat.ItemsSource = hKMatMainCats;
+            dgResult.ItemsSource = result;
+            //hKMatMainCats = GetHKMatMainCats();
+            cbMainCat.ItemsSource = GetHKMatMainCats();
             cbSubCat.ItemsSource = hKMatSubCats;
             cbMainCat.SelectedIndex = 0;
 
 
-            hKLibThreads = GetLibThread();
-            dgResult.ItemsSource = hKLibThreads;
+            //hKLibThreads = GetLibThread();
+            //dgResult.ItemsSource = hKLibThreads;
         }
 
 
@@ -119,7 +115,7 @@ namespace iEngr.Hookup
             {
                 new HKMatMainCat
                 {
-                ID = "%",
+                ID =  "%",
                 NameCn = "所有大类",
                 NameEn = "All Main Categories"
                 }
@@ -156,24 +152,16 @@ namespace iEngr.Hookup
         }
         private ObservableCollection<HKMatSubCat> GetHKMatSubCats(HKMatMainCat mainCat)
         {
-            //ObservableCollection<HKMatSubCat> subCats = new ObservableCollection<HKMatSubCat>
-            //{
-            //    new HKMatSubCat
-            //    {
-            //    ID = "%",
-            //    NameCn = mainCat.ID=="%"? "所有小类" : "所有" + mainCat.Name,
-            //    NameEn = mainCat.ID=="%"? "All Sub Categories" : "All " + mainCat.Name
-            //    }
-            //};
             ObservableCollection<HKMatSubCat> subCats = hKMatSubCats;
-            strTypeAll = "";
-            strSpecMainAll = "";
-            strSpecAuxAll = "";
+            strTypeP1All = string.Empty;
+            strTypeP2All = string.Empty;
+            strSpecMainAll = string.Empty;
+            strSpecAuxAll = string.Empty;
             subCats.Clear();
             subCats.Add(
                 new HKMatSubCat
                 {
-                    ID = "%",
+                    ID = string.Empty,
                     SpecCn = mainCat.ID == "%" ? "所有小类" : "所有" + mainCat.Name,
                     SpecEn = mainCat.ID == "%" ? "All Sub Categories" : "All " + mainCat.Name
                 });
@@ -200,8 +188,8 @@ namespace iEngr.Hookup
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"])?.Trim(),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"])?.Trim()
                     };
-                    strTypeAll = strTypeAll.Contains(subCat.TypeP1 + ",")? strTypeAll : strTypeAll + subCat.TypeP1 + ",";
-                    strTypeAll = strTypeAll.Contains(subCat.TypeP2 + ",") ? strTypeAll : strTypeAll + subCat.TypeP2 + ",";
+                    strTypeP1All = strTypeP1All.Contains(subCat.TypeP1 + ",") ? strTypeP1All : strTypeP1All + subCat.TypeP1 + ",";
+                    strTypeP2All = strTypeP2All.Contains(subCat.TypeP2 + ",") ? strTypeP2All : strTypeP2All + subCat.TypeP2 + ",";
                     strSpecMainAll = strSpecMainAll.Contains(subCat.TechSpecMain + ",") ? strSpecMainAll : strSpecMainAll + subCat.TechSpecMain + ",";
                     strSpecAuxAll = strSpecAuxAll.Contains(subCat.TechSpecAux + ",") ? strSpecAuxAll : strSpecAuxAll + subCat.TechSpecAux + ",";
                     subCats.Add(subCat);
@@ -223,7 +211,7 @@ namespace iEngr.Hookup
             {
                 new HKLibSpecDic
                 {
-                    ID = "%",
+                    ID =  string.Empty,
                     NameCn = "选择连接类型",
                     NameEn = "Select Conn.Type"
                 }
@@ -362,7 +350,7 @@ namespace iEngr.Hookup
             HKLibPortType typePS = cbTypeP1.SelectedItem as HKLibPortType;
             if (intPort == 2)
                 typePS = cbTypeP2.SelectedItem as HKLibPortType;
-            if ((typePS != null) && (typePS.ID != "%"))
+            if ((typePS != null) && (typePS.ID != string.Empty))
             {
                 if (typePS.Link.StartsWith("LibThread"))
                 {
@@ -370,7 +358,7 @@ namespace iEngr.Hookup
                     {
                         new HKLibThread
                         {
-                            ID="%",
+                            ID= string.Empty,
                             SpecCn = "选择螺纹规格",
                             SpecEn = "All Thread Typies"
                         }
@@ -410,7 +398,7 @@ namespace iEngr.Hookup
                     {
                         new HKLibTubeOD
                         {
-                            ID="%",
+                            ID= string.Empty,
                             SpecCn = "选择Tube管外径",
                             SpecEn = "All Tube O.D."
                         }
@@ -450,7 +438,7 @@ namespace iEngr.Hookup
                     {
                         new HKLibPipeOD
                         {
-                            ID="%",
+                            ID= string.Empty,
                             NameCn = "选择公称直径",
                             NameEn = "All DN/NPS"
                         }
@@ -521,15 +509,15 @@ namespace iEngr.Hookup
             HKMatSubCat selectedItem = cbSubCat.SelectedItem as HKMatSubCat;
             if (selectedItem == null)
             {
-                strTypeP1 = "";
-                strTypeP2 = "";
-                strSpecMain = "";
-                strSpecAux = "";
+                strTypeP1 = string.Empty;
+                strTypeP2 = string.Empty;
+                strSpecMain = string.Empty;
+                strSpecAux = string.Empty;
             }
-            else if ((cbSubCat.SelectedItem as HKMatSubCat).ID == "%")
+            else if ((cbSubCat.SelectedItem as HKMatSubCat).ID == string.Empty)
             {
-                strTypeP1 = strTypeAll;
-                strTypeP2 = strTypeAll;
+                strTypeP1 = strTypeP1All;
+                strTypeP2 = strTypeP2All;
                 strSpecMain = strSpecMainAll;
                 strSpecAux = strSpecAuxAll;
             }
@@ -537,8 +525,16 @@ namespace iEngr.Hookup
             {
                 strTypeP1 = selectedItem.TypeP1?.Trim();
                 strTypeP2 = selectedItem.TypeP2?.Trim();
+                strTypeP1All = strTypeP1;
+                strTypeP2All = strTypeP2;
+
                 strSpecMain = selectedItem.TechSpecMain?.Trim();
                 strSpecAux = selectedItem.TechSpecAux?.Trim();
+                strCondP1 = $"mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1All, ',')}";
+                strCondP2 = $"mgl.TypeP2 in {GeneralFun.ConvertToStringScope(strTypeP2All, ',')}";
+                strCondSubCat = $"mgl.SubCatID in {GeneralFun.ConvertToStringScope(selectedItem.ID, ',')}";
+
+
 
             }
 
@@ -781,7 +777,7 @@ namespace iEngr.Hookup
         //}
 
  
-    private void cbMainSpecT_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void cbSpecT_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
             if (selectedItem == null) return;
@@ -833,24 +829,70 @@ namespace iEngr.Hookup
 
          private void cbMainSpec_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            lstMainSpec.Clear();
+            if ((cbMainSpecT1.SelectedItem as HKLibSpecDic) != null)
+                lstMainSpec.Add($"{(cbMainSpecT1.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec1.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbMainSpecT2.SelectedItem as HKLibSpecDic) != null)
+                lstMainSpec.Add($"{(cbMainSpecT2.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec2.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbMainSpecT3.SelectedItem as HKLibSpecDic) != null)
+                lstMainSpec.Add($"{(cbMainSpecT3.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec3.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbMainSpec1.SelectedItem as HKLibGenOption) != null && (cbMainSpec1.SelectedItem as HKLibGenOption).ID != string.Empty
+               || (cbMainSpec2.SelectedItem as HKLibGenOption) != null && (cbMainSpec2.SelectedItem as HKLibGenOption).ID != string.Empty
+               || (cbMainSpec3.SelectedItem as HKLibGenOption) != null && (cbMainSpec3.SelectedItem as HKLibGenOption).ID != string.Empty)
+                UpdateQueryResult();
+        }
+        private void cbAuxSpec_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lstAuxSpec.Clear();
+            if ((cbAuxSpecT1.SelectedItem as HKLibSpecDic) != null)
+                lstAuxSpec.Add($"{(cbAuxSpecT1.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec1.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbAuxSpecT2.SelectedItem as HKLibSpecDic) != null)
+                lstAuxSpec.Add($"{(cbAuxSpecT2.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec2.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbAuxSpecT3.SelectedItem as HKLibSpecDic) != null)
+                lstAuxSpec.Add($"{(cbAuxSpecT3.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec3.SelectedItem as HKLibGenOption)?.ID}");
+            if ((cbAuxSpec1.SelectedItem as HKLibGenOption) != null && (cbAuxSpec1.SelectedItem as HKLibGenOption).ID != string.Empty
+                || (cbAuxSpec2.SelectedItem as HKLibGenOption) != null && (cbAuxSpec2.SelectedItem as HKLibGenOption).ID != string.Empty
+                || (cbAuxSpec3.SelectedItem as HKLibGenOption) != null && (cbAuxSpec3.SelectedItem as HKLibGenOption).ID != string.Empty)
+                UpdateQueryResult();
+                
         }
 
         private void cbType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
-            if (selectedItem == null || selectedItem.ID == "%") return;
+            if (selectedItem == null) return;
+
             if ((sender as ComboBox).Name == "cbTypeP1")
             {
+
+                strTypeP1 = selectedItem.ID;
+                if (string.IsNullOrEmpty(strTypeP1) || strTypeP1 == "NA" || strTypeP1 == "IS" || strTypeP1 == "NA," || strTypeP1 == "IS,")
+                    strTypeP1 = string.Empty;
+                if (selectedItem.ID == string.Empty)
+                    strTypeP1 = strTypeP1All;
+                if (portDef.Contains((cbSubCat.SelectedItem as HKMatSubCat).TypeP2))
+                {
+                    cbTypeP2.ItemsSource = cbTypeP1.ItemsSource;
+                    cbTypeP2.SelectedIndex = cbTypeP1.SelectedIndex;
+                    //cbSizeP2.ItemsSource = cbSizeP1.ItemsSource;
+                    //cbSizeP2.SelectedIndex = cbSizeP1.SelectedIndex;
+                }
                 cbSizeP1.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbSizeP1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbSizeP1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
+                cbSizeP1.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbSizeP1.IsEditable = selectedItem.Class != null && selectedItem.Class?.ToUpper() != "LINK";
             }
             else if ((sender as ComboBox).Name == "cbTypeP2")
             {
+                strTypeP2 = selectedItem.ID;
+                if (string.IsNullOrEmpty(strTypeP2) || strTypeP2 == "NA" || strTypeP2 == "IS" || strTypeP2 == "NA," || strTypeP2 == "IS,")
+                    strTypeP2 = string.Empty;
+                else if (portDef.Contains(strTypeP2))
+                    strTypeP2 = strTypeP1;
+                if (selectedItem.ID == string.Empty)
+                    strTypeP2 = strTypeP2All;
                 cbSizeP2.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbSizeP2.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbSizeP2.IsEditable = selectedItem.Class.ToUpper() != "LINK";
+                cbSizeP2.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbSizeP2.IsEditable = selectedItem.Class != null && selectedItem.Class?.ToUpper() != "LINK";
             }
 
             //if (cbTypeP1.SelectedItem != null && cbTypeP1.SelectedIndex != 0)
@@ -931,7 +973,7 @@ namespace iEngr.Hookup
         }
 
 
-        private void cbMainSpec_KeyDown(object sender, KeyEventArgs e)
+        private void cbSpec_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -942,6 +984,16 @@ namespace iEngr.Hookup
                     key = (cbMainSpecT2.SelectedItem as HKLibSpecDic).ID;
                 else if ((sender as ComboBox).Name == "cbMainSpec3")
                     key = (cbMainSpecT3.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbAuxSpec1")
+                    key = (cbAuxSpecT1.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbAuxSpec2")
+                    key = (cbAuxSpecT2.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbAuxSpec3")
+                    key = (cbAuxSpecT3.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbSizeP1")
+                    key = (cbTypeP1.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbSizeP2")
+                    key = (cbTypeP2.SelectedItem as HKLibSpecDic).ID;
                 if (!dicNoLinkSpecStr[key].Contains(strSpec))
                 {
                     HKLibGenOption newSpec = new HKLibGenOption
@@ -1003,13 +1055,42 @@ namespace iEngr.Hookup
 
         private void cbSizeP1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1") && cbSizeP2.ItemsSource != null)
+            if (((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || 
+                (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1") && cbSizeP2.ItemsSource != null)
             {
                 cbSizeP2.SelectedIndex = cbSizeP1.SelectedIndex;
             }
+            if (cbSizeP1.SelectedIndex > 0)
+            {
+                strCondP1 = $"mgl.SizeP1 = '{(cbSizeP1.SelectedItem as HKLibGenOption).ID}'";
+                if (!string.IsNullOrEmpty(strTypeP1))
+                     strCondP1 = $"{strCondP1} AND mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1,',')}";
+               UpdateQueryResult();
+            }
+            else if (cbSizeP1.SelectedIndex == 0)
+            {
+                strCondP1 = $"mgl.SizeP1 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP1)) <> ''";
+                if (!string.IsNullOrEmpty(strTypeP1))
+                    strCondP1 = $"{strCondP1} AND mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1, ',')}";
+                UpdateQueryResult();
+            }
+            else
+                strCondP1 =string.Empty ;
         }
         private void cbSizeP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (cbSizeP2.SelectedIndex > 0)
+            {
+                strCondP2 = $"mgl.SizeP2 = '{(cbSizeP2.SelectedItem as HKLibGenOption).ID}'";
+                UpdateQueryResult();
+            }
+            else if (cbSizeP2.SelectedIndex == 0)
+            {
+                strCondP2 = $"mgl.SizeP2 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP2)) <> ''";
+                UpdateQueryResult();
+            }
+            else
+                strCondP2 = string.Empty;
 
         }
 
@@ -1054,7 +1135,7 @@ namespace iEngr.Hookup
 
         private ObservableCollection<HKLibGenOption> GetGeneralSpecOptions(HKLibSpecDic libSpecDic)
         {
-            if (libSpecDic == null || libSpecDic.ID == "%") return null;
+            if (libSpecDic == null || libSpecDic.ID == string.Empty) return null;
             ObservableCollection<HKLibGenOption> hKGeneralSpecs = new ObservableCollection<HKLibGenOption>();
             HKLibGenOption hkGeneralSpec = new HKLibGenOption();
             string prefix = (HK_Mat_Main.intLan == 0) ? libSpecDic.PrefixCn : libSpecDic.PrefixEn;
@@ -1074,7 +1155,7 @@ namespace iEngr.Hookup
                         {
                             hkGeneralSpec = new HKLibGenOption
                             {
-                                ID = "%",
+                                ID = string.Empty,
                                 NameCn = "选择公称直径",
                                 NameEn = "All DN/NPS"
                             };
@@ -1124,7 +1205,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择槽钢规格",
                                     NameEn = "All Channel Steels"
                                 };
@@ -1146,7 +1227,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择工字钢规格",
                                     NameEn = "All I-Beams"
                                 };
@@ -1174,7 +1255,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择公称压力",
                                     NameEn = "All PN/CLS"
                                 };
@@ -1183,7 +1264,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择电缆索头",
                                     NameEn = "All Cable Glands"
                                 };
@@ -1192,7 +1273,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择Tube管外径",
                                     NameEn = "All Tube O.D."
                                 };
@@ -1201,7 +1282,7 @@ namespace iEngr.Hookup
                             {
                                 hkGeneralSpec = new HKLibGenOption
                                 {
-                                    ID = "%",
+                                    ID = string.Empty,
                                     NameCn = "选择螺纹规格",
                                     NameEn = "All Thread Typies"
                                 };
@@ -1224,7 +1305,7 @@ namespace iEngr.Hookup
                         {
                             hkGeneralSpec = new HKLibGenOption
                             {
-                                ID = "%",
+                                ID = string.Empty,
                                 NameCn = "选择相关规格",
                                 NameEn = "All Specifications"
                             };
@@ -1264,6 +1345,66 @@ namespace iEngr.Hookup
             return hKGeneralSpecs;
         }
 
+        private void UpdateQueryResult()
+        {
+            // 构建 SQL 查询语句
+            //string query = GeneralFun.ParseLinkExp(libSpecDic.Link);
+            result.Clear();
+            string conditions = GetConditionExp(new List<string> 
+            {
+                strCondSubCat,
+                strCondP1,
+                strCondP2,
+                GetSpecExp("mgl.TechSpecMain", lstMainSpec),
+                GetSpecExp("mgl.TechSpecAux", lstAuxSpec)
+            });
+            string query = $"select * from HK_MatGenLib mgl WhERE {conditions}";
+            try
+            {
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    HKMatGenLib item = new HKMatGenLib
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
+                        TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                    };
+                    result.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+
+        private string GetConditionExp(List<string> input)
+        {
+            if (input == null || !input.Any())
+                return string.Empty;
+
+            return string.Join(" AND ", input.Where(s => !string.IsNullOrEmpty(s)));
+        }
+
+        private string GetSpecExp(string field, List<string> input)
+        {
+            if (input == null || !input.Any())
+                return string.Empty;
+
+            var conditions = input
+                .Where(s => !string.IsNullOrEmpty(s))
+                .Select(s => $"{field} LIKE '%{s}%'");
+
+            return string.Join(" AND ", conditions);
+        }
         private ObservableCollection<HKLibThread> GetLibThread()
         {
             ObservableCollection<HKLibThread> libThreads = new ObservableCollection<HKLibThread>();
