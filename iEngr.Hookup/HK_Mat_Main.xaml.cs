@@ -72,8 +72,8 @@ namespace iEngr.Hookup
         private string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         private Dictionary<string, ObservableCollection<string>> dicNoLinkSpecStr = new Dictionary<string, ObservableCollection<string>>();
         private Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
-        private string strTypeP1, strTypeP1S, strSizeP1S;
-        private string strTypeP2, strTypeP2S, strSizeP2S;
+        private string strTypeAll, strTypeP1, strTypeP2;
+        private string strSpecMainAll, strSpecMain, strSpecAuxAll, strSpecAux;
         public HK_Mat_Main()
         {
             InitializeComponent();
@@ -166,7 +166,9 @@ namespace iEngr.Hookup
             //    }
             //};
             ObservableCollection<HKMatSubCat> subCats = hKMatSubCats;
-            strTypeP1 = "";
+            strTypeAll = "";
+            strSpecMainAll = "";
+            strSpecAuxAll = "";
             subCats.Clear();
             subCats.Add(
                 new HKMatSubCat
@@ -193,13 +195,15 @@ namespace iEngr.Hookup
                         SpecCn = Convert.ToString(reader["SpecCn"]),
                         SpecEn = Convert.ToString(reader["SpecEn"]),
                         Remarks = Convert.ToString(reader["Remarks"]),
-                        TypeP1 = Convert.ToString(reader["TypeP1"]),
-                        TypeP2 = Convert.ToString(reader["TypeP2"]),
-                        TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
-                        TechSpecAux = Convert.ToString(reader["TechSpecAux"])
+                        TypeP1 = Convert.ToString(reader["TypeP1"])?.Trim(),
+                        TypeP2 = Convert.ToString(reader["TypeP2"])?.Trim(),
+                        TechSpecMain = Convert.ToString(reader["TechSpecMain"])?.Trim(),
+                        TechSpecAux = Convert.ToString(reader["TechSpecAux"])?.Trim()
                     };
-                    strTypeP1 += Convert.ToString(reader["TypeP1"]);
-                    strTypeP1 += Convert.ToString(reader["TypeP2"]);
+                    strTypeAll = strTypeAll.Contains(subCat.TypeP1 + ",")? strTypeAll : strTypeAll + subCat.TypeP1 + ",";
+                    strTypeAll = strTypeAll.Contains(subCat.TypeP2 + ",") ? strTypeAll : strTypeAll + subCat.TypeP2 + ",";
+                    strSpecMainAll = strSpecMainAll.Contains(subCat.TechSpecMain + ",") ? strSpecMainAll : strSpecMainAll + subCat.TechSpecMain + ",";
+                    strSpecAuxAll = strSpecAuxAll.Contains(subCat.TechSpecAux + ",") ? strSpecAuxAll : strSpecAuxAll + subCat.TechSpecAux + ",";
                     subCats.Add(subCat);
                 }
 
@@ -211,21 +215,19 @@ namespace iEngr.Hookup
                 MessageBox.Show($"Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
             }
-            strTypeP2 = strTypeP1;
-            return subCats;
+             return subCats;
         }
-        private ObservableCollection<HKLibPortType> GetHKPortTypes(string strTypes, int intPort)
+        private ObservableCollection<HKLibSpecDic> GetHKPortTypes(string strTypes)
         {
-            ObservableCollection<HKLibPortType> portTypes = (intPort == 1) ? hKPortTypesP1 : hKPortTypesP2;
-            portTypes.Clear();
-            portTypes.Add(
-                new HKLibPortType
+            ObservableCollection<HKLibSpecDic> portTypes = new ObservableCollection<HKLibSpecDic>
+            {
+                new HKLibSpecDic
                 {
                     ID = "%",
                     NameCn = "选择连接类型",
                     NameEn = "Select Conn.Type"
                 }
-            );
+            };
 
             // 构建 SQL 查询语句
             string query = "select * from HK_LibPortType where SortNum < 101 and ID in " + GeneralFun.ConvertToStringScope(strTypes, ',') + " order by SortNum";
@@ -237,7 +239,7 @@ namespace iEngr.Hookup
                 OdbcDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    HKLibPortType portType = new HKLibPortType
+                    HKLibSpecDic portType = new HKLibSpecDic
                     {
                         ID = Convert.ToString(reader["ID"]),
                         NameCn = Convert.ToString(reader["NameCn"]),
@@ -246,55 +248,15 @@ namespace iEngr.Hookup
                         PrefixEn = Convert.ToString(reader["PrefixEn"]),
                         SuffixCn = Convert.ToString(reader["SuffixCn"]),
                         SuffixEn = Convert.ToString(reader["SuffixEn"]),
-                        Remarks = Convert.ToString(reader["Remarks"]),
+                        Class = string.IsNullOrEmpty(Convert.ToString(reader["Link"]))?
+                                Convert.ToString(reader["Remarks"]) :
+                                "Link",
                         Link = Convert.ToString(reader["Link"])
                     };
                     portTypes.Add(portType);
                 }
 
                 reader.Close();
-                if (portTypes.Count == 1 || portTypes.Count == 2 && (portTypes.ElementAt(1).ID == "NA" || portTypes.ElementAt(1).ID == "IS"))
-                {
-                    portTypes.Clear();
-                    portTypes.Add(
-                        new HKLibPortType
-                        {
-                            ID = "%",
-                            NameCn = "无",
-                            NameEn = "NA"
-                        }
-                    );
-                    if (intPort == 1)
-                    {
-                        lbPort1.Visibility = Visibility.Collapsed;
-                        wpPort1.Visibility = Visibility.Collapsed;
-
-                    }
-                    else if (intPort == 2)
-                    {
-                        lbPort2.Visibility = Visibility.Collapsed;
-                        wpPort2.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    if (intPort == 1)
-                    {
-                        lbPort1.Visibility = Visibility.Visible;
-                        wpPort1.Visibility = Visibility.Visible;
-
-                    }
-                    else if (intPort == 2)
-                    {
-                        lbPort2.Visibility = Visibility.Visible;
-                        wpPort2.Visibility = Visibility.Visible;
-                    }
-                }
-
-                //if (portTypes.Count == 2 && portTypes.ElementAt(1).ID == "IS")
-                //{
-                //    portTypes.RemoveAt(0);
-                //}
             }
             catch (Exception ex)
             {
@@ -304,6 +266,97 @@ namespace iEngr.Hookup
             }
             return portTypes;
         }
+
+        //private ObservableCollection<HKLibPortType> GetHKPortTypes(string strTypes, int intPort)
+        //{
+        //    ObservableCollection<HKLibPortType> portTypes = (intPort == 1) ? hKPortTypesP1 : hKPortTypesP2;
+        //    portTypes.Clear();
+        //    portTypes.Add(
+        //        new HKLibPortType
+        //        {
+        //            ID = "%",
+        //            NameCn = "选择连接类型",
+        //            NameEn = "Select Conn.Type"
+        //        }
+        //    );
+
+        //    // 构建 SQL 查询语句
+        //    string query = "select * from HK_LibPortType where SortNum < 101 and ID in " + GeneralFun.ConvertToStringScope(strTypes, ',') + " order by SortNum";
+        //    try
+        //    {
+        //        if (conn == null || conn.State != ConnectionState.Open)
+        //            conn = GetConnection();
+        //        OdbcCommand command = new OdbcCommand(query, conn);
+        //        OdbcDataReader reader = command.ExecuteReader();
+        //        while (reader.Read())
+        //        {
+        //            HKLibPortType portType = new HKLibPortType
+        //            {
+        //                ID = Convert.ToString(reader["ID"]),
+        //                NameCn = Convert.ToString(reader["NameCn"]),
+        //                NameEn = Convert.ToString(reader["NameEn"]),
+        //                PrefixCn = Convert.ToString(reader["PrefixCn"]),
+        //                PrefixEn = Convert.ToString(reader["PrefixEn"]),
+        //                SuffixCn = Convert.ToString(reader["SuffixCn"]),
+        //                SuffixEn = Convert.ToString(reader["SuffixEn"]),
+        //                Remarks = Convert.ToString(reader["Remarks"]),
+        //                Link = Convert.ToString(reader["Link"])
+        //            };
+        //            portTypes.Add(portType);
+        //        }
+
+        //        reader.Close();
+        //        if (portTypes.Count == 1 || portTypes.Count == 2 && (portTypes.ElementAt(1).ID == "NA" || portTypes.ElementAt(1).ID == "IS"))
+        //        {
+        //            portTypes.Clear();
+        //            portTypes.Add(
+        //                new HKLibPortType
+        //                {
+        //                    ID = "%",
+        //                    NameCn = "无",
+        //                    NameEn = "NA"
+        //                }
+        //            );
+        //            if (intPort == 1)
+        //            {
+        //                lbPort1.Visibility = Visibility.Collapsed;
+        //                wpPort1.Visibility = Visibility.Collapsed;
+
+        //            }
+        //            else if (intPort == 2)
+        //            {
+        //                lbPort2.Visibility = Visibility.Collapsed;
+        //                wpPort2.Visibility = Visibility.Collapsed;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (intPort == 1)
+        //            {
+        //                lbPort1.Visibility = Visibility.Visible;
+        //                wpPort1.Visibility = Visibility.Visible;
+
+        //            }
+        //            else if (intPort == 2)
+        //            {
+        //                lbPort2.Visibility = Visibility.Visible;
+        //                wpPort2.Visibility = Visibility.Visible;
+        //            }
+        //        }
+
+        //        //if (portTypes.Count == 2 && portTypes.ElementAt(1).ID == "IS")
+        //        //{
+        //        //    portTypes.RemoveAt(0);
+        //        //}
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // 处理异常
+        //        MessageBox.Show($"Error: {ex.Message}");
+        //        // 可以选择返回空列表或者其他适当的处理
+        //    }
+        //    return portTypes;
+        //}
         private Object GetHKPortSpecs(int intPort)
         {
             HKLibPortType typePS = cbTypeP1.SelectedItem as HKLibPortType;
@@ -465,10 +518,35 @@ namespace iEngr.Hookup
 
         private void cbSubCat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            HKMatSubCat selectedItem = cbSubCat.SelectedItem as HKMatSubCat;
+            if (selectedItem == null)
+            {
+                strTypeP1 = "";
+                strTypeP2 = "";
+                strSpecMain = "";
+                strSpecAux = "";
+            }
+            else if ((cbSubCat.SelectedItem as HKMatSubCat).ID == "%")
+            {
+                strTypeP1 = strTypeAll;
+                strTypeP2 = strTypeAll;
+                strSpecMain = strSpecMainAll;
+                strSpecAux = strSpecAuxAll;
+            }
+            else
+            {
+                strTypeP1 = selectedItem.TypeP1?.Trim();
+                strTypeP2 = selectedItem.TypeP2?.Trim();
+                strSpecMain = selectedItem.TechSpecMain?.Trim();
+                strSpecAux = selectedItem.TechSpecAux?.Trim();
+
+            }
+
             // 处理主参数 TechSpecMain
-            var lstSpecMain = (cbSubCat.SelectedItem as HKMatSubCat)?.TechSpecMain?.Split(',')
+            var lstSpecMain = strSpecMain.Split(',')
                          .Select(item => item.Trim())
                          .Where(item => !string.IsNullOrWhiteSpace(item))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
                          .ToList();
             if (lstSpecMain?.Count() > 0)
             {
@@ -495,6 +573,8 @@ namespace iEngr.Hookup
                         }
                         else
                         {
+                            cbMainSpecT3.ItemsSource = null;
+                            cbMainSpec3.ItemsSource = null;
                             cbMainSpecT3.Visibility = Visibility.Collapsed;
                             cbMainSpec3.Visibility = Visibility.Collapsed;
                         }
@@ -502,6 +582,10 @@ namespace iEngr.Hookup
                     }
                     else
                     {
+                        cbMainSpecT2.ItemsSource = null;
+                        cbMainSpec2.ItemsSource = null;
+                        cbMainSpecT3.ItemsSource = null;
+                        cbMainSpec3.ItemsSource = null;
                         cbMainSpecT2.Visibility = Visibility.Collapsed;
                         cbMainSpec2.Visibility = Visibility.Collapsed;
                         cbMainSpecT3.Visibility = Visibility.Collapsed;
@@ -510,6 +594,12 @@ namespace iEngr.Hookup
                 }
                 else
                 {
+                    cbMainSpecT1.ItemsSource = null;
+                    cbMainSpec1.ItemsSource = null;
+                    cbMainSpecT2.ItemsSource = null;
+                    cbMainSpec2.ItemsSource = null;
+                    cbMainSpecT3.ItemsSource = null;
+                    cbMainSpec3.ItemsSource = null;
                     cbMainSpecT1.Visibility = Visibility.Collapsed;
                     cbMainSpec1.Visibility = Visibility.Collapsed;
                     cbMainSpecT2.Visibility = Visibility.Collapsed;
@@ -522,6 +612,12 @@ namespace iEngr.Hookup
             }
             else
             {
+                cbMainSpecT1.ItemsSource = null;
+                cbMainSpec1.ItemsSource = null;
+                cbMainSpecT2.ItemsSource = null;
+                cbMainSpec2.ItemsSource = null;
+                cbMainSpecT3.ItemsSource = null;
+                cbMainSpec3.ItemsSource = null;
                 cbMainSpecT1.Visibility = Visibility.Collapsed;
                 cbMainSpec1.Visibility = Visibility.Collapsed;
                 cbMainSpecT2.Visibility = Visibility.Collapsed;
@@ -532,9 +628,10 @@ namespace iEngr.Hookup
             }
 
             // 处理主参数 TechSpecAux
-            var lstSpecAux = (cbSubCat.SelectedItem as HKMatSubCat)?.TechSpecAux?.Split(',')
+            var lstSpecAux = strSpecAux.Split(',')
                          .Select(item => item.Trim())
                          .Where(item => !string.IsNullOrWhiteSpace(item))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
                          .ToList();
             if (lstSpecAux?.Count() > 0)
             {
@@ -561,6 +658,8 @@ namespace iEngr.Hookup
                         }
                         else
                         {
+                            cbAuxSpecT3.ItemsSource = null;
+                            cbAuxSpec3.ItemsSource = null;
                             cbAuxSpecT3.Visibility = Visibility.Collapsed;
                             cbAuxSpec3.Visibility = Visibility.Collapsed;
                         }
@@ -568,6 +667,10 @@ namespace iEngr.Hookup
                     }
                     else
                     {
+                        cbAuxSpecT2.ItemsSource = null;
+                        cbAuxSpec2.ItemsSource = null;
+                        cbAuxSpecT3.ItemsSource = null;
+                        cbAuxSpec3.ItemsSource = null;
                         cbAuxSpecT2.Visibility = Visibility.Collapsed;
                         cbAuxSpec2.Visibility = Visibility.Collapsed;
                         cbAuxSpecT3.Visibility = Visibility.Collapsed;
@@ -576,6 +679,12 @@ namespace iEngr.Hookup
                 }
                 else
                 {
+                    cbAuxSpecT1.ItemsSource = null;
+                    cbAuxSpec1.ItemsSource = null;
+                    cbAuxSpecT2.ItemsSource = null;
+                    cbAuxSpec2.ItemsSource = null;
+                    cbAuxSpecT3.ItemsSource = null;
+                    cbAuxSpec3.ItemsSource = null;
                     cbAuxSpecT1.Visibility = Visibility.Collapsed;
                     cbAuxSpec1.Visibility = Visibility.Collapsed;
                     cbAuxSpecT2.Visibility = Visibility.Collapsed;
@@ -588,6 +697,12 @@ namespace iEngr.Hookup
             }
             else
             {
+                cbAuxSpecT1.ItemsSource = null;
+                cbAuxSpec1.ItemsSource = null;
+                cbAuxSpecT2.ItemsSource = null;
+                cbAuxSpec2.ItemsSource = null;
+                cbAuxSpecT3.ItemsSource = null;
+                cbAuxSpec3.ItemsSource = null;
                 cbAuxSpecT1.Visibility = Visibility.Collapsed;
                 cbAuxSpec1.Visibility = Visibility.Collapsed;
                 cbAuxSpecT2.Visibility = Visibility.Collapsed;
@@ -596,26 +711,37 @@ namespace iEngr.Hookup
                 cbAuxSpec3.Visibility = Visibility.Collapsed;
                 lbAuxSpec.Visibility = Visibility.Collapsed;
             }
-            
+
             // 处理端口一、二
-            if (cbSubCat.SelectedItem != null && cbSubCat.SelectedIndex != 0)
+            if (string.IsNullOrEmpty(strTypeP1) || strTypeP1 == "NA" || strTypeP1 == "IS" || strTypeP1 == "NA," || strTypeP1 == "IS,")
             {
-                strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
-                strTypeP2 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2;
+                cbTypeP1.ItemsSource = null;
+                lbPort1.Visibility = Visibility.Collapsed;
+                wpPort1.Visibility = Visibility.Collapsed;
             }
-            hKPortTypesP1 = GetHKPortTypes(strTypeP1, 1);
-            cbTypeP1.ItemsSource = hKPortTypesP1;
-            if (portDef.Contains(strTypeP2))
-                hKPortTypesP2 = GetHKPortTypes(strTypeP1, 2);
             else
-                hKPortTypesP2 = GetHKPortTypes(strTypeP2, 2);
-
-            cbTypeP2.ItemsSource = hKPortTypesP2;
-            //cbTypeP1.DisplayMemberPath = "Name";
-            cbTypeP1.SelectedIndex = 0;
-            //cbTypeP2.DisplayMemberPath = "Name";
-            cbTypeP2.SelectedIndex = 0;
-
+            {
+                cbTypeP1.ItemsSource = GetHKPortTypes(strTypeP1);
+                cbTypeP1.SelectedIndex = 0;
+                lbPort1.Visibility = Visibility.Visible;
+                wpPort1.Visibility = Visibility.Visible;
+            }
+            if (string.IsNullOrEmpty(strTypeP2) || strTypeP2 == "NA" || strTypeP2 == "IS" || strTypeP2 == "NA," || strTypeP2 == "IS,")
+            {
+                cbTypeP2.ItemsSource = null;
+                lbPort2.Visibility = Visibility.Collapsed;
+                wpPort2.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (portDef.Contains(strTypeP2))
+                    cbTypeP2.ItemsSource = GetHKPortTypes(strTypeP1);
+                else
+                    cbTypeP2.ItemsSource = GetHKPortTypes(strTypeP2);
+                cbTypeP2.SelectedIndex = 0;
+                lbPort2.Visibility = Visibility.Visible;
+                wpPort2.Visibility = Visibility.Visible;
+            }
             if (strTypeP2 == "AS1")
             {
                 cbTypeP2.IsEnabled = false;
@@ -626,10 +752,36 @@ namespace iEngr.Hookup
                 cbTypeP2.IsEnabled = true;
                 cbSizeP2.IsEnabled = true;
             }
-
         }
+        //if (cbSubCat.SelectedItem != null && cbSubCat.SelectedIndex != 0)
+        //{
+        //    strTypeP1 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP1;
+        //    strTypeP2 = (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2;
+        //}
+        //hKPortTypesP1 = GetHKPortTypes(strTypeP1, 1);
+        //cbTypeP1.ItemsSource = hKPortTypesP1;
+        //if (portDef.Contains(strTypeP2))
+        //    hKPortTypesP2 = GetHKPortTypes(strTypeP1, 2);
+        //else
+        //    hKPortTypesP2 = GetHKPortTypes(strTypeP2, 2);
 
-        private void cbMainSpecT_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //cbTypeP2.ItemsSource = hKPortTypesP2;
+        //cbTypeP1.SelectedIndex = 0;
+        //cbTypeP2.SelectedIndex = 0;
+
+        //if (strTypeP2 == "AS1")
+        //{
+        //    cbTypeP2.IsEnabled = false;
+        //    cbSizeP2.IsEnabled = false;
+        //}
+        //else
+        //{
+        //    cbTypeP2.IsEnabled = true;
+        //    cbSizeP2.IsEnabled = true;
+        //}
+
+ 
+    private void cbMainSpecT_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
             if (selectedItem == null) return;
@@ -637,28 +789,28 @@ namespace iEngr.Hookup
             {
                 cbMainSpec1.ItemsSource = GetGeneralSpecOptions(selectedItem);
                 cbMainSpec1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec1.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
+                cbMainSpec1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
                 cbMainSpec1.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
             }
             else if ((sender as ComboBox).Name == "cbMainSpecT2")
             {
                 cbMainSpec2.ItemsSource = GetGeneralSpecOptions(selectedItem);
                 cbMainSpec2.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec2.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
+                cbMainSpec2.IsEditable = selectedItem.Class.ToUpper() != "LINK";
                 cbMainSpec2.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
             }
             else if ((sender as ComboBox).Name == "cbMainSpecT3")
             {
                 cbMainSpec3.ItemsSource = GetGeneralSpecOptions(selectedItem);
                 cbMainSpec3.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec3.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
+                cbMainSpec3.IsEditable = selectedItem.Class.ToUpper() != "LINK";
                 cbMainSpec3.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
             } 
             else if ((sender as ComboBox).Name == "cbAuxSpecT1")
             {
                 cbAuxSpec1.ItemsSource = GetGeneralSpecOptions(selectedItem);
                 cbAuxSpec1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbAuxSpec1.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
+                cbAuxSpec1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
                 cbAuxSpec1.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
             }
             else if ((sender as ComboBox).Name == "cbAuxSpecT2")
@@ -684,46 +836,59 @@ namespace iEngr.Hookup
 
         }
 
-        private void cbTypeP1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void cbType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cbTypeP1.SelectedItem != null && cbTypeP1.SelectedIndex != 0)
+            HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
+            if (selectedItem == null || selectedItem.ID == "%") return;
+            if ((sender as ComboBox).Name == "cbTypeP1")
             {
-
-
-                string link = (cbTypeP1.SelectedItem as HKLibPortType)?.Link;
-                if (link.StartsWith("LibThread"))
-                {
-                    hKPortSizeP1 = GetHKPortSpecs(1);
-                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibThread>;
-                    cbSizeP1.SelectedIndex = 0;
-                }
-                else if (link.StartsWith("LibTubeOD"))
-                {
-                    hKPortSizeP1 = GetHKPortSpecs(1);
-                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibTubeOD>;
-                    cbSizeP1.SelectedIndex = 0;
-                }
-                else if (link.StartsWith("LibPipeOD"))
-                {
-                    hKPortSizeP1 = GetHKPortSpecs(1);
-                    cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibPipeOD>;
-                    cbSizeP1.SelectedIndex = 0;
-                }
-                else
-                {
-                    cbSizeP1.ItemsSource = null;
-                }
+                cbSizeP1.ItemsSource = GetGeneralSpecOptions(selectedItem);
+                cbSizeP1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
+                cbSizeP1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
             }
-            else
+            else if ((sender as ComboBox).Name == "cbTypeP2")
             {
-                cbSizeP1.ItemsSource = null;
+                cbSizeP2.ItemsSource = GetGeneralSpecOptions(selectedItem);
+                cbSizeP2.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
+                cbSizeP2.IsEditable = selectedItem.Class.ToUpper() != "LINK";
             }
 
-            if ((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1")
-            {
-                cbTypeP2.ItemsSource = hKPortTypesP2;
-                cbTypeP2.SelectedIndex = cbTypeP1.SelectedIndex;
-            }
+            //if (cbTypeP1.SelectedItem != null && cbTypeP1.SelectedIndex != 0)
+            //{
+            //    string link = (cbTypeP1.SelectedItem as HKLibPortType)?.Link;
+            //    if (link.StartsWith("LibThread"))
+            //    {
+            //        hKPortSizeP1 = GetHKPortSpecs(1);
+            //        cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibThread>;
+            //        cbSizeP1.SelectedIndex = 0;
+            //    }
+            //    else if (link.StartsWith("LibTubeOD"))
+            //    {
+            //        hKPortSizeP1 = GetHKPortSpecs(1);
+            //        cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibTubeOD>;
+            //        cbSizeP1.SelectedIndex = 0;
+            //    }
+            //    else if (link.StartsWith("LibPipeOD"))
+            //    {
+            //        hKPortSizeP1 = GetHKPortSpecs(1);
+            //        cbSizeP1.ItemsSource = hKPortSizeP1 as ObservableCollection<HKLibPipeOD>;
+            //        cbSizeP1.SelectedIndex = 0;
+            //    }
+            //    else
+            //    {
+            //        cbSizeP1.ItemsSource = null;
+            //    }
+            //}
+            //else
+            //{
+            //    cbSizeP1.ItemsSource = null;
+            //}
+
+            //if ((cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "AS1" || (cbSubCat.SelectedItem as HKMatSubCat)?.TypeP2 == "DF1")
+            //{
+            //    cbTypeP2.ItemsSource = hKPortTypesP2;
+            //    cbTypeP2.SelectedIndex = cbTypeP1.SelectedIndex;
+            //}
         }
         private void cbTypeP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -763,6 +928,52 @@ namespace iEngr.Hookup
 
         private void cbMainSpec_TextChanged(object sender, KeyEventArgs e)
         {
+        }
+
+
+        private void cbMainSpec_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string strSpec = (sender as ComboBox).Text.Trim();
+                if (string.IsNullOrEmpty(strSpec) || (sender as ComboBox).SelectedIndex != -1) return;
+                string key = (cbMainSpecT1.SelectedItem as HKLibSpecDic).ID;
+                if ((sender as ComboBox).Name == "cbMainSpec2")
+                    key = (cbMainSpecT2.SelectedItem as HKLibSpecDic).ID;
+                else if ((sender as ComboBox).Name == "cbMainSpec3")
+                    key = (cbMainSpecT3.SelectedItem as HKLibSpecDic).ID;
+                if (!dicNoLinkSpecStr[key].Contains(strSpec))
+                {
+                    HKLibGenOption newSpec = new HKLibGenOption
+                    {
+                        ID = strSpec,
+                        NameCn = (intLan == 0) ? strSpec : null,
+                        NameEn = (intLan != 0) ? strSpec : null,
+                    };
+                    dicNoLinkSpec[key].Add(newSpec);
+                    dicNoLinkSpecStr[key].Add(strSpec);
+                }
+                for (int i = 0; i < dicNoLinkSpec[key].Count(); i++)
+                {
+                    if (dicNoLinkSpec[key][i].ID == strSpec)
+                    {
+                        (sender as ComboBox).SelectedIndex = i;
+                        break;
+                    }
+
+                }
+
+            }
+        }
+
+        private void tbMoreSpecCn_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void cbMatMat_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
 
         private void cbMainSpec_LostFocus(object sender, RoutedEventArgs e)
@@ -843,7 +1054,7 @@ namespace iEngr.Hookup
 
         private ObservableCollection<HKLibGenOption> GetGeneralSpecOptions(HKLibSpecDic libSpecDic)
         {
-            if (libSpecDic == null) return null;
+            if (libSpecDic == null || libSpecDic.ID == "%") return null;
             ObservableCollection<HKLibGenOption> hKGeneralSpecs = new ObservableCollection<HKLibGenOption>();
             HKLibGenOption hkGeneralSpec = new HKLibGenOption();
             string prefix = (HK_Mat_Main.intLan == 0) ? libSpecDic.PrefixCn : libSpecDic.PrefixEn;
