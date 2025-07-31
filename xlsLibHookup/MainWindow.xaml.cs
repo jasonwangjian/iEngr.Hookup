@@ -468,12 +468,12 @@ namespace xlsLibHookup
                                 $"RemarksCn='{(result as HKMatGenLib).RemarksCn}'," +
                                 $"RemarksEn='{(result as HKMatGenLib).RemarksEn}'," +
                                 $"Comments='{(result as HKMatGenLib).Comments}' " +
-                                $"WHERE ID='{(result as HKMatGenLib).ID}'";
+                                $"WHERE ID={(result as HKMatGenLib).ID}";
                         }
                         else
                         {
                             sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, AppStd, RemarksCn, RemarksEn, Comments) VALUES (" +
-                                $"'{(result as HKMatGenLib).ID}'," +
+                                $"{(result as HKMatGenLib).ID}," +
                                 $"'{(result as HKMatGenLib).CatID}'," +
                                 $"'{(result as HKMatGenLib).SubCatID}'," +
                                 $"'{(result as HKMatGenLib).TechSpecMain}'," +
@@ -541,6 +541,27 @@ namespace xlsLibHookup
         private bool isDataExisting(string tableName, string id)
         {
             string query = $"SELECT COUNT(*) FROM {tableName} WHERE ID = '{id}'";
+            try
+            {
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+
+                // 创建并配置 OdbcCommand 对象
+                using (OdbcCommand command = new OdbcCommand(query, conn))
+                {
+                    // 执行查询，获取记录数
+                    return (int)command.ExecuteScalar() > 0 ? true : false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+                return false;
+            }
+        }
+        private bool isDataExisting(string tableName, int id)
+        {
+            string query = $"SELECT COUNT(*) FROM {tableName} WHERE ID = {id}";
             try
             {
                 if (conn == null || conn.State != ConnectionState.Open)
@@ -1021,7 +1042,7 @@ namespace xlsLibHookup
             ObservableCollection<HKMatGenLib> data = new ObservableCollection<HKMatGenLib>();
             // 构建 SQL 查询语句
             string query = (id == null) ? "select * from [MatGenLib$]"
-                                      : $"select * from [MatGenLib$] where ID = '{id}'";
+                                      : $"select * from [MatGenLib$] where ID = {id}";
             try
             {
                 if (xlsConn == null || xlsConn.State != ConnectionState.Open)
@@ -1034,7 +1055,7 @@ namespace xlsLibHookup
                         break;
                     HKMatGenLib item = new HKMatGenLib
                     {
-                        ID = Convert.ToString(reader["ID"]),
+                        ID = Convert.ToInt32(reader["ID"]),
                         CatID = Convert.ToString(reader["CatID"]),
                         SubCatID = Convert.ToString(reader["SubCatID"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),

@@ -188,8 +188,10 @@ namespace iEngr.Hookup
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"])?.Trim(),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"])?.Trim()
                     };
-                    strTypeP1All = strTypeP1All.Contains(subCat.TypeP1 + ",") ? strTypeP1All : strTypeP1All + subCat.TypeP1 + ",";
-                    strTypeP2All = strTypeP2All.Contains(subCat.TypeP2 + ",") ? strTypeP2All : strTypeP2All + subCat.TypeP2 + ",";
+                    strTypeP1All = (strTypeP1All.Contains(subCat.TypeP1 + ",") || subCat.TypeP1 == "NA" || subCat.TypeP1 == "IS") ? strTypeP1All 
+                        : strTypeP1All + subCat.TypeP1 + ",";
+                    strTypeP2All = (strTypeP2All.Contains(((portDef.Contains(subCat.TypeP2)) ? subCat.TypeP1 : subCat.TypeP2) + ",") || subCat.TypeP2 == "NA" || subCat.TypeP2 == "IS") ? strTypeP2All 
+                        : strTypeP2All + ((portDef.Contains(subCat.TypeP2)) ? subCat.TypeP1: subCat.TypeP2) + ",";
                     strSpecMainAll = strSpecMainAll.Contains(subCat.TechSpecMain + ",") ? strSpecMainAll : strSpecMainAll + subCat.TechSpecMain + ",";
                     strSpecAuxAll = strSpecAuxAll.Contains(subCat.TechSpecAux + ",") ? strSpecAuxAll : strSpecAuxAll + subCat.TechSpecAux + ",";
                     subCats.Add(subCat);
@@ -486,8 +488,9 @@ namespace iEngr.Hookup
         private void btnToBeChk_Click(object sender, RoutedEventArgs e)
         {
             //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
-            string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
-            var t1 = GeneralFun.ParseNumber("12345.0");
+            //string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
+            //var t1 = GeneralFun.ParseNumber("12345.0");
+            UpdateQueryResult();
 
         }
 
@@ -524,7 +527,10 @@ namespace iEngr.Hookup
             else
             {
                 strTypeP1 = selectedItem.TypeP1?.Trim();
+                strTypeP1 = (strTypeP1 == "NA" || strTypeP1 == "IS") ? string.Empty : strTypeP1;
                 strTypeP2 = selectedItem.TypeP2?.Trim();
+                strTypeP2 = (strTypeP2 == "NA" || strTypeP2 == "IS") ? string.Empty : strTypeP2;
+                strTypeP2 = (portDef.Contains(strTypeP2)) ? strTypeP1 : strTypeP2;
                 strTypeP1All = strTypeP1;
                 strTypeP2All = strTypeP2;
 
@@ -544,84 +550,44 @@ namespace iEngr.Hookup
                          .Where(item => !string.IsNullOrWhiteSpace(item))
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .ToList();
-            if (lstSpecMain?.Count() > 0)
+            cbMainSpecT1.ItemsSource = null;
+            cbMainSpec1.ItemsSource = null;
+            cbMainSpecT2.ItemsSource = null;
+            cbMainSpec2.ItemsSource = null;
+            cbMainSpecT3.ItemsSource = null;
+            cbMainSpec3.ItemsSource = null;
+            cbMainSpecT1.Visibility = Visibility.Collapsed;
+            cbMainSpec1.Visibility = Visibility.Collapsed;
+            cbMainSpecT2.Visibility = Visibility.Collapsed;
+            cbMainSpec2.Visibility = Visibility.Collapsed;
+            cbMainSpecT3.Visibility = Visibility.Collapsed;
+            cbMainSpec3.Visibility = Visibility.Collapsed;
+            lbMainSpec.Visibility = Visibility.Collapsed;
+            if (lstSpecMain?.Count() > 0 && !string.IsNullOrEmpty(lstSpecMain[0]))
             {
-                if (!string.IsNullOrEmpty(lstSpecMain[0]))
+                cbMainSpecT1.ItemsSource = GetLibSpecDic(lstSpecMain[0]);
+                cbMainSpecT1.SelectedIndex = 0;
+                cbMainSpecT1.Visibility = Visibility.Visible;
+                cbMainSpec1.Visibility = Visibility.Visible;
+                lbMainSpec.Visibility = Visibility.Visible;
+                if (lstSpecMain?.Count() > 1 && !string.IsNullOrEmpty(lstSpecMain[1]))
                 {
-                    cbMainSpecT1.ItemsSource = GetLibSpecDic(lstSpecMain[0]);
-                    cbMainSpecT1.SelectedIndex = 0;
-                    cbMainSpecT1.Visibility = Visibility.Visible;
-                    cbMainSpec1.Visibility = Visibility.Visible;
-                    lbMainSpec.Visibility = Visibility.Visible;
-                    if (lstSpecMain?.Count() > 1 && !string.IsNullOrEmpty(lstSpecMain[1]))
+                    cbMainSpecT2.ItemsSource = GetLibSpecDic(lstSpecMain[1]);
+                    cbMainSpecT2.SelectedIndex = 0;
+                    cbMainSpecT2.Visibility = Visibility.Visible;
+                    cbMainSpec2.Visibility = Visibility.Visible;
+                    if (lstSpecMain?.Count() > 2 && !string.IsNullOrEmpty(lstSpecMain[2]))
                     {
-                        cbMainSpecT2.ItemsSource = GetLibSpecDic(lstSpecMain[1]);
-                        cbMainSpecT2.SelectedIndex = 0;
-                        cbMainSpecT2.Visibility = Visibility.Visible;
-                        cbMainSpec2.Visibility = Visibility.Visible;
-                        if (lstSpecMain?.Count() > 2 && !string.IsNullOrEmpty(lstSpecMain[2]))
-                        {
-                            cbMainSpecT3.ItemsSource = GetLibSpecDic(lstSpecMain[2]);
-                            cbMainSpecT3.SelectedIndex = 0;
-                            cbMainSpecT3.Visibility = Visibility.Visible;
-                            cbMainSpec3.Visibility = Visibility.Visible;
-
-                        }
-                        else
-                        {
-                            cbMainSpecT3.ItemsSource = null;
-                            cbMainSpec3.ItemsSource = null;
-                            cbMainSpecT3.Visibility = Visibility.Collapsed;
-                            cbMainSpec3.Visibility = Visibility.Collapsed;
-                        }
+                        cbMainSpecT3.ItemsSource = GetLibSpecDic(lstSpecMain[2]);
+                        cbMainSpecT3.SelectedIndex = 0;
+                        cbMainSpecT3.Visibility = Visibility.Visible;
+                        cbMainSpec3.Visibility = Visibility.Visible;
 
                     }
-                    else
-                    {
-                        cbMainSpecT2.ItemsSource = null;
-                        cbMainSpec2.ItemsSource = null;
-                        cbMainSpecT3.ItemsSource = null;
-                        cbMainSpec3.ItemsSource = null;
-                        cbMainSpecT2.Visibility = Visibility.Collapsed;
-                        cbMainSpec2.Visibility = Visibility.Collapsed;
-                        cbMainSpecT3.Visibility = Visibility.Collapsed;
-                        cbMainSpec3.Visibility = Visibility.Collapsed;
-                    }
                 }
-                else
-                {
-                    cbMainSpecT1.ItemsSource = null;
-                    cbMainSpec1.ItemsSource = null;
-                    cbMainSpecT2.ItemsSource = null;
-                    cbMainSpec2.ItemsSource = null;
-                    cbMainSpecT3.ItemsSource = null;
-                    cbMainSpec3.ItemsSource = null;
-                    cbMainSpecT1.Visibility = Visibility.Collapsed;
-                    cbMainSpec1.Visibility = Visibility.Collapsed;
-                    cbMainSpecT2.Visibility = Visibility.Collapsed;
-                    cbMainSpec2.Visibility = Visibility.Collapsed;
-                    cbMainSpecT3.Visibility = Visibility.Collapsed;
-                    cbMainSpec3.Visibility = Visibility.Collapsed;
-                    lbMainSpec.Visibility = Visibility.Collapsed;
-                }
+            }
 
-            }
-            else
-            {
-                cbMainSpecT1.ItemsSource = null;
-                cbMainSpec1.ItemsSource = null;
-                cbMainSpecT2.ItemsSource = null;
-                cbMainSpec2.ItemsSource = null;
-                cbMainSpecT3.ItemsSource = null;
-                cbMainSpec3.ItemsSource = null;
-                cbMainSpecT1.Visibility = Visibility.Collapsed;
-                cbMainSpec1.Visibility = Visibility.Collapsed;
-                cbMainSpecT2.Visibility = Visibility.Collapsed;
-                cbMainSpec2.Visibility = Visibility.Collapsed;
-                cbMainSpecT3.Visibility = Visibility.Collapsed;
-                cbMainSpec3.Visibility = Visibility.Collapsed;
-                lbMainSpec.Visibility = Visibility.Collapsed;
-            }
+
 
             // 处理主参数 TechSpecAux
             var lstSpecAux = strSpecAux.Split(',')
@@ -629,83 +595,40 @@ namespace iEngr.Hookup
                          .Where(item => !string.IsNullOrWhiteSpace(item))
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .ToList();
-            if (lstSpecAux?.Count() > 0)
+            cbAuxSpecT1.ItemsSource = null;
+            cbAuxSpec1.ItemsSource = null;
+            cbAuxSpecT2.ItemsSource = null;
+            cbAuxSpec2.ItemsSource = null;
+            cbAuxSpecT3.ItemsSource = null;
+            cbAuxSpec3.ItemsSource = null;
+            cbAuxSpecT1.Visibility = Visibility.Collapsed;
+            cbAuxSpec1.Visibility = Visibility.Collapsed;
+            cbAuxSpecT2.Visibility = Visibility.Collapsed;
+            cbAuxSpec2.Visibility = Visibility.Collapsed;
+            cbAuxSpecT3.Visibility = Visibility.Collapsed;
+            cbAuxSpec3.Visibility = Visibility.Collapsed;
+            lbAuxSpec.Visibility = Visibility.Collapsed;
+            if (lstSpecAux?.Count() > 0 && !string.IsNullOrEmpty(lstSpecAux[0]))
             {
-                if (!string.IsNullOrEmpty(lstSpecAux[0]))
+                cbAuxSpecT1.ItemsSource = GetLibSpecDic(lstSpecAux[0]);
+                cbAuxSpecT1.SelectedIndex = 0;
+                cbAuxSpecT1.Visibility = Visibility.Visible;
+                cbAuxSpec1.Visibility = Visibility.Visible;
+                lbAuxSpec.Visibility = Visibility.Visible;
+                if (lstSpecAux?.Count() > 1 && !string.IsNullOrEmpty(lstSpecAux[1]))
                 {
-                    cbAuxSpecT1.ItemsSource = GetLibSpecDic(lstSpecAux[0]);
-                    cbAuxSpecT1.SelectedIndex = 0;
-                    cbAuxSpecT1.Visibility = Visibility.Visible;
-                    cbAuxSpec1.Visibility = Visibility.Visible;
-                    lbAuxSpec.Visibility = Visibility.Visible;
-                    if (lstSpecAux?.Count() > 1 && !string.IsNullOrEmpty(lstSpecAux[1]))
+                    cbAuxSpecT2.ItemsSource = GetLibSpecDic(lstSpecAux[1]);
+                    cbAuxSpecT2.SelectedIndex = 0;
+                    cbAuxSpecT2.Visibility = Visibility.Visible;
+                    cbAuxSpec2.Visibility = Visibility.Visible;
+                    if (lstSpecAux?.Count() > 2 && !string.IsNullOrEmpty(lstSpecAux[2]))
                     {
-                        cbAuxSpecT2.ItemsSource = GetLibSpecDic(lstSpecAux[1]);
-                        cbAuxSpecT2.SelectedIndex = 0;
-                        cbAuxSpecT2.Visibility = Visibility.Visible;
-                        cbAuxSpec2.Visibility = Visibility.Visible;
-                        if (lstSpecAux?.Count() > 2 && !string.IsNullOrEmpty(lstSpecAux[2]))
-                        {
-                            cbAuxSpecT3.ItemsSource = GetLibSpecDic(lstSpecAux[2]);
-                            cbAuxSpecT3.SelectedIndex = 0;
-                            cbAuxSpecT3.Visibility = Visibility.Visible;
-                            cbAuxSpec3.Visibility = Visibility.Visible;
-
-                        }
-                        else
-                        {
-                            cbAuxSpecT3.ItemsSource = null;
-                            cbAuxSpec3.ItemsSource = null;
-                            cbAuxSpecT3.Visibility = Visibility.Collapsed;
-                            cbAuxSpec3.Visibility = Visibility.Collapsed;
-                        }
-
-                    }
-                    else
-                    {
-                        cbAuxSpecT2.ItemsSource = null;
-                        cbAuxSpec2.ItemsSource = null;
-                        cbAuxSpecT3.ItemsSource = null;
-                        cbAuxSpec3.ItemsSource = null;
-                        cbAuxSpecT2.Visibility = Visibility.Collapsed;
-                        cbAuxSpec2.Visibility = Visibility.Collapsed;
-                        cbAuxSpecT3.Visibility = Visibility.Collapsed;
-                        cbAuxSpec3.Visibility = Visibility.Collapsed;
+                        cbAuxSpecT3.ItemsSource = GetLibSpecDic(lstSpecAux[2]);
+                        cbAuxSpecT3.SelectedIndex = 0;
+                        cbAuxSpecT3.Visibility = Visibility.Visible;
+                        cbAuxSpec3.Visibility = Visibility.Visible;
                     }
                 }
-                else
-                {
-                    cbAuxSpecT1.ItemsSource = null;
-                    cbAuxSpec1.ItemsSource = null;
-                    cbAuxSpecT2.ItemsSource = null;
-                    cbAuxSpec2.ItemsSource = null;
-                    cbAuxSpecT3.ItemsSource = null;
-                    cbAuxSpec3.ItemsSource = null;
-                    cbAuxSpecT1.Visibility = Visibility.Collapsed;
-                    cbAuxSpec1.Visibility = Visibility.Collapsed;
-                    cbAuxSpecT2.Visibility = Visibility.Collapsed;
-                    cbAuxSpec2.Visibility = Visibility.Collapsed;
-                    cbAuxSpecT3.Visibility = Visibility.Collapsed;
-                    cbAuxSpec3.Visibility = Visibility.Collapsed;
-                    lbAuxSpec.Visibility = Visibility.Collapsed;
-                }
-
-            }
-            else
-            {
-                cbAuxSpecT1.ItemsSource = null;
-                cbAuxSpec1.ItemsSource = null;
-                cbAuxSpecT2.ItemsSource = null;
-                cbAuxSpec2.ItemsSource = null;
-                cbAuxSpecT3.ItemsSource = null;
-                cbAuxSpec3.ItemsSource = null;
-                cbAuxSpecT1.Visibility = Visibility.Collapsed;
-                cbAuxSpec1.Visibility = Visibility.Collapsed;
-                cbAuxSpecT2.Visibility = Visibility.Collapsed;
-                cbAuxSpec2.Visibility = Visibility.Collapsed;
-                cbAuxSpecT3.Visibility = Visibility.Collapsed;
-                cbAuxSpec3.Visibility = Visibility.Collapsed;
-                lbAuxSpec.Visibility = Visibility.Collapsed;
             }
 
             // 处理端口一、二
@@ -784,44 +707,56 @@ namespace iEngr.Hookup
             if ((sender as ComboBox).Name == "cbMainSpecT1")
             {
                 cbMainSpec1.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbMainSpec1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
-                cbMainSpec1.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
+                cbMainSpec1.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbMainSpec1.IsEditable = selectedItem.Class?.ToUpper() != "LINK";
+                cbMainSpec1.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbMainSpecT1.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpecT1.Visibility;
+                cbMainSpec1.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpec1.Visibility;
             }
             else if ((sender as ComboBox).Name == "cbMainSpecT2")
             {
                 cbMainSpec2.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbMainSpec2.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec2.IsEditable = selectedItem.Class.ToUpper() != "LINK";
-                cbMainSpec2.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
+                cbMainSpec2.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbMainSpec2.IsEditable = selectedItem.Class?.ToUpper() != "LINK";
+                cbMainSpec2.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbMainSpecT2.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpecT2.Visibility;
+                cbMainSpec2.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpec2.Visibility;
             }
             else if ((sender as ComboBox).Name == "cbMainSpecT3")
             {
                 cbMainSpec3.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbMainSpec3.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbMainSpec3.IsEditable = selectedItem.Class.ToUpper() != "LINK";
-                cbMainSpec3.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
-            } 
+                cbMainSpec3.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbMainSpec3.IsEditable = selectedItem.Class?.ToUpper() != "LINK";
+                cbMainSpec3.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbMainSpecT3.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpecT3.Visibility;
+                cbMainSpec3.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbMainSpec3.Visibility;
+            }
             else if ((sender as ComboBox).Name == "cbAuxSpecT1")
             {
                 cbAuxSpec1.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbAuxSpec1.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbAuxSpec1.IsEditable = selectedItem.Class.ToUpper() != "LINK";
-                cbAuxSpec1.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpec1.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbAuxSpec1.IsEditable = selectedItem.Class?.ToUpper() != "LINK";
+                cbAuxSpec1.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpecT1.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpecT1.Visibility;
+                cbAuxSpec1.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpec1.Visibility;
             }
             else if ((sender as ComboBox).Name == "cbAuxSpecT2")
             {
                 cbAuxSpec2.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbAuxSpec2.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbAuxSpec2.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
-                cbAuxSpec2.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpec2.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbAuxSpec2.IsEditable = (selectedItem.Class?.ToUpper() == "LINK") ? false : true;
+                cbAuxSpec2.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpecT2.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpecT2.Visibility;
+                cbAuxSpec2.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpec2.Visibility;
             }
             else if ((sender as ComboBox).Name == "cbAuxSpecT3")
             {
                 cbAuxSpec3.ItemsSource = GetGeneralSpecOptions(selectedItem);
-                cbAuxSpec3.SelectedIndex = (selectedItem.Class.ToUpper() == "LINK") ? 0 : -1;
-                cbAuxSpec3.IsEditable = (selectedItem.Class.ToUpper() == "LINK") ? false : true;
-                cbAuxSpec3.MinWidth = (selectedItem.Class.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpec3.SelectedIndex = (selectedItem.Class?.ToUpper() == "LINK") ? 0 : -1;
+                cbAuxSpec3.IsEditable = (selectedItem.Class?.ToUpper() == "LINK") ? false : true;
+                cbAuxSpec3.MinWidth = (selectedItem.Class?.ToUpper() == "LINK") ? 40 : 120;
+                cbAuxSpecT3.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpecT3.Visibility;
+                cbAuxSpec3.Visibility = (selectedItem.ID == "-") ? Visibility.Collapsed : cbAuxSpec3.Visibility;
             }
         }
 
@@ -1060,7 +995,7 @@ namespace iEngr.Hookup
             {
                 cbSizeP2.SelectedIndex = cbSizeP1.SelectedIndex;
             }
-            if (cbSizeP1.SelectedIndex > 0)
+            if (cbSizeP1.SelectedIndex >= 0 && (cbSizeP1.SelectedItem as HKLibGenOption)?.ID != string.Empty)
             {
                 strCondP1 = $"mgl.SizeP1 = '{(cbSizeP1.SelectedItem as HKLibGenOption).ID}'";
                 if (!string.IsNullOrEmpty(strTypeP1))
@@ -1069,9 +1004,12 @@ namespace iEngr.Hookup
             }
             else if (cbSizeP1.SelectedIndex == 0)
             {
-                strCondP1 = $"mgl.SizeP1 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP1)) <> ''";
+                //strCondP1 = $"mgl.SizeP1 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP1)) <> ''";
+                strCondP1 = string.Empty;
                 if (!string.IsNullOrEmpty(strTypeP1))
-                    strCondP1 = $"{strCondP1} AND mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1, ',')}";
+                    strCondP1 = string.IsNullOrEmpty(strCondP1) ?
+                        $"mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1, ',')}":
+                        $"{strCondP1} AND mgl.TypeP1 in {GeneralFun.ConvertToStringScope(strTypeP1, ',')}";
                 UpdateQueryResult();
             }
             else
@@ -1079,19 +1017,25 @@ namespace iEngr.Hookup
         }
         private void cbSizeP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cbSizeP2.SelectedIndex > 0)
+            if (cbSizeP2.SelectedIndex >= 0 && (cbSizeP2.SelectedItem as HKLibGenOption)?.ID != string.Empty)
             {
                 strCondP2 = $"mgl.SizeP2 = '{(cbSizeP2.SelectedItem as HKLibGenOption).ID}'";
+                if (!string.IsNullOrEmpty(strTypeP2))
+                    strCondP2 = $"{strCondP2} AND mgl.TypeP2 in {GeneralFun.ConvertToStringScope(strTypeP2, ',')}";
                 UpdateQueryResult();
             }
             else if (cbSizeP2.SelectedIndex == 0)
             {
-                strCondP2 = $"mgl.SizeP2 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP2)) <> ''";
+                //strCondP2 = $"mgl.SizeP2 IS NOT NULL AND LTRIM(RTRIM(mgl.SizeP2)) <> ''";
+                strCondP2 = string.Empty;    
+                if (!string.IsNullOrEmpty(strTypeP2))
+                    strCondP2 = string.IsNullOrEmpty(strCondP2)?
+                        $"mgl.TypeP2 in {GeneralFun.ConvertToStringScope(strTypeP2, ',')}":
+                        $"{strCondP2} AND mgl.TypeP2 in {GeneralFun.ConvertToStringScope(strTypeP2, ',')}";
                 UpdateQueryResult();
             }
             else
                 strCondP2 = string.Empty;
-
         }
 
         private ObservableCollection<HKLibSpecDic> GetLibSpecDic(string strIDs)
@@ -1130,12 +1074,19 @@ namespace iEngr.Hookup
                 MessageBox.Show($"Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
             }
+            libSpecDics.Add(new HKLibSpecDic
+            {
+                ID = "-",
+                NameCn = "移除此项",
+                NameEn = "Remove it",
+                SortNum = 9999
+            });
             return libSpecDics;
         }
 
         private ObservableCollection<HKLibGenOption> GetGeneralSpecOptions(HKLibSpecDic libSpecDic)
         {
-            if (libSpecDic == null || libSpecDic.ID == string.Empty) return null;
+            if (libSpecDic == null || libSpecDic.ID == string.Empty || libSpecDic.ID == "-") return null;
             ObservableCollection<HKLibGenOption> hKGeneralSpecs = new ObservableCollection<HKLibGenOption>();
             HKLibGenOption hkGeneralSpec = new HKLibGenOption();
             string prefix = (HK_Mat_Main.intLan == 0) ? libSpecDic.PrefixCn : libSpecDic.PrefixEn;
@@ -1369,7 +1320,7 @@ namespace iEngr.Hookup
                 {
                     HKMatGenLib item = new HKMatGenLib
                     {
-                        ID = Convert.ToString(reader["ID"]),
+                        ID = Convert.ToInt32(reader["ID"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                     };
@@ -1384,6 +1335,49 @@ namespace iEngr.Hookup
                 MessageBox.Show($"Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
             }
+        }
+
+        private int NewDataAdd()
+        {
+            //string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, AppStd, RemarksCn, RemarksEn, Comments) VALUES (" +
+            //                    $"'{(result as HKMatGenLib).ID}'," +
+            //                    $"'{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}'," +
+            //                    $"'{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}'," +
+            //                    $"'{string.Join(",", lstMainSpec)}'," +
+            //                    $"'{string.Join(",", lstAuxSpec)}'," +
+            //                    $"'{(cbTypeP1.SelectedItem as HKLibPortType)?.ID}'," +
+            //                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
+            //                    $"'{(cbTypeP2.SelectedItem as HKLibPortType)?.ID}'," +
+            //                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
+            //                    $"'{(result as HKMatGenLib).MatSpec}'," +
+            //                    $"'{(result as HKMatGenLib).PClass}'," +
+            //                    $"'{(result as HKMatGenLib).MoreSpecCn}'," +
+            //                    $"'{(result as HKMatGenLib).MoreSpecEn}'," +
+            //                    $"'{(result as HKMatGenLib).AppStd}'," +
+            //                    $"'{(result as HKMatGenLib).RemarksCn}'," +
+            //                    $"'{(result as HKMatGenLib).RemarksEn}'," +
+            //                    $"'{(result as HKMatGenLib).Comments}' " +
+            //                    $")";
+            string query = "";
+            try
+            {
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                // 创建并配置 OdbcCommand 对象
+                using (OdbcCommand command = new OdbcCommand(query, conn))
+                {
+                    // 执行查询，获取记录数
+                    return command.ExecuteNonQuery(); ;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+                return 0;
+            }
+
         }
 
         private string GetConditionExp(List<string> input)

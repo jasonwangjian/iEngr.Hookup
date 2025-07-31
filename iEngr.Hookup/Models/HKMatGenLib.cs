@@ -8,7 +8,7 @@ namespace iEngr.Hookup
 {
     public class HKMatGenLib
     {
-        public string ID { get; set; }
+        public int ID { get; set; }
         public string CatID { get; set; }
         public string SubCatID { get; set; }
         public string NameCn { get; set; }  
