@@ -99,7 +99,13 @@
             </StackPanel>-->
 
         </Grid>
-        <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+        <DataGrid x:Name="dgResult" Margin="20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" IsReadOnly="True"  HorizontalAlignment="Stretch">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" />
+                <DataGridTextColumn Header="材料名称" Binding="{Binding Path=Name}" />
+                <DataGridTextColumn Header="规格" Binding="{Binding Path=TechSpecMain}" />
+            </DataGrid.Columns>
 
         </DataGrid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >

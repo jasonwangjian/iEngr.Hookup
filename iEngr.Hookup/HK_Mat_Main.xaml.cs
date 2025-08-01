@@ -490,10 +490,10 @@ namespace iEngr.Hookup
             //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
             //string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
             //var t1 = GeneralFun.ParseNumber("12345.0");
-            //UpdateQueryResult();
+            UpdateQueryResult();
 
-            int test = GetNewID();
-            NewDataAdd();
+            //int test = GetNewID();
+            //NewDataAdd();
 
         }
 
@@ -1312,7 +1312,9 @@ namespace iEngr.Hookup
                 GetSpecExp("mgl.TechSpecMain", lstMainSpec),
                 GetSpecExp("mgl.TechSpecAux", lstAuxSpec)
             });
-            string query = $"select * from HK_MatGenLib mgl WhERE {conditions}";
+            string query = $"select * from HK_MatGenLib mgl" +
+                $" inner join HK_MatSubCat sc on mgl.SubCatID = sc.ID" +
+                $" WhERE {conditions}";
             try
             {
                 if (conn == null || conn.State != ConnectionState.Open)
@@ -1324,6 +1326,9 @@ namespace iEngr.Hookup
                     HKMatGenLib item = new HKMatGenLib
                     {
                         ID = Convert.ToInt32(reader["ID"]),
+                        SubCatID = Convert.ToString(reader["SubCatID"]),
+                        NameCn = Convert.ToString(reader["SpecCn"]),
+                        NameEn = Convert.ToString(reader["SpecCn"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                     };
@@ -1402,6 +1407,12 @@ namespace iEngr.Hookup
         }
         private int NewDataAdd()
         {
+            if (cbSubCat.SelectedItem == null || cbSubCat.SelectedIndex == 0)
+            {
+                MessageBox.Show($"数据未记录！{Environment.NewLine}必须选择材料小类");
+                cbSubCat.Focus();
+                return 0;
+            }
             try
             {
                 if (IsDataExisting()) return 0;    
@@ -1436,7 +1447,7 @@ namespace iEngr.Hookup
             catch (Exception ex)
             {
                 // 处理异常
-                MessageBox.Show($"Error: {ex.Message}");
+                MessageBox.Show($"数据未记录！{Environment.NewLine}Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
                 return 0;
             }
