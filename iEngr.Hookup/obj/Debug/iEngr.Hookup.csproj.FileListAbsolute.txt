@@ -11,3 +11,16 @@ E:\myCode\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.dll
 E:\myCode\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.pdb
 E:\myCode\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_Mat_Main.g.cs
 E:\myCode\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_Mat_Main.baml
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\bin\Debug\iEngr.Hookup.dll
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\bin\Debug\iEngr.Hookup.pdb
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.AssemblyReference.cache
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_Mat_Main.g.cs
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup_MarkupCompile.cache
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup_MarkupCompile.lref
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_Mat_Main.baml
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.g.resources
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.Properties.Resources.resources
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.GenerateResource.cache
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.CoreCompileInputs.cache
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.dll
+D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.pdb

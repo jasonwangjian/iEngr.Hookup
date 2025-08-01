@@ -490,7 +490,10 @@ namespace iEngr.Hookup
             //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
             //string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
             //var t1 = GeneralFun.ParseNumber("12345.0");
-            UpdateQueryResult();
+            //UpdateQueryResult();
+
+            int test = GetNewID();
+            NewDataAdd();
 
         }
 
@@ -765,28 +768,28 @@ namespace iEngr.Hookup
          private void cbMainSpec_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             lstMainSpec.Clear();
-            if ((cbMainSpecT1.SelectedItem as HKLibSpecDic) != null)
+            if ((cbMainSpecT1.SelectedItem as HKLibSpecDic) != null && (cbMainSpecT1.SelectedItem as HKLibSpecDic).ID != "-")
                 lstMainSpec.Add($"{(cbMainSpecT1.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec1.SelectedItem as HKLibGenOption)?.ID}");
-            if ((cbMainSpecT2.SelectedItem as HKLibSpecDic) != null)
+            if ((cbMainSpecT2.SelectedItem as HKLibSpecDic) != null && (cbMainSpecT2.SelectedItem as HKLibSpecDic).ID != "-")
                 lstMainSpec.Add($"{(cbMainSpecT2.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec2.SelectedItem as HKLibGenOption)?.ID}");
-            if ((cbMainSpecT3.SelectedItem as HKLibSpecDic) != null)
+            if ((cbMainSpecT3.SelectedItem as HKLibSpecDic) != null && (cbMainSpecT3.SelectedItem as HKLibSpecDic).ID != "-")
                 lstMainSpec.Add($"{(cbMainSpecT3.SelectedItem as HKLibSpecDic).ID}:{(cbMainSpec3.SelectedItem as HKLibGenOption)?.ID}");
             if ((cbMainSpec1.SelectedItem as HKLibGenOption) != null && (cbMainSpec1.SelectedItem as HKLibGenOption).ID != string.Empty
                || (cbMainSpec2.SelectedItem as HKLibGenOption) != null && (cbMainSpec2.SelectedItem as HKLibGenOption).ID != string.Empty
-               || (cbMainSpec3.SelectedItem as HKLibGenOption) != null && (cbMainSpec3.SelectedItem as HKLibGenOption).ID != string.Empty)
+               || (cbMainSpec3.SelectedItem as HKLibGenOption) != null && (cbMainSpec3.SelectedItem as HKLibGenOption).ID != string.Empty )
                 UpdateQueryResult();
         }
         private void cbAuxSpec_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             lstAuxSpec.Clear();
-            if ((cbAuxSpecT1.SelectedItem as HKLibSpecDic) != null)
+            if ((cbAuxSpecT1.SelectedItem as HKLibSpecDic) != null && (cbAuxSpecT1.SelectedItem as HKLibSpecDic).ID != "-")
                 lstAuxSpec.Add($"{(cbAuxSpecT1.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec1.SelectedItem as HKLibGenOption)?.ID}");
-            if ((cbAuxSpecT2.SelectedItem as HKLibSpecDic) != null)
+            if ((cbAuxSpecT2.SelectedItem as HKLibSpecDic) != null && (cbAuxSpecT2.SelectedItem as HKLibSpecDic).ID != "-")
                 lstAuxSpec.Add($"{(cbAuxSpecT2.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec2.SelectedItem as HKLibGenOption)?.ID}");
-            if ((cbAuxSpecT3.SelectedItem as HKLibSpecDic) != null)
+            if ((cbAuxSpecT3.SelectedItem as HKLibSpecDic) != null && (cbAuxSpecT3.SelectedItem as HKLibSpecDic).ID != "-" )
                 lstAuxSpec.Add($"{(cbAuxSpecT3.SelectedItem as HKLibSpecDic).ID}:{(cbAuxSpec3.SelectedItem as HKLibGenOption)?.ID}");
-            if ((cbAuxSpec1.SelectedItem as HKLibGenOption) != null && (cbAuxSpec1.SelectedItem as HKLibGenOption).ID != string.Empty
-                || (cbAuxSpec2.SelectedItem as HKLibGenOption) != null && (cbAuxSpec2.SelectedItem as HKLibGenOption).ID != string.Empty
+            if ((cbAuxSpec1.SelectedItem as HKLibGenOption) != null && (cbAuxSpec1.SelectedItem as HKLibGenOption).ID != string.Empty 
+                || (cbAuxSpec2.SelectedItem as HKLibGenOption) != null && (cbAuxSpec2.SelectedItem as HKLibGenOption).ID != string.Empty 
                 || (cbAuxSpec3.SelectedItem as HKLibGenOption) != null && (cbAuxSpec3.SelectedItem as HKLibGenOption).ID != string.Empty)
                 UpdateQueryResult();
                 
@@ -1337,30 +1340,90 @@ namespace iEngr.Hookup
             }
         }
 
-        private int NewDataAdd()
+        private int GetNewID()
         {
-            //string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, AppStd, RemarksCn, RemarksEn, Comments) VALUES (" +
-            //                    $"'{(result as HKMatGenLib).ID}'," +
-            //                    $"'{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}'," +
-            //                    $"'{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}'," +
-            //                    $"'{string.Join(",", lstMainSpec)}'," +
-            //                    $"'{string.Join(",", lstAuxSpec)}'," +
-            //                    $"'{(cbTypeP1.SelectedItem as HKLibPortType)?.ID}'," +
-            //                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
-            //                    $"'{(cbTypeP2.SelectedItem as HKLibPortType)?.ID}'," +
-            //                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
-            //                    $"'{(result as HKMatGenLib).MatSpec}'," +
-            //                    $"'{(result as HKMatGenLib).PClass}'," +
-            //                    $"'{(result as HKMatGenLib).MoreSpecCn}'," +
-            //                    $"'{(result as HKMatGenLib).MoreSpecEn}'," +
-            //                    $"'{(result as HKMatGenLib).AppStd}'," +
-            //                    $"'{(result as HKMatGenLib).RemarksCn}'," +
-            //                    $"'{(result as HKMatGenLib).RemarksEn}'," +
-            //                    $"'{(result as HKMatGenLib).Comments}' " +
-            //                    $")";
-            string query = "";
+            string query = $"SELECT  MAX(ID) FROM HK_MatGenLib";
             try
             {
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                // 创建并配置 OdbcCommand 对象
+                using (OdbcCommand command = new OdbcCommand(query, conn))
+                {
+                    // 执行查询，获取记录数
+                    return (int)command.ExecuteScalar() + 1; 
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+                return 0;
+            }
+        }
+
+        private bool IsDataExisting()
+        {
+            try
+            {
+                string pn = lstMainSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
+                if (string.IsNullOrEmpty(pn)) pn = lstAuxSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
+                string query = $"SELECT  COUNT(*) FROM HK_MatGenLib WHERE " +
+                                $"CatID = '{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}' AND " +
+                                $"SubCatID = '{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}' AND " +
+                                $"TechSpecMain = '{string.Join(",", lstMainSpec)}' AND " +
+                                $"TechSpecAux = '{string.Join(",", lstAuxSpec)}' AND " +
+                                $"TypeP1 = '{(cbTypeP1.SelectedItem as HKLibPortType)?.ID}' AND " +
+                                $"SizeP1 = '{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}' AND " +
+                                $"TypeP2 = '{(cbTypeP2.SelectedItem as HKLibPortType)?.ID}' AND " +
+                                $"SizeP2 = '{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}' AND " +
+                                $"MatSpec = '{(cbMatMat.SelectedItem as HKLibGenOption)?.ID}' AND " +
+                                $"PClass = '{pn}' AND " +
+                                $"MoreSpecCn = '{tbMoreSpecCn.Text}' AND " +
+                                $"MoreSpecEn = '{tbMoreSpecEn.Text}'";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                // 创建并配置 OdbcCommand 对象
+                using (OdbcCommand command = new OdbcCommand(query, conn))
+                {
+                    // 执行查询，获取记录数
+                    return (int)command.ExecuteScalar() > 0 ? true : false;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+                return false;
+            }
+
+        }
+        private int NewDataAdd()
+        {
+            try
+            {
+                if (IsDataExisting()) return 0;    
+                string pn = lstMainSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
+                if (string.IsNullOrEmpty(pn)) pn = lstAuxSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
+                string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, Status) VALUES (" +
+                                    $"'{GetNewID()}'," +
+                                    $"'{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}'," +
+                                    $"'{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}'," +
+                                    $"'{string.Join(",", lstMainSpec)}'," +
+                                    $"'{string.Join(",", lstAuxSpec)}'," +
+                                    $"'{(cbTypeP1.SelectedItem as HKLibPortType)?.ID}'," +
+                                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
+                                    $"'{(cbTypeP2.SelectedItem as HKLibPortType)?.ID}'," +
+                                    $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
+                                    $"'{(cbMatMat.SelectedItem as HKLibGenOption)?.ID}'," +
+                                    $"'{pn}'," +
+                                    $"'{tbMoreSpecCn.Text}'," +
+                                    $"'{tbMoreSpecEn.Text}'," +
+                                    $"1" +
+                                    $")";
+                //string query = "";
                 if (conn == null || conn.State != ConnectionState.Open)
                     conn = GetConnection();
                 // 创建并配置 OdbcCommand 对象
@@ -1377,7 +1440,6 @@ namespace iEngr.Hookup
                 // 可以选择返回空列表或者其他适当的处理
                 return 0;
             }
-
         }
 
         private string GetConditionExp(List<string> input)
