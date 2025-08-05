@@ -26,5 +26,15 @@ namespace iEngr.Hookup
                     return NameEn;
             }
         }
+        public string Spec
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return NameCn;
+                else
+                    return NameEn;
+            }
+        }
     }
 }

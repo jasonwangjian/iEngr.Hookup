@@ -30,5 +30,25 @@ namespace iEngr.Hookup
                     return NameEn;
             }
         }
+        public string Prefix
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return PrefixCn;
+                else
+                    return PrefixEn;
+            }
+        }
+        public string Suffix
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return SuffixCn;
+                else
+                    return SuffixEn;
+            }
+        }
     }
 }

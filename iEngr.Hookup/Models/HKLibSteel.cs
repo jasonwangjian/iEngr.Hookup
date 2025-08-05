@@ -20,5 +20,25 @@ namespace iEngr.Hookup
         public decimal? IBd { get; set; }
         public int SortNum { get; set; }
         public string Name { get; set; }
+        public string CSSpec
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return CSSpecCn;
+                else
+                    return CSSpecEn;
+            }
+        }
+        public string IBSpec
+        {
+            get
+            {
+                if (HK_Mat_Main.intLan == 0)
+                    return IBSpecCn;
+                else
+                    return IBSpecEn;
+            }
+        }
     }
 }

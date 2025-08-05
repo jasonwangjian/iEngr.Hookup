@@ -20,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace iEngr.Hookup
 {
@@ -69,6 +70,20 @@ namespace iEngr.Hookup
         private string strSpecMainAll, strSpecMain, strSpecAuxAll, strSpecAux;
         private List<string> lstMainSpec = new List<string>();
         private List<string> lstAuxSpec = new List<string>();
+        //private Dictionary<string, Dictionary<string, HKLibSpecDic>> dicMatGen1 = new Dictionary<string, Dictionary<string, HKLibSpecDic>>();
+        //private Dictionary<string, Dictionary<string, HKLibGenOption>> dicMatGen2 = new Dictionary<string, Dictionary<string, HKLibGenOption>>();
+        int? nullInt = null;
+        decimal? nullDecimal = null;
+        Dictionary<string, HKLibPortType> dicPortType = new Dictionary<string, HKLibPortType>();
+        Dictionary<string, HKLibGenOption> dicGenOption = new Dictionary<string, HKLibGenOption>();
+        Dictionary<string, HKLibGland> dicGland = new Dictionary<string, HKLibGland>();
+        Dictionary<string, HKLibPipeOD> dicPipeOD = new Dictionary<string, HKLibPipeOD>();
+        Dictionary<string, HKLibPN> dicPN = new Dictionary<string, HKLibPN>();
+        Dictionary<string, HKLibSpecDic> dicSpecDic = new Dictionary<string, HKLibSpecDic>();
+        Dictionary<string, HKLibSteel> dicSteel = new Dictionary<string, HKLibSteel>();
+        Dictionary<string, HKLibThread> dicThread = new Dictionary<string, HKLibThread>();
+        Dictionary<string, HKLibTubeOD> dicTubeOD = new Dictionary<string, HKLibTubeOD>();
+
         public HK_Mat_Main()
         {
             InitializeComponent();
@@ -79,7 +94,7 @@ namespace iEngr.Hookup
             cbMainCat.ItemsSource = GetHKMatMainCats();
             cbSubCat.ItemsSource = hKMatSubCats;
             cbMainCat.SelectedIndex = 0;
-
+            SetDicMatGen();
 
             //hKLibThreads = GetLibThread();
             //dgResult.ItemsSource = hKLibThreads;
@@ -485,17 +500,6 @@ namespace iEngr.Hookup
 
         }
 
-        private void btnToBeChk_Click(object sender, RoutedEventArgs e)
-        {
-            //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
-            //string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
-            //var t1 = GeneralFun.ParseNumber("12345.0");
-            UpdateQueryResult();
-
-            //int test = GetNewID();
-            //NewDataAdd();
-
-        }
 
         private void cbMainCat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1312,7 +1316,18 @@ namespace iEngr.Hookup
                 GetSpecExp("mgl.TechSpecMain", lstMainSpec),
                 GetSpecExp("mgl.TechSpecAux", lstAuxSpec)
             });
-            string query = $"select * from HK_MatGenLib mgl" +
+            string query = $"select " +
+                $"mgl.ID as ID, " +
+                $"sc.SpecCn as NameCn, " +
+                $"sc.SpecEn as NameEn, " +
+                $"sc.TypeP2 as AlterCode, " +
+                $"mgl.TypeP1 as TypeP1, " +
+                $"mgl.TypeP2 as TypeP2, " +
+                $"mgl.SizeP1 as SizeP1, " +
+                $"mgl.SizeP2 as SizeP2, " +
+                $"mgl.TechSpecMain as TechSpecMain, " +
+                $"mgl.TechSpecAux as TechSpecAux " +
+                $"from HK_MatGenLib mgl" +
                 $" inner join HK_MatSubCat sc on mgl.SubCatID = sc.ID" +
                 $" WhERE {conditions}";
             try
@@ -1326,13 +1341,19 @@ namespace iEngr.Hookup
                     HKMatGenLib item = new HKMatGenLib
                     {
                         ID = Convert.ToInt32(reader["ID"]),
-                        SubCatID = Convert.ToString(reader["SubCatID"]),
-                        NameCn = Convert.ToString(reader["SpecCn"]),
-                        NameEn = Convert.ToString(reader["SpecCn"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        AlterCode = Convert.ToString(reader["AlterCode"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                        TypeP1 = Convert.ToString(reader["TypeP1"]),
+                        TypeP2 = Convert.ToString(reader["TypeP2"]),
+                        SizeP1 = Convert.ToString(reader["SizeP1"]),
+                        SizeP2 = Convert.ToString(reader["SizeP2"]),
                     };
-                    result.Add(item);
+                    item.SpecCombMain = SetSpecMainAux(item.TechSpecMain);
+                    item.SpecCombAux = SetSpecMainAux(item.TechSpecAux);
+                   result.Add(item);
                 }
 
                 reader.Close();
@@ -1472,41 +1493,47 @@ namespace iEngr.Hookup
 
             return string.Join(" AND ", conditions);
         }
-        private ObservableCollection<HKLibThread> GetLibThread()
+
+        private void SetDicMatGen()
         {
-            ObservableCollection<HKLibThread> libThreads = new ObservableCollection<HKLibThread>();
-            // 构建 SQL 查询语句
-            string query = "select * from HK_LibThread";
+            SetDicPortType();
+            SetDicSpecDic();
+            SetDicPipeOD();
+            SetDicPN();
+            SetDicSteel();
+            SetDicThread();
+            SetDicTubeOD();
+            SetDicGland();
+            SetDicGenOption();
+        }
+        private void SetDicPortType()
+        {
+            dicPortType.Clear();
             try
             {
+                string query = "select * from HK_LibPortType where SortNum < 101 order by SortNum";
                 if (conn == null || conn.State != ConnectionState.Open)
                     conn = GetConnection();
                 OdbcCommand command = new OdbcCommand(query, conn);
                 OdbcDataReader reader = command.ExecuteReader();
-                int? nullInt = null;
-                int i = 0;
                 while (reader.Read())
                 {
-                    i++;
-                    Debug.Print(i.ToString());
-                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
-                        break;
-                    HKLibThread libThread = new HKLibThread
+                    dicPortType.Add(Convert.ToString(reader["ID"]), new HKLibPortType
                     {
                         ID = Convert.ToString(reader["ID"]),
-                        Class = Convert.ToString(reader["Class"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        PrefixCn = Convert.ToString(reader["PrefixCn"]),
+                        PrefixEn = Convert.ToString(reader["PrefixEn"]),
+                        SuffixCn = Convert.ToString(reader["SuffixCn"]),
+                        SuffixEn = Convert.ToString(reader["SuffixEn"]),
+                        Class =  Convert.ToString(reader["Class"]),
                         SubClass = Convert.ToString(reader["SubClass"]),
-                        SpecCn = Convert.ToString(reader["SpecCn"]),
-                        SpecEn = Convert.ToString(reader["SpecEn"]),
-                        Value = Convert.ToDecimal(reader["Value"]),
-                        Pitch = Convert.ToDecimal(reader["Pitch"]),
-                        Qty = !string.IsNullOrEmpty(Convert.ToString(reader["Qty"])) ? Convert.ToInt32(reader["Qty"]) : nullInt,
-                        ClassEx = Convert.ToString(reader["ClassEx"]),
-                        SortNum = Convert.ToInt32(reader["SortNum"]),
-                    };
-                    libThreads.Add(libThread);
+                        Remarks = Convert.ToString(reader["Remarks"]),
+                        Link = Convert.ToString(reader["Link"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
                 }
-
                 reader.Close();
             }
             catch (Exception ex)
@@ -1515,7 +1542,462 @@ namespace iEngr.Hookup
                 MessageBox.Show($"Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
             }
-            return libThreads;
         }
+        private void SetDicSpecDic()
+        {
+            dicSpecDic.Clear();
+            try
+            {
+                string query = "select * from HK_LibSpecDic order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicSpecDic.Add(Convert.ToString(reader["ID"]), new HKLibSpecDic
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        PrefixCn = Convert.ToString(reader["PrefixCn"]),
+                        PrefixEn = Convert.ToString(reader["PrefixEn"]),
+                        SuffixCn = Convert.ToString(reader["SuffixCn"]),
+                        SuffixEn = Convert.ToString(reader["SuffixEn"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        Link = Convert.ToString(reader["Link"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicPipeOD()
+        {
+            dicPipeOD.Clear();
+            try
+            {
+                string query = "select * from HK_LibPipeOD order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicPipeOD.Add(Convert.ToString(reader["ID"]), new HKLibPipeOD
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        DN = Convert.ToString(reader["DN"]),
+                        NPS = Convert.ToString(reader["NPS"]),
+                        HGIa = !string.IsNullOrEmpty(Convert.ToString(reader["HGIa"])) ? Convert.ToDecimal(reader["HGIa"]) : nullDecimal,
+                        HGIb = !string.IsNullOrEmpty(Convert.ToString(reader["HGIb"])) ? Convert.ToDecimal(reader["HGIb"]) : nullDecimal,
+                        HGII = !string.IsNullOrEmpty(Convert.ToString(reader["HGII"])) ? Convert.ToDecimal(reader["HGII"]) : nullDecimal,
+                        GBI = !string.IsNullOrEmpty(Convert.ToString(reader["GBI"])) ? Convert.ToDecimal(reader["GBI"]) : nullDecimal,
+                        GBII = !string.IsNullOrEmpty(Convert.ToString(reader["GBII"])) ? Convert.ToDecimal(reader["GBII"]) : nullDecimal,
+                        ISO = !string.IsNullOrEmpty(Convert.ToString(reader["ISO"])) ? Convert.ToDecimal(reader["ISO"]) : nullDecimal,
+                        ASME = !string.IsNullOrEmpty(Convert.ToString(reader["ASME"])) ? Convert.ToDecimal(reader["ASME"]) : nullDecimal,
+                        SWDiaGB = !string.IsNullOrEmpty(Convert.ToString(reader["SWDiaGB"])) ? Convert.ToDecimal(reader["SWDiaGB"]) : nullDecimal,
+                        SpecRem = Convert.ToString(reader["SpecRem"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicPN()
+        {
+            dicPN.Clear();
+            try
+            {
+                string query = "select * from HK_LibPN order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicPN.Add(Convert.ToString(reader["ID"]), new HKLibPN
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        ISOS1 = Convert.ToString(reader["ISOS1"]),
+                        ISOS2 = Convert.ToString(reader["ISOS2"]),
+                        GBDIN = Convert.ToString(reader["GBDIN"]),
+                        GBANSI = Convert.ToString(reader["GBANSI"]),
+                        ASME = Convert.ToString(reader["ASME"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicSteel()
+        {
+            dicSteel.Clear();
+            try
+            {
+                string query = "select * from HK_LibSteel order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicSteel.Add(Convert.ToString(reader["ID"]), new HKLibSteel
+                    {
+                        CSSpecCn = Convert.ToString(reader["CSSpecCn"]),
+                        CSSpecEn = Convert.ToString(reader["CSSpecEn"]),
+                        IBSpecCn = Convert.ToString(reader["IBSpecCn"]),
+                        IBSpecEn = Convert.ToString(reader["IBSpecEn"]),
+                        Width = Convert.ToDecimal(reader["Width"]),
+                        CSb = !string.IsNullOrEmpty(Convert.ToString(reader["CSb"])) ? Convert.ToDecimal(reader["CSb"]) : nullDecimal,
+                        CSd = !string.IsNullOrEmpty(Convert.ToString(reader["CSd"])) ? Convert.ToDecimal(reader["CSd"]) : nullDecimal,
+                        IBb = !string.IsNullOrEmpty(Convert.ToString(reader["IBb"])) ? Convert.ToDecimal(reader["IBb"]) : nullDecimal,
+                        IBd = !string.IsNullOrEmpty(Convert.ToString(reader["IBd"])) ? Convert.ToDecimal(reader["IBd"]) : nullDecimal,
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicThread()
+        {
+            dicThread.Clear();
+            try
+            {
+                string query = "select * from HK_LibThread order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicThread.Add(Convert.ToString(reader["ID"]), new HKLibThread
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        SubClass = Convert.ToString(reader["SubClass"]),
+                        ClassEx = Convert.ToString(reader["ClassEx"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        Value = Convert.ToDecimal(reader["Value"]),
+                        Pitch = Convert.ToDecimal(reader["Pitch"]),
+                        Qty = !string.IsNullOrEmpty(Convert.ToString(reader["Qty"])) ? Convert.ToInt32(reader["Qty"]) : nullInt,
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicTubeOD()
+        {
+            dicTubeOD.Clear();
+            try
+            {
+                string query = "select * from HK_LibTubeOD order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicTubeOD.Add(Convert.ToString(reader["ID"]), new HKLibTubeOD
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        ClassEx = Convert.ToString(reader["ClassEx"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        ValueM = Convert.ToDecimal(reader["ValueM"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicGland()
+        {
+            dicGland.Clear();
+            try
+            {
+                string query = "select * from HK_LibGland order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicGland.Add(Convert.ToString(reader["ID"]), new HKLibGland
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Class = Convert.ToString(reader["Class"]),
+                        ClassEx = Convert.ToString(reader["ClassEx"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        CabODMin = Convert.ToDecimal(reader["CabODMin"]),
+                        CabODMax = Convert.ToDecimal(reader["CabODMax"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private void SetDicGenOption()
+        {
+            dicGenOption.Clear();
+            try
+            {
+                string query = "select * from HK_LibGenOption order by SortNum";
+                if (conn == null || conn.State != ConnectionState.Open)
+                    conn = GetConnection();
+                OdbcCommand command = new OdbcCommand(query, conn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dicGenOption.Add(Convert.ToString(reader["ID"]), new HKLibGenOption
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        Cat = Convert.ToString(reader["Cat"]),
+                        Inact = !string.IsNullOrEmpty(Convert.ToString(reader["Inact"])) ? Convert.ToInt32(reader["Inact"]) : nullInt,
+                        SortNum = Convert.ToInt32(reader["SortNum"])
+                    });
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+        }
+        private string SetSpecMainAux(string input)
+        {
+            string result = string.Empty;
+            string results = string.Empty;
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+            List<string> segments = input.Split(',').ToList();
+            try
+            {
+                for (int i = 0; i < segments.Count; i++)
+                {
+                    string name = segments[i].Trim().Split(':')?[0];
+                    string value = segments[i].Trim().Split(':')?[1];
+                    if (string.IsNullOrEmpty(value))
+                        result = string.Empty;
+                    else
+                    {
+                        if (dicSpecDic.ContainsKey(name))
+                        {
+                            if (dicSpecDic[name].Link.StartsWith("LibPipeOD"))
+                                result = $"{dicSpecDic[name].Prefix}{GetPipeData(value, dicSpecDic[name].Link.Split(',')[1])}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibPN"))
+                                result = $"{dicSpecDic[name].Prefix}{dicPN[value].Spec}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibGenOption"))
+                                result = $"{dicSpecDic[name].Prefix}{dicGenOption[value].Spec}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibGland"))
+                                result = $"{dicSpecDic[name].Prefix}{dicGland[value].Spec}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibThread"))
+                                result = $"{dicSpecDic[name].Prefix}{dicThread[value].Spec}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibTubeOD"))
+                                result = $"{dicSpecDic[name].Prefix}{dicTubeOD[value].Spec}{dicSpecDic[name].Suffix}";
+                            else if (dicSpecDic[name].Link.StartsWith("LibSteel"))
+                                result = $"{dicSpecDic[name].Prefix}{GetSteelData(value, dicSpecDic[name].Link.Split(',')[1])}{dicSpecDic[name].Suffix}";
+                            else
+                                result = $"{dicSpecDic[name].Prefix}{dicPN[value].Spec}{dicSpecDic[name].Suffix}";
+                        }
+                    }
+                    results = string.IsNullOrEmpty(results) ? result : results + ", " + result;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+                return string.Empty;
+            }
+            return results;
+        }
+        private string SetSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "")
+        {
+            string result1 = string.Empty;
+            string result2 = string.Empty;
+            try
+            {
+                if (!string.IsNullOrEmpty(typeP1))
+                {
+                    if (string.IsNullOrEmpty(sizeP1))
+                        result1 = dicPortType[typeP1].Name;
+                    else if (dicPortType.ContainsKey(typeP1))
+                    {
+                        if (dicPortType[typeP1].Link.StartsWith("LibPipeOD"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{GetPipeData(sizeP1, dicPortType[typeP1].Link.Split(',')[1])}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibPN"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicPN[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibGenOption"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicGenOption[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibGland"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicGland[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibThread"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicThread[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibTubeOD"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicTubeOD[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                        else if (dicPortType[typeP1].Link.StartsWith("LibSteel"))
+                            result1 = $"{dicPortType[typeP1].Prefix}{GetSteelData(sizeP1, dicPortType[typeP1].Link.Split(',')[1])}{dicPortType[typeP1].Suffix}";
+                        else
+                            result1 = $"{dicPortType[typeP1].Prefix}{dicPN[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                    }
+                }
+                if (!string.IsNullOrEmpty(typeP2))
+                {
+                    if (string.IsNullOrEmpty(sizeP2))
+                        result2 = dicPortType[typeP2].Name;
+                    else if (dicPortType.ContainsKey(typeP2))
+                    {
+                        if (dicPortType[typeP2].Link.StartsWith("LibPipeOD"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{GetPipeData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibPN"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicPN[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibGenOption"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicGenOption[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibGland"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicGland[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibThread"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicThread[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibTubeOD"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicTubeOD[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                        else if (dicPortType[typeP2].Link.StartsWith("LibSteel"))
+                            result2 = $"{dicPortType[typeP2].Prefix}{GetSteelData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{dicPortType[typeP2].Suffix}";
+                        else
+                            result2 = $"{dicPortType[typeP2].Prefix}{dicPN[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                    }
+                }
+                if(alterCode == "AS1" || alterCode == "DF1" && result1 == result2) 
+                    result2=string.Empty;  
+                return string.IsNullOrEmpty(result2) ? result1 : result1 + " / " + result2;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+                return string.Empty;
+            }
+        }
+        private string GetPipeData(string input, string key = "")
+        {
+            if (string.IsNullOrEmpty(key)) return string.Empty;
+            if (key == "DN")
+                return dicPipeOD[input]?.DN;
+            else if (key == "NPS")
+                return dicPipeOD[input]?.NPS;
+            else if (key == "HGIa")
+                return dicPipeOD[input]?.HGIa?.ToString();
+            else if (key == "HGIb")
+                return dicPipeOD[input]?.HGIb?.ToString();
+            else if (key == "HGII")
+                return dicPipeOD[input]?.HGII?.ToString();
+            else if (key == "GBI")
+                return dicPipeOD[input]?.GBI?.ToString();
+            else if (key == "GBII")
+                return dicPipeOD[input]?.GBII?.ToString();
+            else if (key == "ISO")
+                return dicPipeOD[input]?.ISO?.ToString();
+            else if (key == "ASME")
+                return dicPipeOD[input]?.ASME?.ToString();
+            else if (key == "SWDiaGB")
+                return dicPipeOD[input]?.SWDiaGB?.ToString();
+            else
+                return dicPipeOD[input]?.DN;
+        }
+        private string GetSteelData(string input, string key = "")
+        {
+            if (string.IsNullOrEmpty(key)) return string.Empty;
+            if (key == "CSSpec")
+                return dicSteel[input]?.CSSpec;
+            else if (key == "IBSpec")
+                return dicSteel[input]?.IBSpec;
+            else if (key == "CSSpecCN")
+                return dicSteel[input]?.CSSpecCn;
+            else if (key == "CSSpecEn")
+                return dicSteel[input]?.CSSpecEn;
+            else if (key == "IBSpecCn")
+                return dicSteel[input]?.IBSpecCn;
+            else if (key == "IBSpecEn")
+                return dicSteel[input]?.IBSpecEn;
+            else if (key == "CSb")
+                return dicSteel[input]?.CSb?.ToString();
+            else if (key == "CSd")
+                return dicSteel[input]?.CSd?.ToString();
+            else if (key == "IBb")
+                return dicSteel[input]?.IBb?.ToString();
+            else if (key == "IBd")
+                return dicSteel[input]?.IBd?.ToString();
+            else
+                return string.Empty;
+        }
+        private void btnToBeChk_Click(object sender, RoutedEventArgs e)
+        {
+            //string test = GeneralFun.ConvertToSqlString("Class:<: NPTM | NPTF");
+            //string test = GeneralFun.ParseLinkExp("LibThread,,Class:IN:NPTM|NPSC");
+            //var t1 = GeneralFun.ParseNumber("12345.0");
+            UpdateQueryResult();
+
+            //int test = GetNewID();
+            //NewDataAdd();
+
+            //SetDicMatGen();
+            //string test1 = SetSpecMainAux("DN:0080,PN:PN16");
+            //string test2 = SetSpecPort("W", "", "W", "0050", "DF1");
+
+        }
+
     }
 }
