@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,13 +8,39 @@ using System.Web;
 
 namespace iEngr.Hookup
 {
-    public class HKMatGenLib
+    public class HKMatGenLib : INotifyPropertyChanged
     {
         public int ID { get; set; }
         public string CatID { get; set; }
         public string SubCatID { get; set; }
-        public string NameCn { get; set; }  
-        public string NameEn { get; set; }
+        //public string NameCn { get; set; }  
+        //public string NameEn { get; set; }
+        private string _NameCn;
+        public string NameCn
+        {
+            get => _NameCn;
+            set
+            {
+                if (_NameCn != value)
+                {
+                    _NameCn = value;
+                    OnPropertyChanged(nameof(NameCn));
+                }
+            }
+        }
+        private string _NameEn;
+        public string NameEn
+        {
+            get => _NameEn;
+            set
+            {
+                if (_NameEn != value)
+                {
+                    _NameEn = value;
+                    OnPropertyChanged(nameof(NameEn));
+                }
+            }
+        }
         public string Name
         {
             get
@@ -25,21 +52,112 @@ namespace iEngr.Hookup
             }
         }
         public string TechSpecMain { get; set; }
-        public string SpecCombMain { get; set; }
+        //public string SpecCombMain { get; set; }
+        private string _SpecCombMain;
+        public string SpecCombMain
+        {
+            get => _SpecCombMain;
+            set
+            {
+                if (_SpecCombMain != value)
+                {
+                    _SpecCombMain = value;
+                    OnPropertyChanged(nameof(SpecCombMain));
+                }
+            }
+        }
         public string TechSpecAux { get; set; }
-        public string SpecCombAux { get; set; }
+        //public string SpecCombAux { get; set; }
+        private string _SpecCombAux;
+        public string SpecCombAux
+        {
+            get => _SpecCombAux;
+            set
+            {
+                if (_SpecCombAux != value)
+                {
+                    _SpecCombAux = value;
+                    OnPropertyChanged(nameof(SpecCombAux));
+                }
+            }
+        }
         public string TypeP1 { get; set; }
         public string SizeP1 { get; set; }
         public string TypeP2 { get; set; }
         public string SizeP2 { get; set; }
          public string MatSpec { get; set; }
-        public string SpecCombPort { get; set; }
-        public string SpecMat { get; set; }
+        //public string SpecCombPort { get; set; }
+        private string _SpecCombPort;
+        public string SpecCombPort
+        {
+            get => _SpecCombPort;
+            set
+            {
+                if (_SpecCombPort != value)
+                {
+                    _SpecCombPort = value;
+                    OnPropertyChanged(nameof(SpecCombPort));
+                }
+            }
+        }
+        //public string SpecMat { get; set; }
+        private string _SpecMat;
+        public string SpecMat
+        {
+            get => _SpecMat;
+            set
+            {
+                if (_SpecMat != value)
+                {
+                    _SpecMat = value;
+                    OnPropertyChanged(nameof(SpecMat));
+                }
+            }
+        }
         public string PClass { get; set; }
-        public string SpecPClass { get; set; }
-        public string MoreSpecCn { get; set; }
-        public string MoreSpecEn { get; set; }
-        public string SpecMore
+        //public string SpecPClass { get; set; }
+        private string _SpecPClass;
+        public string SpecPClass
+        {
+            get => _SpecPClass;
+            set
+            {
+                if (_SpecPClass != value)
+                {
+                    _SpecPClass = value;
+                    OnPropertyChanged(nameof(SpecPClass));
+                }
+            }
+        }
+        //public string MoreSpecCn { get; set; }
+        //public string MoreSpecEn { get; set; }
+        private string _MoreSpecCn;
+        public string MoreSpecCn
+        {
+            get => _MoreSpecCn;
+            set
+            {
+                if (_MoreSpecCn != value)
+                {
+                    _MoreSpecCn = value;
+                    OnPropertyChanged(nameof(MoreSpecCn));
+                }
+            }
+        }
+        private string _MoreSpecEn;
+        public string MoreSpecEn
+        {
+            get => _MoreSpecEn;
+            set
+            {
+                if (_MoreSpecEn != value)
+                {
+                    _MoreSpecEn = value;
+                    OnPropertyChanged(nameof(MoreSpecEn));
+                }
+            }
+        }
+        public string MoreSpec
         {
             get
             {
@@ -50,14 +168,40 @@ namespace iEngr.Hookup
             }
         }
         public string AppStd { get; set; }
-        public string RemarksCn { get; set; }
-        public string RemarksEn { get; set; }
+        //public string RemarksCn { get; set; }
+        //public string RemarksEn { get; set; }
+        private string _RemarksCn;
+        public string RemarksCn
+        {
+            get => _RemarksCn;
+            set
+            {
+                if (_RemarksCn != value)
+                {
+                    _RemarksCn = value;
+                    OnPropertyChanged(nameof(RemarksCn));
+                }
+            }
+        }
+        private string _RemarksEn;
+        public string RemarksEn
+        {
+            get => _RemarksEn;
+            set
+            {
+                if (_RemarksEn != value)
+                {
+                    _RemarksEn = value;
+                    OnPropertyChanged(nameof(RemarksEn));
+                }
+            }
+        }
         public string Comments { get; set; }
         public string SpecCombAll
         {
             get
             {
-                return string.Join("; ", new List<string> { SpecCombMain, SpecCombPort, SpecCombAux, SpecMat, SpecMore }
+                return string.Join("; ", new List<string> { SpecCombMain, SpecCombPort, SpecCombAux, SpecMat, MoreSpec }
                                                  .Select(item => item.Trim())
                                                  .Where(item => !string.IsNullOrWhiteSpace(item))
                                                  .ToList());
@@ -74,5 +218,11 @@ namespace iEngr.Hookup
             }
         }
         public string AlterCode { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
