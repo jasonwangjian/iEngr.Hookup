@@ -318,6 +318,62 @@ namespace iEngr.Hookup
                          .Where(item => !string.IsNullOrWhiteSpace(item))
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .ToList();
+            // for (int i = 0; i < 2; i++)
+            // {
+            //     string searchKey = lstSpecMain.Count>i? lstSpecMain[i]:null;
+            //     string seg = null;
+
+            //     // 查找匹配的规格段
+            //     if (!string.IsNullOrEmpty(searchKey))
+            //     {
+            //         if (lstMainSpec.Count>i && lstMainSpec[i].Contains(searchKey)) //source不变
+            //         {
+            //             seg = lstMainSpec[i];
+            //             if (!string.IsNullOrEmpty(seg))
+            //             {
+            //                 // 解析规格段
+            //                 string[] segParts = seg.Split(':');
+            //                 string specT = segParts[0];
+            //                 string specV = segParts[1];
+            //                 // 设置组合框选择
+            //                 SetCmbMainSpecVSelection(i, specT, specV);
+            //                 lstSpecMain[i] = seg;
+            //             }
+            //         }
+            //         else
+            //         {
+            //             SetCmbMainSpecTSource(i, GetLibSpecDic(searchKey));
+            //             foreach (string part in lstMainSpec)
+            //             {
+            //                 string[] partSegments = part.Split(':');
+            //                 if (partSegments.Length > 0 && partSegments[0].Contains(searchKey))
+            //                 {
+            //                     seg = part;
+            //                     break;
+            //                 }
+            //             }
+            //             if (!string.IsNullOrEmpty(seg))
+            //             {
+            //                 // 解析规格段
+            //                 string[] segParts = seg.Split(':');
+            //                 string specT = segParts[0];
+            //                 string specV = segParts[1];
+            //                 // 设置组合框选择
+            //                 SetCmbMainSpecVSelection(i, specT, specV);
+            //                 lstSpecMain[i] = seg;
+            //             }
+            //         }
+
+            //     }
+            //     // 处理未找到的情况
+            //     else
+            //     {
+            //         SetCmbMainSpecTSource(i, null);
+            //     }
+            //}
+
+
+
             cbMainSpecT1.ItemsSource = null;
             cbMainSpec1.ItemsSource = null;
             cbMainSpecT2.ItemsSource = null;
@@ -1946,14 +2002,16 @@ namespace iEngr.Hookup
                 int maxSpecs = Math.Min(lstMainSpec.Count, 3);
                 for (int i = 0; i < maxSpecs; i++)
                 {
-                    string searchKey = lstMainSpec[i].Split(':')[0];
+                    //string searchKey = lstMainSpec[i].Split(':')[0];
+                    string searchKey = string.Join("|", (cbMainSpecT1.ItemsSource as ObservableCollection<HKLibSpecDic>).Select(x=>x.ID).Where(x=>x != "-"));   
                     string seg = null;
 
                     // 查找匹配的规格段
                     foreach (string part in techSpecParts)
                     {
                         string[] partSegments = part.Split(':');
-                        if (partSegments.Length > 0 && partSegments[0].Contains(searchKey))
+                        //            if (partSegments.Length > 0 && partSegments[0].Contains(searchKey))
+                        if (partSegments.Length > 0 && searchKey.Contains(partSegments[0]))
                         {
                             seg = part;
                             break;
@@ -2110,6 +2168,21 @@ namespace iEngr.Hookup
             }
         }
         // 辅助方法：设置组合框选择
+        private void SetCmbMainSpecTSource(int index, ObservableCollection<HKLibSpecDic> items)
+        {
+            switch (index)
+            {
+                case 0:
+                    cbMainSpecT1.ItemsSource = items;
+                    break;
+                case 1:
+                    cbMainSpecT2.ItemsSource = items;
+                    break;
+                case 2:
+                    cbMainSpecT3.ItemsSource = items;
+                    break;
+            }
+        }
         private void SetCmbMainSpecVSelection(int index, string specT, string specV)
         {
             ComboBox cbType = null;
@@ -2174,6 +2247,39 @@ namespace iEngr.Hookup
                 if (valueList[j].ID == specV)
                 {
                     cbValue.SelectedIndex = j;
+                    break;
+                }
+            }
+        }
+        private void SetCmbMainSpecTSelection(int index, string specT)
+        {
+            ComboBox cbType = null;
+            ObservableCollection<HKLibSpecDic> typeList = null;
+            ComboBox cmbT = null;
+
+            switch (index)
+            {
+                case 0:
+                    cbType = cbMainSpecT1;
+                    cmbT = cbMainSpecT1;
+                    break;
+                case 1:
+                    cbType = cbMainSpecT2;
+                    cmbT = cbMainSpecT2;
+                    break;
+                case 2:
+                    cbType = cbMainSpecT3;
+                    cmbT = cbMainSpecT3;
+                    break;
+            }
+            typeList = cmbT.ItemsSource as ObservableCollection<HKLibSpecDic>;
+
+            // 设置类型组合框
+            for (int j = 0; j < typeList.Count; j++)
+            {
+                if (typeList[j].ID == specT)
+                {
+                    cbType.SelectedIndex = j;
                     break;
                 }
             }

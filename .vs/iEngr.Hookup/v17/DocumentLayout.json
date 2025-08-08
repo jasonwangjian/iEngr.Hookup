@@ -15,7 +15,7 @@
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hklibgenoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -78,8 +78,7 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKLibPN.cs",
               "ViewState": "AQIAAAkAAAAAAAAAAAAiwBgAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-05T05:46:41.666Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-05T05:46:41.666Z"
             },
             {
               "$type": "Document",
@@ -89,7 +88,7 @@
               "RelativeDocumentMoniker": "iEngr.Hookup\\HK_Mat_Main.xaml.cs",
               "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\HK_Mat_Main.xaml.cs",
               "RelativeToolTip": "iEngr.Hookup\\HK_Mat_Main.xaml.cs",
-              "ViewState": "AQIAADMBAAAAAAAAAAAowD8BAAAjAAAA",
+              "ViewState": "AQIAAJ4IAAAAAAAAAAAAAK8IAAAtAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-25T06:28:02.347Z",
               "EditorCaption": ""
@@ -104,8 +103,7 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKMatGenLib.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAALkAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-05T08:46:01.324Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-05T08:46:01.324Z"
             },
             {
               "$type": "Document",
@@ -141,8 +139,7 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKLibGland.cs",
               "ViewState": "AQIAABAAAAAAAAAAAAAywBkAAAAiAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-05T05:50:25.002Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-05T05:50:25.002Z"
             },
             {
               "$type": "Document",
@@ -179,8 +176,7 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKLibGenOption.cs",
               "ViewState": "AQIAAA8AAAAAAAAAAAAwwBUAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-05T05:49:32.043Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-05T05:49:32.043Z"
             }
           ]
         },
