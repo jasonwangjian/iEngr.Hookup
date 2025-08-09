@@ -24,3 +24,17 @@ D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.Gene
 D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.CoreCompileInputs.cache
 D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.dll
 D:\myProject\GitHub\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.pdb
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\bin\Debug\iEngr.Hookup.dll
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\bin\Debug\iEngr.Hookup.pdb
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.AssemblyReference.cache
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup_MarkupCompile.cache
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup_MarkupCompile.lref
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.g.resources
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.Properties.Resources.resources
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.GenerateResource.cache
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.csproj.CoreCompileInputs.cache
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.dll
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\iEngr.Hookup.pdb
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_LibMat.g.cs
+D:\myProjects\VS\GitHub\WpfAppTest\iEngr.Hookup\iEngr.Hookup\obj\Debug\HK_LibMat.baml

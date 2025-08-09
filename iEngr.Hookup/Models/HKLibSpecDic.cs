@@ -22,7 +22,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return NameCn;
                 else
                     return NameEn;
@@ -32,7 +32,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return PrefixCn;
                 else
                     return PrefixEn;
@@ -42,7 +42,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return SuffixCn;
                 else
                     return SuffixEn;

@@ -24,7 +24,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return CSSpecCn;
                 else
                     return CSSpecEn;
@@ -34,7 +34,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return IBSpecCn;
                 else
                     return IBSpecEn;

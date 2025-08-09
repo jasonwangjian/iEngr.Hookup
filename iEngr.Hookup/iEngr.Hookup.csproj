@@ -49,12 +49,16 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="HK_Mat_Main.xaml">
+    <Page Include="HK_LibMat.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="HK_Mat_Main.xaml.cs">
-      <DependentUpon>HK_Mat_Main.xaml</DependentUpon>
+    <Compile Include="HK_Binding.Converter.cs" />
+    <Compile Include="HK_LibMat.BindingData.cs" />
+    <Compile Include="HK_LibMat.DicIni.cs" />
+    <Compile Include="HK_LibMat.DBHandle.cs" />
+    <Compile Include="HK_LibMat.xaml.cs">
+      <DependentUpon>HK_LibMat.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

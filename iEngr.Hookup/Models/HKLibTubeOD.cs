@@ -19,7 +19,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return SpecCn;
                 else
                     return SpecEn;
@@ -29,7 +29,7 @@ namespace iEngr.Hookup
         {
             get
             {
-                if (HK_Mat_Main.intLan == 0)
+                if (HK_LibMat.intLan == 0)
                     return SpecCn;
                 else
                     return SpecEn;
