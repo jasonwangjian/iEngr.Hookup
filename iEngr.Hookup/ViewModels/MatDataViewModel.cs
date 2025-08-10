@@ -93,8 +93,10 @@ namespace iEngr.Hookup.ViewModels
                     else if (value != null)
                     {
                         StrTypeAllP1 = GetAllPortStringDistinct(value.TypeP1);
-                        if  (!HK_General.portDef.Contains(AlterCode))
-                            StrTypeAllP2=GetAllPortStringDistinct(value.TypeP2);
+                        if (!HK_General.portDef.Contains(AlterCode))
+                            StrTypeAllP2 = GetAllPortStringDistinct(value.TypeP2);
+                        else
+                            StrTypeAllP2 = StrTypeAllP1;
                     }
                     //if (value?.ID == string.Empty)
                     // {
@@ -219,7 +221,11 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _typeP1 = value;
                     OnPropertyChanged(nameof(TypeP1));
-                    if (AlterCode == "AS1") TypeP2 = value;
+                    if (AlterCode == "AS1")
+                    {
+                        TypeAllP2 = TypeAllP1;
+                        TypeP2 = value;
+                    }
                 }
             }
         }

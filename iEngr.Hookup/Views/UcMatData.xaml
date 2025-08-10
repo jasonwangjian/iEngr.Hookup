@@ -105,8 +105,9 @@
                 </MultiBinding>
             </WrapPanel.Visibility>
             <ComboBox x:Name="cbTypeP2" MinWidth="120" Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"
-            ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"
-            IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"></ComboBox>
+            ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"></ComboBox>
+            <!--IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"-->
+                      
             <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
         </WrapPanel>
         <Label x:Name="lbAuxSpec" Grid.Row="7" Grid.Column="0" >副参数：</Label>
