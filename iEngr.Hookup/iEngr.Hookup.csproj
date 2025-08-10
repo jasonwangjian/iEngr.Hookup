@@ -49,20 +49,58 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\NullToBoolConverter .cs" />
+    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="ViewModels\MatDataViewModel.cs" />
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="Models\Person.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Views\UcMatData.xaml.cs">
+      <DependentUpon>UcMatData.xaml</DependentUpon>
+    </Compile>
     <Page Include="HK_LibMat.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="HK_Binding.Converter.cs" />
+    <Compile Include="HK_General.cs" />
+    <Compile Include="HK_MatData.Model.cs" />
+    <Compile Include="HK_MatData.Binding.cs" />
     <Compile Include="HK_LibMat.BindingData.cs" />
+    <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="HK_LibMat.DicIni.cs" />
     <Compile Include="HK_LibMat.DBHandle.cs" />
     <Compile Include="HK_LibMat.xaml.cs">
       <DependentUpon>HK_LibMat.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="HK_LibMatHandle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HK_MatData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcMatData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HK_LibMatHandle.xaml.cs">
+      <DependentUpon>HK_LibMatHandle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="HK_MatData.xaml.cs">
+      <DependentUpon>HK_MatData.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\GeneralFun.cs" />
     <Compile Include="Models\HKMatGenLib.cs" />
     <Compile Include="Models\HKLibGland.cs" />
@@ -100,5 +138,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

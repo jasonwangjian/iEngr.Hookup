@@ -8,6 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
-        <external:HK_LibMat/>
+        <external:HK_LibMatHandle/>
     </Grid>
 </Window>

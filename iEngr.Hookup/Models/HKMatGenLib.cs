@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,6 +11,15 @@ namespace iEngr.Hookup
 {
     public class HKMatGenLib : INotifyPropertyChanged
     {
+        public HKMatGenLib()
+        {
+            this.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(AlterCode))
+                {
+                }
+            };
+        }
         public int ID { get; set; }
         public string CatID { get; set; }
         public string SubCatID { get; set; }

@@ -10,7 +10,6 @@
         <!-- 创建转换器 -->
         <local:PortVisibilityConverter x:Key="PortVisibilityConverter" />
         <local:SpecTVisibilityConverter x:Key="SpecTVisibilityConverter"/>
-        <local:DisabledIndexBindingConverter x:Key="DisabledIndexConverter"/>
     </UserControl.Resources>
 
     <Grid>
@@ -115,22 +114,8 @@
                         <Binding ElementName="cbTypeP2" Path="Items.Count"/>
                     </MultiBinding>
                 </WrapPanel.Visibility>
-                <ComboBox x:Name="cbTypeP2" MinWidth="120" Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name" >
-                    <ComboBox.SelectedIndex>
-                        <MultiBinding Converter="{StaticResource DisabledIndexConverter}">
-                            <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}"/>
-                            <Binding Path="SelectedIndex" ElementName="cbTypeP1"/>
-                        </MultiBinding>
-                    </ComboBox.SelectedIndex>
-                </ComboBox>
-                <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name">
-                    <ComboBox.SelectedIndex>
-                        <MultiBinding Converter="{StaticResource DisabledIndexConverter}">
-                            <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}"/>
-                            <Binding Path="SelectedIndex" ElementName="cbSizeP1"/>
-                        </MultiBinding>
-                    </ComboBox.SelectedIndex>
-                </ComboBox>
+                <ComboBox x:Name="cbTypeP2" MinWidth="120" Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"></ComboBox>
+                <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
             </WrapPanel>
             <Label x:Name="lbAuxSpec" Grid.Row="7" Grid.Column="0" >副参数：</Label>
             <WrapPanel Grid.Row="7" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
