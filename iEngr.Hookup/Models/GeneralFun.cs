@@ -341,5 +341,14 @@ namespace iEngr.Hookup.Models
 
             return true;
         }
+
+        public static Func<T, object> CreateGetter<T>(string propertyName)
+        {
+            var param = Expression.Parameter(typeof(T));
+            var prop = Expression.Property(param, propertyName);
+            var convert = Expression.Convert(prop, typeof(object));
+            return Expression.Lambda<Func<T, object>>(convert, param).Compile();
+        }
+
     }
 }

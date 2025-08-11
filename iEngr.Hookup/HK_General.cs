@@ -11,6 +11,7 @@ using System.Windows;
 
 namespace iEngr.Hookup
 {
+
     public static partial class HK_General
     {
         public static int intLan = 0; // 0: 中文； 其它为英文

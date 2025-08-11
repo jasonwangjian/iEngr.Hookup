@@ -16,6 +16,8 @@ namespace iEngr.Hookup.ViewModels
     {
         public HKLibSpecDic _typeP1;
         public HKLibSpecDic _typeP2;
+        public int _typeP1Index;
+        public int _typeP2Index;
         public HKLibGenOption _sizeP1;
         public HKLibGenOption _sizeP2;
         private string _mainCatID;
@@ -83,11 +85,10 @@ namespace iEngr.Hookup.ViewModels
                 if (_subCat != value)
                 {
                     _subCat = value;
-                    OnPropertyChanged(nameof(SubCat));
                     AlterCode = value?.TypeP2;
                     if (value?.ID == string.Empty)
                     {
-                        StrTypeAllP1=GetAllP1StringDistinct(SubCats);
+                        StrTypeAllP1 = GetAllP1StringDistinct(SubCats);
                         StrTypeAllP2 = GetAllP2StringDistinct(SubCats);
                     }
                     else if (value != null)
@@ -98,6 +99,7 @@ namespace iEngr.Hookup.ViewModels
                         else
                             StrTypeAllP2 = StrTypeAllP1;
                     }
+                    OnPropertyChanged(nameof(SubCat));
                     //if (value?.ID == string.Empty)
                     // {
                     //     TypeAllP1 = GetAllPortType(GetAllPortType(GetAllP1StringDistinct(SubCats)));
@@ -196,6 +198,8 @@ namespace iEngr.Hookup.ViewModels
                 if (_typeAllP1 != value)
                 {
                     _typeAllP1 = value;
+                    if (value != null && TypeP1 == null)
+                        TypeP1 = value[0];
                     OnPropertyChanged(nameof(TypeAllP1));
                 }
             }
@@ -208,6 +212,8 @@ namespace iEngr.Hookup.ViewModels
                 if (_typeAllP2 != value)
                 {
                     _typeAllP2 = value;
+                    if (value != null && TypeP2 == null)
+                        TypeP2 = value[0];
                     OnPropertyChanged(nameof(TypeAllP2));
                 }
             }
@@ -219,13 +225,20 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_typeP1 != value)
                 {
-                    _typeP1 = value;
-                    OnPropertyChanged(nameof(TypeP1));
+                    if (value == null && _typeP1 != null)
+                    {
+                        _typeP1 = TypeAllP1.FirstOrDefault(x => x.ID == _typeP1.ID);
+                        if (_typeP1 == null && TypeAllP1.Count > 0)
+                            _typeP1 = TypeAllP1?[0];
+                    }
+                    else
+                        _typeP1 = value;
                     if (AlterCode == "AS1")
                     {
                         TypeAllP2 = TypeAllP1;
-                        TypeP2 = value;
+                        TypeP2 = _typeP1;
                     }
+                    OnPropertyChanged(nameof(TypeP1));
                 }
             }
         }
@@ -356,14 +369,14 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_alterCode != value)
                 {
-                    _alterCode = value;
-                    OnPropertyChanged(nameof(AlterCode));
                     if (HK_General.portDef.Contains(value))
                     {
                         TypeAllP2 = TypeAllP1;
                         if (value == "AS1")
                             TypeP2 = TypeP1;
                     }
+                    _alterCode = value;
+                    OnPropertyChanged(nameof(AlterCode));
                 }
             }
         }
@@ -438,7 +451,7 @@ namespace iEngr.Hookup.ViewModels
         private string GetAllP1StringDistinct(ObservableCollection<HKMatSubCat> subCats)
         {
             List<string> lst = SubCats.OrderBy(x => x.SortNum)
-                           .Select(x=>x.TypeP1)
+                           .Select(x => x.TypeP1)
                            .Where(x => !string.IsNullOrWhiteSpace(x))
                            .Select(x => x.Trim())
                            .Where(x => !HK_General.portNA.Contains(x))
@@ -504,13 +517,13 @@ namespace iEngr.Hookup.ViewModels
                 Class = string.IsNullOrEmpty(x.Link) ? x.Remarks : "Link"
             })
                 .OrderBy(x => x.SortNum).ToList());
-            if (allPortTypes.Count>0)
-            allPortTypes.Insert(0, new HKLibSpecDic
-            {
-                ID = string.Empty,
-                NameCn = "选择连接类型",
-                NameEn = "Select Conn.Type"
-            });
+            if (allPortTypes.Count > 0)
+                allPortTypes.Insert(0, new HKLibSpecDic
+                {
+                    ID = string.Empty,
+                    NameCn = "选择连接类型",
+                    NameEn = "Select Conn.Type"
+                });
             return allPortTypes;
         }
     }

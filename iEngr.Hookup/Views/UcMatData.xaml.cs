@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Expression = System.Linq.Expressions.Expression;
+
 
 namespace iEngr.Hookup.Views
 {
@@ -50,6 +52,10 @@ namespace iEngr.Hookup.Views
             //cbSubCat.ItemsSource = GetHKMatSubCats(cbMainCat.SelectedItem as HKMatMainCat);
             //cbSubCat.SelectedIndex = 0;
             //HK_General.UpdateQueryResult();
+
+            //Testing
+            var getter = GeneralFun.CreateGetter<HKMatMainCat>("NameEn");
+            string test = getter(cbMainCat.SelectedItem as HKMatMainCat) as string;
 
         }
         private void cbSubCat_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -355,13 +361,13 @@ namespace iEngr.Hookup.Views
 
         private void cbType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
-            if (selectedItem == null) return;
-            if ((sender as ComboBox).IsKeyboardFocusWithin)
-            {
-                currMat.TypeP1 = selectedItem.ID;
+            //HKLibSpecDic selectedItem = ((sender as ComboBox).SelectedItem as HKLibSpecDic);
+            //if (selectedItem == null) return;
+            //if ((sender as ComboBox).IsKeyboardFocusWithin)
+            //{
+            //    currMat.TypeP1 = selectedItem.ID;
 
-            }
+            //}
             HK_General.UpdateQueryResult();
         }
 
