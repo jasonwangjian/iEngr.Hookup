@@ -14,6 +14,7 @@
     <UserControl.Resources>
         <!-- 创建转换器 -->
         <cv:AS1ToBoolConverter x:Key="AS1ToBoolConverter" />
+        <cv:NullVisibilityConverter x:Key="NullVisibilityConverter" />
         <cv:PortVisibilityConverter x:Key="PortVisibilityConverter" />
         <cv:SpecTVisibilityConverter x:Key="SpecTVisibilityConverter"/>
     </UserControl.Resources>
@@ -86,28 +87,22 @@
             <Label  x:Name="lbPort1" Grid.Row="3" Grid.Column="0">端口一：</Label>
         </WrapPanel>
         <WrapPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <WrapPanel.Visibility>
-                <MultiBinding Converter="{StaticResource PortVisibilityConverter}">
-                    <Binding ElementName="cbTypeP1" Path="Items.Count"/>
-                </MultiBinding>
-            </WrapPanel.Visibility>
             <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name" 
-                       ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}"></ComboBox>
+                      ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}" 
+                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
+            ></ComboBox>
             <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
         </WrapPanel>
         <WrapPanel  Grid.Row="6" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
             <Label  x:Name="lbPort2" Grid.Row="4" Grid.Column="0">端口二：</Label>
         </WrapPanel>
         <WrapPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <WrapPanel.Visibility>
-                <MultiBinding Converter="{StaticResource PortVisibilityConverter}">
-                    <Binding ElementName="cbTypeP2" Path="Items.Count"/>
-                </MultiBinding>
-            </WrapPanel.Visibility>
             <ComboBox x:Name="cbTypeP2" MinWidth="120" Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"
-            ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"></ComboBox>
-             <!--IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"-->
-                     
+                      IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"
+                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"
+            ></ComboBox>
+
             <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
         </WrapPanel>
         <Label x:Name="lbAuxSpec" Grid.Row="7" Grid.Column="0" >副参数：</Label>
