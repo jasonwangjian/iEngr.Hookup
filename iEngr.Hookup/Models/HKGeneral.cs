@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace iEngr.Hookup
 {
-    //public class DN
-    //{
-    //    public string ID { get; set; }
-    //    public string Name { get; set; }
-    //}
-    public class Prompt
+    public class CmbItem
     {
         public string ID { get; set; }
+        public string Comp { get; set; }
         public string NameCn { get; set; }
         public string NameEn { get; set; }
         public string Name

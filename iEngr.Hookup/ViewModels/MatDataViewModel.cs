@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,54 +17,10 @@ namespace iEngr.Hookup.ViewModels
 {
     public class MatDataViewModel : INotifyPropertyChanged
     {
-        public HKLibSpecDic _typeP1;
-        public HKLibSpecDic _typeP2;
-        public HKLibGenOption _sizeP1;
-        public HKLibGenOption _sizeP2;
-        private string _mainCatID;
-        private string _subCatID;
         private HKMatMainCat _mainCat;
         private HKMatSubCat _subCat;
         private ObservableCollection<HKMatMainCat> _mainCats;
         private ObservableCollection<HKMatSubCat> _subCats;
-        private string _techSpecMain;
-        private string _techSpecAux;
-        private string _strTypeAllP1;
-        private string _strTypeAllP2;
-        private ObservableCollection<HKLibSpecDic> _typeAllP1;
-        private ObservableCollection<HKLibSpecDic> _typeAllP2;
-        private ObservableCollection<HKLibGenOption> _sizeAllP1;
-        private ObservableCollection<HKLibGenOption> _sizeAllP2;
-        private string _matMatAll;
-        private string _moreSpecCn;
-        private string _moreSpecEn;
-        private string _remarksEn;
-        private string _remarksCn;
-        private string _alterCode;
-        public string MainCatID
-        {
-            get => _mainCatID;
-            set
-            {
-                if (_mainCatID != value)
-                {
-                    _mainCatID = value;
-                    OnPropertyChanged(nameof(MainCatID));
-                }
-            }
-        }
-        public string SubCatID
-        {
-            get => _subCatID;
-            set
-            {
-                if (_subCatID != value)
-                {
-                    _subCatID = value;
-                    OnPropertyChanged(nameof(SubCatID));
-                }
-            }
-        }
         public HKMatMainCat MainCat
         {
             get => _mainCat;
@@ -100,16 +57,6 @@ namespace iEngr.Hookup.ViewModels
                             StrTypeAllP2 = StrTypeAllP1;
                     }
                     OnPropertyChanged(nameof(SubCat));
-                    //if (value?.ID == string.Empty)
-                    // {
-                    //     TypeAllP1 = GetAllPortType(GetAllPortType(GetAllP1StringDistinct(SubCats)));
-                    //     TypeAllP2 = HK_General.portDef.Contains(AlterCode)? TypeAllP1: GetAllPortType(GetAllPortType(GetAllP2StringDistinct(SubCats)));
-                    // }
-                    // else if (value != null)
-                    // {
-                    //     TypeAllP1 = GetAllPortType(GetAllPortType(GetAllPortStringDistinct(value.TypeP1)));
-                    //     TypeAllP2 = HK_General.portDef.Contains(AlterCode) ? TypeAllP1 : GetAllPortType(GetAllPortType(GetAllPortStringDistinct(value.TypeP2)));
-                    // }
                 }
             }
         }
@@ -134,36 +81,19 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _subCats = value;
                     OnPropertyChanged(nameof(SubCats));
-                    //TypeAllP1 = GetAllPortType(GetAllPortType(GetAllP1StringDistinct(value)));
-                    //TypeAllP2 = GetAllPortType(GetAllPortType(GetAllP2StringDistinct(value)));
                     SubCat = _subCats?[0];
                 }
             }
         }
-        public string TechSpecMain
-        {
-            get => _techSpecMain;
-            set
-            {
-                if (_techSpecMain != value)
-                {
-                    _techSpecMain = value;
-                    OnPropertyChanged(nameof(TechSpecMain));
-                }
-            }
-        }
-        public string TechSpecAux
-        {
-            get => _techSpecAux;
-            set
-            {
-                if (_techSpecAux != value)
-                {
-                    _techSpecAux = value;
-                    OnPropertyChanged(nameof(TechSpecAux));
-                }
-            }
-        }
+
+        private string _typeP1ID;
+        private string _typeP2ID;
+        private HKLibSpecDic _typeP1;
+        private HKLibSpecDic _typeP2;
+        private string _strTypeAllP1;
+        private string _strTypeAllP2;
+        private ObservableCollection<HKLibSpecDic> _typeAllP1;
+        private ObservableCollection<HKLibSpecDic> _typeAllP2;
         public string StrTypeAllP1
         {
             get => _strTypeAllP1;
@@ -173,7 +103,6 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _strTypeAllP1 = value;
                     TypeAllP1 = GetAllPortType(GetAllPortType(value));
-                    OnPropertyChanged(nameof(StrTypeAllP1));
                 }
             }
         }
@@ -186,7 +115,6 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _strTypeAllP2 = value;
                     TypeAllP2 = GetAllPortType(GetAllPortType(value));
-                    OnPropertyChanged(nameof(StrTypeAllP2));
                 }
             }
         }
@@ -200,7 +128,7 @@ namespace iEngr.Hookup.ViewModels
                     string _id = TypeP1?.ID ?? string.Empty;
                     _typeAllP1 = value;
                     OnPropertyChanged(nameof(TypeAllP1));
-                    if (value != null && value.Count > 0 && _id !=null)
+                    if (value != null && value.Count > 0 && _id != null)
                     {
                         HKLibSpecDic _replacement = value.FirstOrDefault(x => x.ID == _id);
                         _replacement = _replacement ?? value[0];
@@ -216,7 +144,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_typeAllP2 != value)
                 {
-                    string _id = (AlterCode == "AS1")? TypeP1?.ID ?? string.Empty: TypeP2?.ID ?? string.Empty;
+                    string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
                     _typeAllP2 = value;
                     OnPropertyChanged(nameof(TypeAllP2));
                     if (value != null && value.Count > 0 && _id != null)
@@ -228,6 +156,35 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        public string TypeP1ID
+        {
+            get => _typeP1ID;
+            set
+            {
+                value = value ?? string.Empty;
+                if (TypeAllP1 != null && TypeAllP1.Count > 0)
+                {
+                    HKLibSpecDic _replacement = TypeAllP1.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? TypeAllP1[0];
+                    TypeP1 = _replacement;
+                }
+            }
+        }
+        public string TypeP2ID
+        {
+            get => _typeP2ID;
+            set
+            {
+                value = value ?? string.Empty;
+                if (TypeAllP2 != null && TypeAllP2.Count > 0)
+                {
+                    HKLibSpecDic _replacement = TypeAllP2.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? TypeAllP2[0];
+                    TypeP2 = _replacement;
+                }
+            }
+        }
+
         public HKLibSpecDic TypeP1
         {
             get => _typeP1;
@@ -244,10 +201,11 @@ namespace iEngr.Hookup.ViewModels
                         TypeP2 = _replacement;
                     }
                     OnPropertyChanged(nameof(TypeP1));
+                    SizeAllP1 =
                 }
             }
         }
-         public HKLibSpecDic TypeP2
+        public HKLibSpecDic TypeP2
         {
             get => _typeP2;
             set
@@ -256,6 +214,44 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _typeP2 = value;
                     OnPropertyChanged(nameof(TypeP2));
+                }
+            }
+        }
+
+        private string _sizeP1ID;
+        private string _sizeP2ID;
+        private HKLibGenOption _sizeP1;
+        private HKLibGenOption _sizeP2;
+        private ObservableCollection<HKLibGenOption> _sizeAllP1;
+        private ObservableCollection<HKLibGenOption> _sizeAllP2;
+        public ObservableCollection<HKLibGenOption> SizeAllP1
+        {
+            get => _sizeAllP1;
+            set
+            {
+                if (_sizeAllP1 != value)
+                {
+                    string _id = SizeP1?.ID ?? string.Empty;
+                    _sizeAllP1 = value;
+                    OnPropertyChanged(nameof(SizeAllP1));
+                    if (value != null && value.Count > 0 && _id != null)
+                    {
+                        HKLibGenOption _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? value[0];
+                        SizeP1 = _replacement;
+                    }
+                }
+            }
+        }
+        public ObservableCollection<HKLibGenOption> SizeAllP2
+        {
+            get => _sizeAllP2;
+            set
+            {
+                if (_sizeAllP2 != value)
+                {
+                    _sizeAllP2 = value;
+                    OnPropertyChanged(nameof(SizeAllP2));
                 }
             }
         }
@@ -283,30 +279,39 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<HKLibGenOption> SizeAllP1
+        private string _techSpecMain;
+        private string _techSpecAux;
+        private string _matMatAll;
+        private string _moreSpecCn;
+        private string _moreSpecEn;
+        private string _remarksEn;
+        private string _remarksCn;
+        private string _alterCode;
+        public string TechSpecMain
         {
-            get => _sizeAllP1;
+            get => _techSpecMain;
             set
             {
-                if (_sizeAllP1 != value)
+                if (_techSpecMain != value)
                 {
-                    _sizeAllP1 = value;
-                    OnPropertyChanged(nameof(SizeAllP1));
+                    _techSpecMain = value;
+                    OnPropertyChanged(nameof(TechSpecMain));
                 }
             }
         }
-        public ObservableCollection<HKLibGenOption> SizeAllP2
+        public string TechSpecAux
         {
-            get => _sizeAllP2;
+            get => _techSpecAux;
             set
             {
-                if (_sizeAllP2 != value)
+                if (_techSpecAux != value)
                 {
-                    _sizeAllP2 = value;
-                    OnPropertyChanged(nameof(SizeAllP2));
+                    _techSpecAux = value;
+                    OnPropertyChanged(nameof(TechSpecAux));
                 }
             }
         }
+
         public string MatMatAll
         {
             get => _matMatAll;
@@ -391,14 +396,14 @@ namespace iEngr.Hookup.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(name);
-            return true;
-        }
-        
+        //protected bool SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        //    field = value;
+        //    OnPropertyChanged(name);
+        //    return true;
+        //}
+
         public MatDataViewModel()
         {
             MainCats = GetHKMatMainCats();
@@ -509,29 +514,18 @@ namespace iEngr.Hookup.ViewModels
                            .Distinct(StringComparer.OrdinalIgnoreCase)
                            .ToList());
         }
-        private List<HKLibPortType> GetAllPortType(string input)
+        private ObservableCollection<CmbItem> GetAllPortType(string input)
         {
-            return HK_General.dicPortType.Select(x => x.Value).Where(x => input.Split(',').Contains(x.ID)).ToList();
-        }
-
-        private ObservableCollection<HKLibSpecDic> GetAllPortType(List<HKLibPortType> lst)
-        {
-
-            ObservableCollection<HKLibSpecDic> allPortTypes = new ObservableCollection<HKLibSpecDic>(lst.Select(x => new HKLibSpecDic
+            List<CmbItem> lst =  HK_General.dicPortType.Select(x => x.Value).Where(x => input.Split(',').Contains(x.ID)).OrderBy(x=>x.SortNum).Select(x=> new CmbItem
             {
                 ID = x.ID,
                 NameCn = x.NameCn,
                 NameEn = x.NameEn,
-                PrefixCn = x.PrefixCn,
-                PrefixEn = x.PrefixEn,
-                SuffixCn = x.SuffixCn,
-                SuffixEn = x.SuffixEn,
-                Link = x.Link,
-                Class = string.IsNullOrEmpty(x.Link) ? x.Remarks : "Link"
-            })
-                .OrderBy(x => x.SortNum).ToList());
+                Comp = x.ID
+            }).ToList();
+            ObservableCollection<CmbItem> allPortTypes = new ObservableCollection<CmbItem>(lst);
             if (allPortTypes.Count > 0)
-                allPortTypes.Insert(0, new HKLibSpecDic
+                allPortTypes.Insert(0, new CmbItem
                 {
                     ID = string.Empty,
                     NameCn = "选择连接类型",
@@ -539,5 +533,125 @@ namespace iEngr.Hookup.ViewModels
                 });
             return allPortTypes;
         }
+
+        //private ObservableCollection<HKLibSpecDic> GetAllPortType(List<HKLibPortType> lst)
+        //{
+
+        //    ObservableCollection<HKLibSpecDic> allPortTypes = new ObservableCollection<HKLibSpecDic>(lst.Select(x => new HKLibSpecDic
+        //    {
+        //        ID = x.ID,
+        //        NameCn = x.NameCn,
+        //        NameEn = x.NameEn,
+        //        PrefixCn = x.PrefixCn,
+        //        PrefixEn = x.PrefixEn,
+        //        SuffixCn = x.SuffixCn,
+        //        SuffixEn = x.SuffixEn,
+        //        Link = x.Link,
+        //        Class = string.IsNullOrEmpty(x.Link) ? x.Remarks : "Link"
+        //    })
+        //        .OrderBy(x => x.SortNum).ToList());
+        //    if (allPortTypes.Count > 0)
+        //        allPortTypes.Insert(0, new HKLibSpecDic
+        //        {
+        //            ID = string.Empty,
+        //            NameCn = "选择连接类型",
+        //            NameEn = "Select Conn.Type"
+        //        });
+        //    return allPortTypes;
+        //}
+        private ObservableCollection<HKLibGenOption> GetAllSizeOrSpec(HKLibSpecDic title)
+        {
+            if (title == null && string.IsNullOrEmpty(title.ID)) return null;
+            if (title.Class.StartsWith("Link") && !string.IsNullOrEmpty(title.Link.Trim()))
+            {
+                string[] _segParts = title.Link.Split(',').Select(item => item.Trim()).ToArray(); ;
+                string[] segParts = new string[3] { "", "", "" };
+                Array.Copy(_segParts, 0, segParts, 0, Math.Min(_segParts.Length, 3));
+                switch (segParts[0])
+                {
+                    case "LibPipeOD":
+                        getPipeODLinked(HK_General.dicPipeOD, segParts[1].Trim(), segParts[2].Trim());
+                        
+                        break;
+
+
+                }
+            }
+        }
+
+        public ObservableCollection<HKLibGenOption> getPipeODLinked(ObservableCollection<HKLibPipeOD> dic, string name, string cond)
+        {
+            string[] _segParts = cond.Split(':').Select(item => item.Trim()).ToArray();
+            string[] segParts = new string[3] { "", "", "" };
+            Array.Copy(_segParts, 0, segParts, 0, Math.Min(_segParts.Length, 3));
+
+            switch (segParts[1])
+            {
+                case "nonull":
+                    return dic.Where(x=>x.);
+                case "like":
+                    return $"{field} LIKE '%{value}%'";
+                default:
+                    return null; 
+            }
+        }
+
+
+        public string parseConditions(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            // 分割输入为三部分 (字段:操作符:值)
+            var segments = input.Split(':')
+                                .Select(item => item.Trim())
+                                .ToArray();
+
+            // 验证基本格式
+            if (segments.Length <= 2)
+                return null;
+
+            string field = segments[0];
+            string op = segments[1].ToLowerInvariant(); // 使用不区分大小写的比较
+            string value = segments[2];
+
+            // 根据操作符类型路由处理逻辑
+            switch (op)
+            {
+                case "in":
+                    return $"{field} IN {ConvertToStringScope(value, '|')}";
+
+                case "out":
+                    return $"{field} NOT IN {ConvertToStringScope(value, '|')}";
+
+                case "=":
+                    return $"{field} IN {ConvertToNumScope(value, '|')}";
+
+                case "!=":
+                    return $"{field} NOT IN {ConvertToNumScope(value, '|')}";
+
+                case "<":
+                case "<=":
+                case ">":
+                case ">=":
+                    return HandleSingleValueComparison(field, op, value);
+
+                case "<>":
+                case "<=>":
+                case "<>=":
+                case "<=>=":
+                    return HandleRangeComparison(field, op, value);
+
+                case "isnull":
+                    return $"{field} IS NULL OR {field} = ''";
+                case "nonull":
+                    return $"{field} IS NOT NULL AND {field} <> ''";
+                case "like":
+                    return $"{field} LIKE '%{value}%'";
+                default:
+                    return null; // 不支持的操作符
+            }
+        }
+
     }
 }

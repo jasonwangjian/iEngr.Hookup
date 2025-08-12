@@ -175,7 +175,7 @@
             </StackPanel>-->
 
         </Grid>
-        <DataGrid x:Name="dgResult" Margin="10" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+        <DataGrid x:Name="dgResult" Margin="10" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
                    CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" IsReadOnly="True"  HorizontalAlignment="Stretch"
                   MouseDoubleClick="dgResult_MouseDoubleClick">
             <DataGrid.Columns>

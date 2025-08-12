@@ -1,6 +1,8 @@
-﻿using System;
+﻿using iEngr.Hookup.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +25,11 @@ namespace iEngr.Hookup
         public HK_LibMatHandle()
         {
             InitializeComponent();
+        }
+
+        private void text_Click(object sender, RoutedEventArgs e)
+        {
+            (ucMD.DataContext as MatDataViewModel).TypeP1ID = "FLNPS";
         }
     }
 }

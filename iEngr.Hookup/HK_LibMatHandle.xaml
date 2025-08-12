@@ -13,11 +13,16 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
         <!--<TextBlock Grid.Column="0" Text="左侧内容"/>-->
         <vw:UcMatData x:Name="ucMD" />
         <!--<local:MainWindow/>-->
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
         <TextBlock Grid.Column="2" Text="右侧内容"/>
+        <Button x:Name="text" Click="text_Click" Grid.Row="1">测试</Button>
     </Grid>
 </UserControl>
