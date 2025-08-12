@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,12 +89,12 @@ namespace iEngr.Hookup.ViewModels
 
         private string _typeP1ID;
         private string _typeP2ID;
-        private HKLibSpecDic _typeP1;
-        private HKLibSpecDic _typeP2;
+        private CmbItem _typeP1;
+        private CmbItem _typeP2;
         private string _strTypeAllP1;
         private string _strTypeAllP2;
-        private ObservableCollection<HKLibSpecDic> _typeAllP1;
-        private ObservableCollection<HKLibSpecDic> _typeAllP2;
+        private ObservableCollection<CmbItem> _typeAllP1;
+        private ObservableCollection<CmbItem> _typeAllP2;
         public string StrTypeAllP1
         {
             get => _strTypeAllP1;
@@ -102,7 +103,7 @@ namespace iEngr.Hookup.ViewModels
                 if (_strTypeAllP1 != value)
                 {
                     _strTypeAllP1 = value;
-                    TypeAllP1 = GetAllPortType(GetAllPortType(value));
+                    TypeAllP1 = GetAllPortType(value);
                 }
             }
         }
@@ -114,11 +115,11 @@ namespace iEngr.Hookup.ViewModels
                 if (_strTypeAllP2 != value)
                 {
                     _strTypeAllP2 = value;
-                    TypeAllP2 = GetAllPortType(GetAllPortType(value));
+                    TypeAllP2 = GetAllPortType(value);
                 }
             }
         }
-        public ObservableCollection<HKLibSpecDic> TypeAllP1
+        public ObservableCollection<CmbItem> TypeAllP1
         {
             get => _typeAllP1;
             set
@@ -130,14 +131,14 @@ namespace iEngr.Hookup.ViewModels
                     OnPropertyChanged(nameof(TypeAllP1));
                     if (value != null && value.Count > 0 && _id != null)
                     {
-                        HKLibSpecDic _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
                         _replacement = _replacement ?? value[0];
                         TypeP1 = _replacement;
                     }
                 }
             }
         }
-        public ObservableCollection<HKLibSpecDic> TypeAllP2
+        public ObservableCollection<CmbItem> TypeAllP2
         {
             get => _typeAllP2;
             set
@@ -149,7 +150,7 @@ namespace iEngr.Hookup.ViewModels
                     OnPropertyChanged(nameof(TypeAllP2));
                     if (value != null && value.Count > 0 && _id != null)
                     {
-                        HKLibSpecDic _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
                         _replacement = _replacement ?? value[0];
                         TypeP2 = _replacement;
                     }
@@ -164,7 +165,7 @@ namespace iEngr.Hookup.ViewModels
                 value = value ?? string.Empty;
                 if (TypeAllP1 != null && TypeAllP1.Count > 0)
                 {
-                    HKLibSpecDic _replacement = TypeAllP1.FirstOrDefault(x => x.ID == value);
+                    CmbItem _replacement = TypeAllP1.FirstOrDefault(x => x.ID == value);
                     _replacement = _replacement ?? TypeAllP1[0];
                     TypeP1 = _replacement;
                 }
@@ -178,40 +179,45 @@ namespace iEngr.Hookup.ViewModels
                 value = value ?? string.Empty;
                 if (TypeAllP2 != null && TypeAllP2.Count > 0)
                 {
-                    HKLibSpecDic _replacement = TypeAllP2.FirstOrDefault(x => x.ID == value);
+                    CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == value);
                     _replacement = _replacement ?? TypeAllP2[0];
                     TypeP2 = _replacement;
                 }
             }
         }
 
-        public HKLibSpecDic TypeP1
+        public CmbItem TypeP1
         {
             get => _typeP1;
             set
             {
                 if (_typeP1 != value)
                 {
+                    SizeAllP1 = GetAllSizeOrSpec(value);
                     _typeP1 = value;
-                    if (AlterCode == "AS1")
+                    if (AlterCode == "AS1" && TypeAllP2?.Count >0)
                     {
                         string _id = TypeP1?.ID ?? string.Empty;
-                        HKLibSpecDic _replacement = TypeAllP2.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? TypeAllP2[0];
+                        CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? TypeAllP2?[0];
                         TypeP2 = _replacement;
+                        // _id = SizeP1?.ID ?? string.Empty;
+                        // _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
+                        //_replacement = _replacement ?? SizeAllP2?[0];
+                        //SizeP2 = _replacement;
                     }
                     OnPropertyChanged(nameof(TypeP1));
-                    SizeAllP1 =
                 }
             }
         }
-        public HKLibSpecDic TypeP2
+        public CmbItem TypeP2
         {
             get => _typeP2;
             set
             {
                 if (_typeP2 != value)
                 {
+                    SizeAllP2 = GetAllSizeOrSpec(value);
                     _typeP2 = value;
                     OnPropertyChanged(nameof(TypeP2));
                 }
@@ -220,11 +226,11 @@ namespace iEngr.Hookup.ViewModels
 
         private string _sizeP1ID;
         private string _sizeP2ID;
-        private HKLibGenOption _sizeP1;
-        private HKLibGenOption _sizeP2;
-        private ObservableCollection<HKLibGenOption> _sizeAllP1;
-        private ObservableCollection<HKLibGenOption> _sizeAllP2;
-        public ObservableCollection<HKLibGenOption> SizeAllP1
+        private CmbItem _sizeP1;
+        private CmbItem _sizeP2;
+        private ObservableCollection<CmbItem> _sizeAllP1;
+        private ObservableCollection<CmbItem> _sizeAllP2;
+        public ObservableCollection<CmbItem> SizeAllP1
         {
             get => _sizeAllP1;
             set
@@ -236,26 +242,33 @@ namespace iEngr.Hookup.ViewModels
                     OnPropertyChanged(nameof(SizeAllP1));
                     if (value != null && value.Count > 0 && _id != null)
                     {
-                        HKLibGenOption _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
                         _replacement = _replacement ?? value[0];
                         SizeP1 = _replacement;
                     }
                 }
             }
         }
-        public ObservableCollection<HKLibGenOption> SizeAllP2
+        public ObservableCollection<CmbItem> SizeAllP2
         {
             get => _sizeAllP2;
             set
             {
                 if (_sizeAllP2 != value)
                 {
+                    string _id = SizeP2?.ID ?? string.Empty;
                     _sizeAllP2 = value;
                     OnPropertyChanged(nameof(SizeAllP2));
+                    if (value != null && value.Count > 0 && _id != null)
+                    {
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? value[0];
+                        SizeP2 = _replacement;
+                    }
                 }
             }
         }
-        public HKLibGenOption SizeP1
+        public CmbItem SizeP1
         {
             get => _sizeP1;
             set
@@ -263,11 +276,18 @@ namespace iEngr.Hookup.ViewModels
                 if (_sizeP1 != value)
                 {
                     _sizeP1 = value;
+                    if (AlterCode == "AS1")
+                    {
+                        string _id = SizeP1?.ID ?? string.Empty;
+                        CmbItem _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? SizeAllP2?[0];
+                        SizeP2 = _replacement;
+                    }
                     OnPropertyChanged(nameof(SizeP1));
                 }
             }
         }
-        public HKLibGenOption SizeP2
+        public CmbItem SizeP2
         {
             get => _sizeP2;
             set
@@ -379,12 +399,6 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_alterCode != value)
                 {
-                    //if (HK_General.portDef.Contains(value))
-                    //{
-                    //    TypeAllP2 = TypeAllP1;
-                    //    if (value == "AS1")
-                    //        TypeP2 = TypeP1;
-                    //}
                     _alterCode = value;
                     OnPropertyChanged(nameof(AlterCode));
                 }
@@ -521,7 +535,10 @@ namespace iEngr.Hookup.ViewModels
                 ID = x.ID,
                 NameCn = x.NameCn,
                 NameEn = x.NameEn,
-                Comp = x.ID
+                Comp = x.ID,
+                Class = string.IsNullOrEmpty(x.Link?.Trim())? string.Empty:"Link",
+                Link = x.Link,
+
             }).ToList();
             ObservableCollection<CmbItem> allPortTypes = new ObservableCollection<CmbItem>(lst);
             if (allPortTypes.Count > 0)
@@ -534,124 +551,181 @@ namespace iEngr.Hookup.ViewModels
             return allPortTypes;
         }
 
-        //private ObservableCollection<HKLibSpecDic> GetAllPortType(List<HKLibPortType> lst)
-        //{
-
-        //    ObservableCollection<HKLibSpecDic> allPortTypes = new ObservableCollection<HKLibSpecDic>(lst.Select(x => new HKLibSpecDic
-        //    {
-        //        ID = x.ID,
-        //        NameCn = x.NameCn,
-        //        NameEn = x.NameEn,
-        //        PrefixCn = x.PrefixCn,
-        //        PrefixEn = x.PrefixEn,
-        //        SuffixCn = x.SuffixCn,
-        //        SuffixEn = x.SuffixEn,
-        //        Link = x.Link,
-        //        Class = string.IsNullOrEmpty(x.Link) ? x.Remarks : "Link"
-        //    })
-        //        .OrderBy(x => x.SortNum).ToList());
-        //    if (allPortTypes.Count > 0)
-        //        allPortTypes.Insert(0, new HKLibSpecDic
-        //        {
-        //            ID = string.Empty,
-        //            NameCn = "选择连接类型",
-        //            NameEn = "Select Conn.Type"
-        //        });
-        //    return allPortTypes;
-        //}
-        private ObservableCollection<HKLibGenOption> GetAllSizeOrSpec(HKLibSpecDic title)
+        private ObservableCollection<CmbItem> GetAllSizeOrSpec(CmbItem title)
         {
-            if (title == null && string.IsNullOrEmpty(title.ID)) return null;
+            List<CmbItem> lst = new List<CmbItem>();
+            if (title == null || string.IsNullOrEmpty(title.ID)) return null;
             if (title.Class.StartsWith("Link") && !string.IsNullOrEmpty(title.Link.Trim()))
             {
-                string[] _segParts = title.Link.Split(',').Select(item => item.Trim()).ToArray(); ;
+                string[] _segParts = title.Link.Split(',').Select(item => item.Trim()).ToArray(); 
                 string[] segParts = new string[3] { "", "", "" };
                 Array.Copy(_segParts, 0, segParts, 0, Math.Min(_segParts.Length, 3));
                 switch (segParts[0])
                 {
                     case "LibPipeOD":
-                        getPipeODLinked(HK_General.dicPipeOD, segParts[1].Trim(), segParts[2].Trim());
-                        
+                        lst = getCmbItemsPipeODAll(HK_General.dicPipeOD, segParts[1].Trim(), segParts[2]);
+                        break;
+                    case "LibTubeOD":
+                        lst = getCmbItemsTubeODAll(HK_General.dicTubeOD, segParts[1].Trim(), segParts[2]);
+                        break;
+                    case "LibThread":
+                        lst = getCmbItemsThreadAll(HK_General.dicThread, segParts[1].Trim(), segParts[2]);
                         break;
 
 
                 }
+                return getSizeOrSpecLinked(lst, segParts[2].Trim());
             }
+            return null;
         }
 
-        public ObservableCollection<HKLibGenOption> getPipeODLinked(ObservableCollection<HKLibPipeOD> dic, string name, string cond)
+
+        private List<CmbItem> getCmbItemsPipeODAll(Dictionary<string, HKLibPipeOD> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = name == "DN" ? $"DN {x.DN} - NPS {x.NPS}"
+                                             : name == "NPS" ? $"NPS {x.NPS} - DN {x.DN}"
+                                             : $"DN {x.DN} - NPS {x.NPS}",
+                NameEn = name == "DN" ? $"DN {x.DN} - NPS {x.NPS}"
+                                             : name == "NPS" ? $"NPS {x.NPS} - DN {x.DN}"
+                                             : $"DN {x.DN} - NPS {x.NPS}",
+                Comp = comp == "DN" ? x.DN
+                                             : comp == "NPS" ? x.NPS
+                                             : comp == "HGIa" ? x.HGIa.ToString()
+                                             : comp == "HGIb" ? x.HGIb.ToString()
+                                             : comp == "HGII" ? x.HGII.ToString()
+                                             : comp == "GBI" ? x.GBI.ToString()
+                                             : comp == "GBII" ? x.GBII.ToString()
+                                             : comp == "SpecRem" ? x.SpecRem
+                                             : comp == "ISO" ? x.ISO.ToString()
+                                             : comp == "ASME" ? x.ASME.ToString()
+                                             : x.ID,
+            }).ToList();
+        }
+        private List<CmbItem> getCmbItemsTubeODAll(Dictionary<string, HKLibTubeOD> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn =  $"{x.SpecCn}mm D.D.",
+                NameEn = $"{x.SpecEn}mm D.D.",
+                Comp = comp == "Class" ? x.Class
+                                             : comp == "SpecCn" ? x.SpecCn
+                                             : comp == "SpecEn" ? x.SpecEn
+                                             : comp == "ValueM" ? x.ValueM.ToString()
+                                             : comp == "ClassEx" ? x.ClassEx.ToString()
+                                             : x.ID,
+            }).ToList();
+        }
+        private List<CmbItem> getCmbItemsThreadAll(Dictionary<string, HKLibThread> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = x.SpecCn,
+                NameEn = x.SpecEn,
+                Comp = comp == "Class" ? x.Class
+                                             : comp == "SubClass" ? x.SubClass
+                                             : comp == "SpecCn" ? x.SpecCn
+                                             : comp == "SpecEn" ? x.SpecEn
+                                             : comp == "Value" ? x.Value.ToString()
+                                             : comp == "Pitch" ? x.Pitch.ToString()
+                                             : comp == "Qty" ? x.Qty.ToString()
+                                             : comp == "ClassEx" ? x.ClassEx
+                                             : x.ID,
+            }).ToList();
+        }
+        private ObservableCollection<CmbItem> getSizeOrSpecLinked(List<CmbItem> lst, string cond)
         {
             string[] _segParts = cond.Split(':').Select(item => item.Trim()).ToArray();
             string[] segParts = new string[3] { "", "", "" };
             Array.Copy(_segParts, 0, segParts, 0, Math.Min(_segParts.Length, 3));
 
-            switch (segParts[1])
+            switch (segParts[1].ToLower())
             {
                 case "nonull":
-                    return dic.Where(x=>x.);
-                case "like":
-                    return $"{field} LIKE '%{value}%'";
-                default:
-                    return null; 
-            }
-        }
-
-
-        public string parseConditions(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return null;
-
-            // 分割输入为三部分 (字段:操作符:值)
-            var segments = input.Split(':')
-                                .Select(item => item.Trim())
-                                .ToArray();
-
-            // 验证基本格式
-            if (segments.Length <= 2)
-                return null;
-
-            string field = segments[0];
-            string op = segments[1].ToLowerInvariant(); // 使用不区分大小写的比较
-            string value = segments[2];
-
-            // 根据操作符类型路由处理逻辑
-            switch (op)
-            {
+                    lst = lst.Where(x => !string.IsNullOrEmpty(x.Comp)).ToList();
+                    break;
+                case "null":
+                    lst = lst.Where(x => string.IsNullOrEmpty(x.Comp)).ToList();
+                    break;
                 case "in":
-                    return $"{field} IN {ConvertToStringScope(value, '|')}";
-
-                case "out":
-                    return $"{field} NOT IN {ConvertToStringScope(value, '|')}";
-
-                case "=":
-                    return $"{field} IN {ConvertToNumScope(value, '|')}";
-
-                case "!=":
-                    return $"{field} NOT IN {ConvertToNumScope(value, '|')}";
-
-                case "<":
-                case "<=":
-                case ">":
-                case ">=":
-                    return HandleSingleValueComparison(field, op, value);
-
-                case "<>":
-                case "<=>":
-                case "<>=":
-                case "<=>=":
-                    return HandleRangeComparison(field, op, value);
-
-                case "isnull":
-                    return $"{field} IS NULL OR {field} = ''";
-                case "nonull":
-                    return $"{field} IS NOT NULL AND {field} <> ''";
-                case "like":
-                    return $"{field} LIKE '%{value}%'";
+                    //segParts[2].Split('|').Select(y => y.Trim())
+                    lst = lst.Where(x => segParts[2].Split('|').Select(y=>y.Trim()).Contains(x.Comp)).ToList();
+                    break;
                 default:
-                    return null; // 不支持的操作符
+                    break;
             }
+            if (lst.Count > 0) lst.Insert(0, new CmbItem
+            {
+                ID = string.Empty,
+                NameCn = "请选择规格或尺寸",
+                NameEn = "Select Spec/Size",
+            });
+            return new ObservableCollection<CmbItem>(lst);
         }
+
+
+        //public string parseConditions(string input)
+        //{
+        //    if (string.IsNullOrWhiteSpace(input))
+        //        return null;
+
+        //    // 分割输入为三部分 (字段:操作符:值)
+        //    var segments = input.Split(':')
+        //                        .Select(item => item.Trim())
+        //                        .ToArray();
+
+        //    // 验证基本格式
+        //    if (segments.Length <= 2)
+        //        return null;
+
+        //    string field = segments[0];
+        //    string op = segments[1].ToLowerInvariant(); // 使用不区分大小写的比较
+        //    string value = segments[2];
+
+        //    // 根据操作符类型路由处理逻辑
+        //    switch (op)
+        //    {
+        //        case "in":
+        //            return $"{field} IN {ConvertToStringScope(value, '|')}";
+
+        //        case "out":
+        //            return $"{field} NOT IN {ConvertToStringScope(value, '|')}";
+
+        //        case "=":
+        //            return $"{field} IN {ConvertToNumScope(value, '|')}";
+
+        //        case "!=":
+        //            return $"{field} NOT IN {ConvertToNumScope(value, '|')}";
+
+        //        case "<":
+        //        case "<=":
+        //        case ">":
+        //        case ">=":
+        //            return HandleSingleValueComparison(field, op, value);
+
+        //        case "<>":
+        //        case "<=>":
+        //        case "<>=":
+        //        case "<=>=":
+        //            return HandleRangeComparison(field, op, value);
+
+        //        case "isnull":
+        //            return $"{field} IS NULL OR {field} = ''";
+        //        case "nonull":
+        //            return $"{field} IS NOT NULL AND {field} <> ''";
+        //        case "like":
+        //            return $"{field} LIKE '%{value}%'";
+        //        default:
+        //            return null; // 不支持的操作符
+        //    }
+        //}
 
     }
 }

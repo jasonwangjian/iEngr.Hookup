@@ -43,16 +43,16 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="2" Grid.Column="0" >分类：</Label>
         <WrapPanel Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="1" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
-            <ComboBox x:Name="cbMainCat" Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding MainCats}" SelectedItem="{Binding MainCat}"
-                      SelectionChanged="cbMainCat_SelectionChanged" DisplayMemberPath="Name"/>
-            <ComboBox x:Name="cbSubCat"  Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding SubCats}" SelectedItem="{Binding SubCat}"
-                      SelectionChanged="cbSubCat_SelectionChanged" DisplayMemberPath="Name"/>
+            <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding MainCats}" SelectedItem="{Binding MainCat}"
+                      DisplayMemberPath="Name"/>
+            <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding SubCats}" SelectedItem="{Binding SubCat}"
+                      DisplayMemberPath="Name"/>
         </WrapPanel>
         <Label Grid.Row="3" Grid.Column="0" >主材质：</Label>
-        <ComboBox x:Name="cbMatMat" Margin="2" Grid.Row="3" Grid.Column="1"  SelectionChanged="cbMatMat_SelectionChanged" DisplayMemberPath="Name"/>
-        <Label x:Name="lbMainSpec" Grid.Row="4" Grid.Column="0" >主参数：</Label>
+        <ComboBox Margin="2" Grid.Row="3" Grid.Column="1" DisplayMemberPath="Name"/>
+        <Label Grid.Row="4" Grid.Column="0" >主参数：</Label>
         <WrapPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-            <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
+            <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0">
                 <ComboBox.Visibility>
                     <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
                         <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
@@ -60,9 +60,9 @@
                     </MultiBinding>
                 </ComboBox.Visibility>
             </ComboBox>
-            <ComboBox x:Name="cbMainSpec1" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
+            <ComboBox Margin="2" IsEditable="true" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
                               Visibility="{Binding Visibility, ElementName=cbMainSpecT1}"></ComboBox>
-            <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
+            <ComboBox Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0">
                 <ComboBox.Visibility>
                     <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
                         <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
@@ -70,9 +70,9 @@
                     </MultiBinding>
                 </ComboBox.Visibility>
             </ComboBox>
-            <ComboBox x:Name="cbMainSpec2" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
+            <ComboBox Margin="2" IsEditable="true" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
                               Visibility="{Binding Visibility, ElementName=cbMainSpecT2}"></ComboBox>
-            <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
+            <ComboBox Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
                 <ComboBox.Visibility>
                     <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
                         <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
@@ -80,71 +80,46 @@
                     </MultiBinding>
                 </ComboBox.Visibility>
             </ComboBox>
-            <ComboBox x:Name="cbMainSpec3" Margin="2" IsEditable="true" SelectionChanged="cbMainSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
+            <ComboBox Margin="2" IsEditable="true"  KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
                               Visibility="{Binding Visibility, ElementName=cbMainSpecT3}"></ComboBox>
         </WrapPanel>
         <WrapPanel  Grid.Row="5" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <Label  x:Name="lbPort1" Grid.Row="3" Grid.Column="0">端口一：</Label>
+            <Label Grid.Row="3" Grid.Column="0">端口一：</Label>
         </WrapPanel>
         <WrapPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <ComboBox x:Name="cbTypeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name" 
+            <ComboBox MinWidth="120"  Margin="2" IsEditable="False" DisplayMemberPath="Name" 
                       ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}" 
                       Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
-            ></ComboBox>
-            <ComboBox x:Name="cbSizeP1" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP1_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
+                     ></ComboBox>
+            <ComboBox x:Name ="cmbSizeP1"  MinWidth="120"  Margin="2" IsEditable="False" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
+                      ItemsSource="{Binding SizeAllP1}" SelectedItem="{Binding SizeP1}" 
+                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      ></ComboBox>
         </WrapPanel>
         <WrapPanel  Grid.Row="6" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <Label  x:Name="lbPort2" Grid.Row="4" Grid.Column="0">端口二：</Label>
+            <Label  Grid.Row="4" Grid.Column="0">端口二：</Label>
         </WrapPanel>
         <WrapPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <ComboBox x:Name="cbTypeP2" MinWidth="120" Margin="2" IsEditable="False" SelectionChanged="cbType_SelectionChanged" DisplayMemberPath="Name"
+            <ComboBox MinWidth="120" Margin="2" IsEditable="False" DisplayMemberPath="Name"
                       IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"
                       Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullVisibilityConverter}}"
                       ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"
             ></ComboBox>
 
-            <ComboBox x:Name="cbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" SelectionChanged="cbSizeP2_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"></ComboBox>
+            <ComboBox x:Name ="cmbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
+                      IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"
+                      ItemsSource="{Binding SizeAllP2}" SelectedItem="{Binding SizeP2}" 
+                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      ></ComboBox>
         </WrapPanel>
-        <Label x:Name="lbAuxSpec" Grid.Row="7" Grid.Column="0" >副参数：</Label>
-        <WrapPanel Grid.Row="7" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-            <ComboBox x:Name="cbAuxSpecT1" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
-                <ComboBox.Visibility>
-                    <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
-                        <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
-                        <Binding RelativeSource="{RelativeSource Self}" Path="SelectedItem"/>
-                    </MultiBinding>
-                </ComboBox.Visibility>
-            </ComboBox>
-            <ComboBox x:Name="cbAuxSpec1" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
-                              Visibility="{Binding Visibility, ElementName=cbAuxSpecT1}"></ComboBox>
-            <ComboBox x:Name="cbAuxSpecT2" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
-                <ComboBox.Visibility>
-                    <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
-                        <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
-                        <Binding RelativeSource="{RelativeSource Self}" Path="SelectedItem"/>
-                    </MultiBinding>
-                </ComboBox.Visibility>
-            </ComboBox>
-            <ComboBox x:Name="cbAuxSpec2" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
-                              Visibility="{Binding Visibility, ElementName=cbAuxSpecT2}"></ComboBox>
-            <ComboBox x:Name="cbAuxSpecT3" Margin="2" IsEditable="False" SelectionChanged="cbSpecT_SelectionChanged" DisplayMemberPath="Name" BorderThickness="0" Background="Transparent">
-                <ComboBox.Visibility>
-                    <MultiBinding Converter="{StaticResource SpecTVisibilityConverter}">
-                        <Binding RelativeSource="{RelativeSource Self}" Path="Items.Count"/>
-                        <Binding RelativeSource="{RelativeSource Self}" Path="SelectedItem"/>
-                    </MultiBinding>
-                </ComboBox.Visibility>
-            </ComboBox>
-            <ComboBox x:Name="cbAuxSpec3" Margin="2" IsEditable="true" SelectionChanged="cbAuxSpec_SelectionChanged" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
-                              Visibility="{Binding Visibility, ElementName=cbAuxSpecT3}"></ComboBox>
-        </WrapPanel>
+        <Label Grid.Row="7" Grid.Column="0" >副参数：</Label>
         <Label Grid.Row="8" Grid.Column="0" >描述(中):</Label>
-        <TextBox x:Name="tbMoreSpecCn" Margin="2" Grid.Row="8" Grid.Column="1" KeyDown="tbMoreSpec_KeyDown" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="8" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
         <Label Grid.Row="9" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
-        <TextBox x:Name="tbMoreSpecEn" Margin="2" Grid.Row="9" Grid.Column="1" KeyDown="tbMoreSpec_KeyDown" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="9" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
         <Label Grid.Row="10" Grid.Column="0" >描述(中):</Label>
-        <TextBox x:Name="tbRemarksCn" Margin="2" Grid.Row="10" Grid.Column="1" KeyDown="tbMoreSpec_KeyDown" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="10" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
         <Label Grid.Row="11" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
-        <TextBox x:Name="tbRemarksEn" Margin="2" Grid.Row="11" Grid.Column="1" KeyDown="tbMoreSpec_KeyDown" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="11" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
     </Grid>
 </UserControl>
