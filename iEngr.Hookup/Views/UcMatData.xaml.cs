@@ -24,17 +24,13 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcMatData : UserControl
     {
-        public static int intLan = HK_General.intLan;
-        private string[] portDef = HK_General.portDef;
-        private Dictionary<string, ObservableCollection<string>> dicNoLinkSpecStr = new Dictionary<string, ObservableCollection<string>>();
-        private Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
-
         public UcMatData()
         {
-            HK_General.SetDicMatGen();
             InitializeComponent();
+            HK_General HK_General = new HK_General();
+            int intLan = HK_General.intLan;
+            string[] portDef = HK_General.portDef;
         }
-
         private void cbSpec_KeyDown(object sender, KeyEventArgs e)
         {
             //if (e.Key == Key.Enter)

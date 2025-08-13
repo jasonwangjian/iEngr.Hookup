@@ -12,13 +12,27 @@ using System.Windows;
 namespace iEngr.Hookup
 {
 
-    public static partial class HK_General
+    public partial class HK_General
     {
-        public static int intLan = 0; // 0: 中文； 其它为英文
-        public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
-        public static readonly string[] portNA = { "NA", "IS"};
-        public static HKMatData currMat = new HKMatData();
-        internal static OdbcConnection GetConnection()
+        public HK_General()
+        {
+            dicSubCatIni();
+            dicPortTypeIni();
+            dicSpecDicIni();
+            dicPipeODIni();
+            dicPNIni();
+            dicSteelIni();
+            dicThreadIni();
+            dicTubeODIni();
+            dicGlandIni();
+            dicGenOptionIni();
+            dicNoLinkSpecIni();
+        }
+        public int intLan = 0; // 0: 中文； 其它为英文
+        public readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
+        public readonly string[] portNA = { "NA", "IS"};
+        public  HKMatData currMat = new HKMatData();
+        internal OdbcConnection GetConnection()
         {
             try
             {
@@ -38,7 +52,7 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        internal static ObservableCollection<HKMatGenLib> UpdateQueryResult(bool isForced = false, string conditions = null)
+        internal ObservableCollection<HKMatGenLib> UpdateQueryResult(bool isForced = false, string conditions = null)
         {
             ObservableCollection<HKMatGenLib> result = new ObservableCollection<HKMatGenLib>();
             if (!isForced)
@@ -113,7 +127,7 @@ namespace iEngr.Hookup
                     return result;
             }
         }
-        internal static HKMatGenLib UpdateQueryResult(int ID)
+        internal HKMatGenLib UpdateQueryResult(int ID)
         {
             HKMatGenLib item = new HKMatGenLib();
             // 构建 SQL 查询语句
@@ -187,7 +201,7 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        public static int DataUpdate(int ID)
+        public int DataUpdate(int ID)
         {
             return 0;
             //if (cbSubCat.SelectedItem == null || cbSubCat.SelectedIndex == 0)
@@ -237,7 +251,7 @@ namespace iEngr.Hookup
             //    return 0;
             //}
         }
-        internal static int DataDel(int ID)
+        internal int DataDel(int ID)
         {
             // 构建 SQL 查询语句
             string query = $"DELETE FROM HK_MatGenLib WHERE ID = {ID}";
@@ -260,7 +274,7 @@ namespace iEngr.Hookup
             }
             return 0;
         }
-        internal static bool IsDataExisting()
+        internal bool IsDataExisting()
         {
             return false;
             //try
@@ -300,7 +314,7 @@ namespace iEngr.Hookup
             //}
 
         }
-        internal static int NewDataAdd()
+        internal int NewDataAdd()
         {
             return 0;
             //if (cbSubCat.SelectedItem == null || cbSubCat.SelectedIndex == 0)
@@ -356,7 +370,7 @@ namespace iEngr.Hookup
             //    return 0;
             //}
         }
-        private static int GetNewID()
+        private int GetNewID()
         {
             string query = $"SELECT  MAX(ID) FROM HK_MatGenLib";
             using (OdbcConnection conn = GetConnection())
@@ -379,14 +393,14 @@ namespace iEngr.Hookup
             return 0;
         }
 
-        private static string getConditionExp(List<string> input)
+        private string getConditionExp(List<string> input)
         {
             if (input == null || !input.Any())
                 return string.Empty;
 
             return string.Join(" AND ", input.Where(s => !string.IsNullOrEmpty(s)));
         }
-        private static string getSpecExp(string field, List<string> input)
+        private string getSpecExp(string field, List<string> input)
         {
             if (input == null || !input.Any())
                 return string.Empty;
@@ -397,7 +411,7 @@ namespace iEngr.Hookup
 
             return string.Join(" AND ", conditions);
         }
-        private static string getSpecMainAux(string input)
+        private string getSpecMainAux(string input)
         {
             string result = string.Empty;
             string results = string.Empty;
@@ -445,7 +459,7 @@ namespace iEngr.Hookup
             }
             return results;
         }
-        private static string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "")
+        private string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "")
         {
             string result1 = string.Empty;
             string result2 = string.Empty;
@@ -510,7 +524,7 @@ namespace iEngr.Hookup
                 return string.Empty;
             }
         }
-        private static string getPipeData(string input, string key = "")
+        private string getPipeData(string input, string key = "")
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
             if (key == "DN")
@@ -536,7 +550,7 @@ namespace iEngr.Hookup
             else
                 return dicPipeOD[input]?.DN;
         }
-        private static string getSteelData(string input, string key = "")
+        private string getSteelData(string input, string key = "")
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
             if (key == "CSSpec")

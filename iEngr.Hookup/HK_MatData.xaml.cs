@@ -24,8 +24,8 @@ namespace iEngr.Hookup
     /// </summary>
     public partial class HK_MatData : UserControl
     {
-        public static int intLan = HK_General.intLan;
-        private string[] portDef = HK_General.portDef;
+        public static int intLan;// = HK_General.intLan;
+        private string[] portDef;// = HK_General.portDef;
         private Dictionary<string, ObservableCollection<string>> dicNoLinkSpecStr = new Dictionary<string, ObservableCollection<string>>();
         private Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
         private string strTypeP1All, strTypeP2All, strTypeP1, strTypeP2, strCondP1, strCondP2, strCondSubCat;
@@ -35,11 +35,15 @@ namespace iEngr.Hookup
 
 
         public HKMatData currMat = new HKMatData();
+        public HK_General HK_General;
 
         public HK_MatData()
         {
             InitializeComponent();
-            HK_General.SetDicMatGen();
+            //HK_General.SetDicMatGen();
+            HK_General = new HK_General();
+            intLan = HK_General.intLan;
+            portDef = HK_General.portDef;
             cbMainCat.ItemsSource = GetHKMatMainCats();
             cbMainCat.SelectedIndex = 0;
 

@@ -29,7 +29,13 @@ namespace iEngr.Hookup
 
         private void text_Click(object sender, RoutedEventArgs e)
         {
-            (ucMD.DataContext as MatDataViewModel).TypeP1ID = "FLNPS";
+            //(ucMD.DataContext as MatDataViewModel).TypeP1ID = "FLNPS";
+            (ucMD.DataContext as MatDataViewModel).TypeP1ID = "FF";
+            (ucMD.DataContext as MatDataViewModel). SizeP1ID= "TM12";
+            (ucMD.DataContext as MatDataViewModel).TypeP2ID = "FF";
+            (ucMD.DataContext as MatDataViewModel).SizeP2ID = "TM10";
+            (ucMD.DataContext as MatDataViewModel).MainSpecT1ID = "DN";
+            (ucMD.DataContext as MatDataViewModel).MainSpecV1ID = "0080";
         }
     }
 }

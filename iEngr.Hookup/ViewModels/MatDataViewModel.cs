@@ -18,6 +18,15 @@ namespace iEngr.Hookup.ViewModels
 {
     public class MatDataViewModel : INotifyPropertyChanged
     {
+        public MatDataViewModel()
+        {
+            HK_General = new HK_General();
+            MainCats = GetHKMatMainCats();
+            MainCat = MainCats?[0];
+        }
+
+        private HK_General HK_General;
+        private string[] arrEmpty = new string[3] { "", "", "" };
         private HKMatMainCat _mainCat;
         private HKMatSubCat _subCat;
         private ObservableCollection<HKMatMainCat> _mainCats;
@@ -40,6 +49,7 @@ namespace iEngr.Hookup.ViewModels
             get => _subCat;
             set
             {
+                
                 if (_subCat != value)
                 {
                     _subCat = value;
@@ -56,6 +66,10 @@ namespace iEngr.Hookup.ViewModels
                             StrTypeAllP2 = GetAllPortStringDistinct(value.TypeP2);
                         else
                             StrTypeAllP2 = StrTypeAllP1;
+                        string[] _mainSpecTitle = value.TechSpecMain.Split(',').Select(item => item.Trim()).ToArray();
+                        string[] mainSpecTitle = arrEmpty;
+                        Array.Copy(_mainSpecTitle, 0, mainSpecTitle, 0, Math.Min(_mainSpecTitle.Length, 3));
+                        StrMainSpecT1All = mainSpecTitle[0];
                     }
                     OnPropertyChanged(nameof(SubCat));
                 }
@@ -87,8 +101,6 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private string _typeP1ID;
-        private string _typeP2ID;
         private CmbItem _typeP1;
         private CmbItem _typeP2;
         private string _strTypeAllP1;
@@ -103,7 +115,7 @@ namespace iEngr.Hookup.ViewModels
                 if (_strTypeAllP1 != value)
                 {
                     _strTypeAllP1 = value;
-                    TypeAllP1 = GetAllPortType(value);
+                    TypeAllP1 = GetPortType(value);
                 }
             }
         }
@@ -115,7 +127,7 @@ namespace iEngr.Hookup.ViewModels
                 if (_strTypeAllP2 != value)
                 {
                     _strTypeAllP2 = value;
-                    TypeAllP2 = GetAllPortType(value);
+                    TypeAllP2 = GetPortType(value);
                 }
             }
         }
@@ -159,7 +171,6 @@ namespace iEngr.Hookup.ViewModels
         }
         public string TypeP1ID
         {
-            get => _typeP1ID;
             set
             {
                 value = value ?? string.Empty;
@@ -173,7 +184,6 @@ namespace iEngr.Hookup.ViewModels
         }
         public string TypeP2ID
         {
-            get => _typeP2ID;
             set
             {
                 value = value ?? string.Empty;
@@ -224,8 +234,6 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private string _sizeP1ID;
-        private string _sizeP2ID;
         private CmbItem _sizeP1;
         private CmbItem _sizeP2;
         private ObservableCollection<CmbItem> _sizeAllP1;
@@ -299,6 +307,144 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        public string SizeP1ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (SizeAllP1 != null && SizeAllP1.Count > 0)
+                {
+                    CmbItem _replacement = SizeAllP1.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? SizeAllP1[0];
+                    SizeP1 = _replacement;
+                }
+            }
+        }
+        public string SizeP2ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (SizeAllP2 != null && SizeAllP2.Count > 0)
+                {
+                    CmbItem _replacement = SizeAllP2.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? SizeAllP2[0];
+                    SizeP2 = _replacement;
+                }
+            }
+        }
+
+        private CmbItem _mainSpecT1;
+        private string _strMainSpecT1All;
+        private ObservableCollection<CmbItem> _mainSpecT1All;
+        public CmbItem MainSpecT1
+        {
+            get => _mainSpecT1;
+            set
+            {
+                if (_mainSpecT1 != value)
+                {
+                    MainSpecV1All = GetAllSizeOrSpec(value);
+                    _mainSpecT1 = value;
+                    OnPropertyChanged(nameof(MainSpecT1));
+                }
+            }
+        }
+        public string StrMainSpecT1All
+        {
+            get => _strMainSpecT1All;
+            set
+            {
+                if (_strMainSpecT1All != value)
+                {
+                   MainSpecT1All = GetSpecTitle(value);
+                    _strMainSpecT1All = value;
+                }
+            }
+        }
+
+        public ObservableCollection<CmbItem> MainSpecT1All
+        {
+            get => _mainSpecT1All;
+            set
+            {
+                if (_mainSpecT1All != value)
+                {
+                    string _id = MainSpecT1?.ID ?? string.Empty;
+                    _mainSpecT1All = value;
+                    OnPropertyChanged(nameof(MainSpecT1All));
+                    if (value != null && value.Count > 0 && _id != null)
+                    {
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? value[0];
+                        MainSpecT1 = _replacement;
+                    }
+                }
+            }
+        }
+
+        private CmbItem _mainSpecV1;
+        private ObservableCollection<CmbItem> _mainSpecV1All;
+        public CmbItem MainSpecV1
+        {
+            get => _mainSpecV1;
+            set
+            {
+                if (_mainSpecV1 != value)
+                {
+                    _mainSpecV1 = value;
+                    OnPropertyChanged(nameof(MainSpecV1));
+                }
+            }
+        }
+
+        public ObservableCollection<CmbItem> MainSpecV1All
+        {
+            get => _mainSpecV1All;
+            set
+            {
+                if (_mainSpecV1All != value)
+                {
+                    string _id = MainSpecV1?.ID ?? string.Empty;
+                    _mainSpecV1All = value;
+                    OnPropertyChanged(nameof(MainSpecV1All));
+                    if (value != null && value.Count > 0 && _id != null)
+                    {
+                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
+                        _replacement = _replacement ?? value[0];
+                        MainSpecV1 = _replacement;
+                    }
+                }
+            }
+        }
+        public string MainSpecT1ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (MainSpecT1All != null && MainSpecT1All.Count > 0)
+                {
+                    CmbItem _replacement = MainSpecT1All.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? MainSpecT1All[0];
+                    MainSpecT1 = _replacement;
+                }
+            }
+        }
+        public string MainSpecV1ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (MainSpecV1All != null && MainSpecV1All.Count > 0)
+                {
+                    CmbItem _replacement = MainSpecV1All.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? MainSpecV1All[0];
+                    MainSpecV1 = _replacement;
+                }
+            }
+        }
+
+
         private string _techSpecMain;
         private string _techSpecAux;
         private string _matMatAll;
@@ -418,11 +564,6 @@ namespace iEngr.Hookup.ViewModels
         //    return true;
         //}
 
-        public MatDataViewModel()
-        {
-            MainCats = GetHKMatMainCats();
-            MainCat = MainCats?[0];
-        }
         private ObservableCollection<HKMatMainCat> GetHKMatMainCats()
         {
             ObservableCollection<HKMatMainCat> mainCats = new ObservableCollection<HKMatMainCat>
@@ -528,7 +669,7 @@ namespace iEngr.Hookup.ViewModels
                            .Distinct(StringComparer.OrdinalIgnoreCase)
                            .ToList());
         }
-        private ObservableCollection<CmbItem> GetAllPortType(string input)
+         private ObservableCollection<CmbItem> GetPortType(string input)
         {
             List<CmbItem> lst =  HK_General.dicPortType.Select(x => x.Value).Where(x => input.Split(',').Contains(x.ID)).OrderBy(x=>x.SortNum).Select(x=> new CmbItem
             {
@@ -549,6 +690,20 @@ namespace iEngr.Hookup.ViewModels
                     NameEn = "Select Conn.Type"
                 });
             return allPortTypes;
+        }
+        private ObservableCollection<CmbItem> GetSpecTitle(string input)
+        {
+            List<CmbItem> lst = HK_General.dicSpecDic.Select(x => x.Value).Where(x => input.Split('|').Contains(x.ID)).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = x.NameCn,
+                NameEn = x.NameEn,
+                Comp = x.ID,
+                Class = x.Class,
+                Link = x.Link,
+
+            }).ToList();
+            return new ObservableCollection<CmbItem>(lst);
         }
 
         private ObservableCollection<CmbItem> GetAllSizeOrSpec(CmbItem title)
@@ -576,7 +731,16 @@ namespace iEngr.Hookup.ViewModels
                 }
                 return getSizeOrSpecLinked(lst, segParts[2].Trim());
             }
-            return null;
+            else
+            {
+                lst = HK_General.dicNoLinkSpec[title.ID].Select(x=> new CmbItem
+                {
+                    ID = x.ID,
+                    NameCn= x.NameCn,
+                    NameEn= x.NameEn
+                }).ToList();
+                return new ObservableCollection<CmbItem>(lst);
+            }
         }
 
 
