@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iEngr.Hookup.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,7 +13,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -23,10 +26,10 @@ namespace iEngr.Hookup.ViewModels
             HK_General = new HK_General();
             MainCats = GetHKMatMainCats();
             MainCat = MainCats?[0];
+            KeyDownCommand = new Hookup.RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
         }
 
         private HK_General HK_General;
-        private string[] arrEmpty = new string[3] { "", "", "" };
         private HKMatMainCat _mainCat;
         private HKMatSubCat _subCat;
         private ObservableCollection<HKMatMainCat> _mainCats;
@@ -36,14 +39,19 @@ namespace iEngr.Hookup.ViewModels
             get => _mainCat;
             set
             {
-                if (_mainCat != value)
-                {
-                    _mainCat = value;
-                    OnPropertyChanged(nameof(MainCat));
-                    SubCats = GetHKMatSubCats(_mainCat);
-                }
+                SetField(ref _mainCat, value);
+                SubCats = GetHKMatSubCats(_mainCat);
             }
-        }
+                //set
+                //{
+                //    if (_mainCat != value)
+                //    {
+                //        _mainCat = value;
+                //        OnPropertyChanged(nameof(MainCat));
+                //        SubCats = GetHKMatSubCats(_mainCat);
+                //    }
+                //}
+            }
         public HKMatSubCat SubCat
         {
             get => _subCat;
@@ -57,7 +65,14 @@ namespace iEngr.Hookup.ViewModels
                     if (value?.ID == string.Empty)
                     {
                         StrTypeAllP1 = GetAllP1StringDistinct(SubCats);
-                        StrTypeAllP2 = GetAllP2StringDistinct(SubCats);
+                        //StrTypeAllP2 = GetAllP2StringDistinct(SubCats);
+                        StrTypeAllP2 = StrTypeAllP1;
+                        StrMainSpecT1All = string.Empty;
+                        StrMainSpecT2All = string.Empty;
+                        StrMainSpecT3All = string.Empty;
+                        StrAuxSpecT1All = string.Empty;
+                        StrAuxSpecT2All = string.Empty;
+                        StrAuxSpecT3All = string.Empty;
                     }
                     else if (value != null)
                     {
@@ -67,9 +82,17 @@ namespace iEngr.Hookup.ViewModels
                         else
                             StrTypeAllP2 = StrTypeAllP1;
                         string[] _mainSpecTitle = value.TechSpecMain.Split(',').Select(item => item.Trim()).ToArray();
-                        string[] mainSpecTitle = arrEmpty;
+                        string[] mainSpecTitle = new string[3] { "", "", "" }; 
                         Array.Copy(_mainSpecTitle, 0, mainSpecTitle, 0, Math.Min(_mainSpecTitle.Length, 3));
                         StrMainSpecT1All = mainSpecTitle[0];
+                        StrMainSpecT2All = mainSpecTitle[1];
+                        StrMainSpecT3All = mainSpecTitle[2];
+                        string[] _auxSpecTitle = value.TechSpecAux.Split(',').Select(item => item.Trim()).ToArray();
+                        string[] auxSpecTitle = new string[3] { "", "", "" };
+                        Array.Copy(_auxSpecTitle, 0, auxSpecTitle, 0, Math.Min(_auxSpecTitle.Length, 3));
+                        StrAuxSpecT1All = auxSpecTitle[0];
+                        StrAuxSpecT2All = auxSpecTitle[1];
+                        StrAuxSpecT3All = auxSpecTitle[2];
                     }
                     OnPropertyChanged(nameof(SubCat));
                 }
@@ -141,12 +164,13 @@ namespace iEngr.Hookup.ViewModels
                     string _id = TypeP1?.ID ?? string.Empty;
                     _typeAllP1 = value;
                     OnPropertyChanged(nameof(TypeAllP1));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        TypeP1 = _replacement;
-                    }
+                    TypeP1 = SetCurrSelectedItem(value, _id, 0, TypeP1);
+                    //if (value != null && value.Count > 0 && _id != null)
+                    //{
+                    //    CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
+                    //    _replacement = _replacement ?? value[0];
+                    //    TypeP1 = _replacement;
+                    //}
                 }
             }
         }
@@ -160,12 +184,7 @@ namespace iEngr.Hookup.ViewModels
                     string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
                     _typeAllP2 = value;
                     OnPropertyChanged(nameof(TypeAllP2));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        TypeP2 = _replacement;
-                    }
+                    TypeP2 = SetCurrSelectedItem(value, _id, 0, TypeP2);
                 }
             }
         }
@@ -201,20 +220,18 @@ namespace iEngr.Hookup.ViewModels
             get => _typeP1;
             set
             {
-                if (_typeP1 != value)
+                if (_typeP1 != value && value !=null)
                 {
                     SizeAllP1 = GetAllSizeOrSpec(value);
                     _typeP1 = value;
                     if (AlterCode == "AS1" && TypeAllP2?.Count >0)
                     {
                         string _id = TypeP1?.ID ?? string.Empty;
-                        CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? TypeAllP2?[0];
-                        TypeP2 = _replacement;
-                        // _id = SizeP1?.ID ?? string.Empty;
-                        // _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
-                        //_replacement = _replacement ?? SizeAllP2?[0];
-                        //SizeP2 = _replacement;
+                        TypeP2 = SetCurrSelectedItem(TypeAllP2, _id, 0, TypeP2);
+
+                        //CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == _id);
+                        //_replacement = _replacement ?? TypeAllP2?[0];
+                        //TypeP2 = _replacement;
                     }
                     OnPropertyChanged(nameof(TypeP1));
                 }
@@ -225,7 +242,7 @@ namespace iEngr.Hookup.ViewModels
             get => _typeP2;
             set
             {
-                if (_typeP2 != value)
+                if (_typeP2 != value && value != null)
                 {
                     SizeAllP2 = GetAllSizeOrSpec(value);
                     _typeP2 = value;
@@ -248,12 +265,7 @@ namespace iEngr.Hookup.ViewModels
                     string _id = SizeP1?.ID ?? string.Empty;
                     _sizeAllP1 = value;
                     OnPropertyChanged(nameof(SizeAllP1));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        SizeP1 = _replacement;
-                    }
+                    SizeP1 = SetCurrSelectedItem(value, _id, 0, SizeP1);
                 }
             }
         }
@@ -264,15 +276,10 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_sizeAllP2 != value)
                 {
-                    string _id = SizeP2?.ID ?? string.Empty;
+                    string _id = (AlterCode == "AS1") ? SizeP1?.ID ?? string.Empty : SizeP2?.ID ?? string.Empty;
                     _sizeAllP2 = value;
-                    OnPropertyChanged(nameof(SizeAllP2));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        SizeP2 = _replacement;
-                    }
+                    OnPropertyChanged();
+                    SizeP2 = SetCurrSelectedItem(value, _id, 0, SizeP2);
                 }
             }
         }
@@ -334,19 +341,58 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
+        private string _noLinkSpecTrigger;
+        public string NoLinkSpecTrigger
+        {
+            get => _noLinkSpecTrigger;
+            set
+            {
+                if (string.IsNullOrEmpty(value) && _noLinkSpecTrigger != value)
+                {
+                    var seg = value.Split('|');
+                    if (!HK_General.dicNoLinkSpec[seg[0]].Any(x=>x.ID == seg[1]))
+                    {
+                        HKLibGenOption newSpec = new HKLibGenOption
+                        {
+                            ID = seg[1],
+                            NameCn = seg[1],
+                            NameEn = seg[1],
+                        };
+                        HK_General.dicNoLinkSpec[seg[0]].Add(newSpec);
+                        var lst = HK_General.dicNoLinkSpec[seg[0]].Select(x => new CmbItem
+                        {
+                            ID = x.ID,
+                            NameCn = x.NameCn,
+                            NameEn = x.NameEn
+                        }).ToList();
+                         new ObservableCollection<CmbItem>(lst);
+                    }
+                    if (SizeAllP2 != null && SizeAllP2.Count > 0)
+                    {
+                        CmbItem _replacement = SizeAllP2.FirstOrDefault(x => x.ID == value);
+                        _replacement = _replacement ?? SizeAllP2[0];
+                        SizeP2 = _replacement;
+                    }
+                }
+            }
+        }
+
+
         private CmbItem _mainSpecT1;
         private string _strMainSpecT1All;
         private ObservableCollection<CmbItem> _mainSpecT1All;
+        private CmbItem _mainSpecV1;
+        private ObservableCollection<CmbItem> _mainSpecV1All;
         public CmbItem MainSpecT1
         {
             get => _mainSpecT1;
             set
             {
-                if (_mainSpecT1 != value)
+                if (_mainSpecT1 != value && value != null)
                 {
                     MainSpecV1All = GetAllSizeOrSpec(value);
                     _mainSpecT1 = value;
-                    OnPropertyChanged(nameof(MainSpecT1));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -362,7 +408,6 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-
         public ObservableCollection<CmbItem> MainSpecT1All
         {
             get => _mainSpecT1All;
@@ -372,19 +417,11 @@ namespace iEngr.Hookup.ViewModels
                 {
                     string _id = MainSpecT1?.ID ?? string.Empty;
                     _mainSpecT1All = value;
-                    OnPropertyChanged(nameof(MainSpecT1All));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        MainSpecT1 = _replacement;
-                    }
+                    OnPropertyChanged();
+                    MainSpecT1 = SetCurrSelectedItem(value, _id, 0, MainSpecT1);
                 }
             }
         }
-
-        private CmbItem _mainSpecV1;
-        private ObservableCollection<CmbItem> _mainSpecV1All;
         public CmbItem MainSpecV1
         {
             get => _mainSpecV1;
@@ -393,11 +430,10 @@ namespace iEngr.Hookup.ViewModels
                 if (_mainSpecV1 != value)
                 {
                     _mainSpecV1 = value;
-                    OnPropertyChanged(nameof(MainSpecV1));
+                    OnPropertyChanged();
                 }
             }
         }
-
         public ObservableCollection<CmbItem> MainSpecV1All
         {
             get => _mainSpecV1All;
@@ -407,76 +443,403 @@ namespace iEngr.Hookup.ViewModels
                 {
                     string _id = MainSpecV1?.ID ?? string.Empty;
                     _mainSpecV1All = value;
-                    OnPropertyChanged(nameof(MainSpecV1All));
-                    if (value != null && value.Count > 0 && _id != null)
-                    {
-                        CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? value[0];
-                        MainSpecV1 = _replacement;
-                    }
+                    OnPropertyChanged();
+                    MainSpecV1 = SetCurrSelectedItem(value, _id, 0, MainSpecV1);
                 }
             }
         }
-        public string MainSpecT1ID
+
+        private CmbItem _mainSpecT2;
+        private string _strMainSpecT2All;
+        private ObservableCollection<CmbItem> _mainSpecT2All;
+        private CmbItem _mainSpecV2;
+        private ObservableCollection<CmbItem> _mainSpecV2All;
+        public CmbItem MainSpecT2
         {
+            get => _mainSpecT2;
             set
             {
-                value = value ?? string.Empty;
-                if (MainSpecT1All != null && MainSpecT1All.Count > 0)
+                if (_mainSpecT2 != value && value != null)
                 {
-                    CmbItem _replacement = MainSpecT1All.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? MainSpecT1All[0];
-                    MainSpecT1 = _replacement;
+                    MainSpecV2All = GetAllSizeOrSpec(value);
+                    _mainSpecT2 = value;
+                    OnPropertyChanged();
                 }
             }
         }
-        public string MainSpecV1ID
+        public string StrMainSpecT2All
         {
+            get => _strMainSpecT2All;
             set
             {
-                value = value ?? string.Empty;
-                if (MainSpecV1All != null && MainSpecV1All.Count > 0)
+                if (_strMainSpecT2All != value)
                 {
-                    CmbItem _replacement = MainSpecV1All.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? MainSpecV1All[0];
-                    MainSpecV1 = _replacement;
+                    MainSpecT2All = GetSpecTitle(value);
+                    _strMainSpecT2All = value;
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> MainSpecT2All
+        {
+            get => _mainSpecT2All;
+            set
+            {
+                if (_mainSpecT2All != value)
+                {
+                    string _id = MainSpecT2?.ID ?? string.Empty;
+                    _mainSpecT2All = value;
+                    OnPropertyChanged();
+                    MainSpecT2 = SetCurrSelectedItem(value, _id, 0, MainSpecT2);
+                }
+            }
+        }
+        public CmbItem MainSpecV2
+        {
+            get => _mainSpecV2;
+            set
+            {
+                if (_mainSpecV2 != value)
+                {
+                    _mainSpecV2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> MainSpecV2All
+        {
+            get => _mainSpecV2All;
+            set
+            {
+                if (_mainSpecV2All != value)
+                {
+                    string _id = MainSpecV2?.ID ?? string.Empty;
+                    _mainSpecV2All = value;
+                    OnPropertyChanged();
+                    MainSpecV2 = SetCurrSelectedItem(value, _id, 0, MainSpecV2);
+                }
+            }
+        }
+
+        private CmbItem _mainSpecT3;
+        private string _strMainSpecT3All;
+        private ObservableCollection<CmbItem> _mainSpecT3All;
+        private CmbItem _mainSpecV3;
+        private ObservableCollection<CmbItem> _mainSpecV3All;
+        public CmbItem MainSpecT3
+        {
+            get => _mainSpecT3;
+            set
+            {
+                if (_mainSpecT3 != value && value != null)
+                {
+                    MainSpecV3All = GetAllSizeOrSpec(value);
+                    _mainSpecT3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string StrMainSpecT3All
+        {
+            get => _strMainSpecT3All;
+            set
+            {
+                if (_strMainSpecT3All != value)
+                {
+                    MainSpecT3All = GetSpecTitle(value);
+                    _strMainSpecT3All = value;
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> MainSpecT3All
+        {
+            get => _mainSpecT3All;
+            set
+            {
+                if (_mainSpecT3All != value)
+                {
+                    string _id = MainSpecT3?.ID ?? string.Empty;
+                    _mainSpecT3All = value;
+                    OnPropertyChanged();
+                    MainSpecT3 = SetCurrSelectedItem(value, _id, 0, MainSpecT3);
+                }
+            }
+        }
+        public CmbItem MainSpecV3
+        {
+            get => _mainSpecV3;
+            set
+            {
+                if (_mainSpecV3 != value)
+                {
+                    _mainSpecV3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> MainSpecV3All
+        {
+            get => _mainSpecV3All;
+            set
+            {
+                if (_mainSpecV3All != value)
+                {
+                    string _id = MainSpecV3?.ID ?? string.Empty;
+                    _mainSpecV3All = value;
+                    OnPropertyChanged();
+                    MainSpecV3 = SetCurrSelectedItem(value, _id, 0, MainSpecV3);
+                }
+            }
+        }
+
+        private CmbItem _auxSpecT1;
+        private string _strAuxSpecT1All;
+        private ObservableCollection<CmbItem> _auxSpecT1All;
+        private CmbItem _auxSpecV1;
+        private ObservableCollection<CmbItem> _auxSpecV1All;
+        public CmbItem AuxSpecT1
+        {
+            get => _auxSpecT1;
+            set
+            {
+                if (_auxSpecT1 != value && value != null)
+                {
+                    AuxSpecV1All = GetAllSizeOrSpec(value);
+                    _auxSpecT1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string StrAuxSpecT1All
+        {
+            get => _strAuxSpecT1All;
+            set
+            {
+                if (_strAuxSpecT1All != value)
+                {
+                    AuxSpecT1All = GetSpecTitle(value);
+                    _strAuxSpecT1All = value;
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecT1All
+        {
+            get => _auxSpecT1All;
+            set
+            {
+                if (_auxSpecT1All != value)
+                {
+                    string _id = AuxSpecT1?.ID ?? string.Empty;
+                    _auxSpecT1All = value;
+                    OnPropertyChanged();
+                    AuxSpecT1 = SetCurrSelectedItem(value, _id, 0, AuxSpecT1);
+                }
+            }
+        }
+        public CmbItem AuxSpecV1
+        {
+            get => _auxSpecV1;
+            set
+            {
+                if (_auxSpecV1 != value)
+                {
+                    _auxSpecV1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecV1All
+        {
+            get => _auxSpecV1All;
+            set
+            {
+                if (_auxSpecV1All != value)
+                {
+                    string _id = AuxSpecV1?.ID ?? string.Empty;
+                    _auxSpecV1All = value;
+                    OnPropertyChanged();
+                    AuxSpecV1 = SetCurrSelectedItem(value, _id, 0, AuxSpecV1);
+                }
+            }
+        }
+
+        private CmbItem _auxSpecT2;
+        private string _strAuxSpecT2All;
+        private ObservableCollection<CmbItem> _auxSpecT2All;
+        private CmbItem _auxSpecV2;
+        private ObservableCollection<CmbItem> _auxSpecV2All;
+        public CmbItem AuxSpecT2
+        {
+            get => _auxSpecT2;
+            set
+            {
+                if (_auxSpecT2 != value && value != null)
+                {
+                    AuxSpecV2All = GetAllSizeOrSpec(value);
+                    _auxSpecT2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string StrAuxSpecT2All
+        {
+            get => _strAuxSpecT2All;
+            set
+            {
+                if (_strAuxSpecT2All != value)
+                {
+                    AuxSpecT2All = GetSpecTitle(value);
+                    _strAuxSpecT2All = value;
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecT2All
+        {
+            get => _auxSpecT2All;
+            set
+            {
+                if (_auxSpecT2All != value)
+                {
+                    string _id = AuxSpecT2?.ID ?? string.Empty;
+                    _auxSpecT2All = value;
+                    OnPropertyChanged();
+                    AuxSpecT2 = SetCurrSelectedItem(value, _id, 0, AuxSpecT2);
+                }
+            }
+        }
+        public CmbItem AuxSpecV2
+        {
+            get => _auxSpecV2;
+            set
+            {
+                if (_auxSpecV2 != value)
+                {
+                    _auxSpecV2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecV2All
+        {
+            get => _auxSpecV2All;
+            set
+            {
+                if (_auxSpecV2All != value)
+                {
+                    string _id = AuxSpecV2?.ID ?? string.Empty;
+                    _auxSpecV2All = value;
+                    OnPropertyChanged();
+                    AuxSpecV2 = SetCurrSelectedItem(value, _id, 0, AuxSpecV2);
+                }
+            }
+        }
+
+        private CmbItem _auxSpecT3;
+        private string _strAuxSpecT3All;
+        private ObservableCollection<CmbItem> _auxSpecT3All;
+        private CmbItem _auxSpecV3;
+        private ObservableCollection<CmbItem> _auxSpecV3All;
+        public CmbItem AuxSpecT3
+        {
+            get => _auxSpecT3;
+            set
+            {
+                if (_auxSpecT3 != value && value != null)
+                {
+                    AuxSpecV3All = GetAllSizeOrSpec(value);
+                    _auxSpecT3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string StrAuxSpecT3All
+        {
+            get => _strAuxSpecT3All;
+            set
+            {
+                if (_strAuxSpecT3All != value)
+                {
+                    AuxSpecT3All = GetSpecTitle(value);
+                    _strAuxSpecT3All = value;
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecT3All
+        {
+            get => _auxSpecT3All;
+            set
+            {
+                if (_auxSpecT3All != value)
+                {
+                    string _id = AuxSpecT3?.ID ?? string.Empty;
+                    _auxSpecT3All = value;
+                    OnPropertyChanged();
+                    AuxSpecT3 = SetCurrSelectedItem(value, _id, 0, AuxSpecT3);
+                }
+            }
+        }
+        public CmbItem AuxSpecV3
+        {
+            get => _auxSpecV3;
+            set
+            {
+                if (_auxSpecV3 != value)
+                {
+                    _auxSpecV3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public ObservableCollection<CmbItem> AuxSpecV3All
+        {
+            get => _auxSpecV3All;
+            set
+            {
+                if (_auxSpecV3All != value)
+                {
+                    string _id = AuxSpecV3?.ID ?? string.Empty;
+                    _auxSpecV3All = value;
+                    OnPropertyChanged();
+                    AuxSpecV3 = SetCurrSelectedItem(value, _id, 0, AuxSpecV3);
                 }
             }
         }
 
 
-        private string _techSpecMain;
-        private string _techSpecAux;
+        public string MainSpecT2ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (MainSpecT2All != null && MainSpecT2All.Count > 0)
+                {
+                    CmbItem _replacement = MainSpecT2All.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? MainSpecT2All[0];
+                    MainSpecT2 = _replacement;
+                }
+            }
+        }
+        public string MainSpecV2ID
+        {
+            set
+            {
+                value = value ?? string.Empty;
+                if (MainSpecV2All != null && MainSpecV2All.Count > 0)
+                {
+                    CmbItem _replacement = MainSpecV2All.FirstOrDefault(x => x.ID == value);
+                    _replacement = _replacement ?? MainSpecV2All[0];
+                    MainSpecV2 = _replacement;
+                }
+            }
+        }
+
+
         private string _matMatAll;
         private string _moreSpecCn;
         private string _moreSpecEn;
         private string _remarksEn;
         private string _remarksCn;
         private string _alterCode;
-        public string TechSpecMain
-        {
-            get => _techSpecMain;
-            set
-            {
-                if (_techSpecMain != value)
-                {
-                    _techSpecMain = value;
-                    OnPropertyChanged(nameof(TechSpecMain));
-                }
-            }
-        }
-        public string TechSpecAux
-        {
-            get => _techSpecAux;
-            set
-            {
-                if (_techSpecAux != value)
-                {
-                    _techSpecAux = value;
-                    OnPropertyChanged(nameof(TechSpecAux));
-                }
-            }
-        }
+
 
         public string MatMatAll
         {
@@ -493,69 +856,50 @@ namespace iEngr.Hookup.ViewModels
         public string MoreSpecCn
         {
             get => _moreSpecCn;
-            set
-            {
-                if (_moreSpecCn != value)
-                {
-                    _moreSpecCn = value;
-                    OnPropertyChanged(nameof(MoreSpecCn));
-                }
-            }
+            set => SetField(ref _alterCode, value);
         }
         public string MoreSpecEn
         {
             get => _moreSpecEn;
-            set
-            {
-                if (_moreSpecEn != value)
-                {
-                    _moreSpecEn = value;
-                    OnPropertyChanged(nameof(MoreSpecEn));
-                }
-            }
+            set => SetField(ref _alterCode, value);
         }
         public string RemarksCn
         {
             get => _remarksCn;
-            set
-            {
-                if (_remarksCn != value)
-                {
-                    _remarksCn = value;
-                    OnPropertyChanged(nameof(RemarksCn));
-                }
-            }
+            set => SetField(ref _alterCode, value);
         }
         public string RemarksEn
         {
             get => _remarksEn;
-            set
-            {
-                if (_remarksEn != value)
-                {
-                    _remarksEn = value;
-                    OnPropertyChanged(nameof(RemarksEn));
-                }
-            }
+            set => SetField(ref _alterCode, value);
         }
         public string AlterCode
         {
             get => _alterCode;
-            set
-            {
-                if (_alterCode != value)
-                {
-                    _alterCode = value;
-                    OnPropertyChanged(nameof(AlterCode));
-                }
-            }
+            set => SetField(ref _alterCode, value);
         }
-        public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        //private string _selectedKeyValue;
+        //public string SelectedKeyValue
+        //{
+        //    get => _selectedKeyValue;
+        //    set => SetField(ref _selectedKeyValue, value);
+        //}
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
+        // INotifyPropertyChanged 实现
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //protected virtual void OnPropertyChanged(string propertyName)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
         //protected bool SetField<T>(ref T field, T value, [CallerMemberName] string name = null)
         //{
         //    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -563,6 +907,100 @@ namespace iEngr.Hookup.ViewModels
         //    OnPropertyChanged(name);
         //    return true;
         //}
+
+        // 按键处理命令
+        public ICommand KeyDownCommand { get; }
+        // 简单命令实现
+        //public class RelayCommand<T> : ICommand
+        //{
+        //    private readonly Action<T> _execute;
+        //    public RelayCommand(Action<T> execute) => _execute = execute;
+        //    public bool CanExecute(object parameter) => true;
+        //    public void Execute(object parameter) => _execute((T)parameter);
+        //    public event EventHandler CanExecuteChanged;
+        //}
+
+        private void HandleKeyDownSpec(KeyEventArgs e)
+        {
+
+            if (e.Key == Key.Enter) // 示例：按Enter键时处理
+            {
+                // 更安全的方式获取 ComboBox
+                var comboBox = e.Source as ComboBox ?? e.OriginalSource as ComboBox;
+
+                if (comboBox != null)
+                {
+                    // 确保绑定更新
+                    //var binding = comboBox.GetBindingExpression(ComboBox.TextProperty);
+                    //binding?.UpdateSource();
+                    bool isValid = true;
+                    string value = comboBox.Text?.Trim();
+                    var titleItem = (comboBox.DataContext as CmbItem);
+                    string key = titleItem.ID;
+                    var cmbItems = comboBox.ItemsSource as ObservableCollection<CmbItem>;
+                    switch(titleItem.Class)
+                    {
+                        case "NumItems":
+                            isValid = GeneralFun.ValidateNumberItemsFormat(value, 'x', 2);
+
+                            break;
+                    }
+                    SetNoLinkDic(key, value);
+                    SetCmbItems(cmbItems, key);
+                    comboBox.SelectedItem  = SetCurrSelectedItem(cmbItems, value, -1);
+                }
+                e.Handled = true; // 标记事件已处理
+            }
+        }
+
+        private void SetNoLinkDic(string key, string value)
+        {
+            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrEmpty(value)) return;
+            if (HK_General.dicNoLinkSpec[key].Any(x=>x.ID ==  value)) return;
+            HK_General.dicNoLinkSpec[key].Add(new HKLibGenOption
+            {
+                ID = value,
+                NameCn = value,
+                NameEn = value,
+            });
+        }
+
+        private void SetCmbItems(ObservableCollection<CmbItem> items, string key)
+        {
+            if (string.IsNullOrWhiteSpace(key) || items == null) return;
+            items.Clear();
+            foreach (var item in HK_General.dicNoLinkSpec[key])
+            {
+                items.Add(new CmbItem
+                {
+                    ID = item.ID,
+                    NameCn = item.NameCn,
+                    NameEn = item.NameEn,
+                });
+            }
+        }
+
+        private CmbItem SetCurrSelectedItem(ObservableCollection<CmbItem> sourceCollection,
+                                          string targetId,
+                                          int defIndex = 0,
+                                          CmbItem defaultValue = null)
+        {
+            // 验证输入
+            if (sourceCollection == null || sourceCollection.Count == 0 || targetId == null)
+                return defaultValue;
+
+            // 尝试通过ID查找
+            var matchedItem = sourceCollection.FirstOrDefault(item => item.ID == targetId);
+
+            if (matchedItem != null)
+                return matchedItem;
+
+            // 后备索引查找
+            if (defIndex >= 0 && defIndex < sourceCollection.Count)
+                return sourceCollection[defIndex];
+            else
+                return null;
+        }
 
         private ObservableCollection<HKMatMainCat> GetHKMatMainCats()
         {
@@ -726,6 +1164,18 @@ namespace iEngr.Hookup.ViewModels
                     case "LibThread":
                         lst = getCmbItemsThreadAll(HK_General.dicThread, segParts[1].Trim(), segParts[2]);
                         break;
+                    case "LibPN":
+                        lst = getCmbItemsPNAll(HK_General.dicPN, segParts[1].Trim(), segParts[2]);
+                        break;
+                    case "LibGland":
+                        lst = getCmbItemsGlandAll(HK_General.dicGland, segParts[1].Trim(), segParts[2]);
+                        break;
+                    case "LibSteel":
+                        lst = getCmbItemsSteelAll(HK_General.dicSteel, segParts[1].Trim(), segParts[2]);
+                        break;
+                    case "LibGenOption":
+                        lst = getCmbItemsGenOptionAll(HK_General.dicGenOption, segParts[1].Trim(), segParts[2]);
+                        break;
 
 
                 }
@@ -752,9 +1202,21 @@ namespace iEngr.Hookup.ViewModels
                 ID = x.ID,
                 NameCn = name == "DN" ? $"DN {x.DN} - NPS {x.NPS}"
                                              : name == "NPS" ? $"NPS {x.NPS} - DN {x.DN}"
+                                             : name == "HGIa" ? $"DN {x.DN} - Φ{x.HGIa}"
+                                             : name == "HGIb" ? $"DN {x.DN} - Φ{x.HGIb}"
+                                             : name == "HGII" ? $"DN {x.DN} - Φ{x.HGII}"
+                                             : name == "GBI" ? $"DN {x.DN} - Φ{x.GBI}"
+                                             : name == "GBII" ? $"DN {x.DN} - Φ{x.GBII}"
+                                             : name == "ISO" ? $"DN {x.DN} - Φ{x.ISO}"
                                              : $"DN {x.DN} - NPS {x.NPS}",
                 NameEn = name == "DN" ? $"DN {x.DN} - NPS {x.NPS}"
                                              : name == "NPS" ? $"NPS {x.NPS} - DN {x.DN}"
+                                             : name == "HGIa" ? $"DN {x.DN} - Φ{x.HGIa}"
+                                             : name == "HGIb" ? $"DN {x.DN} - Φ{x.HGIb}"
+                                             : name == "HGII" ? $"DN {x.DN} - Φ{x.HGII}"
+                                             : name == "GBI" ? $"DN {x.DN} - Φ{x.GBI}"
+                                             : name == "GBII" ? $"DN {x.DN} - Φ{x.GBII}"
+                                             : name == "ISO" ? $"DN {x.DN} - Φ{x.ISO}"
                                              : $"DN {x.DN} - NPS {x.NPS}",
                 Comp = comp == "DN" ? x.DN
                                              : comp == "NPS" ? x.NPS
@@ -804,6 +1266,83 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
+        private List<CmbItem> getCmbItemsPNAll(Dictionary<string, HKLibPN> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = x.SpecCn,
+                NameEn = x.SpecEn,
+                Comp = comp == "Class" ? x.Class
+                                             : comp == "SpecCn" ? x.SpecCn
+                                             : comp == "SpecEn" ? x.SpecEn
+                                             : comp == "ISOS1" ? x.ISOS1
+                                             : comp == "ISOS2" ? x.ISOS2
+                                             : comp == "GBDIN" ? x.GBDIN
+                                             : comp == "GBANSI" ? x.GBANSI
+                                             : comp == "ASME" ? x.ASME
+                                             : x.ID,
+            }).ToList();
+        }
+        private List<CmbItem> getCmbItemsGlandAll(Dictionary<string, HKLibGland> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = x.SpecCn,
+                NameEn = x.SpecEn,
+                Comp = comp == "Class" ? x.Class
+                                             : comp == "SpecCn" ? x.SpecCn
+                                             : comp == "SpecEn" ? x.SpecEn
+                                             : comp == "Value" ? x.CabODMin.ToString()
+                                             : comp == "Pitch" ? x.CabODMax.ToString()
+                                             : comp == "ClassEx" ? x.ClassEx
+                                             : x.ID,
+            }).ToList();
+        }
+        private List<CmbItem> getCmbItemsSteelAll(Dictionary<string, HKLibSteel> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = (name == "CSSpec" || name == "CS") ? x.CSSpecCn
+                                             : (name == "IBSpec" || name == "IB") ? x.IBSpecCn
+                                             : x.CSSpecCn,
+                NameEn = (name == "CSSpec" || name == "CS") ? x.CSSpecEn
+                                             : (name == "IBSpec" || name == "IB") ? x.IBSpecEn
+                                             : x.CSSpecEn,
+                Comp = comp == "Width" ? x.Width.ToString()
+                                             : (comp == "CSSpec" || comp == "CS" || comp == "CSSpecCn") ? x.CSSpecCn
+                                             : comp == "CSSpecEn" ? x.CSSpecEn
+                                             : (comp == "IBSpec" || comp == "IB" || comp == "IBSpecCn") ? x.IBSpecCn
+                                             : comp == "IBSpecEn" ? x.IBSpecEn
+                                             : comp == "CSb" ? x.CSb.ToString()
+                                             : comp == "CSd" ? x.CSd.ToString()
+                                             : comp == "IBb" ? x.IBb.ToString()
+                                             : comp == "IBd" ? x.IBd.ToString()
+                                             : x.ID,
+            }).ToList();
+        }
+        private List<CmbItem> getCmbItemsGenOptionAll(Dictionary<string, HKLibGenOption> dic, string name, string cond)
+        {
+            string comp = cond.Split(':')[0];
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            {
+                ID = x.ID,
+                NameCn = x.NameCn,
+                NameEn = x.NameEn,
+                Comp = comp == "Cat" ? x.Cat
+                                             : comp == "NameCn" ? x.NameCn
+                                             : comp == "NameEn" ? x.NameEn
+                                             : comp == "SpecCn" ? x.SpecCn
+                                             : comp == "SpecEn" ? x.SpecEn
+                                             : comp == "Inact" ? x.Inact.ToString()
+                                             : x.ID,
+            }).ToList();
+        }
         private ObservableCollection<CmbItem> getSizeOrSpecLinked(List<CmbItem> lst, string cond)
         {
             string[] _segParts = cond.Split(':').Select(item => item.Trim()).ToArray();
@@ -828,8 +1367,8 @@ namespace iEngr.Hookup.ViewModels
             if (lst.Count > 0) lst.Insert(0, new CmbItem
             {
                 ID = string.Empty,
-                NameCn = "请选择规格或尺寸",
-                NameEn = "Select Spec/Size",
+                NameCn = "规格或尺寸",
+                NameEn = "Spec.or Size",
             });
             return new ObservableCollection<CmbItem>(lst);
         }

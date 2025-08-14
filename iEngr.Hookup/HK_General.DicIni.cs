@@ -239,6 +239,7 @@ namespace iEngr.Hookup
                         {
                             dicSteel.Add(Convert.ToString(reader["ID"]), new HKLibSteel
                             {
+                                ID = Convert.ToString(reader["ID"]),
                                 CSSpecCn = Convert.ToString(reader["CSSpecCn"]),
                                 CSSpecEn = Convert.ToString(reader["CSSpecEn"]),
                                 IBSpecCn = Convert.ToString(reader["IBSpecCn"]),

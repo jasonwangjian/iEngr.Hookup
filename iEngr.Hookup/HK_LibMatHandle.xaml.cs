@@ -34,8 +34,8 @@ namespace iEngr.Hookup
             (ucMD.DataContext as MatDataViewModel). SizeP1ID= "TM12";
             (ucMD.DataContext as MatDataViewModel).TypeP2ID = "FF";
             (ucMD.DataContext as MatDataViewModel).SizeP2ID = "TM10";
-            (ucMD.DataContext as MatDataViewModel).MainSpecT1ID = "DN";
-            (ucMD.DataContext as MatDataViewModel).MainSpecV1ID = "0080";
+            //(ucMD.DataContext as MatDataViewModel).MainSpecT1ID = "DN";
+            //(ucMD.DataContext as MatDataViewModel).MainSpecV1ID = "0080";
         }
     }
 }

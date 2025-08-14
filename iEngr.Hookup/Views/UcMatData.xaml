@@ -1,8 +1,10 @@
-﻿<UserControl x:Class="iEngr.Hookup.Views.UcMatData"
+﻿<UserControl x:Name="ucMD"
+             x:Class="iEngr.Hookup.Views.UcMatData"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
              xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
              xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
@@ -52,21 +54,83 @@
         <ComboBox Margin="2" Grid.Row="3" Grid.Column="1" DisplayMemberPath="Name"/>
         <Label Grid.Row="4" Grid.Column="0" >主参数：</Label>
         <WrapPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
-            <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding MainSpecT1All}" SelectedItem="{Binding MainSpecT1}" 
                       Visibility ="{Binding MainSpecT1All.Count, Converter={StaticResource NullVisibilityConverter}}"
-                      ></ComboBox>
-            <ComboBox Margin="2" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
-                       ItemsSource="{Binding MainSpecV1All}" SelectedItem="{Binding MainSpecV1}" 
-                      Visibility ="{Binding MainSpecT1All.Count, Converter={StaticResource NullVisibilityConverter}}"
-                      IsEditable="{Binding MainSpecT1.Class , Converter={StaticResource NoLinkEditableConverter}}"
-                      MinWidth="{Binding MainSpecT1.Class , Converter={StaticResource NoLinkCmbWidthConverter}}"
-                      ></ComboBox>
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbMainSpecV1" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbMainSpecT1}"
+                      ItemsSource="{Binding DataContext.MainSpecV1All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.MainSpecV1, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.MainSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.MainSpecT1.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.MainSpecT1.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+                      ItemsSource="{Binding MainSpecT2All}" SelectedItem="{Binding MainSpecT2}" 
+                      Visibility ="{Binding MainSpecT2All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbMainSpecV2" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbMainSpecT2}"
+                      ItemsSource="{Binding DataContext.MainSpecV2All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.MainSpecV2, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.MainSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.MainSpecT2.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.MainSpecT2.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+                      ItemsSource="{Binding MainSpecT3All}" SelectedItem="{Binding MainSpecT3}" 
+                      Visibility ="{Binding MainSpecT3All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbMainSpecV3" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbMainSpecT3}"
+                      ItemsSource="{Binding DataContext.MainSpecV3All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.MainSpecV3, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.MainSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.MainSpecT3.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.MainSpecT3.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
         </WrapPanel>
         <WrapPanel  Grid.Row="5" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
             <Label Grid.Row="3" Grid.Column="0">端口一：</Label>
         </WrapPanel>
-        <WrapPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+        <WrapPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">  
             <ComboBox MinWidth="120"  Margin="2" IsEditable="False" DisplayMemberPath="Name" 
                       ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}" 
                       Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
@@ -93,6 +157,80 @@
                       ></ComboBox>
         </WrapPanel>
         <Label Grid.Row="7" Grid.Column="0" >副参数：</Label>
+        <WrapPanel Grid.Row="7" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbAuxSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+                      ItemsSource="{Binding AuxSpecT1All}" SelectedItem="{Binding AuxSpecT1}" 
+                      Visibility ="{Binding AuxSpecT1All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbAuxSpecV1" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT1}"
+                      ItemsSource="{Binding DataContext.AuxSpecV1All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.AuxSpecV1, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.AuxSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.AuxSpecT1.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.AuxSpecT1.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbAuxSpecT2" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+                      ItemsSource="{Binding AuxSpecT2All}" SelectedItem="{Binding AuxSpecT2}" 
+                      Visibility ="{Binding AuxSpecT2All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbAuxSpecV2" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT2}"
+                      ItemsSource="{Binding DataContext.AuxSpecV2All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.AuxSpecV2, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.AuxSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.AuxSpecT2.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.AuxSpecT2.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
+            <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <ComboBox x:Name="cbAuxSpecT3" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
+                      ItemsSource="{Binding AuxSpecT3All}" SelectedItem="{Binding AuxSpecT3}" 
+                      Visibility ="{Binding AuxSpecT3All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      >
+                </ComboBox>
+                <ComboBox x:Name="cbAuxSpecV3" Margin="2" DisplayMemberPath="Name"
+                      DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT3}"
+                      ItemsSource="{Binding DataContext.AuxSpecV3All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      SelectedItem="{Binding DataContext.AuxSpecV3, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                      Visibility ="{Binding DataContext.AuxSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      IsEditable="{Binding DataContext.AuxSpecT3.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
+                      MinWidth="{Binding DataContext.AuxSpecT3.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction 
+                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                       PassEventArgsToCommand="True"
+                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </WrapPanel>
+        </WrapPanel>
         <Label Grid.Row="8" Grid.Column="0" >描述(中):</Label>
         <TextBox Margin="2" Grid.Row="8" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
         <Label Grid.Row="9" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
@@ -100,6 +238,14 @@
         <Label Grid.Row="10" Grid.Column="0" >描述(中):</Label>
         <TextBox Margin="2" Grid.Row="10" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
         <Label Grid.Row="11" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
-        <TextBox Margin="2" Grid.Row="11" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="11" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="KeyDown">
+                    <i:InvokeCommandAction 
+                     Command="{Binding KeyDownCommand}"
+                    CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
     </Grid>
 </UserControl>

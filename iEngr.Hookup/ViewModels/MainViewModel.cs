@@ -38,8 +38,8 @@ namespace iEngr.Hookup
             new Person { Name = "Bob", Age = 25 }
         };
 
-            AddPersonCommand = new RelayCommand(_ => AddPerson());
-            DeletePersonCommand = new RelayCommand(_ => DeletePerson(), _ => SelectedPerson != null);
+            AddPersonCommand = new RelayCommand<object>(_ => AddPerson());
+            DeletePersonCommand = new RelayCommand<object>(_ => DeletePerson(), _ => SelectedPerson != null);
         }
 
         private void AddPerson()

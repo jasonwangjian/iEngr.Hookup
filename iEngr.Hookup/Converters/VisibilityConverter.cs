@@ -29,7 +29,7 @@ namespace iEngr.Hookup.Converters
     public class NoLinkEditableConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => (((value is string classStr) ? classStr : null) == "Link")?  "100" : "200";
+             => ((value is string classStr) ? classStr : null) != "Link";
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotSupportedException();
@@ -37,7 +37,7 @@ namespace iEngr.Hookup.Converters
     public class NoLinkCmbWidthConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => ((value is string classStr) ? classStr : null) == "Link";
+           => (((value is string classStr) ? classStr : null) == "Link")?  "40" : "80";
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotSupportedException();
