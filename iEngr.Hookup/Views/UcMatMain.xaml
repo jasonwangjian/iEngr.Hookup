@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
-             xmlns:vw="clr-namespace:iEngr.Hookup.Views"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
+    <!--<UserControl.DataContext>
+        <vm:MatMainViewModel/>
+    </UserControl.DataContext>-->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20*"/>
@@ -19,9 +23,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <vw:UcMatData x:Name="ucMD" Grid.Row="1" Grid.Column="0"/>
-        <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
-        <vw:UcMatList x:Name="ucML" Grid.Row="1" Grid.Column="2" />
+        <local:UcMatData x:Name="ucMD" Grid.Row="1" Grid.Column="0"/>
+        <GridSplitter Grid.Row="1" Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
+        <local:UcMatList x:Name="ucML" Grid.Row="1" Grid.Column="2" />
         <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
             <Button x:Name="btnQuery" Content="Query" Click="btnQuery_Click" Margin="5" Width="80"/>
             <Button Content="Test" Margin="5" Width="80"/>

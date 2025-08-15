@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,12 +25,15 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcMatData : UserControl
     {
+        public MatDataViewModel ViewModel { get; }
         public UcMatData()
         {
             InitializeComponent();
             HK_General HK_General = new HK_General();
             int intLan = HK_General.intLan;
             string[] portDef = HK_General.portDef;
+            ViewModel = new MatDataViewModel();
+            DataContext = ViewModel;
         }
         private void cbSpec_KeyDown(object sender, KeyEventArgs e)
         {

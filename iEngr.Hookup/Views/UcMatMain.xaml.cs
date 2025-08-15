@@ -26,6 +26,11 @@ namespace iEngr.Hookup.Views
         public UcMatMain()
         {
             InitializeComponent();
+            var mainVM = new MatMainViewModel();
+            DataContext = mainVM;
+
+            // 获取子控件的 ViewModel
+            mainVM.VmMatDate = ucMD.DataContext as MatDataViewModel;
         }
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
@@ -39,6 +44,7 @@ namespace iEngr.Hookup.Views
             var text = getMainSpec(vmMD);
             text = getPortType1(vmMD);
             text = getAuxSpec(vmMD);
+            return text;
         }
 
         private string getMatDataString(MatDataViewModel vmMD)

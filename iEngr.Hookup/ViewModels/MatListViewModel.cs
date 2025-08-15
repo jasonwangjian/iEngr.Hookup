@@ -69,5 +69,16 @@ namespace iEngr.Hookup.ViewModels
         private void HandleMouseDoubleClick(KeyEventArgs e)
         {
         }
+
+        private string getConditionString(string matData)
+        {
+            var arrMatData = matData.Split(',').ToArray<string>();
+            List<string> segs = new List<string>();
+            if (string.IsNullOrEmpty(arrMatData[1]))
+            {
+
+            }
+            return null;
+        }
     }
 }

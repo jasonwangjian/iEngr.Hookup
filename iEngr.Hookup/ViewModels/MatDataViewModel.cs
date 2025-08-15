@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -22,6 +23,9 @@ namespace iEngr.Hookup.ViewModels
 {
     public class MatDataViewModel : INotifyPropertyChanged
     {
+        // 添加自定义事件
+        public event EventHandler<string> DataChanged;
+
         public MatDataViewModel()
         {
             HK_General = new HK_General();
@@ -95,34 +99,24 @@ namespace iEngr.Hookup.ViewModels
                         StrAuxSpecT2All = auxSpecTitle[1];
                         StrAuxSpecT3All = auxSpecTitle[2];
                     }
-                    OnPropertyChanged(nameof(SubCat));
+                    OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
         public ObservableCollection<HKMatMainCat> MainCats
         {
             get => _mainCats;
-            set
-            {
-                if (_mainCats != value)
-                {
-                    _mainCats = value;
-                    OnPropertyChanged(nameof(MainCats));
-                }
-            }
+            set => SetField(ref _mainCats, value);
         }
         public ObservableCollection<HKMatSubCat> SubCats
         {
             get => _subCats;
             set
             {
-                if (_subCats != value)
-                {
-                    _subCats = value;
-                    OnPropertyChanged(nameof(SubCats));
-                    SubCat = _subCats?[0];
-                }
-            }
+                SetField(ref _subCats, value);
+                SubCat = _subCats?[0];
+           }
         }
 
         private CmbItem _typeP1;
@@ -160,19 +154,9 @@ namespace iEngr.Hookup.ViewModels
             get => _typeAllP1;
             set
             {
-                if (_typeAllP1 != value)
-                {
-                    string _id = TypeP1?.ID ?? string.Empty;
-                    _typeAllP1 = value;
-                    OnPropertyChanged(nameof(TypeAllP1));
+                string _id = TypeP1?.ID ?? string.Empty;
+                if (SetField(ref _typeAllP1, value))
                     TypeP1 = SetCurrSelectedItem(value, _id, 0, TypeP1);
-                    //if (value != null && value.Count > 0 && _id != null)
-                    //{
-                    //    CmbItem _replacement = value.FirstOrDefault(x => x.ID == _id);
-                    //    _replacement = _replacement ?? value[0];
-                    //    TypeP1 = _replacement;
-                    //}
-                }
             }
         }
         public ObservableCollection<CmbItem> TypeAllP2
@@ -180,14 +164,20 @@ namespace iEngr.Hookup.ViewModels
             get => _typeAllP2;
             set
             {
-                if (_typeAllP2 != value)
-                {
-                    string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
-                    _typeAllP2 = value;
-                    OnPropertyChanged(nameof(TypeAllP2));
+                string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
+                if (SetField(ref _typeAllP2, value))
                     TypeP2 = SetCurrSelectedItem(value, _id, 0, TypeP2);
-                }
             }
+            //    set
+            //    {
+            //        if (_typeAllP2 != value)
+            //        {
+            //            string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
+            //            _typeAllP2 = value;
+            //            OnPropertyChanged(nameof(TypeAllP2));
+            //            TypeP2 = SetCurrSelectedItem(value, _id, 0, TypeP2);
+            //        }
+            //    }
         }
         public string TypeP1ID
         {
@@ -229,12 +219,9 @@ namespace iEngr.Hookup.ViewModels
                     {
                         string _id = TypeP1?.ID ?? string.Empty;
                         TypeP2 = SetCurrSelectedItem(TypeAllP2, _id, 0, TypeP2);
-
-                        //CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == _id);
-                        //_replacement = _replacement ?? TypeAllP2?[0];
-                        //TypeP2 = _replacement;
                     }
                     OnPropertyChanged(nameof(TypeP1));
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -248,6 +235,7 @@ namespace iEngr.Hookup.ViewModels
                     SizeAllP2 = GetAllSizeOrSpec(value);
                     _typeP2 = value;
                     OnPropertyChanged(nameof(TypeP2));
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -261,13 +249,9 @@ namespace iEngr.Hookup.ViewModels
             get => _sizeAllP1;
             set
             {
-                if (_sizeAllP1 != value)
-                {
-                    string _id = SizeP1?.ID ?? string.Empty;
-                    _sizeAllP1 = value;
-                    OnPropertyChanged(nameof(SizeAllP1));
+                string _id = SizeP1?.ID ?? string.Empty;
+                if (SetField(ref _sizeAllP1, value))
                     SizeP1 = SetCurrSelectedItem(value, _id, 0, SizeP1);
-                }
             }
         }
         public ObservableCollection<CmbItem> SizeAllP2
@@ -275,45 +259,50 @@ namespace iEngr.Hookup.ViewModels
             get => _sizeAllP2;
             set
             {
-                if (_sizeAllP2 != value)
-                {
-                    string _id = (AlterCode == "AS1") ? SizeP1?.ID ?? string.Empty : SizeP2?.ID ?? string.Empty;
-                    _sizeAllP2 = value;
-                    OnPropertyChanged();
+                string _id = (AlterCode == "AS1") ? SizeP1?.ID ?? string.Empty : SizeP2?.ID ?? string.Empty;
+                if (SetField(ref _sizeAllP2, value))
                     SizeP2 = SetCurrSelectedItem(value, _id, 0, SizeP2);
-                }
             }
+            //set
+            //{
+            //    if (_sizeAllP2 != value)
+            //    {
+            //        string _id = (AlterCode == "AS1") ? SizeP1?.ID ?? string.Empty : SizeP2?.ID ?? string.Empty;
+            //        _sizeAllP2 = value;
+            //        OnPropertyChanged();
+            //        SizeP2 = SetCurrSelectedItem(value, _id, 0, SizeP2);
+            //    }
+            //}
         }
         public CmbItem SizeP1
         {
             get => _sizeP1;
             set
             {
-                if (_sizeP1 != value)
-                {
-                    _sizeP1 = value;
-                    if (AlterCode == "AS1")
-                    {
-                        string _id = SizeP1?.ID ?? string.Empty;
-                        CmbItem _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
-                        _replacement = _replacement ?? SizeAllP2?[0];
-                        SizeP2 = _replacement;
-                    }
-                    OnPropertyChanged(nameof(SizeP1));
-                }
+                string _id = SizeP1?.ID ?? string.Empty;
+                if (SetField(ref _sizeP1, value)  && AlterCode == "AS1")
+                    SizeP2 = SetCurrSelectedItem(SizeAllP2, _id, 0, SizeP2);
             }
+            //set
+            //{
+            //    if (_sizeP1 != value)
+            //    {
+            //        _sizeP1 = value;
+            //        if (AlterCode == "AS1")
+            //        {
+            //            string _id = SizeP1?.ID ?? string.Empty;
+            //            CmbItem _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
+            //            _replacement = _replacement ?? SizeAllP2?[0];
+            //            SizeP2 = _replacement;
+            //        }
+            //        OnPropertyChanged(nameof(SizeP1));
+            //    }
+            //}
         }
         public CmbItem SizeP2
         {
             get => _sizeP2;
-            set
-            {
-                if (_sizeP2 != value)
-                {
-                    _sizeP2 = value;
-                    OnPropertyChanged(nameof(SizeP2));
-                }
-            }
+            set => SetField(ref _sizeP2, value);
         }
         public string SizeP1ID
         {
@@ -394,6 +383,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV1All = GetAllSizeOrSpec(value);
                     _mainSpecT1 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -414,39 +404,24 @@ namespace iEngr.Hookup.ViewModels
             get => _mainSpecT1All;
             set
             {
-                if (_mainSpecT1All != value)
-                {
-                    string _id = MainSpecT1?.ID ?? string.Empty;
-                    _mainSpecT1All = value;
-                    OnPropertyChanged();
-                    MainSpecT1 = SetCurrSelectedItem(value, _id, 0, MainSpecT1);
-                }
+                string _id = MainSpecT1?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecT1All, value))
+                    MainSpecT1 = SetCurrSelectedItem(value,_id, 0, MainSpecT1);
             }
         }
         public CmbItem MainSpecV1
         {
             get => _mainSpecV1;
-            set
-            {
-                if (_mainSpecV1 != value)
-                {
-                    _mainSpecV1 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _mainSpecV1, value);
         }
         public ObservableCollection<CmbItem> MainSpecV1All
         {
             get => _mainSpecV1All;
             set
             {
-                if (_mainSpecV1All != value)
-                {
-                    string _id = MainSpecV1?.ID ?? string.Empty;
-                    _mainSpecV1All = value;
-                    OnPropertyChanged();
-                    MainSpecV1 = SetCurrSelectedItem(value, _id, 0, MainSpecV1);
-                }
+                string _id = MainSpecV1?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecV1All, value))
+                    MainSpecV1 = SetCurrSelectedItem(value,_id, 0, MainSpecV1);
             }
         }
 
@@ -465,6 +440,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV2All = GetAllSizeOrSpec(value);
                     _mainSpecT2 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -485,39 +461,24 @@ namespace iEngr.Hookup.ViewModels
             get => _mainSpecT2All;
             set
             {
-                if (_mainSpecT2All != value)
-                {
-                    string _id = MainSpecT2?.ID ?? string.Empty;
-                    _mainSpecT2All = value;
-                    OnPropertyChanged();
+                string _id = MainSpecT2?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecT2All, value))
                     MainSpecT2 = SetCurrSelectedItem(value, _id, 0, MainSpecT2);
-                }
             }
         }
         public CmbItem MainSpecV2
         {
             get => _mainSpecV2;
-            set
-            {
-                if (_mainSpecV2 != value)
-                {
-                    _mainSpecV2 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _mainSpecV2, value);
         }
         public ObservableCollection<CmbItem> MainSpecV2All
         {
             get => _mainSpecV2All;
             set
             {
-                if (_mainSpecV2All != value)
-                {
-                    string _id = MainSpecV2?.ID ?? string.Empty;
-                    _mainSpecV2All = value;
-                    OnPropertyChanged();
+                string _id = MainSpecV2?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecV2All, value))
                     MainSpecV2 = SetCurrSelectedItem(value, _id, 0, MainSpecV2);
-                }
             }
         }
 
@@ -536,6 +497,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV3All = GetAllSizeOrSpec(value);
                     _mainSpecT3 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -556,39 +518,24 @@ namespace iEngr.Hookup.ViewModels
             get => _mainSpecT3All;
             set
             {
-                if (_mainSpecT3All != value)
-                {
-                    string _id = MainSpecT3?.ID ?? string.Empty;
-                    _mainSpecT3All = value;
-                    OnPropertyChanged();
+                string _id = MainSpecT3?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecT3All, value))
                     MainSpecT3 = SetCurrSelectedItem(value, _id, 0, MainSpecT3);
-                }
             }
         }
         public CmbItem MainSpecV3
         {
             get => _mainSpecV3;
-            set
-            {
-                if (_mainSpecV3 != value)
-                {
-                    _mainSpecV3 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _mainSpecV3, value);
         }
         public ObservableCollection<CmbItem> MainSpecV3All
         {
             get => _mainSpecV3All;
             set
             {
-                if (_mainSpecV3All != value)
-                {
-                    string _id = MainSpecV3?.ID ?? string.Empty;
-                    _mainSpecV3All = value;
-                    OnPropertyChanged();
+                string _id = MainSpecV3?.ID ?? string.Empty;
+                if (SetField(ref _mainSpecV3All, value))
                     MainSpecV3 = SetCurrSelectedItem(value, _id, 0, MainSpecV3);
-                }
             }
         }
 
@@ -607,6 +554,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV1All = GetAllSizeOrSpec(value);
                     _auxSpecT1 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -627,39 +575,24 @@ namespace iEngr.Hookup.ViewModels
             get => _auxSpecT1All;
             set
             {
-                if (_auxSpecT1All != value)
-                {
-                    string _id = AuxSpecT1?.ID ?? string.Empty;
-                    _auxSpecT1All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecT1?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecT1All, value))
                     AuxSpecT1 = SetCurrSelectedItem(value, _id, 0, AuxSpecT1);
-                }
-            }
+             }
         }
         public CmbItem AuxSpecV1
         {
             get => _auxSpecV1;
-            set
-            {
-                if (_auxSpecV1 != value)
-                {
-                    _auxSpecV1 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _auxSpecV1, value);
         }
         public ObservableCollection<CmbItem> AuxSpecV1All
         {
             get => _auxSpecV1All;
             set
             {
-                if (_auxSpecV1All != value)
-                {
-                    string _id = AuxSpecV1?.ID ?? string.Empty;
-                    _auxSpecV1All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecV1?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecV1All, value))
                     AuxSpecV1 = SetCurrSelectedItem(value, _id, 0, AuxSpecV1);
-                }
             }
         }
 
@@ -678,6 +611,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV2All = GetAllSizeOrSpec(value);
                     _auxSpecT2 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -698,39 +632,24 @@ namespace iEngr.Hookup.ViewModels
             get => _auxSpecT2All;
             set
             {
-                if (_auxSpecT2All != value)
-                {
-                    string _id = AuxSpecT2?.ID ?? string.Empty;
-                    _auxSpecT2All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecT2?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecT2All, value))
                     AuxSpecT2 = SetCurrSelectedItem(value, _id, 0, AuxSpecT2);
-                }
             }
         }
         public CmbItem AuxSpecV2
         {
             get => _auxSpecV2;
-            set
-            {
-                if (_auxSpecV2 != value)
-                {
-                    _auxSpecV2 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _auxSpecV2, value);
         }
         public ObservableCollection<CmbItem> AuxSpecV2All
         {
             get => _auxSpecV2All;
             set
             {
-                if (_auxSpecV2All != value)
-                {
-                    string _id = AuxSpecV2?.ID ?? string.Empty;
-                    _auxSpecV2All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecV2?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecV2All, value))
                     AuxSpecV2 = SetCurrSelectedItem(value, _id, 0, AuxSpecV2);
-                }
             }
         }
 
@@ -749,6 +668,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV3All = GetAllSizeOrSpec(value);
                     _auxSpecT3 = value;
                     OnPropertyChanged();
+                    MatDataString = getMatDataString();
                 }
             }
         }
@@ -769,39 +689,24 @@ namespace iEngr.Hookup.ViewModels
             get => _auxSpecT3All;
             set
             {
-                if (_auxSpecT3All != value)
-                {
-                    string _id = AuxSpecT3?.ID ?? string.Empty;
-                    _auxSpecT3All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecT3?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecT3All, value))
                     AuxSpecT3 = SetCurrSelectedItem(value, _id, 0, AuxSpecT3);
-                }
             }
         }
         public CmbItem AuxSpecV3
         {
             get => _auxSpecV3;
-            set
-            {
-                if (_auxSpecV3 != value)
-                {
-                    _auxSpecV3 = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetField(ref _auxSpecV3, value);
         }
         public ObservableCollection<CmbItem> AuxSpecV3All
         {
             get => _auxSpecV3All;
             set
             {
-                if (_auxSpecV3All != value)
-                {
-                    string _id = AuxSpecV3?.ID ?? string.Empty;
-                    _auxSpecV3All = value;
-                    OnPropertyChanged();
+                string _id = AuxSpecV3?.ID ?? string.Empty;
+                if (SetField(ref _auxSpecV3All, value))
                     AuxSpecV3 = SetCurrSelectedItem(value, _id, 0, AuxSpecV3);
-                }
             }
         }
 
@@ -884,7 +789,17 @@ namespace iEngr.Hookup.ViewModels
         public string MatDataString
         {
             get => _matDataString;
-            set => SetField(ref _matDataString, value);
+            set
+            {
+                if (_matDataString != value)
+                {
+                    _matDataString = value;
+                    OnPropertyChanged();
+                    // 触发自定义事件
+                    DataChanged?.Invoke(this, value);
+                    Debug.WriteLine($"子控件数据已更新: {value}");
+                }
+            }
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
@@ -1432,11 +1347,14 @@ namespace iEngr.Hookup.ViewModels
         //}
         private string getMatDataString()
         {
-            return $"{MainCat?.ID},{SubCat?.ID},{MatMatAll}," +
+            if (SubCat == null) return null;
+            return $"{MainCat?.ID},{SubCat.ID},{MatMatAll}," +
                    $"{getMainSpec()}," +
-                   $"{string.Join("|", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
+                   $"{((TypeAllP1 == null) ? null : string.Join(" | ", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
+                   $"{TypeP1?.ID}," +
                    $"{SizeP1?.ID}," +
-                   $"{string.Join("|", TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
+                   $"{((TypeAllP2 == null) ? null : string.Join("|", TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
+                   $"{TypeP2?.ID}," +
                    $"{SizeP2?.ID}," +
                    $"{getAuxSpec()}," +
                    $"{MoreSpecCn}," +
