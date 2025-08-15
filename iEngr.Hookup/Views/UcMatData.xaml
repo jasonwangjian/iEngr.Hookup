@@ -232,20 +232,16 @@
             </WrapPanel>
         </WrapPanel>
         <Label Grid.Row="8" Grid.Column="0" >描述(中):</Label>
-        <TextBox Margin="2" Grid.Row="8" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="8" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"
+                 Text="{Binding MoreSpecCn}"></TextBox>
         <Label Grid.Row="9" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
-        <TextBox Margin="2" Grid.Row="9" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
-        <Label Grid.Row="10" Grid.Column="0" >描述(中):</Label>
-        <TextBox Margin="2" Grid.Row="10" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"></TextBox>
+        <TextBox Margin="2" Grid.Row="9" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"
+                 Text="{Binding MoreSpecEn}"></TextBox>
+        <Label Grid.Row="10" Grid.Column="0" >备注(中):</Label>
+        <TextBox Margin="2" Grid.Row="10" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"
+                 Text="{Binding RemarksCn}"></TextBox>
         <Label Grid.Row="11" Grid.Column="0" HorizontalAlignment="Right">(EN):</Label>
-        <TextBox Margin="2" Grid.Row="11" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="KeyDown">
-                    <i:InvokeCommandAction 
-                     Command="{Binding KeyDownCommand}"
-                    CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </TextBox>
+        <TextBox Margin="2" Grid.Row="11" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="50"
+                  Text="{Binding RemarksEn}"></TextBox>
     </Grid>
 </UserControl>

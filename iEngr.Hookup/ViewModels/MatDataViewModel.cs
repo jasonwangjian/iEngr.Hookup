@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Odbc;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -26,7 +27,7 @@ namespace iEngr.Hookup.ViewModels
             HK_General = new HK_General();
             MainCats = GetHKMatMainCats();
             MainCat = MainCats?[0];
-            KeyDownCommand = new Hookup.RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
+            KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
         }
 
         private HK_General HK_General;
@@ -856,22 +857,22 @@ namespace iEngr.Hookup.ViewModels
         public string MoreSpecCn
         {
             get => _moreSpecCn;
-            set => SetField(ref _alterCode, value);
+            set => SetField(ref _moreSpecCn, value);
         }
         public string MoreSpecEn
         {
             get => _moreSpecEn;
-            set => SetField(ref _alterCode, value);
+            set => SetField(ref _moreSpecEn, value);
         }
         public string RemarksCn
         {
             get => _remarksCn;
-            set => SetField(ref _alterCode, value);
+            set => SetField(ref _remarksCn, value);
         }
         public string RemarksEn
         {
             get => _remarksEn;
-            set => SetField(ref _alterCode, value);
+            set => SetField(ref _remarksEn, value);
         }
         public string AlterCode
         {
@@ -879,20 +880,20 @@ namespace iEngr.Hookup.ViewModels
             set => SetField(ref _alterCode, value);
         }
 
-        //private string _selectedKeyValue;
-        //public string SelectedKeyValue
-        //{
-        //    get => _selectedKeyValue;
-        //    set => SetField(ref _selectedKeyValue, value);
-        //}
+        private string _matDataString;
+        public string MatDataString
+        {
+            get => _matDataString;
+            set => SetField(ref _matDataString, value);
+        }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
             OnPropertyChanged(propertyName);
+            MatDataString = getMatDataString();
             return true;
         }
-        // INotifyPropertyChanged 实现
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -1429,6 +1430,53 @@ namespace iEngr.Hookup.ViewModels
         //            return null; // 不支持的操作符
         //    }
         //}
-
+        private string getMatDataString()
+        {
+            return $"{MainCat?.ID},{SubCat?.ID},{MatMatAll}," +
+                   $"{getMainSpec()}," +
+                   $"{string.Join("|", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
+                   $"{SizeP1?.ID}," +
+                   $"{string.Join("|", TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
+                   $"{SizeP2?.ID}," +
+                   $"{getAuxSpec()}," +
+                   $"{MoreSpecCn}," +
+                   $"{MoreSpecEn}," +
+                   $"{RemarksCn}," +
+                   $"{RemarksEn}";
+        }
+        private string getMainSpec()
+        {
+            List<string> specs = new List<string>();
+            if (MainSpecT1All?.Count > 0)
+            {
+                specs.Add($"{MainSpecT1?.ID}:{MainSpecV1?.ID}");
+                if (MainSpecT2All?.Count > 0)
+                {
+                    specs.Add($"{MainSpecT2?.ID}:{MainSpecV2?.ID}");
+                    if (MainSpecT3All?.Count > 0)
+                    {
+                        specs.Add($"{MainSpecT3?.ID}:{MainSpecV3?.ID}");
+                    }
+                }
+            }
+            return string.Join(",", specs);
+        }
+        private string getAuxSpec()
+        {
+            List<string> specs = new List<string>();
+            if (AuxSpecT1All?.Count > 0)
+            {
+                specs.Add($"{AuxSpecT1?.ID}:{AuxSpecV1?.ID}");
+                if (AuxSpecT2All?.Count > 0)
+                {
+                    specs.Add($"{AuxSpecT2?.ID}:{AuxSpecV2?.ID}");
+                    if (AuxSpecT3All?.Count > 0)
+                    {
+                        specs.Add($"{AuxSpecT3?.ID}:{AuxSpecV3?.ID}");
+                    }
+                }
+            }
+            return string.Join(",", specs);
+        }
     }
 }
