@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -100,7 +101,7 @@ namespace iEngr.Hookup.ViewModels
                         StrAuxSpecT3All = auxSpecTitle[2];
                     }
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -221,7 +222,7 @@ namespace iEngr.Hookup.ViewModels
                         TypeP2 = SetCurrSelectedItem(TypeAllP2, _id, 0, TypeP2);
                     }
                     OnPropertyChanged(nameof(TypeP1));
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -235,7 +236,7 @@ namespace iEngr.Hookup.ViewModels
                     SizeAllP2 = GetAllSizeOrSpec(value);
                     _typeP2 = value;
                     OnPropertyChanged(nameof(TypeP2));
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -383,7 +384,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV1All = GetAllSizeOrSpec(value);
                     _mainSpecT1 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -440,7 +441,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV2All = GetAllSizeOrSpec(value);
                     _mainSpecT2 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -497,7 +498,7 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecV3All = GetAllSizeOrSpec(value);
                     _mainSpecT3 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -554,7 +555,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV1All = GetAllSizeOrSpec(value);
                     _auxSpecT1 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -611,7 +612,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV2All = GetAllSizeOrSpec(value);
                     _auxSpecT2 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -668,7 +669,7 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecV3All = GetAllSizeOrSpec(value);
                     _auxSpecT3 = value;
                     OnPropertyChanged();
-                    MatDataString = getMatDataString();
+                    MatDataToQuery = getMatDataString();
                 }
             }
         }
@@ -785,20 +786,40 @@ namespace iEngr.Hookup.ViewModels
             set => SetField(ref _alterCode, value);
         }
 
-        private string _matDataString;
-        public string MatDataString
+        private string _matDataToQuery;
+        private DispatcherTimer _debounceTimer;
+        public string MatDataToQuery
         {
-            get => _matDataString;
+            get => _matDataToQuery;
             set
             {
-                if (_matDataString != value)
+                if (_matDataToQuery != value)
                 {
-                    _matDataString = value;
-                    OnPropertyChanged();
+                    // 重置去抖动计时器
+                    _debounceTimer?.Stop();
+                    _debounceTimer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromMilliseconds(100) // 设置适当的延迟时间
+                    };
+                    _debounceTimer.Tick += (s, e) =>
+                    {
+                        _debounceTimer.Stop();
+                        _matDataToQuery = value;
+                        OnPropertyChanged();
+                    };
+                    _debounceTimer.Start();
                     // 触发自定义事件
                     DataChanged?.Invoke(this, value);
-                    Debug.WriteLine($"子控件数据已更新: {value}");
+                    //Debug.WriteLine($"子控件数据已更新: {value}");
                 }
+            }
+        }
+        private string _matDataFromQuery;
+        public string MatDataFromQuery
+        {
+            set
+            {
+                Debug.WriteLine($"收到Query结果: {value}");
             }
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -806,7 +827,7 @@ namespace iEngr.Hookup.ViewModels
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
             OnPropertyChanged(propertyName);
-            MatDataString = getMatDataString();
+            MatDataToQuery = getMatDataString();
             return true;
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -858,7 +879,7 @@ namespace iEngr.Hookup.ViewModels
                     {
                         case "NumItems":
                             isValid = GeneralFun.ValidateNumberItemsFormat(value, 'x', 2);
-
+                            Debug.WriteLine($"错误格式: {value}");
                             break;
                     }
                     SetNoLinkDic(key, value);
@@ -955,7 +976,7 @@ namespace iEngr.Hookup.ViewModels
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_MatData)}.{nameof(GetHKMatMainCats)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"{nameof(MatDataViewModel)}.{nameof(GetHKMatMainCats)}{Environment.NewLine}Error: {ex.Message}");
                 }
                 return mainCats;
             }
@@ -1348,19 +1369,27 @@ namespace iEngr.Hookup.ViewModels
         private string getMatDataString()
         {
             if (SubCat == null) return null;
-            return $"{MainCat?.ID},{SubCat.ID},{MatMatAll}," +
-                   $"{getMainSpec()}," +
-                   $"{((TypeAllP1 == null) ? null : string.Join(" | ", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
+            // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:NoreSpecCn, 9:NoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+            string techSpecMain = getMainSpec();
+            string techSpecAux = getAuxSpec();
+            string pClass = getPClass($"{techSpecMain},{techSpecAux}");
+            return $"{MainCat?.ID},{SubCat.ID}," +
+                   $"{techSpecMain}," +
+                   $"{techSpecAux}," +
+                   //$"{((TypeAllP1 == null) ? null : string.Join("|", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
                    $"{TypeP1?.ID}," +
                    $"{SizeP1?.ID}," +
-                   $"{((TypeAllP2 == null) ? null : string.Join("|", TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
+                   //$"{((TypeAllP2 == null) ? null : string.Join("|", TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
                    $"{TypeP2?.ID}," +
                    $"{SizeP2?.ID}," +
-                   $"{getAuxSpec()}," +
                    $"{MoreSpecCn}," +
                    $"{MoreSpecEn}," +
                    $"{RemarksCn}," +
-                   $"{RemarksEn}";
+                   $"{RemarksEn}," +
+                   $"{pClass}," +
+                   $"{MatMatAll}," +
+                   $"," +
+                   $"";
         }
         private string getMainSpec()
         {
@@ -1377,7 +1406,7 @@ namespace iEngr.Hookup.ViewModels
                     }
                 }
             }
-            return string.Join(",", specs);
+            return string.Join("|", specs);
         }
         private string getAuxSpec()
         {
@@ -1394,7 +1423,11 @@ namespace iEngr.Hookup.ViewModels
                     }
                 }
             }
-            return string.Join(",", specs);
+            return string.Join("|", specs);
+        }
+        private string getPClass(string input)
+        {
+            return input.Split(',').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1];
         }
     }
 }

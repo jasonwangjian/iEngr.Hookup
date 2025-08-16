@@ -28,10 +28,9 @@ namespace iEngr.Hookup
             dicGenOptionIni();
             dicNoLinkSpecIni();
         }
-        public int intLan = 0; // 0: 中文； 其它为英文
+        public static int intLan = 0; // 0: 中文； 其它为英文
         public readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         public readonly string[] portNA = { "NA", "IS"};
-        public  HKMatData currMat = new HKMatData();
         internal OdbcConnection GetConnection()
         {
             try

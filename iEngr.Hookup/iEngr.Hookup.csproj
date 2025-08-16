@@ -77,27 +77,9 @@
     <Compile Include="Views\UcMatMain.xaml.cs">
       <DependentUpon>UcMatMain.xaml</DependentUpon>
     </Compile>
-    <Page Include="Backups\HK_LibMat.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="Backups\HK_Binding.Converter.cs" />
     <Compile Include="HK_General.cs" />
-    <Compile Include="Backups\HK_MatData.Model.cs" />
-    <Compile Include="Backups\HK_MatData.Binding.cs" />
-    <Compile Include="Backups\HK_LibMat.BindingData.cs" />
     <Compile Include="HK_General.DicIni.cs" />
-    <Compile Include="Backups\HK_LibMat.DicIni.cs" />
-    <Compile Include="Backups\HK_LibMat.DBHandle.cs" />
-    <Compile Include="Backups\HK_LibMat.xaml.cs">
-      <DependentUpon>HK_LibMat.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Page Include="HK_LibMatHandle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Backups\HK_MatData.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -125,9 +107,6 @@
   <ItemGroup>
     <Compile Include="HK_LibMatHandle.xaml.cs">
       <DependentUpon>HK_LibMatHandle.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Backups\HK_MatData.xaml.cs">
-      <DependentUpon>HK_MatData.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\GeneralFun.cs" />
     <Compile Include="Models\HKMatGenLib.cs" />

@@ -15,31 +15,44 @@ namespace iEngr.Hookup.ViewModels
 {
     public class MatMainViewModel : INotifyPropertyChanged
     {
-        private MatDataViewModel _vmMatDate;
-        public MatDataViewModel VmMatDate
+        private MatDataViewModel _vmMatData;
+        public MatDataViewModel VmMatData
         {
-            get => _vmMatDate;
+            get => _vmMatData;
             set
             {
-                if (_vmMatDate == value) return;
-
+                if (_vmMatData == value) return;
                 // 取消旧订阅
-                if (_vmMatDate != null)
+                if (_vmMatData != null)
                 {
-                    _vmMatDate.PropertyChanged -= VmMatDatePropertyChanged;
+                    _vmMatData.PropertyChanged -= VmMatDatePropertyChanged;
                 }
-
-                _vmMatDate = value;
-                //OnPropertyChanged();
-
+                _vmMatData = value;
                 // 建立新订阅
-                if (_vmMatDate != null)
+                if (_vmMatData != null)
                 {
-                    _vmMatDate.PropertyChanged += VmMatDatePropertyChanged;
-                    _vmMatDate.DataChanged += OnChildDataChanged;
-
-                    // 立即同步当前值
-                    MatDataString = _vmMatDate.MatDataString;
+                    _vmMatData.PropertyChanged += VmMatDatePropertyChanged;
+                    //_vmMatDate.DataChanged += OnChildDataChanged;
+                }
+            }
+        }
+        private MatListViewModel _vmMatList;
+        public MatListViewModel VmMatList
+        {
+            get => _vmMatList;
+            set
+            {
+                if (_vmMatList == value) return;
+                // 取消旧订阅
+                if (_vmMatList != null)
+                {
+                    _vmMatList.PropertyChanged -= VmMatListPropertyChanged;
+                }
+                _vmMatList = value;
+                // 建立新订阅
+                if (_vmMatList != null)
+                {
+                    _vmMatList.PropertyChanged += VmMatListPropertyChanged;
                 }
             }
         }
@@ -47,45 +60,37 @@ namespace iEngr.Hookup.ViewModels
         private void OnChildDataChanged(object sender, string newData)
         {
             Application.Current.Dispatcher.Invoke(() => {
-                MatDataString = newData;
-                Debug.WriteLine($"通过自定义事件收到数据: {newData}");
+                //MatDataToQuery = newData;
+                //Debug.WriteLine($"通过自定义事件收到数据: {newData}");
             });
         }
 
         private void VmMatDatePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(MatDataViewModel.MatDataString))
+            if (e.PropertyName == nameof(MatDataViewModel.MatDataToQuery))
             {
-                Application.Current.Dispatcher.Invoke(() => {
-                    if (sender is MatDataViewModel vm)
-                    {
-                        MatDataString = vm.MatDataString;
-                        Debug.WriteLine($"通过PropertyChanged收到数据: {vm.MatDataString}");
-                    }
-                });
+                //Application.Current.Dispatcher.Invoke(() => {
+                if (sender is MatDataViewModel vm)
+                {
+                    VmMatList.MatDataToQuery = vm.MatDataToQuery;
+                    //Debug.WriteLine($"通过PropertyChanged收到数据: {vm.MatDataString}");
+                }
+                //});
             }
         }
-        private string _matDataString;
-        public string MatDataString
+        private void VmMatListPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            get => _matDataString;
-            set
+            if (e.PropertyName == nameof(MatListViewModel.MatDataFromQuery))
             {
-                if (SetField(ref _matDataString, value))
+                if (sender is MatListViewModel vm)
                 {
-                    // 这里可以添加处理接收到的数据的逻辑
-                    Debug.WriteLine($"收到新数据: {value}");
+                    VmMatList.MatDataFromQuery = vm.MatDataFromQuery;
+                    //Debug.WriteLine($"通过PropertyChanged收到数据: {vm.MatDataString}");
                 }
             }
         }
 
-        // 修改构造函数确保初始化
-        public MatMainViewModel()
-        {
- 
-        }
 
-        // 其余代码不变...
 
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

@@ -28,9 +28,9 @@ namespace iEngr.Hookup.Views
             InitializeComponent();
             var mainVM = new MatMainViewModel();
             DataContext = mainVM;
-
             // 获取子控件的 ViewModel
-            mainVM.VmMatDate = ucMD.DataContext as MatDataViewModel;
+            mainVM.VmMatData = ucMD.DataContext as MatDataViewModel;
+            mainVM.VmMatList = ucML.DataContext as MatListViewModel;
         }
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
