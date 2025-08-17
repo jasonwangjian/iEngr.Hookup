@@ -33,6 +33,7 @@ namespace iEngr.Hookup.ViewModels
             MainCats = GetHKMatMainCats();
             MainCat = MainCats?[0];
             KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
+            ResetCommand = new RelayCommand<object>(_=> DataReset());
         }
 
         private HK_General HK_General;
@@ -846,17 +847,33 @@ namespace iEngr.Hookup.ViewModels
         //}
 
         // 按键处理命令
+        public ICommand ResetCommand { get; }
+        private void DataReset()
+        {
+            MainCat = MainCats[0];
+            SubCat = SubCats[0];
+            MainSpecT1 = null;
+            MainSpecT2 = null;
+            MainSpecT3 = null;
+            MainSpecV1 = null;
+            MainSpecV2 = null;  
+            MainSpecV3 = null;
+            AuxSpecT1 = null;
+            AuxSpecT2 = null;
+            AuxSpecT3 = null;
+            AuxSpecV1 = null;
+            AuxSpecV2 = null;
+            AuxSpecV3 = null;
+            TypeP1 = TypeAllP1[0];
+            TypeP2 = TypeAllP2[0];
+            SizeP1 = null;
+            SizeP2 = null;
+            MoreSpecCn = null;
+            MoreSpecEn = null;
+            RemarksCn = null;
+            RemarksEn= null;
+        }
         public ICommand KeyDownCommand { get; }
-        // 简单命令实现
-        //public class RelayCommand<T> : ICommand
-        //{
-        //    private readonly Action<T> _execute;
-        //    public RelayCommand(Action<T> execute) => _execute = execute;
-        //    public bool CanExecute(object parameter) => true;
-        //    public void Execute(object parameter) => _execute((T)parameter);
-        //    public event EventHandler CanExecuteChanged;
-        //}
-
         private void HandleKeyDownSpec(KeyEventArgs e)
         {
 

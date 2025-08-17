@@ -22,6 +22,7 @@ namespace iEngr.Hookup.ViewModels
             MatItemsSelected = new ObservableCollection<HKMatGenLib>();
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
+            QueryCommand = new RelayCommand<object>(_ => Query());
             intLan = 1;// HK_General.intLan;
             AutoQueryEnable = true;
         }
@@ -84,6 +85,18 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        public string BtnCommand
+        {
+            set
+            {
+                switch(value)
+                {
+                    case "Query":
+                        MatList = HK_General.UpdateQueryResult(getConditionString(MatDataToQuery));
+                        break;
+                }
+            }
+        }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -135,6 +148,7 @@ namespace iEngr.Hookup.ViewModels
 
         private string getConditionString(string matData) //大类和小类都不确定时，不予查询
         {
+            if (matData == null) return null;
             var arrMatData = matData.Split(',').ToArray<string>();
             List<string> segs = new List<string>();
             if (!string.IsNullOrEmpty(arrMatData[0]) && !string.IsNullOrEmpty(arrMatData[1])) return null;
@@ -188,5 +202,10 @@ namespace iEngr.Hookup.ViewModels
             //return string.Join(",", input.Split('|')?.Where(x => !string.IsNullOrEmpty(x.Split(':')[1])).ToList());
         }
 
+        public ICommand QueryCommand { get; }
+        private void Query()
+        {
+            BtnCommand = "Query";
+        }
     }
 }

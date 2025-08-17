@@ -9,12 +9,18 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
     public class MatMainViewModel : INotifyPropertyChanged
     {
+        public MatMainViewModel()
+        {
+            HK_General = new HK_General();
+        }
+        private HK_General HK_General;
         private MatDataViewModel _vmMatData;
         public MatDataViewModel VmMatData
         {
@@ -57,13 +63,14 @@ namespace iEngr.Hookup.ViewModels
             }
         }
         // 添加自定义事件处理
-        private void OnChildDataChanged(object sender, string newData)
-        {
-            Application.Current.Dispatcher.Invoke(() => {
-                //MatDataToQuery = newData;
-                //Debug.WriteLine($"通过自定义事件收到数据: {newData}");
-            });
-        }
+        //private void OnChildDataChanged(object sender, string newData)
+        //{
+        //    Application.Current.Dispatcher.Invoke(() => {
+        //        //MatDataToQuery = newData;
+        //        //Debug.WriteLine($"通过自定义事件收到数据: {newData}");
+        //    });
+        //}
+
 
         private void VmMatDatePropertyChanged(object sender, PropertyChangedEventArgs e)
         {

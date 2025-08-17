@@ -13,6 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
@@ -34,7 +35,7 @@ namespace iEngr.Hookup.Views
         }
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
-            var text = getQueryString();
+            (ucML.DataContext as MatListViewModel).BtnCommand = "Query";
         }
 
         private string getQueryString()
@@ -95,13 +96,13 @@ namespace iEngr.Hookup.Views
             }
             return string.Join(",", specs);
         }
-private string getPortType1(MatDataViewModel matData)
+        private string getPortType1(MatDataViewModel matData)
         {
-            return string.Join("|", matData.TypeAllP1.Select(x=>x.ID).Where(x=>!string.IsNullOrEmpty(x)).ToList());
+            return string.Join("|", matData.TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList());
         }
         private string getSpecExp(string field, List<string> input)
         {
-             if (input == null || !input.Any())
+            if (input == null || !input.Any())
                 return string.Empty;
 
             var conditions = input

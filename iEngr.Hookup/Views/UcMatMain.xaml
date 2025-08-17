@@ -26,8 +26,8 @@
         <local:UcMatData x:Name="ucMD" Grid.Row="1" Grid.Column="0"/>
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
         <local:UcMatList x:Name="ucML" Grid.Row="1" Grid.Column="2" />
-        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
-            <Button x:Name="btnQuery" Content="Query" Click="btnQuery_Click" Margin="5" Width="80"/>
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="查询" x:Name="btnQery" Click="btnQuery_Click"  Margin="5" Width="80"/>
             <Button Content="Test" Margin="5" Width="80"/>
         </WrapPanel>
         <!--<Button x:Name="text" Click="text_Click" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">测试</Button>-->

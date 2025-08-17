@@ -29,10 +29,10 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <WrapPanel Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
-            <CheckBox Margin="5" IsChecked="{Binding AutoQueryEnable}">自动刷行材料库</CheckBox>
+        <WrapPanel Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" >
+            <CheckBox IsChecked="{Binding AutoQueryEnable}">自动刷行查询材料库</CheckBox>
         </WrapPanel>
-        <DataGrid x:Name="dgResult" Margin="10" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+        <DataGrid x:Name="dgResult" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" IsReadOnly="True"  HorizontalAlignment="Stretch"
                   ItemsSource="{Binding MatList}" 
 		          SelectedItem="{Binding SelectedMat}"
