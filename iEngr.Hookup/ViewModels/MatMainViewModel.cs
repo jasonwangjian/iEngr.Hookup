@@ -84,7 +84,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (sender is MatListViewModel vm)
                 {
-                    VmMatList.MatDataFromQuery = vm.MatDataFromQuery;
+                    VmMatData.MatDataFromQuery = vm.MatDataFromQuery;
                     //Debug.WriteLine($"通过PropertyChanged收到数据: {vm.MatDataString}");
                 }
             }

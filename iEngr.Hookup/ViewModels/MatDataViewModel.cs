@@ -875,6 +875,9 @@ namespace iEngr.Hookup.ViewModels
                     var titleItem = (comboBox.DataContext as CmbItem);
                     string key = titleItem.ID;
                     var cmbItems = comboBox.ItemsSource as ObservableCollection<CmbItem>;
+                    
+                    
+                    
                     switch(titleItem.Class)
                     {
                         case "NumItems":

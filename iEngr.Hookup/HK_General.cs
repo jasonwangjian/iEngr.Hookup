@@ -51,11 +51,9 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        internal ObservableCollection<HKMatGenLib> UpdateQueryResult(bool isForced = false, string conditions = null)
+        internal ObservableCollection<HKMatGenLib> UpdateQueryResult(string conditions = null)
         {
             ObservableCollection<HKMatGenLib> result = new ObservableCollection<HKMatGenLib>();
-            if (!isForced)
-                return result;
             string query = $"select " +
                 $"mgl.ID as ID, " +
                 $"mgl.CatID as CatID, " +
@@ -77,7 +75,7 @@ namespace iEngr.Hookup
                 $"mgl.TechSpecAux as TechSpecAux " +
                 $"from HK_MatGenLib mgl " +
                 $"inner join HK_MatSubCat sc on mgl.SubCatID = sc.ID " +
-                $"{(string.IsNullOrEmpty(conditions) ? "" : "WHERE " + conditions)}";
+                $"{conditions}";
             using (OdbcConnection conn = GetConnection())
             {
                 try

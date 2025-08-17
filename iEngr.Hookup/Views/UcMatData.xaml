@@ -71,9 +71,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
@@ -95,9 +94,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
@@ -119,9 +117,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
@@ -175,9 +172,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
@@ -199,9 +195,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
@@ -223,9 +218,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyDown">
                             <i:InvokeCommandAction 
-                     Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                       PassEventArgsToCommand="True"
-                         CommandParameter="{Binding Source, RelativeSource={RelativeSource Self}}"/>
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
+                                PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ComboBox>
