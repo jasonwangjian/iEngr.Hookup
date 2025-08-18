@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -54,6 +55,7 @@ namespace iEngr.Hookup
         internal ObservableCollection<HKMatGenLib> UpdateQueryResult(string conditions = null)
         {
             ObservableCollection<HKMatGenLib> result = new ObservableCollection<HKMatGenLib>();
+            if (conditions == null) return result;
             string query = $"select " +
                 $"mgl.ID as ID, " +
                 $"mgl.CatID as CatID, " +
@@ -118,7 +120,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(UpdateQueryResult)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"HK_General.UpdateQueryResult{Environment.NewLine}Error: {ex.Message}");
                     // 可以选择返回空列表或者其他适当的处理
                 }
                     return result;
@@ -192,7 +194,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(UpdateQueryResult)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"HK_General.UpdateQueryResult{Environment.NewLine}Error: {ex.Message}");
                     // 可以选择返回空列表或者其他适当的处理
                 }
                 return null;
@@ -271,101 +273,74 @@ namespace iEngr.Hookup
             }
             return 0;
         }
-        internal bool IsDataExisting()
+        internal int CountExistingData(string conditions = null)
         {
-            return false;
-            //try
-            //{
-            //    string pn = lstMainSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
-            //    if (string.IsNullOrEmpty(pn)) pn = lstAuxSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
-            //    string query = $"SELECT  COUNT(*) FROM HK_MatGenLib WHERE " +
-            //                    $"CatID = '{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}' AND " +
-            //                    $"SubCatID = '{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}' AND " +
-            //                    $"TechSpecMain = '{string.Join(",", lstMainSpec)}' AND " +
-            //                    $"TechSpecAux = '{string.Join(",", lstAuxSpec)}' AND " +
-            //                    $"TypeP1 = '{(cbTypeP1.SelectedItem as HKLibSpecDic)?.ID}' AND " +
-            //                    $"SizeP1 = '{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}' AND " +
-            //                    $"TypeP2 = '{(cbTypeP2.SelectedItem as HKLibSpecDic)?.ID}' AND " +
-            //                    $"SizeP2 = '{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}' AND " +
-            //                    $"MatSpec = '{(cbMatMat.SelectedItem as HKLibGenOption)?.ID}' AND " +
-            //                    $"PClass = '{pn}' AND " +
-            //                    $"MoreSpecCn = '{tbMoreSpecCn.Text}' AND " +
-            //                    $"MoreSpecEn = '{tbMoreSpecEn.Text}' AND " +
-            //                    $"MoreSpecCn = '{tbRemarksCn.Text}' AND " +
-            //                    $"MoreSpecEn = '{tbRemarksEn.Text}'";
-            //    if (conn == null || conn.State != ConnectionState.Open)
-            //        conn = GetConnection();
-            //    // 创建并配置 OdbcCommand 对象
-            //    using (OdbcCommand command = new OdbcCommand(query, conn))
-            //    {
-            //        // 执行查询，获取记录数
-            //        return (int)command.ExecuteScalar() > 0 ? true : false;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    // 处理异常
-            //    MessageBox.Show($"Error: {ex.Message}");
-            //    // 可以选择返回空列表或者其他适当的处理
-            //    return false;
-            //}
-
+            string query = $"SELECT  COUNT(*) FROM HK_MatGenLib mgl {conditions}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteScalar();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    MessageBox.Show($"{nameof(HK_General)}.{nameof(CountExistingData)}{Environment.NewLine}Error: {ex.Message}");
+                    return -1;
+                }
+            }
         }
-        internal int NewDataAdd()
+        internal int NewDataAdd(string matData, out int newID)
         {
-            return 0;
-            //if (cbSubCat.SelectedItem == null || cbSubCat.SelectedIndex == 0)
-            //{
-            //    MessageBox.Show($"数据未记录！{Environment.NewLine}必须选择材料小类");
-            //    cbSubCat.Focus();
-            //    return 0;
-            //}
-            //try
-            //{
-            //    if (IsDataExisting())
-            //    {
-            //        MessageBox.Show($"此材料已存在！{Environment.NewLine}请检查现有材料库");
-            //        return 0;
-            //    }
-            //    string pn = lstMainSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
-            //    if (string.IsNullOrEmpty(pn)) pn = lstAuxSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
-            //    string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, " +
-            //                        $"TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, " +
-            //                        $"MoreSpecCn, MoreSpecEn, RemarksCn, RemarksEn, Status) VALUES (" +
-            //                        $"{GetNewID()}," +
-            //                        $"'{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}'," +
-            //                        $"'{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}'," +
-            //                        $"'{string.Join(",", lstMainSpec)}'," +
-            //                        $"'{string.Join(",", lstAuxSpec)}'," +
-            //                        $"'{(cbTypeP1.SelectedItem as HKLibSpecDic)?.ID}'," +
-            //                        $"'{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
-            //                        $"'{(cbTypeP2.SelectedItem as HKLibSpecDic)?.ID}'," +
-            //                        $"'{(cbSizeP2.SelectedItem as HKLibGenOption)?.ID}'," +
-            //                        $"'{(cbMatMat.SelectedItem as HKLibGenOption)?.ID}'," +
-            //                        $"'{pn}'," +
-            //                        $"N'{tbMoreSpecCn.Text}'," +
-            //                        $"N'{tbMoreSpecEn.Text}'," +
-            //                        $"N'{tbRemarksCn.Text}'," +
-            //                        $"N'{tbRemarksEn.Text}'," +
-            //                        $"1" +
-            //                        $")";
-            //    //string query = "";
-            //    if (conn == null || conn.State != ConnectionState.Open)
-            //        conn = GetConnection();
-            //    // 创建并配置 OdbcCommand 对象
-            //    using (OdbcCommand command = new OdbcCommand(query, conn))
-            //    {
-            //        // 执行查询，获取记录数
-            //        return command.ExecuteNonQuery(); ;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    // 处理异常
-            //    MessageBox.Show($"数据未记录！{Environment.NewLine}Error: {ex.Message}");
-            //    // 可以选择返回空列表或者其他适当的处理
-            //    return 0;
-            //}
+            newID = GetNewID();
+            if (matData == null) return 0;
+            var arrMatData = matData.Split(',').ToArray<string>();
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+                    string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, " +
+                                            $"TypeP1, SizeP1, TypeP2, SizeP2, " +
+                                            $"MoreSpecCn, MoreSpecEn, RemarksCn, RemarksEn, " +
+                                            $"PClass, MatSpec, Status) VALUES (" +
+                                            $"{newID}," +
+                                            $"'{arrMatData[1].Substring(0,2)}'," +
+                                            $"'{arrMatData[1]}'," +
+                                            $"'{arrMatData[2].Replace('|',',')}'," +
+                                            $"'{arrMatData[3].Replace('|', ',')}'," +
+                                            $"'{arrMatData[4]}'," +
+                                            $"'{arrMatData[5]}'," +
+                                            $"'{arrMatData[6]}'," +
+                                            $"'{arrMatData[7]}'," +
+                                            $"N'{arrMatData[8]}'," +
+                                            $"N'{arrMatData[9]}'," +
+                                            $"N'{arrMatData[10]}'," +
+                                            $"N'{arrMatData[11]}'," +
+                                            $"'{(arrMatData[2] + "|" + arrMatData[3]).Split('|').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1]}'," +
+                                            $"'{arrMatData[13]}'," +
+                                            $"1" +
+                                            $")";
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                    return 0;
+                }
+            }
         }
         private int GetNewID()
         {
@@ -384,7 +359,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(GetNewID)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"HK_General.GetNewID{Environment.NewLine}Error: {ex.Message}");
                 }
             }
             return 0;

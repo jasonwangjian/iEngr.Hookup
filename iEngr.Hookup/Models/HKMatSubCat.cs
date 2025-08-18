@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
 namespace iEngr.Hookup
 {
-    public class HKMatSubCat
+    public class HKMatSubCat : IIdentifiable
     {
         public string ID { get; set; }
         public string CatID { get; set; }

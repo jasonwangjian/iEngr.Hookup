@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
 namespace iEngr.Hookup
 {
-    public class CmbItem
+    public class CmbItem : IIdentifiable
     {
         public string ID { get; set; }
         public string Comp { get; set; }

@@ -402,13 +402,15 @@ namespace iEngr.Hookup
         {
             dicNoLinkSpec.Clear();
 
-            List<string> lst = dicSubCat.Values
-                .SelectMany(v => new[] { v.TechSpecMain, v.TechSpecAux }) // 同时处理两个属性
-                .SelectMany(s => s.Split(','))                           // 统一分割字符串
-                .Where(x => !string.IsNullOrWhiteSpace(x))               // 过滤空值
-                .Select(x => x.Trim())                                   // 统一去除空格
-                .Distinct(StringComparer.OrdinalIgnoreCase)              // 统一去重
-                .ToList();
+            //List<string> lst = dicSubCat.Values
+            //    .SelectMany(v => new[] { v.TechSpecMain, v.TechSpecAux }) // 同时处理两个属性
+            //    .SelectMany(s => s.Split(','))                           // 统一分割字符串
+            //    .SelectMany(s => s.Split('|'))                          
+            //    .Where(x => !string.IsNullOrWhiteSpace(x))               // 过滤空值
+            //    .Select(x => x.Trim())                                   // 统一去除空格
+            //    .Distinct(StringComparer.OrdinalIgnoreCase)              // 统一去重
+            //    .ToList();
+            List<string> lst = dicSpecDic.Values.Where(x=>x.Class != "Link").Select(x => x.ID).ToList();
             for (int i = 0; i < lst.Count; i++)
             {
                 dicNoLinkSpec.Add(lst[i], new ObservableCollection<HKLibGenOption>());

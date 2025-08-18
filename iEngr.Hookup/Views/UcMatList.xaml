@@ -63,8 +63,10 @@
                 <DataGridTextColumn x:Name="dcRemCn" Header="备注" Binding="{Binding Path=RemarksCn}" />
                 <DataGridTextColumn x:Name="dcRemEn" Header="Remarks" Binding="{Binding Path=RemarksEn}" />
             </DataGrid.Columns>
-
         </DataGrid>
-
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="查询" Command="{Binding QueryCommand}"  Margin="5" Width="80"/>
+            <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
+        </WrapPanel>
     </Grid>
 </UserControl>

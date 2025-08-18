@@ -33,7 +33,9 @@ namespace iEngr.Hookup.ViewModels
             MainCats = GetHKMatMainCats();
             MainCat = MainCats?[0];
             KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
-            ResetCommand = new RelayCommand<object>(_=> DataReset());
+            ResetAllCommand = new RelayCommand<object>(_ => DataResetAll());
+            ResetSpecCommand = new RelayCommand<object>(_ => DataResetSpec());
+            ResetMoreCommand = new RelayCommand<object>(_ => DataResetMore());
         }
 
         private HK_General HK_General;
@@ -116,8 +118,9 @@ namespace iEngr.Hookup.ViewModels
             get => _subCats;
             set
             {
-                SetField(ref _subCats, value);
-                SubCat = _subCats?[0];
+                string _id = SubCat?.ID ?? string.Empty;
+                if (SetField(ref _subCats, value))
+                    SubCat = SetCurrSelectedItem(value, _id, 0, SubCat);
            }
         }
 
@@ -281,9 +284,9 @@ namespace iEngr.Hookup.ViewModels
             get => _sizeP1;
             set
             {
-                string _id = SizeP1?.ID ?? string.Empty;
+                //string _id = SizeP1?.ID ?? string.Empty;
                 if (SetField(ref _sizeP1, value)  && AlterCode == "AS1")
-                    SizeP2 = SetCurrSelectedItem(SizeAllP2, _id, 0, SizeP2);
+                    SizeP2 = SetCurrSelectedItem(SizeAllP2, SizeP1?.ID, 0, SizeP2);
             }
             //set
             //{
@@ -821,6 +824,87 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 Debug.WriteLine($"收到Query结果: {value}");
+                // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+                var arrMatData = value.Split(',').ToArray<string>();
+                string[] seg;
+                MainCat = SetCurrSelectedItem<HKMatMainCat>(MainCats, arrMatData[0], 0);
+                SubCat = SetCurrSelectedItem<HKMatSubCat>(SubCats, arrMatData[1], 0);
+                var arrMainSpec = arrMatData[2].Split('|').ToArray<string>();
+                if (arrMainSpec.Length > 0 && arrMainSpec[0].Contains(":"))
+                {
+                    MainSpecT1 = SetCurrSelectedItem<CmbItem>(MainSpecT1All, arrMainSpec[0].Split(';')[0], 0);
+                    seg = arrMainSpec[0].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(MainSpecV1All, seg[0]);
+                    }
+                    MainSpecV1 = SetCurrSelectedItem<CmbItem>(MainSpecV1All, seg[1], 0);
+                }
+                if (arrMainSpec.Length > 1 && arrMainSpec[1].Contains(":"))
+                {
+                    MainSpecT2 = SetCurrSelectedItem<CmbItem>(MainSpecT2All, arrMainSpec[0].Split(';')[0], 0);
+                    seg = arrMainSpec[1].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(MainSpecV2All, seg[0]);
+                    }
+                    MainSpecV2 = SetCurrSelectedItem<CmbItem>(MainSpecV2All, seg[1], 0);
+                }
+                if (arrMainSpec.Length > 2 && arrMainSpec[2].Contains(":"))
+                {
+                    MainSpecT3 = SetCurrSelectedItem<CmbItem>(MainSpecT3All, arrMainSpec[0].Split(';')[0], 0);
+                    seg = arrMainSpec[2].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(MainSpecV3All, seg[0]);
+                    }
+                    MainSpecV3 = SetCurrSelectedItem<CmbItem>(MainSpecV3All, seg[1], 0);
+                }
+                var arrAuxSpec = arrMatData[3].Split('|').ToArray<string>();
+                if (arrAuxSpec.Length > 0 && arrAuxSpec[0].Contains(":"))
+                {
+                    AuxSpecT1 = SetCurrSelectedItem<CmbItem>(AuxSpecT1All, arrAuxSpec[0].Split(';')[0], 0);
+                    seg = arrAuxSpec[0].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(AuxSpecV1All, seg[0]);
+                    }
+                    AuxSpecV1 = SetCurrSelectedItem<CmbItem>(AuxSpecV1All, seg[1], 0);
+                }
+                if (arrAuxSpec.Length > 1 && arrAuxSpec[1].Contains(":"))
+                {
+                    AuxSpecT2 = SetCurrSelectedItem<CmbItem>(AuxSpecT2All, arrAuxSpec[0].Split(';')[0], 0);
+                    seg = arrAuxSpec[1].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(AuxSpecV2All, seg[0]);
+                    }
+                    AuxSpecV2 = SetCurrSelectedItem<CmbItem>(AuxSpecV2All, seg[1], 0);
+                }
+                if (arrAuxSpec.Length > 2 && arrAuxSpec[2].Contains(":"))
+                {
+                    AuxSpecT3 = SetCurrSelectedItem<CmbItem>(AuxSpecT3All, arrAuxSpec[0].Split(';')[0], 0);
+                    seg = arrAuxSpec[2].Split(':');
+                    if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
+                    {
+                        SetNoLinkDic(seg[0], seg[1]);
+                        SetCmbItems(AuxSpecV3All, seg[0]);
+                    }
+                    AuxSpecV3 = SetCurrSelectedItem<CmbItem>(AuxSpecV3All, seg[1], 0);
+                }
+                TypeP1 = SetCurrSelectedItem<CmbItem>(TypeAllP1, arrMatData[4], 0);
+                SizeP1 = SetCurrSelectedItem<CmbItem>(SizeAllP1, arrMatData[5], 0);
+                TypeP2 = SetCurrSelectedItem<CmbItem>(TypeAllP2, arrMatData[6], 0);
+                SizeP2 = SetCurrSelectedItem<CmbItem>(SizeAllP2, arrMatData[7], 0);
+                MoreSpecCn = arrMatData[8];
+                MoreSpecEn = arrMatData[9];
+                RemarksCn = arrMatData[10];
+                RemarksEn = arrMatData[11];
             }
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -847,8 +931,10 @@ namespace iEngr.Hookup.ViewModels
         //}
 
         // 按键处理命令
-        public ICommand ResetCommand { get; }
-        private void DataReset()
+        public ICommand ResetAllCommand { get; }
+        public ICommand ResetSpecCommand { get; }
+        public ICommand ResetMoreCommand { get; }
+        private void DataResetAll()
         {
             MainCat = MainCats[0];
             SubCat = SubCats[0];
@@ -872,6 +958,32 @@ namespace iEngr.Hookup.ViewModels
             MoreSpecEn = null;
             RemarksCn = null;
             RemarksEn= null;
+        }
+        private void DataResetSpec()
+        {
+            MainSpecT1 = null;
+            MainSpecT2 = null;
+            MainSpecT3 = null;
+            MainSpecV1 = null;
+            MainSpecV2 = null;
+            MainSpecV3 = null;
+            AuxSpecT1 = null;
+            AuxSpecT2 = null;
+            AuxSpecT3 = null;
+            AuxSpecV1 = null;
+            AuxSpecV2 = null;
+            AuxSpecV3 = null;
+            TypeP1 = TypeAllP1[0];
+            TypeP2 = TypeAllP2[0];
+            SizeP1 = null;
+            SizeP2 = null;
+        }
+        private void DataResetMore()
+        {
+            MoreSpecCn = null;
+            MoreSpecEn = null;
+            RemarksCn = null;
+            RemarksEn = null;
         }
         public ICommand KeyDownCommand { get; }
         private void HandleKeyDownSpec(KeyEventArgs e)
@@ -958,7 +1070,53 @@ namespace iEngr.Hookup.ViewModels
             else
                 return null;
         }
+        private HKMatSubCat SetCurrSelectedItem(ObservableCollection<HKMatSubCat> sourceCollection,
+                                          string targetId,
+                                          int defIndex = 0,
+                                          HKMatSubCat defaultValue = null)
+        {
+            // 验证输入
+            if (sourceCollection == null || sourceCollection.Count == 0 || targetId == null)
+                return defaultValue;
 
+            // 尝试通过ID查找
+            var matchedItem = sourceCollection.FirstOrDefault(item => item.ID == targetId);
+
+            if (matchedItem != null)
+                return matchedItem;
+
+            // 后备索引查找
+            if (defIndex >= 0 && defIndex < sourceCollection.Count)
+                return sourceCollection[defIndex];
+            else
+                return null;
+        }
+        public interface IIdentifiable
+        {
+            string ID { get; }
+        }
+        
+        private T SetCurrSelectedItem<T>(ObservableCollection<T> sourceCollection,
+                                        string targetId,
+                                        int defIndex = 0,
+                                        T defaultValue = default) where T : class, IIdentifiable
+        {
+            // 验证输入
+            if (sourceCollection == null || sourceCollection.Count == 0 || targetId == null)
+                return defaultValue;
+
+            // 尝试通过ID查找
+            var matchedItem = sourceCollection.FirstOrDefault(item => item.ID == targetId);
+
+            if (matchedItem != null)
+                return matchedItem;
+
+            // 后备索引查找
+            if (defIndex >= 0 && defIndex < sourceCollection.Count)
+                return sourceCollection[defIndex];
+
+            return null;
+        }
         private ObservableCollection<HKMatMainCat> GetHKMatMainCats()
         {
             ObservableCollection<HKMatMainCat> mainCats = new ObservableCollection<HKMatMainCat>
@@ -1392,7 +1550,7 @@ namespace iEngr.Hookup.ViewModels
             // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:NoreSpecCn, 9:NoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
             string techSpecMain = getMainSpec();
             string techSpecAux = getAuxSpec();
-            string pClass = getPClass($"{techSpecMain},{techSpecAux}");
+            string pClass = getPClass($"{techSpecMain}|{techSpecAux}");
             return $"{MainCat?.ID},{SubCat.ID}," +
                    $"{techSpecMain}," +
                    $"{techSpecAux}," +
@@ -1447,7 +1605,7 @@ namespace iEngr.Hookup.ViewModels
         }
         private string getPClass(string input)
         {
-            return input.Split(',').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1];
+            return input.Split('|').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1];
         }
     }
 }

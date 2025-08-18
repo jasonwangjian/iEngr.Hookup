@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
 namespace iEngr.Hookup
 {
-    public class HKMatMainCat
+    public class HKMatMainCat : IIdentifiable
     {
         public string ID { get; set; }
         public string NameCn { get; set; }

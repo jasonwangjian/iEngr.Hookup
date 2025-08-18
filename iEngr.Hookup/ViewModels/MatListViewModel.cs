@@ -23,16 +23,24 @@ namespace iEngr.Hookup.ViewModels
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             QueryCommand = new RelayCommand<object>(_ => Query());
-            intLan = 1;// HK_General.intLan;
+            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0);
             AutoQueryEnable = true;
         }
         private HK_General HK_General;
+        // 确保命令支持刷新
 
-        private int _intLan;
-        public int intLan
+        private int _countExistingData;
+        public int CountExistingData
         {
-            get => _intLan;
-            set => SetField(ref _intLan, value);
+            get => _countExistingData;
+            set 
+            {
+                if (SetField(ref _countExistingData, value))
+                {
+                    // 关键：手动触发命令状态更新
+                    NewAddCommand.RaiseCanExecuteChanged();
+                }
+            }
         }
 
         public ObservableCollection<HKMatGenLib> MatItemsSelected;
@@ -65,10 +73,7 @@ namespace iEngr.Hookup.ViewModels
         public string MatDataFromQuery
         {
             get => _matDataFromQuery;
-            set
-            {
-                SetField(ref _matDataFromQuery, value);
-            }
+            set=> SetField(ref _matDataFromQuery, value);
         }
         private string _matDataToQuery;
         public string MatDataToQuery
@@ -77,11 +82,15 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 SetField(ref _matDataToQuery, value);
-                Debug.WriteLine($"Receive: {value}");
-                Debug.WriteLine($"Pause Receive: {getConditionString(value)}");
+                //Debug.WriteLine($"Receive: {value}");
+                //Debug.WriteLine($"Pause Receive: {getConditionString(value)}");
+                Debug.WriteLine($"getConditionEqual: {getConditionEqual(MatDataToQuery)}");
+
+                CountExistingData = HK_General.CountExistingData(getConditionEqual(MatDataToQuery));
+
                 if (AutoQueryEnable)
                 {
-                    MatList = HK_General.UpdateQueryResult(getConditionString(value));
+                    MatList = HK_General.UpdateQueryResult(getConditionLike(value));
                 }
             }
         }
@@ -92,7 +101,14 @@ namespace iEngr.Hookup.ViewModels
                 switch(value)
                 {
                     case "Query":
-                        MatList = HK_General.UpdateQueryResult(getConditionString(MatDataToQuery));
+                        MatList = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery));
+                        break;
+                    case "NewAdd":
+                        if (HK_General.CountExistingData(getConditionEqual(MatDataToQuery)) !=0) return;
+                        if (HK_General.NewDataAdd(MatDataToQuery, out int newID) == 1)
+                        {
+                            MatList.Add(HK_General.UpdateQueryResult(newID));
+                        }
                         break;
                 }
             }
@@ -108,7 +124,7 @@ namespace iEngr.Hookup.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        public ICommand MouseDoubleClickCommand { get; }
+        public RelayCommand<MouseButtonEventArgs> MouseDoubleClickCommand { get; }
         private void HandleMouseDoubleClick(MouseButtonEventArgs e)
         {
             var selectedMat = (e.Source as DataGrid)?.SelectedItem as HKMatGenLib;
@@ -116,8 +132,8 @@ namespace iEngr.Hookup.ViewModels
             // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
             MatDataFromQuery = $"{selectedMat.CatID}," +
                             $"{selectedMat.SubCatID}," +
-                            $"{selectedMat.TechSpecMain}," +
-                            $"{selectedMat.TechSpecAux}," +
+                            $"{selectedMat.TechSpecMain.Replace(',','|')}," +
+                            $"{selectedMat.TechSpecAux.Replace(',', '|')}," +
                             $"{selectedMat.TypeP1}," +
                             $"{selectedMat.SizeP1}," +
                             $"{selectedMat.TypeP2}," +
@@ -128,7 +144,7 @@ namespace iEngr.Hookup.ViewModels
                             $"{selectedMat.RemarksEn}," +
                             $",{selectedMat.MatSpec},,";
         }
-        public ICommand SelectionChangedCommand { get; }
+        public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
         private void HandleSelectionChanged(SelectionChangedEventArgs e)
         {
             var selectedItems = (e.Source as DataGrid)?.SelectedItems;
@@ -146,20 +162,20 @@ namespace iEngr.Hookup.ViewModels
 
         // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
 
-        private string getConditionString(string matData) //大类和小类都不确定时，不予查询
+        private string getConditionLike(string matData) //大类和小类都不确定时，不予查询
         {
             if (matData == null) return null;
             var arrMatData = matData.Split(',').ToArray<string>();
             List<string> segs = new List<string>();
-            if (!string.IsNullOrEmpty(arrMatData[0]) && !string.IsNullOrEmpty(arrMatData[1])) return null;
+            if (string.IsNullOrEmpty(arrMatData[0]) && string.IsNullOrEmpty(arrMatData[1])) return null;
             if (!string.IsNullOrEmpty(arrMatData[0]))
                 segs.Add($"mgl.CatID='{arrMatData[0]}'");
             if (!string.IsNullOrEmpty(arrMatData[1]))
                 segs.Add($"mgl.SubCatID='{arrMatData[1]}'");
             if (!string.IsNullOrEmpty(arrMatData[2]))
-                segs.Add(getUsefulSpecCondtion(arrMatData[2], "mgl.TechSpecMain"));
+                segs.Add(getSpecConditionLike(arrMatData[2], "mgl.TechSpecMain"));
             if (!string.IsNullOrEmpty(arrMatData[3]))
-                segs.Add(getUsefulSpecCondtion(arrMatData[3], "mgl.TechSpecAux"));
+                segs.Add(getSpecConditionLike(arrMatData[3], "mgl.TechSpecAux"));
             //var specMainValid = getUsefulSpec(arrMatData[2]);
             //if (!string.IsNullOrEmpty(specMainValid))
             //    segs.Add($"mgl.TechSpecMain Like '%{specMainValid}%'");
@@ -182,30 +198,55 @@ namespace iEngr.Hookup.ViewModels
                 segs.Add($"mgl.RemarksCn Like '%{arrMatData[10]}%'");
             if (!string.IsNullOrEmpty(arrMatData[11]))
                 segs.Add($"mgl.RemarksEn Like '%{arrMatData[11]}%'");
-            if (!string.IsNullOrEmpty(arrMatData[12]))
-                segs.Add($"mgl.MatSpec='{arrMatData[12]}'");
+            if (!string.IsNullOrEmpty(arrMatData[13]))
+                segs.Add($"mgl.MatSpec='{arrMatData[13]}'");
             segs.Add($"mgl.Status & {255} > 0");
             return segs.Count>0? $"WHERE {string.Join(" AND ", segs)}":null;
         }
-
-        private string getUsefulSpec(string input)
+        private string getConditionEqual(string matData) //大类不确定时，不予查询
         {
-            if (string.IsNullOrEmpty(input)) return null;
-            return string.Join(",", input.Split('|')?.ToList());
+            if (matData == null) return null;
+            var arrMatData = matData.Split(',').ToArray<string>();
+            List<string> segs = new List<string>();
+            if (string.IsNullOrEmpty(arrMatData[1])) return null;
+            segs.Add($"mgl.SubCatID='{arrMatData[1]}'");
+            segs.Add(getSpecConditionEqual(arrMatData[2], "mgl.TechSpecMain"));
+            segs.Add(getSpecConditionEqual(arrMatData[3], "mgl.TechSpecAux"));
+            segs.Add((!string.IsNullOrEmpty(arrMatData[4])) ? $"mgl.TypeP1='{arrMatData[4]}'" : $"(mgl.TypeP1 = '' OR mgl.TypeP1 IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[5])) ? $"mgl.SizeP1='{arrMatData[5]}'" : $"(mgl.SizeP1 = '' OR mgl.SizeP1 IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[6])) ? $"mgl.TypeP2='{arrMatData[6]}'" : $"(mgl.TypeP2 = '' OR mgl.TypeP2 IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[7])) ? $"mgl.SizeP2='{arrMatData[7]}'" : $"(mgl.SizeP2 = '' OR mgl.SizeP2 IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[8])) ? $"mgl.MoreSpecCn='{arrMatData[8]}'" : $"(mgl.MoreSpecCn = '' OR mgl.MoreSpecCn IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[9])) ? $"mgl.MoreSpecEn='{arrMatData[9]}'" : $"(mgl.MoreSpecEn = '' OR mgl.MoreSpecEn IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[10])) ? $"mgl.RemarksCn='{arrMatData[10]}'" : $"(mgl.RemarksCn = '' OR mgl.RemarksCn IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[11])) ? $"mgl.RemarksEn='{arrMatData[11]}'" : $"(mgl.RemarksEn = '' OR mgl.RemarksEn IS NULL)");
+            segs.Add($"mgl.Status & {255} > 0");
+            return segs.Count > 0 ? $"WHERE {string.Join(" AND ", segs)}" : null;
+        }
+
+        private string getSpecConditionEqual(string input, string fieldName)
+        {
+            if (string.IsNullOrEmpty(input)) return $"({fieldName} = '' OR {fieldName} IS NULL)";
+            return $"{fieldName} = '{string.Join(",", input.Split('|')?.ToList())}'";
             //return string.Join(",", input.Split('|')?.Where(x => !string.IsNullOrEmpty(x.Split(':')[1])).ToList());
         }
 
-        private string getUsefulSpecCondtion(string input, string fieldName)
+        private string getSpecConditionLike(string input, string fieldName)
         {
             if (string.IsNullOrEmpty(input)) return null;
             return string.Join(" AND ", input.Split('|')?.Select(x=> fieldName + " LIKE '%" + x + "%'").ToList());
             //return string.Join(",", input.Split('|')?.Where(x => !string.IsNullOrEmpty(x.Split(':')[1])).ToList());
         }
 
-        public ICommand QueryCommand { get; }
+        public RelayCommand<object> QueryCommand { get; }
         private void Query()
         {
             BtnCommand = "Query";
+        }
+        public RelayCommand<object> NewAddCommand { get; }
+        private void NewAdd()
+        {
+            BtnCommand = "NewAdd";
         }
     }
 }
