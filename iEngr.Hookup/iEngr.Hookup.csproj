@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>D:\Application\COMOS\1044\Current\Bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,6 +33,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Comos.Controls, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Comos\DLL\Comos.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Comos.UIF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Comos\DLL\Comos.UIF.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.ComosQueryInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>D:\Comos\DLL\Interop.ComosQueryInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.ComosQueryXObj, Version=2.17.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>D:\Comos\DLL\Interop.ComosQueryXObj.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Plt, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>D:\Comos\DLL\Interop.Plt.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.135\lib\net462\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
@@ -55,6 +78,8 @@
   <ItemGroup>
     <Compile Include="Converters\NullToBoolConverter .cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Models\HKBOM.cs" />
+    <Compile Include="ViewModels\BomListViewModels.cs" />
     <Compile Include="ViewModels\MatMainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListViewModel.cs" />
@@ -65,8 +90,8 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
-    <Compile Include="Views\UcBomData.xaml.cs">
-      <DependentUpon>UcBomData.xaml</DependentUpon>
+    <Compile Include="Views\UcBomList.xaml.cs">
+      <DependentUpon>UcBomList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcBomMgr.xaml.cs">
       <DependentUpon>UcBomMgr.xaml</DependentUpon>
@@ -93,7 +118,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UcBomData.xaml">
+    <Page Include="Views\UcBomList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

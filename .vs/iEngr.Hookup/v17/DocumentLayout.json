@@ -3,44 +3,104 @@
   "WorkspaceRootPath": "E:\\myCode\\GitHub\\iEngr.Hookup\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucmatdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucbommgr.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbommgr.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucbommgr.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbommgr.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\viewmodels\\bomlistviewmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\bomlistviewmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucbomlist.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbomlist.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucbomlist.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbomlist.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucmatlist.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatlist.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucmatmain.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatmain.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucbommgr.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbommgr.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\hkbom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkbom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucmatmain.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatmain.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucbomdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucbomdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkmatgenlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkmatgenlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkmatsubcat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkmatsubcat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\hklibgenoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hklibgenoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkgeneral.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkgeneral.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\commands\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\commands\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\matdataviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\matdataviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\hmimain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hmimain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\person.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\person.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\models\\hklibspecdic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hklibspecdic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\matmainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\matmainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\hk_general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\hk_general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\views\\ucmatdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatdata.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3858EF38-8EA3-4C8C-BCE3-63D9E7CC4B68}|WpfAppTest\\WpfAppTest.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\wpfapptest\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{3858EF38-8EA3-4C8C-BCE3-63D9E7CC4B68}|WpfAppTest\\WpfAppTest.csproj|solutionrelative:wpfapptest\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\ucmatmain.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\ucmatmain.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\hk_general.dicini.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\hk_general.dicini.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|e:\\mycode\\github\\iengr.hookup\\iengr.hookup\\hk_general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\hk_general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkmatgenlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkmatgenlib.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\matlistviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -51,44 +111,12 @@
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkmatmaincat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\matdataviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\matdataviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4BD050B6-049C-44BD-A52E-0A19410F22AA}|xlsLibHookup\\xlsLibHookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\xlslibhookup\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4BD050B6-049C-44BD-A52E-0A19410F22AA}|xlsLibHookup\\xlsLibHookup.csproj|solutionrelative:xlslibhookup\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkgeneral.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkgeneral.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hkmatsubcat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hkmatsubcat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\matmainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\matmainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\hklibtubeod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\hklibtubeod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\commands\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\commands\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|solutionrelative:iengr.hookup\\models\\generalfun.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C60D5753-594C-4D71-9190-08437E86BF92}|iEngr.Hookup\\iEngr.Hookup.csproj|E:\\myCode\\GitHub\\iEngr.Hookup\\iengr.hookup\\converters\\visibilityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -102,7 +130,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 16,
           "Children": [
             {
               "$type": "Bookmark",
@@ -126,20 +154,98 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UcMatMain.xaml.cs",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
-              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
-              "ViewState": "AQIAABkAAAAAAAAAAAAEwBwAAAAMAAAA",
+              "DocumentIndex": 7,
+              "Title": "HKBOM.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKBOM.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKBOM.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKBOM.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Models\\HKBOM.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAAUwBUAAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-16T01:39:52.559Z",
+              "WhenOpened": "2025-08-19T11:54:18.725Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 11,
+              "Title": "HKLibGenOption.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKLibGenOption.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKLibGenOption.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKLibGenOption.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Models\\HKLibGenOption.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T11:53:38.021Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "HMIMain.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HMIMain.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HMIMain.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HMIMain.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Models\\HMIMain.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T11:49:10.538Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Person.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\Person.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\Person.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\Person.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Models\\Person.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T11:48:29.896Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "HKLibSpecDic.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKLibSpecDic.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKLibSpecDic.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKLibSpecDic.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Models\\HKLibSpecDic.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T11:48:24.354Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AQIAADEAAAAAAAAAAAA3wAwAAAA3AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-17T12:44:13.805Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "MatMainViewModel.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
+              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
+              "ViewState": "AQIAABMAAAAAAAAAAAAAwGUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-16T01:21:28.761Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "UcMatList.xaml",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatList.xaml",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatList.xaml",
@@ -151,43 +257,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UcMatMain.xaml",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatMain.xaml",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml",
-              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatMain.xaml",
+              "DocumentIndex": 2,
+              "Title": "UcBomList.xaml",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomList.xaml",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcBomList.xaml",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomList.xaml",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcBomList.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-08-16T01:39:50.444Z",
+              "WhenOpened": "2025-08-19T03:19:16.574Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\WpfAppTest\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "WpfAppTest\\MainWindow.xaml",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\WpfAppTest\\MainWindow.xaml",
-              "RelativeToolTip": "WpfAppTest\\MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-08-18T02:31:45.091Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UcMatData.xaml",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatData.xaml",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatData.xaml",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatData.xaml",
-              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatData.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-08-17T07:00:56.929Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "UcBomMgr.xaml",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomMgr.xaml",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcBomMgr.xaml",
@@ -199,7 +281,59 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 1,
+              "Title": "BomListViewModels.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\BomListViewModels.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\BomListViewModels.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\BomListViewModels.cs",
+              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\BomListViewModels.cs",
+              "ViewState": "AQIAAB8AAAAAAAAAAAAAACkAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T09:00:19.248Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UcBomMgr.xaml.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomMgr.xaml.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcBomMgr.xaml.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomMgr.xaml.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcBomMgr.xaml.cs",
+              "ViewState": "AQIAAGgAAAAAAAAAAAAAwG8AAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T08:50:22.795Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UcBomList.xaml.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomList.xaml.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcBomList.xaml.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomList.xaml.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcBomList.xaml.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAuwCEAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T09:36:57.274Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "MatDataViewModel.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
+              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAAABkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-16T01:26:51.076Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "HK_General.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\HK_General.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\HK_General.cs",
@@ -212,19 +346,55 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UcBomData.xaml",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomData.xaml",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcBomData.xaml",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcBomData.xaml",
-              "RelativeToolTip": "iEngr.Hookup\\Views\\UcBomData.xaml",
+              "DocumentIndex": 22,
+              "Title": "UcMatData.xaml",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatData.xaml",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatData.xaml",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatData.xaml",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatData.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-08-19T03:19:16.574Z",
+              "WhenOpened": "2025-08-17T07:00:56.929Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
+              "Title": "UcMatMain.xaml.cs",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatMain.xaml.cs",
+              "ViewState": "AQIAABUAAAAAAAAAAAAAACAAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-16T01:39:52.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\WpfAppTest\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "WpfAppTest\\MainWindow.xaml",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\WpfAppTest\\MainWindow.xaml",
+              "RelativeToolTip": "WpfAppTest\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-08-18T02:31:45.091Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UcMatMain.xaml",
+              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml",
+              "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\UcMatMain.xaml",
+              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\UcMatMain.xaml",
+              "RelativeToolTip": "iEngr.Hookup\\Views\\UcMatMain.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-08-16T01:39:50.444Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
               "Title": "HK_General.DicIni.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\HK_General.DicIni.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\HK_General.DicIni.cs",
@@ -232,12 +402,11 @@
               "RelativeToolTip": "iEngr.Hookup\\HK_General.DicIni.cs",
               "ViewState": "AQIAAEcAAAAAAAAAAAAYwJ0BAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-16T03:35:50.139Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-16T03:35:50.139Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 25,
               "Title": "MatListViewModel.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatListViewModel.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MatListViewModel.cs",
@@ -257,11 +426,12 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKMatGenLib.cs",
               "ViewState": "AQIAAOQAAAAAAAAAAAAvwO8AAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-19T01:26:07.203Z"
+              "WhenOpened": "2025-08-19T01:26:07.203Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 27,
               "Title": "HKLibTubeOD.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKLibTubeOD.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKLibTubeOD.cs",
@@ -273,7 +443,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 14,
               "Title": "RelayCommand.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Commands\\RelayCommand.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Commands\\RelayCommand.cs",
@@ -281,36 +451,25 @@
               "RelativeToolTip": "iEngr.Hookup\\Commands\\RelayCommand.cs",
               "ViewState": "AQIAAA4AAAAAAAAAAAAUwCwAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-18T00:59:42.186Z"
+              "WhenOpened": "2025-08-18T00:59:42.186Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 12,
               "Title": "HKGeneral.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKGeneral.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKGeneral.cs",
               "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKGeneral.cs",
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKGeneral.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAADwvw0AAAAqAAAA",
+              "ViewState": "AQIAAA4AAAAAAAAAAAAQwAkAAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-18T08:03:15.788Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\xlsLibHookup\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "xlsLibHookup\\MainWindow.xaml.cs",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\xlsLibHookup\\MainWindow.xaml.cs",
-              "RelativeToolTip": "xlsLibHookup\\MainWindow.xaml.cs",
-              "ViewState": "AQIAAGYAAAAAAAAAAAAUwHMAAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-18T08:04:10.444Z",
+              "WhenOpened": "2025-08-18T08:03:15.788Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 26,
               "Title": "HKMatMainCat.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKMatMainCat.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKMatMainCat.cs",
@@ -322,44 +481,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "MatMainViewModel.cs",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
-              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MatMainViewModel.cs",
-              "ViewState": "AQIAAEEAAAAAAAAAAAAvwGEAAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-16T01:21:28.761Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "MatDataViewModel.cs",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
-              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MatDataViewModel.cs",
-              "ViewState": "AQIAAFEDAAAAAAAAAAAYwIUDAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-16T01:26:51.076Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "MainViewModel.cs",
-              "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MainViewModel.cs",
-              "RelativeDocumentMoniker": "iEngr.Hookup\\ViewModels\\MainViewModel.cs",
-              "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\ViewModels\\MainViewModel.cs",
-              "RelativeToolTip": "iEngr.Hookup\\ViewModels\\MainViewModel.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAC0AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-17T12:44:13.805Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 10,
               "Title": "HKMatSubCat.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\HKMatSubCat.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\HKMatSubCat.cs",
@@ -367,11 +489,12 @@
               "RelativeToolTip": "iEngr.Hookup\\Models\\HKMatSubCat.cs",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAAA0AAAApAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-18T07:41:37.405Z"
+              "WhenOpened": "2025-08-18T07:41:37.405Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 28,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Views\\MainWindow.xaml",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Views\\MainWindow.xaml",
@@ -382,19 +505,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 13,
               "Title": "GeneralFun.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\GeneralFun.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Models\\GeneralFun.cs",
               "ToolTip": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Models\\GeneralFun.cs",
               "RelativeToolTip": "iEngr.Hookup\\Models\\GeneralFun.cs",
+              "ViewState": "AQIAAFMAAAAAAAAAAAAQwAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-17T13:48:15.95Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 29,
               "Title": "VisibilityConverter.cs",
               "DocumentMoniker": "E:\\myCode\\GitHub\\iEngr.Hookup\\iEngr.Hookup\\Converters\\VisibilityConverter.cs",
               "RelativeDocumentMoniker": "iEngr.Hookup\\Converters\\VisibilityConverter.cs",

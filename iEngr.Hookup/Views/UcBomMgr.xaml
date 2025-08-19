@@ -22,7 +22,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <local:UcBomData x:Name="ucBD" Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3"/>
+        <local:UcBomList x:Name="ucBL" Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3"/>
         <!--<TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</TextBlock>-->
         <GridSplitter Grid.Row="2" Grid.Column="1" Height="3" HorizontalAlignment="Stretch"/>
         <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1"  Grid.ColumnSpan="3"/>

@@ -1,6 +1,13 @@
-﻿using System;
+﻿using Comos.Controls;
+using Comos.UIF;
+using ComosQueryInterface;
+using ComosQueryXObj;
+using Plt;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,17 +19,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using IContainer = Comos.Controls.IContainer;
 
 namespace iEngr.Hookup.Views
 {
     /// <summary>
     /// UcBomData.xaml 的交互逻辑
     /// </summary>
-    public partial class UcBomData : UserControl
+    public partial class UcBomList : UserControl
     {
-        public UcBomData()
+        public UcBomList()
         {
             InitializeComponent();
         }
+
     }
 }
