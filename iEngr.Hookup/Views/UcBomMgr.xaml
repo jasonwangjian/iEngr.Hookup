@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="iEngr.Hookup.Views.UcMatMain"
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcBomMgr"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,23 +8,23 @@
              xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
-    <!--<UserControl.DataContext>
-        <vm:MatMainViewModel/>
-    </UserControl.DataContext>-->
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="45*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="15*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <local:UcMatData x:Name="ucMD" Grid.Row="1" Grid.Column="0"/>
-        <GridSplitter Grid.Row="1" Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
-        <local:UcMatList x:Name="ucML" Grid.Row="1" Grid.Column="2" />
+        <local:UcBomData x:Name="ucBD" Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3"/>
+        <!--<TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</TextBlock>-->
+        <GridSplitter Grid.Row="2" Grid.Column="1" Height="3" HorizontalAlignment="Stretch"/>
+        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1"  Grid.ColumnSpan="3"/>
     </Grid>
 </UserControl>

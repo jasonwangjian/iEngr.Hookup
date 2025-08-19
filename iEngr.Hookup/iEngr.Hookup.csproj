@@ -65,6 +65,12 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Views\UcBomData.xaml.cs">
+      <DependentUpon>UcBomData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcBomMgr.xaml.cs">
+      <DependentUpon>UcBomMgr.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UcMatBtn.xaml.cs">
       <DependentUpon>UcMatBtn.xaml</DependentUpon>
     </Compile>
@@ -84,6 +90,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcBomData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcBomMgr.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
