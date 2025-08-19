@@ -20,6 +20,33 @@ namespace iEngr.Hookup
                 }
             };
         }
+        public void Update(HKMatGenLib newData)
+        {
+            if (ID == newData.ID)
+            {
+                CatID = newData.CatID;
+                SubCatID = newData.SubCatID;
+                NameCn = newData.NameCn;
+                NameEn = newData.NameEn;
+                TechSpecMain = newData.TechSpecMain;
+                TechSpecAux = newData.TechSpecAux;
+                TypeP1 = newData.TypeP1;
+                TypeP2 = newData.TypeP2;
+                SizeP1 = newData.SizeP1;
+                SizeP2 = newData.SizeP2;
+                MatSpec = newData.MatSpec;
+                PClass = newData.PClass;
+                MoreSpecCn = newData.MoreSpecCn;
+                MoreSpecEn = newData.MoreSpecEn;
+                RemarksCn = newData.RemarksCn;
+                RemarksEn = newData.RemarksEn;
+                SpecCombMain = newData.SpecCombMain;
+                SpecCombAux = newData.SpecCombAux;
+                SpecCombPort = newData.SpecCombPort;
+                SpecMat= newData.SpecMat;
+                SpecPClass = newData.SpecPClass;
+            }
+        }
         public int ID { get; set; }
         public string CatID { get; set; }
         public string SubCatID { get; set; }
@@ -212,8 +239,8 @@ namespace iEngr.Hookup
             get
             {
                 return string.Join("; ", new List<string> { SpecCombMain, SpecCombPort, SpecCombAux, SpecMat, MoreSpec }
-                                                 .Select(item => item.Trim())
                                                  .Where(item => !string.IsNullOrWhiteSpace(item))
+                                                 .Select(item => item.Trim())
                                                  .ToList());
             }
         }

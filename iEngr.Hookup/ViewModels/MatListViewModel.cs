@@ -8,8 +8,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -24,6 +26,8 @@ namespace iEngr.Hookup.ViewModels
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             QueryCommand = new RelayCommand<object>(_ => Query());
             NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0);
+            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedMat !=null && CountExistingData == 0);
+            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => MatItemsSelected?.Count >0);
             AutoQueryEnable = true;
         }
         private HK_General HK_General;
@@ -39,6 +43,8 @@ namespace iEngr.Hookup.ViewModels
                 {
                     // 关键：手动触发命令状态更新
                     NewAddCommand.RaiseCanExecuteChanged();
+                    UpdateCommand.RaiseCanExecuteChanged();
+                    DeleteCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -56,7 +62,14 @@ namespace iEngr.Hookup.ViewModels
         public bool AutoQueryEnable
         {
             get => _autoQueryEnable;
-            set => SetField(ref _autoQueryEnable, value);
+            set
+            {
+                SetField(ref _autoQueryEnable, value);
+                if (value)
+                {
+                    MatList = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery));
+                }
+            }
         }
         public ObservableCollection<HKMatGenLib> MatList
         {
@@ -98,6 +111,7 @@ namespace iEngr.Hookup.ViewModels
         {
             set
             {
+                int countData=0;
                 switch(value)
                 {
                     case "Query":
@@ -107,8 +121,28 @@ namespace iEngr.Hookup.ViewModels
                         if (HK_General.CountExistingData(getConditionEqual(MatDataToQuery)) !=0) return;
                         if (HK_General.NewDataAdd(MatDataToQuery, out int newID) == 1)
                         {
+                            countData = 1;
+                            MessageBox.Show($"{countData} 条数据已增加！");
                             MatList.Add(HK_General.UpdateQueryResult(newID));
                         }
+                        break;
+                    case "Update":
+                        if (HK_General.CountExistingData(getConditionEqual(MatDataToQuery)) != 0) return;
+                        if (HK_General.DataUpdate(SelectedMat.ID, MatDataToQuery) == 1)
+                        {
+                            countData = 1;
+                            SelectedMat.Update(HK_General.UpdateQueryResult(SelectedMat.ID));
+                            MessageBox.Show($"所选数据已更新！");
+                            CountExistingData = 1;
+                        }
+                        break;
+                    case "Delete":
+                        for (int i = MatItemsSelected.Count-1; i>=0; i--)
+                        {
+                            countData += HK_General.DataDel(MatItemsSelected[i].ID);
+                            MatList.Remove(MatItemsSelected[i]);
+                        }
+                        MessageBox.Show($"{countData} 条数据已删除！");
                         break;
                 }
             }
@@ -247,6 +281,16 @@ namespace iEngr.Hookup.ViewModels
         private void NewAdd()
         {
             BtnCommand = "NewAdd";
+        }
+        public RelayCommand<object> UpdateCommand { get; }
+        private void Update()
+        {
+            BtnCommand = "Update";
+        }
+        public RelayCommand<object> DeleteCommand { get; }
+        private void Delete()
+        {
+            BtnCommand = "Delete";
         }
     }
 }

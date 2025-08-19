@@ -200,60 +200,52 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        public int DataUpdate(int ID)
+        public int DataUpdate(int ID, string matData)
         {
-            return 0;
-            //if (cbSubCat.SelectedItem == null || cbSubCat.SelectedIndex == 0)
-            //{
-            //    MessageBox.Show($"数据未更新！{Environment.NewLine}必须选择材料小类");
-            //    cbSubCat.Focus();
-            //    return 0;
-            //}
-            //if (IsDataExisting())
-            //{
-            //    MessageBox.Show($"此材料已存在相同项！{Environment.NewLine}请检查现有材料库");
-            //    return 0;
-            //}
-            //string pn = lstMainSpec.Where(x => x.StartsWith("PN:")).FirstOrDefault()?.Split(':')[1];
-            //// 构建 SQL 查询语句
-            //string query = $"UPDATE HK_MatGenLib " +
-            //               $"SET CatID='{((cbMainCat.SelectedIndex > 0) ? (cbMainCat.SelectedItem as HKMatMainCat)?.ID : (cbSubCat.SelectedItem as HKMatSubCat)?.ID?.Substring(0, 2))}'," +
-            //               $"SubCatID='{(cbSubCat.SelectedItem as HKMatSubCat)?.ID}'," +
-            //               $"TechSpecMain='{string.Join(",", lstMainSpec)}'," +
-            //               $"TechSpecAux='{string.Join(",", lstAuxSpec)}'," +
-            //               $"TypeP1='{(cbTypeP1.SelectedItem as HKLibSpecDic)?.ID}'," +
-            //               $"SizeP1='{(cbSizeP1.SelectedItem as HKLibGenOption)?.ID}'," +
-            //               $"TypeP2='{(cbTypeP2.SelectedItem as HKLibSpecDic)?.ID}'," +
-            //               $"SizeP2='{(cbSizeP2.SelectedItem as HKLibGenOption)?.ID}'," +
-            //               $"MatSpec='{(cbMatMat.SelectedItem as HKLibGenOption)?.ID}'," +
-            //               $"PClass='{pn}'," +
-            //               $"MoreSpecCn=N'{tbMoreSpecCn.Text}'," +
-            //               $"MoreSpecEn=N'{tbMoreSpecEn.Text}'," +
-            //               $"RemarksCn=N'{tbRemarksCn.Text}'," +
-            //               $"RemarksEn=N'{tbRemarksEn.Text}' " +
-            //               $"WHERE ID = {ID}";
-            //try
-            //{
-            //    if (conn == null || conn.State != ConnectionState.Open)
-            //        conn = GetConnection();
-
-            //    // 创建并配置 OdbcCommand 对象
-            //    using (OdbcCommand command = new OdbcCommand(query, conn))
-            //    {
-            //        // 执行查询，获取记录数
-            //        return command.ExecuteNonQuery(); ;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error occurred: {ex.Message}");
-            //    return 0;
-            //}
+            if (matData == null || ID ==0) return 0;
+            var arrMatData = matData.Split(',').ToArray<string>();
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+                    string query = $"UPDATE HK_MatGenLib " +
+                                   $"SET CatID='{arrMatData[1].Substring(0, 2)}'," +
+                                   $"SubCatID='{arrMatData[1]}'," +
+                                   $"TechSpecMain='{arrMatData[2].Replace('|', ',')}'," +
+                                   $"TechSpecAux='{arrMatData[3].Replace('|', ',')}'," +
+                                   $"TypeP1='{arrMatData[4]}'," +
+                                   $"SizeP1='{arrMatData[5]}'," +
+                                   $"TypeP2='{arrMatData[6]}'," +
+                                   $"SizeP2='{arrMatData[7]}'," +
+                                   $"MoreSpecCn=N'{arrMatData[8]}'," +
+                                   $"MoreSpecEn=N'{arrMatData[9]}'," +
+                                   $"RemarksCn=N'{arrMatData[10]}'," +
+                                   $"RemarksEn=N'{arrMatData[11]}'," +
+                                   $"PClass='{(arrMatData[2] + "|" + arrMatData[3]).Split('|').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1]}'," +
+                                   $"MatSpec='{arrMatData[13]}'," +
+                                   $"Status=1 " +
+                                   $"WHERE ID = {ID}";
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    return 0;
+                }
+            }
         }
-        internal int DataDel(int ID)
+        internal int DataDelMark(int ID)
         {
             // 构建 SQL 查询语句
-            string query = $"DELETE FROM HK_MatGenLib WHERE ID = {ID}";
+            string query = $"UPDATE HK_MatGenLib " +
+                           $"SET Status = Status - 1" +
+                           $"WHERE ID = {ID}";
             using (OdbcConnection conn = GetConnection())
             {
                 try
@@ -268,7 +260,30 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(GetNewID)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"HK_General.DataDelMark{Environment.NewLine}Error: {ex.Message}");
+                }
+            }
+            return 0;
+        }
+        internal int DataDel(int ID)
+        {
+            // 构建 SQL 查询语句
+            string query = $"DELETE FROM HK_MatGenLib WHERE ID = {ID}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    MessageBox.Show($"HK_General.DataDel{Environment.NewLine}Error: {ex.Message}");
                 }
             }
             return 0;
