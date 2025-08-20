@@ -22,11 +22,24 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
-                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" IsReadOnly="True"  HorizontalAlignment="Stretch"
-                  ItemsSource="{Binding HKBOMs}" 
-		          SelectedItem="{Binding SelectedMat}"
+        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" IsReadOnly="False" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  PreviewKeyDown="dgBOM_PreviewKeyDown"
+                  ItemsSource="{Binding DataSource}" 
+		          SelectedItem="{Binding SelectedItem}"
                  >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="CellEditEnding">
+                    <i:InvokeCommandAction 
+                                Command="{Binding DataContext.CellEditEndingCommand}" 
+                                PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <!--<i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction 
@@ -40,22 +53,26 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>-->
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=MatID}" />
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Path=No}" IsReadOnly="False"/>
                 <DataGridTextColumn Header="Object" Binding="{Binding Path=ObjMat}" />
-                <!--<DataGridTextColumn x:Name="dcNameCn" Header="材料名称" Binding="{Binding Path=NameCn}"/>
-                <DataGridTextColumn x:Name="dcNameEn" Header="Name" Binding="{Binding Path=NameEn}" />
-                <DataGridTextColumn Header="主参数 Main Data" Binding="{Binding Path=SpecCombMain}" />
-                <DataGridTextColumn Header="端口 Port Spec." Binding="{Binding Path=SpecCombPort}" />
-                <DataGridTextColumn Header="副参数 Aux.Data" Binding="{Binding Path=SpecCombAux}" />
-                <DataGridTextColumn x:Name="dcMoreCn" Header="更多参数" Binding="{Binding Path=MoreSpecCn}" />
-                <DataGridTextColumn x:Name="dcMoreEn" Header="More Data" Binding="{Binding Path=MoreSpecEn}" />
-                <DataGridTextColumn Header="材质 Mat." Binding="{Binding Path=SpecMat}" />
-                <DataGridTextColumn Header="PN/CL" Binding="{Binding Path=SpecPClass}" />
-                <DataGridTextColumn x:Name="dcRemCn" Header="备注" Binding="{Binding Path=RemarksCn}" />
-                <DataGridTextColumn x:Name="dcRemEn" Header="Remarks" Binding="{Binding Path=RemarksEn}" />
-                <DataGridTextColumn x:Name="dcSpecAll" Header="组合规格描述 All Spec." Binding="{Binding Path=SpecCombAll}" />-->
+                <DataGridTextColumn Header="数量" Binding="{Binding Path=Qty}" />
+                <DataGridComboBoxColumn Header="供货专业" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
+                <DataGridComboBoxColumn Header="供货范围" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyResponsible}" />
+                <DataGridComboBoxColumn Header="安装专业" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
+                <DataGridComboBoxColumn Header="安装范围" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionResponsible}" />
             </DataGrid.Columns>
         </DataGrid>
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <!--<Button Content="查询" Command="{Binding QueryCommand}"  Margin="5" Width="80"/>
+            <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
+            <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>-->
+            <Button Content="删除" Command="{Binding DeleteCommand}"  Margin="5" Width="80"/>
+        </WrapPanel>
     </Grid>
 </UserControl>
 

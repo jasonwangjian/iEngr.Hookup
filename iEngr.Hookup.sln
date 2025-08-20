@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAppTest", "WpfAppTest\Wp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xlsLibHookup", "xlsLibHookup\xlsLibHookup.csproj", "{4BD050B6-049C-44BD-A52E-0A19410F22AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataGridTest", "DataGridTest\DataGridTest.csproj", "{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4BD050B6-049C-44BD-A52E-0A19410F22AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BD050B6-049C-44BD-A52E-0A19410F22AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BD050B6-049C-44BD-A52E-0A19410F22AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

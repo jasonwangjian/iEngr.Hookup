@@ -50,4 +50,9 @@ namespace iEngr.Hookup
         //    }
         //}
     }
+    public class GeneralItem
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+    }
 }

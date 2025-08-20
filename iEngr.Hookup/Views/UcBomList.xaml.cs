@@ -31,7 +31,35 @@ namespace iEngr.Hookup.Views
         public UcBomList()
         {
             InitializeComponent();
+            DataGridComboBoxColumnBindingIni();
+        }
+        private void DataGridComboBoxColumnBindingIni()
+        {
+            var columns = dgBOM.Columns.OfType<DataGridComboBoxColumn>()
+                                                .Where(c => c.Header.ToString().Contains("专业"));
+            foreach (DataGridComboBoxColumn column in columns)
+            {
+                var binding = new Binding("Disciplines");
+                binding.Source = DataContext;
+                BindingOperations.SetBinding(column, DataGridComboBoxColumn.ItemsSourceProperty, binding);
+            }
+
         }
 
+        // 禁止回车换行的事件处理
+        private void dgBOM_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //if (e.Key == Key.Enter)
+            //{
+            //    e.Handled = true; // 阻止默认行为
+
+            //    //// 可选：移动到下一列而不是下一行
+            //    //var dataGrid = sender as DataGrid;
+            //    //if (dataGrid != null)
+            //    //{
+            //    //    dataGrid.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            //    //}
+            //}
+        }
     }
 }

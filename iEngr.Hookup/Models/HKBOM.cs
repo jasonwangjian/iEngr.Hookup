@@ -1,4 +1,5 @@
-﻿using Plt;
+﻿using iEngr.Hookup.ViewModels;
+using Plt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,18 +9,55 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Windows;
 
 namespace iEngr.Hookup.Models
 {
     public class HKBOM : HKMatGenLib
     {
-        IComosBaseObject _objMat;
-        private string _matID;
-        public string MatID
+        private string _no;
+        public string No
         {
-            get => _matID;
-            set => SetField(ref _matID, value);
+            get => _no;
+            set => SetField(ref _no, value);
         }
+        private string _qty;
+        public string Qty
+        {
+            get => _qty;
+            set => SetField(ref _qty, value);
+        }
+        private string _supplyDiscipline;
+        public string SupplyDiscipline
+        {
+            get => _supplyDiscipline;
+            set
+            {
+                if (SetField(ref _supplyDiscipline, value))
+                {
+                }
+
+            }
+       }
+        private GeneralItem _supplyResponsible;
+        public GeneralItem SupplyResponsible
+        {
+            get => _supplyResponsible;
+            set => SetField(ref _supplyResponsible, value);
+        }
+        private string _erectionDiscipline;
+        public string ErectionDiscipline
+        {
+            get => _erectionDiscipline;
+            set => SetField(ref _erectionDiscipline, value);
+        }
+        private GeneralItem _erectionResponsible;
+        public GeneralItem ErectionResponsible
+        {
+            get => _erectionResponsible;
+            set => SetField(ref _erectionResponsible, value);
+        }
+        IComosBaseObject _objMat;
         public IComosBaseObject ObjMat
         {
             get => _objMat;
