@@ -125,5 +125,6 @@ namespace iEngr.Hookup.Views
                 Console.WriteLine($" ---------------- UcBomMgr.GetQueryResult() Error occurred: {ex.Message}");
             }
         }
+
     }
 }

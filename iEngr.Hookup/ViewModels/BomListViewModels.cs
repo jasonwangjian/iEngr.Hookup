@@ -178,26 +178,8 @@ namespace iEngr.Hookup.ViewModels
         public RelayCommand<object> DeleteCommand { get; }
         private void Delete()
         {
-            BtnCommand = "Delete";
-        }
-        public string BtnCommand
-        {
-            set
-            {
-                int countData = 0;
-                switch (value)
-                {
-                    case "Query":
-                        break;
-                    case "NewAdd":
-                        break;
-                    case "Update":
-                        break;
-                    case "Delete":
-
-                        break;
-                }
-            }
+            (SelectedItem.ObjMat as IComosBaseObject)?.DeleteAll();
+            //BtnCommand = "Delete";
         }
     }
 }

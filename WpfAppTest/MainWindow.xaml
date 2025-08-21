@@ -12,6 +12,6 @@
         <!--<external:MainWindow/>-->
         <!--<external:HK_LibMatHandle/>-->
         <!--<mv:UcMatMain/>-->
-        <mv:UcBomMgr/>
+        <mv:UcMatMain/>
     </Grid>
 </Window>

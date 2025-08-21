@@ -24,10 +24,10 @@ namespace iEngr.Hookup.ViewModels
             MatItemsSelected = new ObservableCollection<HKMatGenLib>();
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
-            QueryCommand = new RelayCommand<object>(_ => Query());
+            QueryCommand = new RelayCommand<object>(_ => Query(),_ => AutoQueryEnable == false);
             NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0);
-            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedMat !=null && CountExistingData == 0);
-            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => MatItemsSelected?.Count >0);
+            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedMat != null && CountExistingData == 0);
+            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => MatItemsSelected?.Count > 0);
             AutoQueryEnable = true;
         }
         private HK_General HK_General;
@@ -50,11 +50,6 @@ namespace iEngr.Hookup.ViewModels
         }
 
         public ObservableCollection<HKMatGenLib> MatItemsSelected;
-        //public ObservableCollection<HKMatGenLib> MatItemsSelected
-        //{
-        //    get => _matItemsSelected;
-        //    set => SetField(ref _matItemsSelected, value);
-        //}
         private ObservableCollection<HKMatGenLib> _matList;
         private HKMatGenLib _selectedMat;
 
@@ -97,7 +92,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _matDataToQuery, value);
                 //Debug.WriteLine($"Receive: {value}");
                 //Debug.WriteLine($"Pause Receive: {getConditionString(value)}");
-                Debug.WriteLine($"getConditionEqual: {getConditionEqual(MatDataToQuery)}");
+                //Debug.WriteLine($"getConditionEqual: {getConditionEqual(MatDataToQuery)}");
 
                 CountExistingData = HK_General.CountExistingData(getConditionEqual(MatDataToQuery));
 
