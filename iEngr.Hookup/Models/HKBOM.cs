@@ -27,6 +27,12 @@ namespace iEngr.Hookup.Models
             get => _qty;
             set => SetField(ref _qty, value);
         }
+        private string _unit;
+        public string Unit
+        {
+            get => _unit;
+            set => SetField(ref _unit, value);
+        }
         private string _supplyDiscipline;
         public string SupplyDiscipline
         {
@@ -39,8 +45,8 @@ namespace iEngr.Hookup.Models
 
             }
        }
-        private GeneralItem _supplyResponsible;
-        public GeneralItem SupplyResponsible
+        private string _supplyResponsible;
+        public string SupplyResponsible
         {
             get => _supplyResponsible;
             set => SetField(ref _supplyResponsible, value);
@@ -51,8 +57,8 @@ namespace iEngr.Hookup.Models
             get => _erectionDiscipline;
             set => SetField(ref _erectionDiscipline, value);
         }
-        private GeneralItem _erectionResponsible;
-        public GeneralItem ErectionResponsible
+        private string _erectionResponsible;
+        public string ErectionResponsible
         {
             get => _erectionResponsible;
             set => SetField(ref _erectionResponsible, value);

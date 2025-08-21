@@ -171,7 +171,7 @@ namespace iEngr.Hookup.ViewModels
                             $"{selectedMat.MoreSpecEn}," +
                             $"{selectedMat.RemarksCn}," +
                             $"{selectedMat.RemarksEn}," +
-                            $",{selectedMat.MatSpec},,";
+                            $",{selectedMat.MatMatID},,";
         }
         public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
         private void HandleSelectionChanged(SelectionChangedEventArgs e)

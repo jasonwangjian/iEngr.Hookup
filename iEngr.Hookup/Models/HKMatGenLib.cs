@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Plt;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -11,15 +13,6 @@ namespace iEngr.Hookup
 {
     public class HKMatGenLib : INotifyPropertyChanged
     {
-        public HKMatGenLib()
-        {
-            this.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(AlterCode))
-                {
-                }
-            };
-        }
         public void Update(HKMatGenLib newData)
         {
             if (ID == newData.ID)
@@ -34,7 +27,7 @@ namespace iEngr.Hookup
                 TypeP2 = newData.TypeP2;
                 SizeP1 = newData.SizeP1;
                 SizeP2 = newData.SizeP2;
-                MatSpec = newData.MatSpec;
+                MatMatID = newData.MatMatID;
                 PClass = newData.PClass;
                 MoreSpecCn = newData.MoreSpecCn;
                 MoreSpecEn = newData.MoreSpecEn;
@@ -89,7 +82,6 @@ namespace iEngr.Hookup
             }
         }
         public string TechSpecMain { get; set; }
-        //public string SpecCombMain { get; set; }
         private string _SpecCombMain;
         public string SpecCombMain
         {
@@ -122,7 +114,20 @@ namespace iEngr.Hookup
         public string SizeP1 { get; set; }
         public string TypeP2 { get; set; }
         public string SizeP2 { get; set; }
-         public string MatSpec { get; set; }
+        public string MatMatID { get; set; }
+        private string _specMatMatCn;
+        public string SpecMatMatCn
+        {
+            get => _specMatMatCn;
+            set => SetField(ref _specMatMatCn, value);
+        }
+        private string _specMatMatEn;
+        public string SpecMatMatEn
+        {
+            get => _specMatMatEn;
+            set => SetField(ref _specMatMatEn, value);
+        }
+
         //public string SpecCombPort { get; set; }
         private string _SpecCombPort;
         public string SpecCombPort
@@ -255,11 +260,16 @@ namespace iEngr.Hookup
             }
         }
         public string AlterCode { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
+        // INotifyPropertyChanged 实现
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -29,9 +29,10 @@ namespace iEngr.Hookup.ViewModels
             DataSource = new ObservableCollection<HKBOM>();
             SetDisciplineSource();
             SetResponsibleSource();
+            SetUnitSource();
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
-            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count > 0);
+            AutoComosUpdate = true;
         }
         private void SetDisciplineSource()
         {
@@ -40,17 +41,20 @@ namespace iEngr.Hookup.ViewModels
                 new GeneralItem
                 {
                     Code = "I",
-                    Name = "仪表"
+                    NameCn = "仪表",
+                    NameEn = "Instrument"
                 },
                 new GeneralItem
                 {
                     Code = "F",
-                    Name = "工艺"
+                    NameCn = "工艺",
+                    NameEn="Process"
                 },
                 new GeneralItem
                 {
                     Code = "E",
-                    Name = "电气"
+                    NameCn = "电气",
+                    NameEn = "Electric"
                 }
             };
         }
@@ -61,38 +65,101 @@ namespace iEngr.Hookup.ViewModels
                 new GeneralItem
                 {
                     Code = "B",
-                    Name = "业主方"
+                    NameCn = "业主方",
+                    NameEn="Buyer"
                 },
                 new GeneralItem
                 {
                     Code = "S",
-                    Name = "供货商"
+                    NameCn = "供货商",
+                    NameEn="Supplier"
                 },
                 new GeneralItem
                 {
                     Code = "M",
-                    Name = "制造商"
+                    NameCn = "制造商",
+                    NameEn="Maker"
                 },
                 new GeneralItem
                 {
                     Code = "E",
-                    Name = "安装方"
+                    NameCn = "安装方",
+                    NameEn="Erector"
                 }
             };
         }
         public List<GeneralItem> Disciplines { get; set; }
         public List<GeneralItem> Responsibles { get; set; }
-        IComosBaseObject _objMat;
-        private string _matID;
-        public string MatID
+        public List<GeneralItem> Units { get; set; }
+        private void SetUnitSource()
         {
-            get => _matID;
-            set => SetField(ref _matID, value);
+            Responsibles = new List<GeneralItem>
+            {
+                new GeneralItem
+                {
+                    Code = "pcs",
+                    NameCn = "只",
+                    NameEn="pcs"
+                },
+                new GeneralItem
+                {
+                    Code = "set",
+                    NameCn = "套",
+                    NameEn="set"
+                },
+                new GeneralItem
+                {
+                    Code = "pkg",
+                    NameCn = "包",
+                    NameEn="pkg"
+                },
+                new GeneralItem
+                {
+                    Code = "m",
+                    NameCn = "米",
+                    NameEn="m"
+                },
+                new GeneralItem
+                {
+                    Code = "m2",
+                    NameCn = "平方米",
+                    NameEn="m2"
+                },
+                new GeneralItem
+                {
+                    Code = "kg",
+                    NameCn = "公斤",
+                    NameEn="kg"
+                }
+            };
         }
-        public IComosBaseObject ObjMat
+        public List<GeneralItem> MatMats = new List<GeneralItem>();
+        private string _diagramNameCn;
+        public string DiagramNameCn
         {
-            get => _objMat;
-            set => SetField(ref _objMat, value);
+            get => _diagramNameCn;
+            set => SetField(ref _diagramNameCn, value);
+        }
+        private string _diagramNameEn;
+        public string DiagramNameEn
+        {
+            get => _diagramNameEn;
+            set => SetField(ref _diagramNameEn, value);
+        }
+        IComosBaseObject _objDiagram;
+        public IComosBaseObject ObjDiagram
+        {
+            get => _objDiagram;
+            set => SetField(ref _objDiagram, value);
+        }
+        private bool _autoComosUpdate;
+        public bool AutoComosUpdate
+        {
+            get => _autoComosUpdate;
+            set
+            {
+                SetField(ref _autoComosUpdate, value);
+            }
         }
         ObservableCollection<HKBOM> _dataSource;
         public ObservableCollection<HKBOM> DataSource
@@ -173,13 +240,6 @@ namespace iEngr.Hookup.ViewModels
                 }
                 SelectedItems = _selectedItems;
             }
-
-        }
-        public RelayCommand<object> DeleteCommand { get; }
-        private void Delete()
-        {
-            (SelectedItem.ObjMat as IComosBaseObject)?.DeleteAll();
-            //BtnCommand = "Delete";
         }
     }
 }

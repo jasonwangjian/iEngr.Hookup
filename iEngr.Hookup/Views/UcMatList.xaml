@@ -29,7 +29,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <WrapPanel Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" >
+        <WrapPanel Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,10,0" >
             <CheckBox IsChecked="{Binding AutoQueryEnable}">自动刷行查询材料库</CheckBox>
         </WrapPanel>
         <DataGrid x:Name="dgResult" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Auto"
@@ -65,11 +65,5 @@
                 <DataGridTextColumn x:Name="dcSpecAll" Header="组合规格描述 All Spec." Binding="{Binding Path=SpecCombAll}" />
             </DataGrid.Columns>
         </DataGrid>
-        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,5">
-            <Button Content="查询" Command="{Binding QueryCommand}"  Margin="5" Width="80"/>
-            <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
-            <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
-            <Button Content="删除" Command="{Binding DeleteCommand}"  Margin="5" Width="80"/>
-        </WrapPanel>
     </Grid>
 </UserControl>

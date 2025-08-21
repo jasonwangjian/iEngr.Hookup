@@ -21,9 +21,19 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <local:UcBomList x:Name="ucBL" Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3"/>
-        <!--<TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</TextBlock>-->
+        <Grid Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <local:UcBomList x:Name="ucBL"/>
+            <WrapPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Button Content="查询" x:Name="btnQuery" Margin="5" Width="80"/>
+                <Button Content="新增" x:Name="btnNewAdd" Click="btnNewAdd_Click" Margin="5" Width="80"/>
+                <Button Content="更新" x:Name="btnUpdate"  Margin="5" Width="80"/>
+                <Button Content="删除" x:Name="btnDelete"  Margin="5" Width="80"/>
+            </WrapPanel>
+        </Grid>
         <GridSplitter Grid.Row="2" Grid.Column="1" Height="3" HorizontalAlignment="Stretch"/>
         <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1"  Grid.ColumnSpan="3"/>
     </Grid>

@@ -53,6 +53,10 @@ namespace iEngr.Hookup
     public class GeneralItem
     {
         public string Code { get; set; }
-        public string Name { get; set; }
+        public string NameCn { get; set; }
+        public string NameEn { get; set; }
+        public string SpecCn { get; set; }
+        public string SpecEn { get; set; }
+
     }
 }
