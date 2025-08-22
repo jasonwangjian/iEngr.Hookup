@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iEngr.Hookup.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -91,7 +92,7 @@ namespace iEngr.Hookup
                             {
                                 ID = Convert.ToInt32(reader["ID"]),
                                 CatID = Convert.ToString(reader["CatID"]),
-                                SubCatID = Convert.ToString(reader["SubCatID"]),
+                                NameID = Convert.ToString(reader["SubCatID"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
                                 NameEn = Convert.ToString(reader["NameEn"]),
                                 AlterCode = Convert.ToString(reader["AlterCode"]),
@@ -108,8 +109,8 @@ namespace iEngr.Hookup
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
                             };
-                            item.SpecCombMain = getSpecMainAux(item.TechSpecMain);
-                            item.SpecCombAux = getSpecMainAux(item.TechSpecAux);
+                            item.SpecCombMainCn = getSpecMainAux(item.TechSpecMain);
+                            item.SpecCombAuxCn = getSpecMainAux(item.TechSpecAux);
                             item.SpecCombPort = getSpecPort(item.TypeP1, item.SizeP1, item.TypeP2, item.SizeP2, item.AlterCode);
                             item.SpecPClass = dicPN.TryGetValue(item.PClass, out HKLibPN pclass) ? pclass.Spec : string.Empty;
                             //item.SpecMat = dicMatMat[item.MatSpec].Spec;
@@ -165,7 +166,7 @@ namespace iEngr.Hookup
                             {
                                 ID = Convert.ToInt32(reader["ID"]),
                                 CatID = Convert.ToString(reader["CatID"]),
-                                SubCatID = Convert.ToString(reader["SubCatID"]),
+                                NameID = Convert.ToString(reader["SubCatID"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
                                 NameEn = Convert.ToString(reader["NameEn"]),
                                 AlterCode = Convert.ToString(reader["AlterCode"]),
@@ -182,8 +183,8 @@ namespace iEngr.Hookup
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
                             };
-                            item.SpecCombMain = getSpecMainAux(item.TechSpecMain);
-                            item.SpecCombAux = getSpecMainAux(item.TechSpecAux);
+                            item.SpecCombMainCn = getSpecMainAux(item.TechSpecMain);
+                            item.SpecCombAuxCn = getSpecMainAux(item.TechSpecAux);
                             item.SpecCombPort = getSpecPort(item.TypeP1, item.SizeP1, item.TypeP2, item.SizeP2, item.AlterCode);
                             item.SpecPClass = dicPN.TryGetValue(item.PClass, out HKLibPN pclass) ? pclass.Spec : string.Empty;
                             //item.SpecMat = dicMatMat[item.MatSpec].Spec;

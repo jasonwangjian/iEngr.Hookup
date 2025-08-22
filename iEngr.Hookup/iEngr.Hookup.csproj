@@ -77,76 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\NullToBoolConverter .cs" />
-    <Compile Include="Converters\VisibilityConverter.cs" />
-    <Compile Include="Models\HKBOM.cs" />
-    <Compile Include="ViewModels\BomListViewModel.cs" />
-    <Compile Include="ViewModels\MatMainViewModel.cs" />
-    <Compile Include="ViewModels\MatDataViewModel.cs" />
-    <Compile Include="ViewModels\MatListViewModel.cs" />
-    <Compile Include="Views\DataGridExtensions.cs" />
-    <Compile Include="Views\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
-    <Compile Include="Views\UcBomList.xaml.cs">
-      <DependentUpon>UcBomList.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UcBomMgr.xaml.cs">
-      <DependentUpon>UcBomMgr.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UcMatBtn.xaml.cs">
-      <DependentUpon>UcMatBtn.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UcMatData.xaml.cs">
-      <DependentUpon>UcMatData.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UcMatList.xaml.cs">
-      <DependentUpon>UcMatList.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UcMatMain.xaml.cs">
-      <DependentUpon>UcMatMain.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="HK_General.cs" />
-    <Compile Include="HK_General.DicIni.cs" />
-    <Page Include="HK_LibMatHandle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcBomList.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcBomMgr.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcMatBtn.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcMatData.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcMatList.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UcMatMain.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Compile Include="ViewModels\MatListItem.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HK_LibMatHandle.xaml.cs">
-      <DependentUpon>HK_LibMatHandle.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Models\GeneralFun.cs" />
     <Compile Include="Models\HKMatGenLib.cs" />
     <Compile Include="Models\HKLibGland.cs" />
@@ -159,9 +95,8 @@
     <Compile Include="Models\HKLibThread.cs" />
     <Compile Include="Models\HKLibPortType.cs" />
     <Compile Include="Models\HKGeneral.cs" />
-    <Compile Include="Models\HMIMain.cs" />
-    <Compile Include="Models\HKMatSubCat.cs" />
-    <Compile Include="Models\HKMatMainCat.cs" />
+    <Compile Include="Models\HKLibMatName.cs" />
+    <Compile Include="Models\HKLibMatCat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

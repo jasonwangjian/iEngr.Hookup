@@ -1,4 +1,4 @@
-﻿using iEngr.Hookup;
+﻿using iEngr.Hookup.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -92,58 +92,70 @@ namespace xlsLibHookup
             {
                 switch (result.GetType()?.Name)
                 {
-                    case "HKMatMainCat":
-                         if (isDataExisting("HK_MatMainCat", (result as HKMatMainCat).ID))
+                    case "HKLibMatCat":
+                         if (isDataExisting("HK_LibMatCat", (result as HKLibMatCat).ID))
                         {
-                            sqlString = $"UPDATE HK_MatMainCat SET " +
-                                $"NameCn='{(result as HKMatMainCat).NameCn}'," +
-                                $"NameEn='{(result as HKMatMainCat).NameEn}'," +
-                                $"Remarks='{(result as HKMatMainCat).Remarks}'," +
-                                $"SortNum={(result as HKMatMainCat).SortNum} " +
-                                $"WHERE ID='{(result as HKMatMainCat).ID}'";
+                            sqlString = $"UPDATE HK_LibMatCat SET " +
+                                $"NameCn='{(result as HKLibMatCat).NameCn}'," +
+                                $"NameEn='{(result as HKLibMatCat).NameEn}'," +
+                                $"Remarks='{(result as HKLibMatCat).Remarks}'," +
+                                $"SortNum={(result as HKLibMatCat).SortNum} " +
+                                $"WHERE ID='{(result as HKLibMatCat).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_MatMainCat (ID, NameCn, NameEn, Remarks, SortNum) VALUES (" +
-                                $"'{(result as HKMatMainCat).ID}'," +
-                                $"'{(result as HKMatMainCat).NameCn}'," +
-                                $"'{(result as HKMatMainCat).NameEn}'," +
-                                $"'{(result as HKMatMainCat).Remarks}'," +
-                                $"{(result as HKMatMainCat).SortNum}" +
+                            sqlString = $"INSERT INTO HK_LibMatCat (ID, NameCn, NameEn, Remarks, SortNum) VALUES (" +
+                                $"'{(result as HKLibMatCat).ID}'," +
+                                $"'{(result as HKLibMatCat).NameCn}'," +
+                                $"'{(result as HKLibMatCat).NameEn}'," +
+                                $"'{(result as HKLibMatCat).Remarks}'," +
+                                $"{(result as HKLibMatCat).SortNum}" +
                                 $")";
                         }
                         count = count + updateData(sqlString);
                         break;
-                    case "HKMatSubCat":
-                        if (isDataExisting("HK_MatSubCat", (result as HKMatSubCat).ID))
+                    case "HKLibMatName":
+                        if (isDataExisting("HK_LibMatName", (result as HKLibMatName).ID))
                         {
-                            sqlString = $"UPDATE HK_MatSubCat SET " +
-                                $"CatID='{(result as HKMatSubCat).CatID}'," +
-                                $"SubCatID='{(result as HKMatSubCat).SubCatID}'," +
-                                $"SpecCn='{(result as HKMatSubCat).SpecCn}'," +
-                                $"SpecEn='{(result as HKMatSubCat).SpecEn}'," +
-                                $"Remarks='{(result as HKMatSubCat).Remarks}'," +
-                                $"TypeP1='{(result as HKMatSubCat).TypeP1}'," +
-                                $"TypeP2='{(result as HKMatSubCat).TypeP2}'," +
-                                $"TechSpecMain='{(result as HKMatSubCat).TechSpecMain}'," +
-                                $"TechSpecAux='{(result as HKMatSubCat).TechSpecAux}'," +
-                                $"SortNum={(result as HKMatSubCat).SortNum} " +
-                                $"WHERE ID='{(result as HKMatSubCat).ID}'";
+                            sqlString = $"UPDATE HK_LibMatName SET " +
+                                $"CatID='{(result as HKLibMatName).CatID}'," +
+                                $"SpecCn='{(result as HKLibMatName).SpecCn}'," +
+                                $"SpecEn='{(result as HKLibMatName).SpecEn}'," +
+                                $"Remarks='{(result as HKLibMatName).Remarks}'," +
+                                $"TypeP1='{(result as HKLibMatName).TypeP1}'," +
+                                $"TypeP2='{(result as HKLibMatName).TypeP2}'," +
+                                $"TechSpecMain='{(result as HKLibMatName).TechSpecMain}'," +
+                                $"TechSpecAux='{(result as HKLibMatName).TechSpecAux}'," +
+                                $"Qty='{(result as HKLibMatName).Qty}'," +
+                                $"Unit='{(result as HKLibMatName).Unit}'," +
+                                $"SupDisc='{(result as HKLibMatName).SupDisc}'," +
+                                $"SupResp='{(result as HKLibMatName).SupResp}'," +
+                                $"ErecDisc='{(result as HKLibMatName).ErecDisc}'," +
+                                $"ErecResp='{(result as HKLibMatName).ErecResp}'," +
+                                $"SortNum={(result as HKLibMatName).SortNum} " +
+                                $"WHERE ID='{(result as HKLibMatName).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_MatSubCat (ID, CatID, SubCatID, SpecCn, SpecEn, Remarks, TypeP1, TypeP2, TechSpecMain, TechSpecAux, SortNum) VALUES (" +
-                                $"'{(result as HKMatSubCat).ID}'," +
-                                $"'{(result as HKMatSubCat).CatID}'," +
-                                $"'{(result as HKMatSubCat).SubCatID}'," +
-                                $"'{(result as HKMatSubCat).SpecCn}'," +
-                                $"'{(result as HKMatSubCat).SpecEn}'," +
-                                $"'{(result as HKMatSubCat).Remarks}'," +
-                                $"'{(result as HKMatSubCat).TypeP1}'," +
-                                $"'{(result as HKMatSubCat).TypeP2}'," +
-                                $"'{(result as HKMatSubCat).TechSpecMain}'," +
-                                $"'{(result as HKMatSubCat).TechSpecAux}'," +
-                                $"{(result as HKMatSubCat).SortNum}" +
+                            sqlString = $"INSERT INTO HK_LibMatName (ID, CatID, SpecCn, SpecEn, Remarks, " +
+                                $"                                  TypeP1, TypeP2, TechSpecMain, TechSpecAux, " +
+                                $"                                  Qty, Unit, SupDisc, SupResp, ErecDisc, ErecResp, SortNum) VALUES (" +
+                                $"'{(result as HKLibMatName).ID}'," +
+                                $"'{(result as HKLibMatName).CatID}'," +
+                                $"'{(result as HKLibMatName).SpecCn}'," +
+                                $"'{(result as HKLibMatName).SpecEn}'," +
+                                $"'{(result as HKLibMatName).Remarks}'," +
+                                $"'{(result as HKLibMatName).TypeP1}'," +
+                                $"'{(result as HKLibMatName).TypeP2}'," +
+                                $"'{(result as HKLibMatName).TechSpecMain}'," +
+                                $"'{(result as HKLibMatName).TechSpecAux}'," +
+                                $"'{(result as HKLibMatName).Qty}'," +
+                                $"'{(result as HKLibMatName).Unit}'," +
+                                $"'{(result as HKLibMatName).SupDisc}'," +
+                                $"'{(result as HKLibMatName).SupResp}'," +
+                                $"'{(result as HKLibMatName).ErecDisc}'," +
+                                $"'{(result as HKLibMatName).ErecResp}'," +
+                                $"{(result as HKLibMatName).SortNum}" +
                                 $")";
                         }
                         count = count + updateData(sqlString);
@@ -448,48 +460,80 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibMatMat":
+                        if (isDataExisting("HK_LibMatMat", (result as HKLibMatMat).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibMatMat SET " +
+                                $"NameCn='{(result as HKLibMatMat).NameCn}'," +
+                                $"NameEn='{(result as HKLibMatMat).NameEn}'," +
+                                $"SpecCn='{(result as HKLibMatMat).SpecCn}'," +
+                                $"SpecEn='{(result as HKLibMatMat).SpecEn}'," +
+                                $"ActiveCode='{(result as HKLibMatMat).ActiveCode}'," +
+                                $"SortNum={(result as HKLibMatMat).SortNum} " +
+                                $"WHERE ID='{(result as HKLibMatMat).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibMatMat (ID, NameCn, NameEn, SpecCn, SpecEn, ActiveCode, SortNum) VALUES (" +
+                                $"'{(result as HKLibMatMat).ID}'," +
+                                $"'{(result as HKLibMatMat).NameCn}'," +
+                                $"'{(result as HKLibMatMat).NameEn}'," +
+                                $"'{(result as HKLibMatMat).SpecCn}'," +
+                                $"'{(result as HKLibMatMat).SpecEn}'," +
+                                $"'{(result as HKLibMatMat).ActiveCode}'," +
+                                $"{(result as HKLibMatMat).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                     case "HKMatGenLib":
                         if (isDataExisting("HK_MatGenLib", (result as HKMatGenLib).ID))
                         {
                             sqlString = $"UPDATE HK_MatGenLib SET " +
                                 $"CatID='{(result as HKMatGenLib).CatID}'," +
-                                $"SubCatID='{(result as HKMatGenLib).SubCatID}'," +
                                 $"TechSpecMain='{(result as HKMatGenLib).TechSpecMain}'," +
                                 $"TechSpecAux='{(result as HKMatGenLib).TechSpecAux}'," +
                                 $"TypeP1='{(result as HKMatGenLib).TypeP1}'," +
                                 $"SizeP1='{(result as HKMatGenLib).SizeP1}'," +
                                 $"TypeP2='{(result as HKMatGenLib).TypeP2}'," +
                                 $"SizeP2='{(result as HKMatGenLib).SizeP2}'," +
-                                $"MatSpec='{(result as HKMatGenLib).MatSpec}'," +
+                                $"MatMatID='{(result as HKMatGenLib).MatMatID}'," +
                                 $"PClass='{(result as HKMatGenLib).PClass}'," +
                                 $"MoreSpecCn='{(result as HKMatGenLib).MoreSpecCn}'," +
                                 $"MoreSpecEn='{(result as HKMatGenLib).MoreSpecEn}'," +
                                 $"AppStd='{(result as HKMatGenLib).AppStd}'," +
                                 $"RemarksCn='{(result as HKMatGenLib).RemarksCn}'," +
                                 $"RemarksEn='{(result as HKMatGenLib).RemarksEn}'," +
-                                $"Comments='{(result as HKMatGenLib).Comments}' " +
+                                $"Comments='{(result as HKMatGenLib).Comments}', " +
+                                $"Status={(result as HKMatGenLib).Status}, " +
+                                $"LastBy='{(result as HKMatGenLib).LastBy}', " +
+                                $"LastOn='{DateTime.Now.ToString()}' " +
                                 $"WHERE ID={(result as HKMatGenLib).ID}";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, TypeP1, SizeP1, TypeP2, SizeP2, MatSpec, PClass, MoreSpecCn, MoreSpecEn, AppStd, RemarksCn, RemarksEn, Comments) VALUES (" +
+                            sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, TechSpecMain, TechSpecAux, " +
+                                $"TypeP1, SizeP1, TypeP2, SizeP2, MatMatID, PClass, MoreSpecCn, MoreSpecEn, " +
+                                $"AppStd, RemarksCn, RemarksEn, Comments,Status, LastBy, LastOn) VALUES (" +
                                 $"{(result as HKMatGenLib).ID}," +
                                 $"'{(result as HKMatGenLib).CatID}'," +
-                                $"'{(result as HKMatGenLib).SubCatID}'," +
                                 $"'{(result as HKMatGenLib).TechSpecMain}'," +
                                 $"'{(result as HKMatGenLib).TechSpecAux}'," +
                                 $"'{(result as HKMatGenLib).TypeP1}'," +
                                 $"'{(result as HKMatGenLib).SizeP1}'," +
                                 $"'{(result as HKMatGenLib).TypeP2}'," +
                                 $"'{(result as HKMatGenLib).SizeP2}'," +
-                                $"'{(result as HKMatGenLib).MatSpec}'," +
+                                $"'{(result as HKMatGenLib).MatMatID}'," +
                                 $"'{(result as HKMatGenLib).PClass}'," +
                                 $"'{(result as HKMatGenLib).MoreSpecCn}'," +
                                 $"'{(result as HKMatGenLib).MoreSpecEn}'," +
                                 $"'{(result as HKMatGenLib).AppStd}'," +
                                 $"'{(result as HKMatGenLib).RemarksCn}'," +
                                 $"'{(result as HKMatGenLib).RemarksEn}'," +
-                                $"'{(result as HKMatGenLib).Comments}' " +
+                                $"'{(result as HKMatGenLib).Comments}', " +
+                                $"{(result as HKMatGenLib).Status}, " +
+                                $"'{(result as HKMatGenLib).LastBy}', " +
+                                $"'{DateTime.Now.ToString()}' " +
                                 $")";
                         }
                         count = count + updateData(sqlString);
@@ -580,12 +624,12 @@ namespace xlsLibHookup
                 return false;
             }
         }
-        private ObservableCollection<HKMatMainCat> GetXlsMatMainCat(string id = null)
+        private ObservableCollection<HKLibMatCat> GetXlsLibMatCat(string id = null)
         {
-            ObservableCollection<HKMatMainCat> data = new ObservableCollection<HKMatMainCat>();
+            ObservableCollection<HKLibMatCat> data = new ObservableCollection<HKLibMatCat>();
             // 构建 SQL 查询语句
-            string query = (id == null)? "select * from [MatMainCat$]"
-                                       : $"select * from [MatMainCat$] where ID = '{id}'";
+            string query = (id == null)? "select * from [LibMatCat$]"
+                                       : $"select * from [LibMatCat$] where ID = '{id}'";
             try
             {
                 if (xlsConn == null || xlsConn.State != ConnectionState.Open)
@@ -596,7 +640,7 @@ namespace xlsLibHookup
                 {
                     if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
                         break;
-                    HKMatMainCat item = new HKMatMainCat
+                    HKLibMatCat item = new HKLibMatCat
                     {
                         ID = Convert.ToString(reader["ID"]),
                         NameCn = Convert.ToString(reader["NameCn"]),
@@ -617,12 +661,12 @@ namespace xlsLibHookup
             }
             return data;
         }
-        private ObservableCollection<HKMatSubCat> GetXlsMatSubCat(string id = null)
+        private ObservableCollection<HKLibMatName> GetXlsLibMatName(string id = null)
         {
-            ObservableCollection<HKMatSubCat> data = new ObservableCollection<HKMatSubCat>();
+            ObservableCollection<HKLibMatName> data = new ObservableCollection<HKLibMatName>();
             // 构建 SQL 查询语句
-            string query = (id == null) ? "select * from [MatSubCat$]"
-                                      : $"select * from [MatSubCat$] where ID = '{id}'";
+            string query = (id == null) ? "select * from [LibMatName$]"
+                                      : $"select * from [LibMatName$] where ID = '{id}'";
             try
             {
                 if (xlsConn == null || xlsConn.State != ConnectionState.Open)
@@ -633,11 +677,10 @@ namespace xlsLibHookup
                 {
                     if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
                         break;
-                    HKMatSubCat item = new HKMatSubCat
+                    HKLibMatName item = new HKLibMatName
                     {
                         ID = Convert.ToString(reader["ID"]),
                         CatID = Convert.ToString(reader["CatID"]),
-                        SubCatID = Convert.ToString(reader["SubCatID"]),
                         SpecCn = Convert.ToString(reader["SpecCn"]),
                         SpecEn = Convert.ToString(reader["SpecEn"]),
                         Remarks = Convert.ToString(reader["Remarks"]),
@@ -646,6 +689,12 @@ namespace xlsLibHookup
                         TypeP2 = Convert.ToString(reader["TypeP2"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                        Qty = Convert.ToString(reader["Qty"]),
+                        Unit = Convert.ToString(reader["Unit"]),
+                        SupDisc = Convert.ToString(reader["SupDisc"]),
+                        SupResp = Convert.ToString(reader["SupResp"]),
+                        ErecDisc = Convert.ToString(reader["ErecDisc"]),
+                        ErecResp = Convert.ToString(reader["ErecResp"]),
                     };
                     data.Add(item);
                 }
@@ -1037,6 +1086,45 @@ namespace xlsLibHookup
             }
             return data;
         }
+        private ObservableCollection<HKLibMatMat> GetXlsLibMatMat(string id = null)
+        {
+            ObservableCollection<HKLibMatMat> data = new ObservableCollection<HKLibMatMat>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibMatMat$]"
+                                      : $"select * from [LibMatMat$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibMatMat item = new HKLibMatMat
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        ActiveCode = Convert.ToString(reader["ActiveCode"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
         private ObservableCollection<HKMatGenLib> GetXlsMatGenLib(string id = null)
         {
             ObservableCollection<HKMatGenLib> data = new ObservableCollection<HKMatGenLib>();
@@ -1057,14 +1145,13 @@ namespace xlsLibHookup
                     {
                         ID = Convert.ToInt32(reader["ID"]),
                         CatID = Convert.ToString(reader["CatID"]),
-                        SubCatID = Convert.ToString(reader["SubCatID"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                         TypeP1 = Convert.ToString(reader["TypeP1"]),
                         SizeP1 = Convert.ToString(reader["SizeP1"]),
                         TypeP2 = Convert.ToString(reader["TypeP2"]),
                         SizeP2 = Convert.ToString(reader["SizeP2"]),
-                        MatSpec = Convert.ToString(reader["MatSpec"]),
+                        MatMatID = Convert.ToString(reader["MatMatID"]),
                         PClass = Convert.ToString(reader["PClass"]),
                         MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
                         MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
@@ -1090,11 +1177,11 @@ namespace xlsLibHookup
 
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
         {
-            dgResult.ItemsSource = GetXlsMatMainCat();
+            dgResult.ItemsSource = GetXlsLibMatCat();
         }
         private void btnSubCat_Click(object sender, RoutedEventArgs e)
         {
-            dgResult.ItemsSource = GetXlsMatSubCat();
+            dgResult.ItemsSource = GetXlsLibMatName();
         }
         private void btnLibPortType_Click(object sender, RoutedEventArgs e)
         {
@@ -1131,6 +1218,10 @@ namespace xlsLibHookup
         private void btnLibPN_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibPN();
+        }
+        private void btnLibMatMat_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsLibMatMat();
         }
         private void btnMatGenLib_Click(object sender, RoutedEventArgs e)
         {
