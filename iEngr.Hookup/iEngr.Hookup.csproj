@@ -79,7 +79,7 @@
     <Compile Include="Converters\NullToBoolConverter .cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="Models\HKBOM.cs" />
-    <Compile Include="ViewModels\BomListViewModels.cs" />
+    <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\MatMainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListViewModel.cs" />

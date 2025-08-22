@@ -15,6 +15,47 @@ namespace iEngr.Hookup.Models
 {
     public class HKBOM : HKMatGenLib
     {
+        public void SetDataFromComosObject() {
+            No = ObjMat.Label;
+            NameCn = ObjMat.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
+            NameEn = ObjMat.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
+            RemarksCn = ObjMat.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
+            RemarksEn = ObjMat.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
+            Qty = ObjMat.spec("Z00T00003.Qty").value;
+            Unit = ObjMat.spec("Z00T00003.Unit").value;
+            SupplyDiscipline = ObjMat.spec("Z00T00003.SD").value;
+            SupplyResponsible = ObjMat.spec("Z00T00003.SR").value;
+            ErectionDiscipline = ObjMat.spec("Z00T00003.ED").value;
+            ErectionResponsible = ObjMat.spec("Z00T00003.ER").value;
+        }
+        public void SetComosObjectFromData(HKMatGenLib matItem = null)
+        {
+            ObjMat.Label = No;
+            ObjMat.spec("Z00T00003.Qty").value = Qty;
+            ObjMat.spec("Z00T00003.Unit").value = Unit;
+            ObjMat.spec("Z00T00003.SD").value = SupplyDiscipline;
+            ObjMat.spec("Z00T00003.SR").value = SupplyResponsible;
+            ObjMat.spec("Z00T00003.ED").value = ErectionDiscipline;
+            ObjMat.spec("Z00T00003.ER").value = ErectionResponsible; if (matItem == null)
+            {
+                ObjMat.SetInternationalDescription(4, NameCn);
+                ObjMat.SetInternationalDescription(2, NameEn);
+                ObjMat.spec("Z00T00003.Name").SetInternationalValue(4, NameCn);
+                ObjMat.spec("Z00T00003.Name").SetInternationalValue(2, NameEn);
+                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(4, RemarksCn);
+                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(2, RemarksEn);
+
+            }
+            else
+            {
+                ObjMat.SetInternationalDescription(4, matItem.NameCn);
+                ObjMat.SetInternationalDescription(2, matItem.NameEn);
+                ObjMat.spec("Z00T00003.Name").SetInternationalValue(4, matItem.NameCn);
+                ObjMat.spec("Z00T00003.Name").SetInternationalValue(2, matItem.NameEn);
+                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(4, matItem.RemarksCn);
+                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(2, matItem.RemarksEn);
+            }
+        }
         private string _no;
         public string No
         {

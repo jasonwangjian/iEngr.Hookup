@@ -22,9 +22,9 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class BomListViewModels: INotifyPropertyChanged
+    public class BomListViewModel: INotifyPropertyChanged
     {
-        public BomListViewModels()
+        public BomListViewModel()
         {
             DataSource = new ObservableCollection<HKBOM>();
             SetDisciplineSource();
@@ -174,7 +174,7 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 SetField(ref _selectedItem, value);
-                value.ObjMat.Label = value.No;
+                //value.ObjMat.Label = value.No;
                 
             }
         }

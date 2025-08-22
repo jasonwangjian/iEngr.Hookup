@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.DataContext>
-        <vm:BomListViewModels />
+        <vm:BomListViewModel />
     </UserControl.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -64,13 +64,13 @@
                 <DataGridTextColumn Header="数量" Binding="{Binding Path=Qty}"/>
                 <DataGridComboBoxColumn Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn Header="供货专业" DisplayMemberPath="Name" SelectedValuePath="Code"
+                <DataGridComboBoxColumn Header="供货专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn Header="供货范围" DisplayMemberPath="Name" SelectedValuePath="Code"
+                <DataGridComboBoxColumn Header="供货范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyResponsible}" />
-                <DataGridComboBoxColumn Header="安装专业" DisplayMemberPath="Name" SelectedValuePath="Code"
+                <DataGridComboBoxColumn Header="安装专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
-                <DataGridComboBoxColumn Header="安装范围" DisplayMemberPath="Name" SelectedValuePath="Code"
+                <DataGridComboBoxColumn Header="安装范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionResponsible}" />
             </DataGrid.Columns>
         </DataGrid>

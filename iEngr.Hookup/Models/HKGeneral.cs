@@ -57,6 +57,5 @@ namespace iEngr.Hookup
         public string NameEn { get; set; }
         public string SpecCn { get; set; }
         public string SpecEn { get; set; }
-
     }
 }

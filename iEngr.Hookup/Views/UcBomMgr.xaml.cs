@@ -8,6 +8,7 @@ using Plt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -33,10 +34,11 @@ namespace iEngr.Hookup.Views
         public UcBomMgr()
         {
             InitializeComponent();
-            VMBomList = ucBL.DataContext as BomListViewModels;
-
+            VmBomList = ucBL.DataContext as BomListViewModel;
+            VmMatList = (ucMM.DataContext as MatMainViewModel).VmMatList;
         }
-        public BomListViewModels VMBomList;
+        public BomListViewModel VmBomList;
+        public MatListViewModel VmMatList;
 
         private IComosDGeneralCollection _objects;
         private string _parameters;
@@ -116,14 +118,14 @@ namespace iEngr.Hookup.Views
             try
             {
                 if (currentObject is null) return;
-                VMBomList.DiagramNameCn = currentObject.GetInternationalDescription(4);
-                VMBomList.DiagramNameEn = currentObject.GetInternationalDescription(2);
+                VmBomList.DiagramNameCn = currentObject.GetInternationalDescription(4);
+                VmBomList.DiagramNameEn = currentObject.GetInternationalDescription(2);
                 IComosDStandardTable sdt =  Project.CDeviceSystem.Project().GetObjectByPathFullName("22-@40\\~22-Z20\\~22-Z20N00003\\~22-Z20N00003A07");
                 IComosDOwnCollection sdtValues = sdt.StandardValues();
                 for (int i = 1; i<= sdtValues.Count();i++)
                 {
                     IComosDStandardValue stv = sdtValues.Item(i) as IComosDStandardValue;
-                    VMBomList.MatMats.Add(new GeneralItem
+                    VmBomList.MatMats.Add(new GeneralItem
                     {
 
                         Code = stv.value,
@@ -136,8 +138,6 @@ namespace iEngr.Hookup.Views
                     string name = sdtValues.Item(i).Name;
 
                 }
-
-
            }
             catch (Exception ex)
             {
@@ -160,20 +160,9 @@ namespace iEngr.Hookup.Views
                     for (int i = 1; i <= qry.RowCount; i++)
                     {
                         IComosBaseObject item = qry.RowObject[i];
-                        HKBOM hKBOM = new HKBOM();
-                        hKBOM.No = item.Label; ;
-                        hKBOM.ObjMat = item;
-                        hKBOM.Qty = item.spec("Z00T00003.Qty").value;//qry.Cell(i, "Qty").Text;
-                        hKBOM.Unit = item.spec("Z00T00003.Unit").value;
-                        hKBOM.SupplyDiscipline = item.spec("Z00T00003.SD").value;
-                        hKBOM.SupplyResponsible = item.spec("Z00T00003.SR").value;
-                        hKBOM.ErectionDiscipline = item.spec("Z00T00003.ED").value;
-                        hKBOM.ErectionResponsible = item.spec("Z00T00003.ER").value;
-                        hKBOM.RemarksCn = item.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
-                        hKBOM.RemarksEn = item.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
-                        hKBOM.NameCn = item.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
-                        hKBOM.NameEn = item.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
-                        VMBomList.DataSource.Add(hKBOM);
+                        HKBOM bomItem = new HKBOM() { ObjMat = item };
+                        bomItem.SetDataFromComosObject();
+                        VmBomList.DataSource.Add(bomItem);
                     }
                 }
             }
@@ -183,13 +172,71 @@ namespace iEngr.Hookup.Views
                 Console.WriteLine($" ---------------- UcBomMgr.SetBomListDataSource Error occurred: {ex.Message}");
             }
         }
+        //private HKBOM GenerateBOMItemFromObjComos(IComosBaseObject objComos)
+        //{
+        //    if (objComos==null) return null;
+        //    HKBOM hKBOM = new HKBOM();
+        //    hKBOM.No = objComos.Label; ;
+        //    hKBOM.ObjMat = objComos;
+        //    hKBOM.Qty = objComos.spec("Z00T00003.Qty").value;//qry.Cell(i, "Qty").Text;
+        //    hKBOM.Unit = objComos.spec("Z00T00003.Unit").value;
+        //    hKBOM.SupplyDiscipline = objComos.spec("Z00T00003.SD").value;
+        //    hKBOM.SupplyResponsible = objComos.spec("Z00T00003.SR").value;
+        //    hKBOM.ErectionDiscipline = objComos.spec("Z00T00003.ED").value;
+        //    hKBOM.ErectionResponsible = objComos.spec("Z00T00003.ER").value;
+        //    hKBOM.RemarksCn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
+        //    hKBOM.RemarksEn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
+        //    hKBOM.NameCn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
+        //    hKBOM.NameEn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
+        //    return hKBOM;
+        //}
 
         private void btnNewAdd_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            //IComosDProject prj = Workset.GetCurrentProject();
-            //IComosBaseObject cdev = prj.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
-
-            //IComosBaseObject newMat = prj.Workset().CreateDeviceObject(objQueryStart, cdev);
+            HKMatGenLib objItemInMatLib = VmMatList.SelectedMat;
+            if (objItemInMatLib == null || CurrentObject == null || VmBomList.DataSource == null) { return; }
+            int index = 0;
+            string newNo = "0";
+            if (VmBomList.SelectedItem != null) {
+                newNo = VmBomList.SelectedItem.No;
+                index = VmBomList.DataSource.IndexOf(VmBomList.SelectedItem);
+            }
+            //newNo = newNo ?? (VmBomList.DataSource.LastOrDefault()?.No ?? "0");
+            //newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
+            IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
+            IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
+            //updateComosData(newMat,objItemInMatLib);
+            HKBOM newBomItem = new HKBOM(){ObjMat = newMat};
+            newBomItem.SetComosObjectFromData();
+            newBomItem.SetDataFromComosObject();
+            VmBomList.DataSource.Insert(index, newBomItem);
         }
+
+        private void btnUpdate_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            HKMatGenLib objInLib = VmMatList.SelectedMat;
+            if (objInLib == null || VmBomList.SelectedItem == null) { return; }
+            //updateComosData(VmBomList.SelectedItem.ObjMat, objInLib);
+            VmBomList.SelectedItem.SetComosObjectFromData(objInLib);
+        }
+        private void btnDelete_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            foreach(var item in VmBomList.SelectedItems)
+            {
+                item.ObjMat.DeleteAll();
+                VmBomList.DataSource.Remove(item);
+            }
+        }
+        //private void updateComosData(IComosBaseObject objComos, HKMatGenLib objMatInLib)
+        //{
+        //    if (objMatInLib == null || objComos == null) { return; }
+        //    objComos.SetInternationalDescription(4, objMatInLib.NameCn);
+        //    objComos.SetInternationalDescription(2, objMatInLib.NameEn);
+        //    objComos.spec("Z00T00003.Name").SetInternationalValue(4, objMatInLib.NameCn);
+        //    objComos.spec("Z00T00003.Name").SetInternationalValue(2, objMatInLib.NameEn);
+        //    objComos.spec("Z00T00003.Qty").value = "1";
+        //    objComos.spec("Z00T00003.Unit").value = "pcs";
+        //}
+
     }
 }
