@@ -76,7 +76,8 @@ namespace iEngr.Hookup
                 $"inner join HK_LibMatName mn on mgl.NameID = mn.ID " +
                 $"left join HK_LibMatMat mm on mgl.MatMatID = mm.ID " +
                 $"left join HK_LibPN pn on mgl.PClass = pn.ID " +
-                $"{conditions}";
+                $"{conditions} " +
+                $"order by mn.SortNum, mm.SortNum, mgl.TypeP1, mgl.SizeP1, mgl.TypeP2, mgl.SizeP2, mgl.TechSpecMain, mgl.TechSpecAux";
             using (OdbcConnection conn = GetConnection())
             {
                 try
