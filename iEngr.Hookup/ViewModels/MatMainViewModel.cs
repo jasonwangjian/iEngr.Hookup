@@ -18,9 +18,7 @@ namespace iEngr.Hookup.ViewModels
     {
         public MatMainViewModel()
         {
-            HK_General = new HK_General();
         }
-        private HK_General HK_General;
         private MatDataViewModel _vmMatData;
         public MatDataViewModel VmMatData
         {

@@ -30,7 +30,7 @@ namespace iEngr.Hookup.ViewModels
             SetDisciplineSource();
             SetResponsibleSource();
             SetUnitSource();
-            //MatMats = 
+            MatMats = HK_General.dicMatMat.Select(x => x.Value).ToList();
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             AutoComosUpdate = true;
@@ -135,7 +135,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             };
         }
-        public List<GeneralItem> MatMats;
+        public List<HKLibMatMat> MatMats;
         private string _diagramNameCn;
         public string DiagramNameCn
         {

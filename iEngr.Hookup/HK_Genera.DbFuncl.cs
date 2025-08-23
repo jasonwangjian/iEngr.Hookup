@@ -17,13 +17,13 @@ using System.Xml.Linq;
 namespace iEngr.Hookup
 {
 
-    public partial class HK_General
+    public static partial class HK_General
     {
-        public static int intLan = 4; // 4: 中文； 2为英文
+        public static int ProjLanguage = 4; // 4: 中文； 2为英文
         public static string UserName = "Anonymous";
-        public readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
-        public readonly string[] portNA = { "NA", "IS" };
-        internal OdbcConnection GetConnection()
+        public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
+        public static readonly string[] portNA = { "NA", "IS" };
+        internal static OdbcConnection GetConnection()
         {
             try
             {
@@ -43,7 +43,7 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        internal ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
+        internal static ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
         {
             ObservableCollection<MatListItem> result = new ObservableCollection<MatListItem>();
             if (!isForced && conditions == null) return result;
@@ -138,7 +138,7 @@ namespace iEngr.Hookup
                 return result;
             }
         }
-        internal MatListItem UpdateQueryResult(int ID)
+        internal static MatListItem UpdateQueryResult(int ID)
         {
             MatListItem item = new MatListItem();
             // 构建 SQL 查询语句
@@ -232,7 +232,7 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        public int DataUpdate(int ID, string matData)
+        public static int DataUpdate(int ID, string matData)
         {
             if (matData == null || ID == 0) return 0;
             var arrMatData = matData.Split(',').ToArray<string>();
@@ -274,7 +274,7 @@ namespace iEngr.Hookup
                 }
             }
         }
-        internal int DataDelMark(int ID)
+        internal static int DataDelMark(int ID)
         {
             // 构建 SQL 查询语句
             string query = $"UPDATE HK_MatGenLib " +
@@ -298,7 +298,7 @@ namespace iEngr.Hookup
             }
             return 0;
         }
-        internal int DataDel(int ID)
+        internal static int DataDel(int ID)
         {
             // 构建 SQL 查询语句
             string query = $"DELETE FROM HK_MatGenLib WHERE ID = {ID}";
@@ -320,7 +320,7 @@ namespace iEngr.Hookup
             }
             return 0;
         }
-        internal int CountExistingData(string conditions = null)
+        internal static int CountExistingData(string conditions = null)
         {
             string query = $"SELECT  COUNT(*) FROM HK_MatGenLib mgl {conditions}";
             using (OdbcConnection conn = GetConnection())
@@ -341,7 +341,7 @@ namespace iEngr.Hookup
                 }
             }
         }
-        internal int NewDataAdd(string matData, out int newID)
+        internal static int NewDataAdd(string matData, out int newID)
         {
             newID = GetNewID();
             if (matData == null) return 0;
@@ -391,7 +391,7 @@ namespace iEngr.Hookup
                 }
             }
         }
-        private int GetNewID()
+        private static int GetNewID()
         {
             string query = $"SELECT  MAX(ID) FROM HK_MatGenLib";
             using (OdbcConnection conn = GetConnection())
@@ -413,7 +413,7 @@ namespace iEngr.Hookup
             return 0;
         }
 
-        private string getSpecMainAux(string input, int language = 4)
+        private static string getSpecMainAux(string input, int language = 4)
         {
             string result = string.Empty;
             string results = string.Empty;
@@ -468,7 +468,7 @@ namespace iEngr.Hookup
             }
             return results;
         }
-        private string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "", int language = 4)
+        private static string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "", int language = 4)
         {
             string result1 = string.Empty; //Port1
             string result2 = string.Empty; //Port2
@@ -547,7 +547,7 @@ namespace iEngr.Hookup
                 return string.Empty;
             }
         }
-        private string getPipeData(string input, string key = "")
+        private static string getPipeData(string input, string key = "")
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
             if (key == "DN")
@@ -573,7 +573,7 @@ namespace iEngr.Hookup
             else
                 return dicPipeOD[input]?.DN;
         }
-        private string getSteelData(string input, string key = "", int language = 4)
+        private static string getSteelData(string input, string key = "", int language = 4)
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
             if (key == "CSSpec")

@@ -19,7 +19,6 @@ namespace iEngr.Hookup.ViewModels
     {
         public MatListViewModel()
         {
-            HK_General = new HK_General();
             DataSource = new ObservableCollection<MatListItem>();
             SelectedItems = new ObservableCollection<MatListItem>();
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
@@ -31,7 +30,6 @@ namespace iEngr.Hookup.ViewModels
             AutoQueryEnable = true;
             LangInChinese = true;
         }
-        private HK_General HK_General;
         // 确保命令支持刷新
 
         private int _countExistingData;

@@ -78,7 +78,7 @@
   <ItemGroup>
     <Compile Include="Converters\NullToBoolConverter .cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
-    <Compile Include="HK_General.cs" />
+    <Compile Include="HK_Genera.DbFuncl.cs" />
     <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />

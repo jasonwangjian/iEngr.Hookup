@@ -68,19 +68,29 @@
                 <DataGridTextColumn Header="No." Binding="{Binding Path=No}" IsReadOnly="False"/>
                 <DataGridTextColumn x:Name="dcNameCn" Header="名称" Binding="{Binding Path=NameCn}"  
                                     local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn x:Name="dcNameEn" Header="Name" Binding="{Binding Path=NameEn}"  
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}"  
                                     local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="数量" Binding="{Binding Path=Qty}"/>
-                <DataGridComboBoxColumn Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
+                <DataGridTextColumn Header="技术规格" Binding="{Binding Path=SpecAllCn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Technical Specification" Binding="{Binding Path=SpecAllEn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridComboBoxColumn x:Name="dcMatCode" Header="Mat.Code" DisplayMemberPath="Name" SelectedValuePath="ID"
+                                        SelectedValueBinding="{Binding Path=MatMatCode}" />
+                <DataGridTextColumn x:Name="dcQty" Header="数量" Binding="{Binding Path=Qty}"/>
+                <DataGridComboBoxColumn x:Name="dcUnit" Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn Header="供货专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                <DataGridComboBoxColumn x:Name="dcSD" Header="供货专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn Header="供货范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                <DataGridComboBoxColumn x:Name="dcSR" Header="供货范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyResponsible}" />
-                <DataGridComboBoxColumn Header="安装专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                <DataGridComboBoxColumn x:Name="dcED" Header="安装专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
-                <DataGridComboBoxColumn Header="安装范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                <DataGridComboBoxColumn x:Name="dcER" Header="安装范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionResponsible}" />
+                <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

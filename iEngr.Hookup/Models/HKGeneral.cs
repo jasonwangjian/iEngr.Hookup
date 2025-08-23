@@ -19,7 +19,7 @@ namespace iEngr.Hookup.Models
         public string Link { get; set; }
         public string Name
         {
-            get => (HK_General.intLan == 2) ? NameEn : NameCn;
+            get => (HK_General.ProjLanguage == 2) ? NameEn : NameCn;
         }
     }
     public class GeneralItem
@@ -31,7 +31,7 @@ namespace iEngr.Hookup.Models
         public string SpecEn { get; set; }
         public string Name
         {
-            get => (HK_General.intLan == 2) ? NameEn : NameCn;
+            get => (HK_General.ProjLanguage == 2) ? NameEn : NameCn;
         }
     }
 }

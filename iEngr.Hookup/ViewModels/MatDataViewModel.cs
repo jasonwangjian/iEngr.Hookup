@@ -29,7 +29,6 @@ namespace iEngr.Hookup.ViewModels
 
         public MatDataViewModel()
         {
-            HK_General = new HK_General();
             MatCats = GetHKLibMatCats();
             MatCat = MatCats?[0];
             MatMatAll = GetHKLibMatMats();
@@ -39,8 +38,6 @@ namespace iEngr.Hookup.ViewModels
             ResetSpecCommand = new RelayCommand<object>(_ => DataResetSpec());
             ResetMoreCommand = new RelayCommand<object>(_ => DataResetMore());
         }
-
-        private HK_General HK_General;
 
         private HKLibMatCat _mainCat;
         public HKLibMatCat MatCat

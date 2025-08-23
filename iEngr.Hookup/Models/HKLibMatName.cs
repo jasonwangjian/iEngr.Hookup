@@ -22,7 +22,7 @@ namespace iEngr.Hookup.Models
         public string ErecResp { get; set; }
         public string Name
         {
-            get => (HK_General.intLan == 2) ? SpecEn : SpecCn;
+            get => (HK_General.ProjLanguage == 2) ? SpecEn : SpecCn;
         }
     }
 }

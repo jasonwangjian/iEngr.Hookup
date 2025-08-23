@@ -16,7 +16,7 @@ namespace iEngr.Hookup.Models
         public int SortNum { get; set; }
         public string Name
         {
-            get=> (HK_General.intLan == 2)? NameEn:NameCn;
+            get=> (HK_General.ProjLanguage == 2)? NameEn:NameCn;
         }
     }
 }
