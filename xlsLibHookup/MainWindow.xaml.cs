@@ -491,6 +491,7 @@ namespace xlsLibHookup
                         {
                             sqlString = $"UPDATE HK_MatGenLib SET " +
                                 $"CatID='{(result as HKMatGenLib).CatID}'," +
+                                $"NameID='{(result as HKMatGenLib).NameID}'," +
                                 $"TechSpecMain='{(result as HKMatGenLib).TechSpecMain}'," +
                                 $"TechSpecAux='{(result as HKMatGenLib).TechSpecAux}'," +
                                 $"TypeP1='{(result as HKMatGenLib).TypeP1}'," +
@@ -512,11 +513,12 @@ namespace xlsLibHookup
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, TechSpecMain, TechSpecAux, " +
+                            sqlString = $"INSERT INTO HK_MatGenLib (ID, CatID, NameID, TechSpecMain, TechSpecAux, " +
                                 $"TypeP1, SizeP1, TypeP2, SizeP2, MatMatID, PClass, MoreSpecCn, MoreSpecEn, " +
                                 $"AppStd, RemarksCn, RemarksEn, Comments,Status, LastBy, LastOn) VALUES (" +
                                 $"{(result as HKMatGenLib).ID}," +
                                 $"'{(result as HKMatGenLib).CatID}'," +
+                                $"'{(result as HKMatGenLib).NameID}'," +
                                 $"'{(result as HKMatGenLib).TechSpecMain}'," +
                                 $"'{(result as HKMatGenLib).TechSpecAux}'," +
                                 $"'{(result as HKMatGenLib).TypeP1}'," +
@@ -1145,6 +1147,7 @@ namespace xlsLibHookup
                     {
                         ID = Convert.ToInt32(reader["ID"]),
                         CatID = Convert.ToString(reader["CatID"]),
+                        NameID = Convert.ToString(reader["NameID"]),
                         TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
                         TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                         TypeP1 = Convert.ToString(reader["TypeP1"]),
@@ -1158,6 +1161,8 @@ namespace xlsLibHookup
                         AppStd = Convert.ToString(reader["AppStd"]),
                         RemarksCn = Convert.ToString(reader["RemarksCn"]),
                         RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Status = Convert.ToByte(reader["Status"]),
+                        LastBy = Convert.ToString(reader["LastBy"]),
                         Comments = Convert.ToString(reader["Comments"])
                     };
                     data.Add(item);

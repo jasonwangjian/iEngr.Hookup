@@ -16,29 +16,25 @@ namespace iEngr.Hookup.ViewModels
     {
         public void Update(MatListItem newData)
         {
-            //if (ID == newData.ID)
-            //{
-            //    CatID = newData.CatID;
-            //    NameCn = newData.NameCn;
-            //    NameEn = newData.NameEn;
-            //    TechSpecMain = newData.TechSpecMain;
-            //    TechSpecAux = newData.TechSpecAux;
-            //    TypeP1 = newData.TypeP1;
-            //    TypeP2 = newData.TypeP2;
-            //    SizeP1 = newData.SizeP1;
-            //    SizeP2 = newData.SizeP2;
-            //    MatMatID = newData.MatMatID;
-            //    PClass = newData.PClass;
-            //    MoreSpecCn = newData.MoreSpecCn;
-            //    MoreSpecEn = newData.MoreSpecEn;
-            //    RemarksCn = newData.RemarksCn;
-            //    RemarksEn = newData.RemarksEn;
-            //    SpecCombMainCn = newData.SpecCombMainCn;
-            //    SpecCombAuxCn = newData.SpecCombAuxCn;
-            //    SpecCombPort = newData.SpecCombPort;
-            //    SpecMat = newData.SpecMat;
-            //    SpecPClass = newData.SpecPClass;
-            //}
+            NameCn = newData.NameCn;
+            NameEn = newData.NameEn;
+            SpecMainCn = newData.SpecMainCn;
+            SpecMainEn = newData.SpecMainEn;
+            SpecPortCn = newData.SpecPortCn;
+            SpecPortEn = newData.SpecPortEn;
+            SpecAuxCn = newData.SpecAuxCn;
+            SpecAuxEn = newData.SpecAuxCn;
+            SpecMoreCn = newData.SpecMoreCn;
+            SpecMoreEn = newData.SpecMoreEn;
+            MatMatCode = newData.MatMatCode;
+            MatMatCn = newData.MatMatCn;
+            MatMatEn = newData.MatMatEn;
+            //SpecAllCn = newData.SpecAllCn;
+            //SpecAllEn = newData.SpecAllEn;
+            RemarksCn = newData.RemarksCn;
+            RemarksEn = newData.RemarksEn;
+            SpecPClass = newData.SpecPClass;
+            MatLibItem = newData.MatLibItem;
         }
         private string _nameCn;
         public string NameCn
@@ -53,37 +49,55 @@ namespace iEngr.Hookup.ViewModels
             set => SetField(ref _nameEn, value);
         }
         private string _specCombMainCn;
-        public string SpecCombMainCn
+        public string SpecMainCn
         {
             get => _specCombMainCn;
             set => SetField(ref _specCombMainCn, value);
         }
+        private string _specCombMainEn;
+        public string SpecMainEn
+        {
+            get => _specCombMainEn;
+            set => SetField(ref _specCombMainEn, value);
+        }
         private string _specCombAuxCn;
-        public string SpecCombAuxCn
+        public string SpecAuxCn
         {
             get => _specCombAuxCn;
             set => SetField(ref _specCombAuxCn, value);
         }
+        private string _specCombAuxEn;
+        public string SpecAuxEn
+        {
+            get => _specCombAuxEn;
+            set => SetField(ref _specCombAuxEn, value);
+        }
+        private string _matMatCode;
+        public string MatMatCode
+        {
+            get => _matMatCode;
+            set => SetField(ref _matMatCode, value);
+        }
         private string _specMatMatCn;
-        public string SpecMatMatCn
+        public string MatMatCn
         {
             get => _specMatMatCn;
             set => SetField(ref _specMatMatCn, value);
         }
         private string _specMatMatEn;
-        public string SpecMatMatEn
+        public string MatMatEn
         {
             get => _specMatMatEn;
             set => SetField(ref _specMatMatEn, value);
         }
         private string _specCombPortCn;
-        public string SpecCombPortCn
+        public string SpecPortCn
         {
             get => _specCombPortCn;
             set => SetField(ref _specCombPortCn, value);
         }
         private string _specCombPortEn;
-        public string SpecCombPortEn
+        public string SpecPortEn
         {
             get => _specCombPortEn;
             set => SetField(ref _specCombPortEn, value);
@@ -95,16 +109,32 @@ namespace iEngr.Hookup.ViewModels
             set => SetField(ref _specPClass, value);
         }
         private string _MoreSpecCn;
-        public string MoreSpecCn
+        public string SpecMoreCn
         {
             get => _MoreSpecCn;
             set => SetField(ref _MoreSpecCn, value);
         }
         private string _MoreSpecEn;
-        public string MoreSpecEn
+        public string SpecMoreEn
         {
             get => _MoreSpecEn;
             set => SetField(ref _MoreSpecEn, value);
+        }
+        public string SpecAllCn
+        {
+            get => string.Join("; ", new List<string> { SpecMainCn, SpecPortCn, SpecAuxCn, SpecMoreCn}
+                                                 .Where(item => !string.IsNullOrWhiteSpace(item))
+                                                 .Select(item => item.Trim())
+                                                 .ToList());
+            set => OnPropertyChanged();
+        }
+        public string SpecAllEn
+        {
+            get => string.Join("; ", new List<string> { SpecMainEn, SpecPortEn, SpecAuxEn, SpecMoreEn }
+                                                 .Where(item => !string.IsNullOrWhiteSpace(item))
+                                                 .Select(item => item.Trim())
+                                                 .ToList());
+            set => OnPropertyChanged();
         }
         private string _remarksCn;
         public string RemarksCn
@@ -118,7 +148,8 @@ namespace iEngr.Hookup.ViewModels
             get => _remarksEn;
             set => SetField(ref _remarksEn, value);
         }
-        public Models.HKMatGenLib MatLibItem { get; set; }
+        public string AlterCode { get;set; }
+        public HKMatGenLib MatLibItem { get; set; }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

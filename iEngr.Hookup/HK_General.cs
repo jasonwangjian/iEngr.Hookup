@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,33 +7,22 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace iEngr.Hookup
 {
 
     public partial class HK_General
     {
-        public HK_General()
-        {
-            dicSubCatIni();
-            dicPortTypeIni();
-            dicSpecDicIni();
-            dicPipeODIni();
-            dicPNIni();
-            dicSteelIni();
-            dicThreadIni();
-            dicTubeODIni();
-            dicGlandIni();
-            dicGenOptionIni();
-            dicNoLinkSpecIni();
-        }
-        public static int intLan = 0; // 0: 中文； 其它为英文
+        public static int intLan = 4; // 4: 中文； 2为英文
+        public static string UserName = "Anonymous";
         public readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
-        public readonly string[] portNA = { "NA", "IS"};
+        public readonly string[] portNA = { "NA", "IS" };
         internal OdbcConnection GetConnection()
         {
             try
@@ -53,31 +43,39 @@ namespace iEngr.Hookup
                 return null;
             }
         }
-        internal ObservableCollection<HKMatGenLib> UpdateQueryResult(string conditions = null)
+        internal ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
         {
-            ObservableCollection<HKMatGenLib> result = new ObservableCollection<HKMatGenLib>();
-            if (conditions == null) return result;
+            ObservableCollection<MatListItem> result = new ObservableCollection<MatListItem>();
+            if (!isForced && conditions == null) return result;
             string query = $"select " +
                 $"mgl.ID as ID, " +
                 $"mgl.CatID as CatID, " +
-                $"mgl.SubCatID as SubCatID, " +
-                $"sc.SpecCn as NameCn, " +
-                $"sc.SpecEn as NameEn, " +
-                $"sc.TypeP2 as AlterCode, " +
+                $"mgl.NameID as NameID, " +
+                $"mn.SpecCn as NameCn, " +
+                $"mn.SpecEn as NameEn, " +
+                $"mn.TypeP2 as AlterCode, " +
                 $"mgl.TypeP1 as TypeP1, " +
                 $"mgl.TypeP2 as TypeP2, " +
                 $"mgl.SizeP1 as SizeP1, " +
                 $"mgl.SizeP2 as SizeP2, " +
                 $"mgl.PClass as PClass, " +
-                $"mgl.MatSpec as MatSpec, " +
+                $"mgl.MatMatID as MatMatID, " +
                 $"mgl.MoreSpecCn as MoreSpecCn, " +
                 $"mgl.MoreSpecEn as MoreSpecEn, " +
                 $"mgl.RemarksCn as RemarksCn, " +
                 $"mgl.RemarksEn as RemarksEn, " +
                 $"mgl.TechSpecMain as TechSpecMain, " +
-                $"mgl.TechSpecAux as TechSpecAux " +
+                $"mgl.TechSpecAux as TechSpecAux, " +
+                $"mgl.Status as Status, " +
+                $"mgl.MatMatID as MatMatID, " +
+                $"mm.SpecCn as SpecMatMatCn, " +
+                $"mm.SpecEn as SpecMatMatEn, " +
+                $"pn.SpecCn as SpecPN, " +
+                $"mgl.Comments as Comments " +
                 $"from HK_MatGenLib mgl " +
-                $"inner join HK_MatSubCat sc on mgl.SubCatID = sc.ID " +
+                $"inner join HK_LibMatName mn on mgl.NameID = mn.ID " +
+                $"left join HK_LibMatMat mm on mgl.MatMatID = mm.ID " +
+                $"left join HK_LibPN pn on mgl.PClass = pn.ID " +
                 $"{conditions}";
             using (OdbcConnection conn = GetConnection())
             {
@@ -88,70 +86,90 @@ namespace iEngr.Hookup
                     {
                         while (reader.Read())
                         {
-                            HKMatGenLib item = new HKMatGenLib
+                            MatListItem item = new MatListItem
                             {
-                                ID = Convert.ToInt32(reader["ID"]),
-                                CatID = Convert.ToString(reader["CatID"]),
-                                NameID = Convert.ToString(reader["SubCatID"]),
+                                MatLibItem = new HKMatGenLib()
+                                {
+                                    ID = Convert.ToInt32(reader["ID"]),
+                                    CatID = Convert.ToString(reader["CatID"]),
+                                    NameID = Convert.ToString(reader["NameID"]),
+                                    TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
+                                    TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                                    TypeP1 = Convert.ToString(reader["TypeP1"]),
+                                    TypeP2 = Convert.ToString(reader["TypeP2"]),
+                                    SizeP1 = Convert.ToString(reader["SizeP1"]),
+                                    SizeP2 = Convert.ToString(reader["SizeP2"]),
+                                    PClass = Convert.ToString(reader["PClass"]),
+                                    MatMatID = Convert.ToString(reader["MatMatID"]),
+                                    MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
+                                    MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
+                                    RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                    RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                    Status = Convert.ToByte(reader["Status"]),
+                                    Comments = Convert.ToString(reader["Comments"]),
+                                },
+                                AlterCode = Convert.ToString(reader["AlterCode"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
                                 NameEn = Convert.ToString(reader["NameEn"]),
-                                AlterCode = Convert.ToString(reader["AlterCode"]),
-                                TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
-                                TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
-                                TypeP1 = Convert.ToString(reader["TypeP1"]),
-                                TypeP2 = Convert.ToString(reader["TypeP2"]),
-                                SizeP1 = Convert.ToString(reader["SizeP1"]),
-                                SizeP2 = Convert.ToString(reader["SizeP2"]),
-                                PClass = Convert.ToString(reader["PClass"]),
-                                MatMatID = Convert.ToString(reader["MatSpec"]),
-                                MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
-                                MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
+                                SpecMoreCn = Convert.ToString(reader["MoreSpecCn"]),
+                                SpecMoreEn = Convert.ToString(reader["MoreSpecEn"]),
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                MatMatCode = Convert.ToString(reader["MatMatID"]),
+                                MatMatCn = Convert.ToString(reader["SpecMatMatCn"]),
+                                MatMatEn = Convert.ToString(reader["SpecMatMatEn"]),
+                                SpecPClass = Convert.ToString(reader["SpecPN"]),
                             };
-                            item.SpecCombMainCn = getSpecMainAux(item.TechSpecMain);
-                            item.SpecCombAuxCn = getSpecMainAux(item.TechSpecAux);
-                            item.SpecCombPort = getSpecPort(item.TypeP1, item.SizeP1, item.TypeP2, item.SizeP2, item.AlterCode);
-                            item.SpecPClass = dicPN.TryGetValue(item.PClass, out HKLibPN pclass) ? pclass.Spec : string.Empty;
-                            //item.SpecMat = dicMatMat[item.MatSpec].Spec;
+                            item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
+                            item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);
+                            item.SpecPortCn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode,4);
+                            item.SpecMainEn = getSpecMainAux(item.MatLibItem.TechSpecMain, 2);
+                            item.SpecAuxEn = getSpecMainAux(item.MatLibItem.TechSpecAux, 2);
+                            item.SpecPortEn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode,2);
                             result.Add(item);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"HK_General.UpdateQueryResult{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.UpdateQueryResult, Error: {ex.Message}");
                     // 可以选择返回空列表或者其他适当的处理
                 }
-                    return result;
+                return result;
             }
         }
-        internal HKMatGenLib UpdateQueryResult(int ID)
+        internal MatListItem UpdateQueryResult(int ID)
         {
-            HKMatGenLib item = new HKMatGenLib();
+            MatListItem item = new MatListItem();
             // 构建 SQL 查询语句
             string query = $"select " +
                 $"mgl.ID as ID, " +
                 $"mgl.CatID as CatID, " +
-                $"mgl.SubCatID as SubCatID, " +
-                $"sc.SpecCn as NameCn, " +
-                $"sc.SpecEn as NameEn, " +
-                $"sc.TypeP2 as AlterCode, " +
+                $"mgl.NameID as NameID, " +
+                $"mn.SpecCn as NameCn, " +
+                $"mn.SpecEn as NameEn, " +
+                $"mn.TypeP2 as AlterCode, " +
                 $"mgl.TypeP1 as TypeP1, " +
                 $"mgl.TypeP2 as TypeP2, " +
                 $"mgl.SizeP1 as SizeP1, " +
                 $"mgl.SizeP2 as SizeP2, " +
                 $"mgl.PClass as PClass, " +
-                $"mgl.MatSpec as MatSpec, " +
                 $"mgl.MoreSpecCn as MoreSpecCn, " +
                 $"mgl.MoreSpecEn as MoreSpecEn, " +
                 $"mgl.RemarksCn as RemarksCn, " +
                 $"mgl.RemarksEn as RemarksEn, " +
                 $"mgl.TechSpecMain as TechSpecMain, " +
-                $"mgl.TechSpecAux as TechSpecAux " +
+                $"mgl.TechSpecAux as TechSpecAux, " +
+                $"mgl.Status as Status, " +
+                $"mgl.MatMatID as MatMatID, " +
+                $"mm.SpecCn as SpecMatMatCn, " +
+                $"mm.SpecEn as SpecMatMatEn, " +
+                $"pn.SpecCn as SpecPN, " +
+                $"mgl.Comments as Comments " +
                 $"from HK_MatGenLib mgl " +
-                $"inner join HK_MatSubCat sc on mgl.SubCatID = sc.ID " +
+                $"inner join HK_LibMatName mn on mgl.NameID = mn.ID " +
+                $"left join HK_LibMatMat mm on mgl.MatMatID = mm.ID " +
+                $"left join HK_LibPN pn on mgl.PClass = pn.ID " +
                 $"WHERE mgl.ID = {ID}";
             using (OdbcConnection conn = GetConnection())
             {
@@ -162,40 +180,53 @@ namespace iEngr.Hookup
                     {
                         while (reader.Read())
                         {
-                            item = new HKMatGenLib
+                            item = new MatListItem
                             {
-                                ID = Convert.ToInt32(reader["ID"]),
-                                CatID = Convert.ToString(reader["CatID"]),
-                                NameID = Convert.ToString(reader["SubCatID"]),
+                                MatLibItem = new HKMatGenLib()
+                                {
+                                    ID = Convert.ToInt32(reader["ID"]),
+                                    CatID = Convert.ToString(reader["CatID"]),
+                                    NameID = Convert.ToString(reader["NameID"]),
+                                    TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
+                                    TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                                    TypeP1 = Convert.ToString(reader["TypeP1"]),
+                                    TypeP2 = Convert.ToString(reader["TypeP2"]),
+                                    SizeP1 = Convert.ToString(reader["SizeP1"]),
+                                    SizeP2 = Convert.ToString(reader["SizeP2"]),
+                                    PClass = Convert.ToString(reader["PClass"]),
+                                    MatMatID = Convert.ToString(reader["MatMatID"]),
+                                    MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
+                                    MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
+                                    RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                    RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                    Status = Convert.ToByte(reader["Status"]),
+                                    Comments = Convert.ToString(reader["Comments"]),
+                                },
+                                AlterCode = Convert.ToString(reader["AlterCode"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
                                 NameEn = Convert.ToString(reader["NameEn"]),
-                                AlterCode = Convert.ToString(reader["AlterCode"]),
-                                TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
-                                TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
-                                TypeP1 = Convert.ToString(reader["TypeP1"]),
-                                TypeP2 = Convert.ToString(reader["TypeP2"]),
-                                SizeP1 = Convert.ToString(reader["SizeP1"]),
-                                SizeP2 = Convert.ToString(reader["SizeP2"]),
-                                PClass = Convert.ToString(reader["PClass"]),
-                                MatMatID = Convert.ToString(reader["MatSpec"]),
-                                MoreSpecCn = Convert.ToString(reader["MoreSpecCn"]),
-                                MoreSpecEn = Convert.ToString(reader["MoreSpecEn"]),
+                                SpecMoreCn = Convert.ToString(reader["MoreSpecCn"]),
+                                SpecMoreEn = Convert.ToString(reader["MoreSpecEn"]),
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                MatMatCode = Convert.ToString(reader["MatMatID"]),
+                                MatMatCn = Convert.ToString(reader["SpecMatMatCn"]),
+                                MatMatEn = Convert.ToString(reader["SpecMatMatEn"]),
+                                SpecPClass = Convert.ToString(reader["SpecPN"]),
                             };
-                            item.SpecCombMainCn = getSpecMainAux(item.TechSpecMain);
-                            item.SpecCombAuxCn = getSpecMainAux(item.TechSpecAux);
-                            item.SpecCombPort = getSpecPort(item.TypeP1, item.SizeP1, item.TypeP2, item.SizeP2, item.AlterCode);
-                            item.SpecPClass = dicPN.TryGetValue(item.PClass, out HKLibPN pclass) ? pclass.Spec : string.Empty;
-                            //item.SpecMat = dicMatMat[item.MatSpec].Spec;
+                            item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
+                            item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);
+                            item.SpecPortCn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode, 4);
+                            item.SpecMainEn = getSpecMainAux(item.MatLibItem.TechSpecMain, 2);
+                            item.SpecAuxEn = getSpecMainAux(item.MatLibItem.TechSpecAux, 2);
+                            item.SpecPortEn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode, 2);
                         }
                         return item;
                     }
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"HK_General.UpdateQueryResult{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.UpdateQueryResult(ID), Error: {ex.Message}");
                     // 可以选择返回空列表或者其他适当的处理
                 }
                 return null;
@@ -203,16 +234,16 @@ namespace iEngr.Hookup
         }
         public int DataUpdate(int ID, string matData)
         {
-            if (matData == null || ID ==0) return 0;
+            if (matData == null || ID == 0) return 0;
             var arrMatData = matData.Split(',').ToArray<string>();
             using (OdbcConnection conn = GetConnection())
             {
                 try
                 {
-                    // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+                    // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
                     string query = $"UPDATE HK_MatGenLib " +
                                    $"SET CatID='{arrMatData[1].Substring(0, 2)}'," +
-                                   $"SubCatID='{arrMatData[1]}'," +
+                                   $"NameID='{arrMatData[1]}'," +
                                    $"TechSpecMain='{arrMatData[2].Replace('|', ',')}'," +
                                    $"TechSpecAux='{arrMatData[3].Replace('|', ',')}'," +
                                    $"TypeP1='{arrMatData[4]}'," +
@@ -224,8 +255,10 @@ namespace iEngr.Hookup
                                    $"RemarksCn=N'{arrMatData[10]}'," +
                                    $"RemarksEn=N'{arrMatData[11]}'," +
                                    $"PClass='{(arrMatData[2] + "|" + arrMatData[3]).Split('|').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1]}'," +
-                                   $"MatSpec='{arrMatData[13]}'," +
-                                   $"Status=1 " +
+                                   $"MatMatID='{arrMatData[13]}'," +
+                                   $"Status = 1, " +
+                                   $"LastBy='{UserName}'," +
+                                   $"LastOn = '{DateTime.Now.ToString()}' " +
                                    $"WHERE ID = {ID}";
                     // 创建并配置 OdbcCommand 对象
                     using (OdbcCommand command = new OdbcCommand(query, conn))
@@ -236,7 +269,7 @@ namespace iEngr.Hookup
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.DataUpdate, Error: {ex.Message}");
                     return 0;
                 }
             }
@@ -245,7 +278,7 @@ namespace iEngr.Hookup
         {
             // 构建 SQL 查询语句
             string query = $"UPDATE HK_MatGenLib " +
-                           $"SET Status = Status - 1" +
+                           $"SET Status = Status - 1, LastBy = '{UserName}', LastOn = '{DateTime.Now.ToString()}' " +
                            $"WHERE ID = {ID}";
             using (OdbcConnection conn = GetConnection())
             {
@@ -260,8 +293,7 @@ namespace iEngr.Hookup
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"HK_General.DataDelMark{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.DataDelMark, Error: {ex.Message}");
                 }
             }
             return 0;
@@ -283,8 +315,7 @@ namespace iEngr.Hookup
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"HK_General.DataDel{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.DataDel, Error: {ex.Message}");
                 }
             }
             return 0;
@@ -305,8 +336,7 @@ namespace iEngr.Hookup
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(CountExistingData)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.CountExistingData, Error: {ex.Message}");
                     return -1;
                 }
             }
@@ -320,15 +350,15 @@ namespace iEngr.Hookup
             {
                 try
                 {
-                    // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
-                    string query = $"INSERT INTO HK_MatGenLib (ID, CatID, SubCatID, TechSpecMain, TechSpecAux, " +
+                    // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
+                    string query = $"INSERT INTO HK_MatGenLib (ID, CatID, NameID, TechSpecMain, TechSpecAux, " +
                                             $"TypeP1, SizeP1, TypeP2, SizeP2, " +
                                             $"MoreSpecCn, MoreSpecEn, RemarksCn, RemarksEn, " +
-                                            $"PClass, MatSpec, Status) VALUES (" +
+                                            $"PClass, MatMatID, Status, LastBy, LastOn) VALUES (" +
                                             $"{newID}," +
-                                            $"'{arrMatData[1].Substring(0,2)}'," +
+                                            $"'{arrMatData[1].Substring(0, 2)}'," +
                                             $"'{arrMatData[1]}'," +
-                                            $"'{arrMatData[2].Replace('|',',')}'," +
+                                            $"'{arrMatData[2].Replace('|', ',')}'," +
                                             $"'{arrMatData[3].Replace('|', ',')}'," +
                                             $"'{arrMatData[4]}'," +
                                             $"'{arrMatData[5]}'," +
@@ -340,7 +370,9 @@ namespace iEngr.Hookup
                                             $"N'{arrMatData[11]}'," +
                                             $"'{(arrMatData[2] + "|" + arrMatData[3]).Split('|').FirstOrDefault(x => x.StartsWith("PN"))?.Split(':')[1]}'," +
                                             $"'{arrMatData[13]}'," +
-                                            $"1" +
+                                            $"1, " +
+                                            $"'{UserName}'," +
+                                            $"'{DateTime.Now.ToString()}'" +
                                             $")";
                     // 创建并配置 OdbcCommand 对象
                     using (OdbcCommand command = new OdbcCommand(query, conn))
@@ -352,7 +384,8 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.NewDataAdd, Error: {ex.Message}");
+                    //MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
                     // 可以选择返回空列表或者其他适当的处理
                     return 0;
                 }
@@ -374,32 +407,13 @@ namespace iEngr.Hookup
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"HK_General.GetNewID{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.GetNewID, Error: {ex.Message}");
                 }
             }
             return 0;
         }
 
-        private string getConditionExp(List<string> input)
-        {
-            if (input == null || !input.Any())
-                return string.Empty;
-
-            return string.Join(" AND ", input.Where(s => !string.IsNullOrEmpty(s)));
-        }
-        private string getSpecExp(string field, List<string> input)
-        {
-            if (input == null || !input.Any())
-                return string.Empty;
-
-            var conditions = input
-                .Where(s => !string.IsNullOrEmpty(s))
-                .Select(s => $"{field} LIKE '%{s}%'");
-
-            return string.Join(" AND ", conditions);
-        }
-        private string getSpecMainAux(string input)
+        private string getSpecMainAux(string input, int language = 4)
         {
             string result = string.Empty;
             string results = string.Empty;
@@ -418,22 +432,29 @@ namespace iEngr.Hookup
                     {
                         if (dicSpecDic.ContainsKey(name))
                         {
+                            string prefix = dicSpecDic[name].PrefixCn;
+                            string suffix = dicSpecDic[name].SuffixCn;
+                            if (language == 2)
+                            {
+                                prefix = dicSpecDic[name].PrefixEn;
+                                suffix = dicSpecDic[name].SuffixEn;
+                            }
                             if (dicSpecDic[name].Link.StartsWith("LibPipeOD"))
-                                result = $"{dicSpecDic[name].Prefix}{getPipeData(value, dicSpecDic[name].Link.Split(',')[1])}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{getPipeData(value, dicSpecDic[name].Link.Split(',')[1])}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibPN"))
-                                result = $"{dicSpecDic[name].Prefix}{dicPN[value].Spec}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{((language == 2) ? dicPN[value].SpecEn : dicPN[value].SpecCn)}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibGenOption"))
-                                result = $"{dicSpecDic[name].Prefix}{dicGenOption[value].Spec}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{((language == 2) ? dicGenOption[value].SpecEn : dicGenOption[value].SpecCn)}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibGland"))
-                                result = $"{dicSpecDic[name].Prefix}{dicGland[value].Spec}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{((language == 2) ? dicGland[value].SpecEn : dicGland[value].SpecCn)}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibThread"))
-                                result = $"{dicSpecDic[name].Prefix}{dicThread[value].Spec}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{((language == 2) ? dicThread[value].SpecEn : dicThread[value].SpecCn)}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibTubeOD"))
-                                result = $"{dicSpecDic[name].Prefix}{dicTubeOD[value].Spec}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{((language == 2) ? dicTubeOD[value].SpecEn : dicTubeOD[value].SpecCn)}{suffix}";
                             else if (dicSpecDic[name].Link.StartsWith("LibSteel"))
-                                result = $"{dicSpecDic[name].Prefix}{getSteelData(value, dicSpecDic[name].Link.Split(',')[1])}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{getSteelData(value, dicSpecDic[name].Link.Split(',')[1],language)}{suffix}";
                             else
-                                result = $"{dicSpecDic[name].Prefix}{value}{dicSpecDic[name].Suffix}";
+                                result = $"{prefix}{value}{suffix}";
                         }
                     }
                     results = string.IsNullOrEmpty(results) ? result : (string.IsNullOrEmpty(result) ? results : results + ", " + result);
@@ -441,73 +462,87 @@ namespace iEngr.Hookup
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}");
+                Debug.WriteLine($"___HK_General.getSpecMainAux, Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
                 return string.Empty;
             }
             return results;
         }
-        private string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "")
+        private string getSpecPort(string typeP1, string sizeP1, string typeP2, string sizeP2, string alterCode = "", int language = 4)
         {
-            string result1 = string.Empty;
-            string result2 = string.Empty;
+            string result1 = string.Empty; //Port1
+            string result2 = string.Empty; //Port2
             try
             {
                 if (!string.IsNullOrEmpty(typeP1))
                 {
                     if (string.IsNullOrEmpty(sizeP1))
-                        result1 = dicPortType[typeP1].Name;
+                        result1 = (language == 2)?dicPortType[typeP1].NameEn: dicPortType[typeP1].NameCn;
                     else if (dicPortType.ContainsKey(typeP1))
                     {
+                        string prefix = dicPortType[typeP1].PrefixCn;
+                        string suffix = dicPortType[typeP1].SuffixCn;
+                        if (language == 2)
+                        {
+                            prefix = dicPortType[typeP1].PrefixEn;
+                            suffix = dicPortType[typeP1].SuffixEn;
+                        }
                         if (dicPortType[typeP1].Link.StartsWith("LibPipeOD"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{getPipeData(sizeP1, dicPortType[typeP1].Link.Split(',')[1])}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{getPipeData(sizeP1, dicPortType[typeP1].Link.Split(',')[1])}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibPN"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicPN[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP1].SpecEn : dicPN[sizeP1].SpecCn)}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibGenOption"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicGenOption[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicGenOption[sizeP1].SpecEn : dicGenOption[sizeP1].SpecCn)}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibGland"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicGland[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicGland[sizeP1].SpecEn : dicGland[sizeP1].SpecCn)}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibThread"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicThread[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicThread[sizeP1].SpecEn : dicThread[sizeP1].SpecCn)}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibTubeOD"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicTubeOD[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicTubeOD[sizeP1].SpecEn : dicTubeOD[sizeP1].SpecCn)}{suffix}";
                         else if (dicPortType[typeP1].Link.StartsWith("LibSteel"))
-                            result1 = $"{dicPortType[typeP1].Prefix}{getSteelData(sizeP1, dicPortType[typeP1].Link.Split(',')[1])}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{getSteelData(sizeP1, dicPortType[typeP1].Link.Split(',')[1],language)}{suffix}";
                         else
-                            result1 = $"{dicPortType[typeP1].Prefix}{dicPN[sizeP1].Spec}{dicPortType[typeP1].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP1].SpecEn : dicPN[sizeP1].SpecCn)}{suffix}";
                     }
                 }
                 if (!string.IsNullOrEmpty(typeP2))
                 {
                     if (string.IsNullOrEmpty(sizeP2))
-                        result2 = dicPortType[typeP2].Name;
+                        result1 = (language == 2) ? dicPortType[typeP2].NameEn : dicPortType[typeP2].NameCn;
                     else if (dicPortType.ContainsKey(typeP2))
                     {
+                        string prefix = dicPortType[typeP2].PrefixCn;
+                        string suffix = dicPortType[typeP2].SuffixCn;
+                        if (language == 2)
+                        {
+                            prefix = dicPortType[typeP2].PrefixEn;
+                            suffix = dicPortType[typeP2].SuffixEn;
+                        }
                         if (dicPortType[typeP2].Link.StartsWith("LibPipeOD"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{getPipeData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{getPipeData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibPN"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicPN[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibGenOption"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicGenOption[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicGenOption[sizeP2].SpecEn : dicGenOption[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibGland"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicGland[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicGland[sizeP2].SpecEn : dicGland[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibThread"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicThread[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicThread[sizeP2].SpecEn : dicThread[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibTubeOD"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicTubeOD[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicTubeOD[sizeP2].SpecEn : dicTubeOD[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibSteel"))
-                            result2 = $"{dicPortType[typeP2].Prefix}{getSteelData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{getSteelData(sizeP2, dicPortType[typeP2].Link.Split(',')[1], language)}{suffix}";
                         else
-                            result2 = $"{dicPortType[typeP2].Prefix}{dicPN[sizeP2].Spec}{dicPortType[typeP2].Suffix}";
+                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
                     }
                 }
                 if (alterCode == "AS1" || alterCode == "DF1" && result1 == result2)
                     result2 = string.Empty;
-                return string.IsNullOrEmpty(result2) ? result1 : (string.IsNullOrEmpty(result1) ? result2 : result1 + " / " + result2);
+                return string.IsNullOrEmpty(result2) ? result1 : (string.IsNullOrEmpty(result1) ? result2 : result1 + " - " + result2);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}");
+                Debug.WriteLine($"___HK_General.getSpecPort, Error: {ex.Message}");
                 // 可以选择返回空列表或者其他适当的处理
                 return string.Empty;
             }
@@ -538,13 +573,13 @@ namespace iEngr.Hookup
             else
                 return dicPipeOD[input]?.DN;
         }
-        private string getSteelData(string input, string key = "")
+        private string getSteelData(string input, string key = "", int language = 4)
         {
             if (string.IsNullOrEmpty(key)) return string.Empty;
             if (key == "CSSpec")
-                return dicSteel[input]?.CSSpec;
+                return (language == 2) ? dicSteel[input]?.CSSpecEn : dicSteel[input]?.CSSpecCn;
             else if (key == "IBSpec")
-                return dicSteel[input]?.IBSpec;
+                return (language == 2) ? dicSteel[input]?.CSSpecEn : dicSteel[input]?.CSSpecCn;
             else if (key == "CSSpecCN")
                 return dicSteel[input]?.CSSpecCn;
             else if (key == "CSSpecEn")

@@ -13,7 +13,7 @@ using System.Windows;
 
 namespace iEngr.Hookup.Models
 {
-    public class HKBOM : HKMatGenLib
+    public class BomListItem : MatListItem
     {
         public void SetDataFromComosObject() {
             No = ObjMat.Label;
@@ -28,7 +28,7 @@ namespace iEngr.Hookup.Models
             ErectionDiscipline = ObjMat.spec("Z00T00003.ED").value;
             ErectionResponsible = ObjMat.spec("Z00T00003.ER").value;
         }
-        public void SetComosObjectFromData(HKMatGenLib matItem = null)
+        public void SetComosObjectFromData(MatListItem matItem = null)
         {
             ObjMat.Label = No;
             ObjMat.spec("Z00T00003.Qty").value = Qty;

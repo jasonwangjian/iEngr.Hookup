@@ -6,6 +6,7 @@ namespace iEngr.Hookup.Models
     {
         public int ID { get; set; }
         public string CatID { get; set; }
+        public string NameID { get; set; }
         public string TechSpecMain { get; set; }
         public string TechSpecAux { get; set; }
         public string TypeP1 { get; set; }
@@ -20,7 +21,7 @@ namespace iEngr.Hookup.Models
         public string RemarksCn { get; set; }
         public string RemarksEn { get; set; }
         public string Comments { get; set; }
-        public int Status { get; set; }
+        public byte Status { get; set; }
         public string LastBy { get; set; }
         public DateTime LastOn { get; set; }
     }

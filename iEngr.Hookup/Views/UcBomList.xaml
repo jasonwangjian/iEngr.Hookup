@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcBomList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
+    <UserControl.DataContext>
+        <vm:BomListViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- 创建转换器 -->
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <WrapPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="2,5,2,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+            <Label>安装图图名:</Label>
+            <TextBox Margin="2" MaxLength="50" MinWidth="200"
+                 Text="{Binding DiagramNameCn}"></TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Label>Hookup Diagram Name:</Label>
+            <TextBox Margin="2" MaxLength="100" MinWidth="400"
+                 Text="{Binding DiagramNameEn}"></TextBox>
+                </StackPanel>
+        </WrapPanel>
+        <WrapPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" >
+            <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
+            <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
+            <CheckBox  IsChecked="{Binding AutoComosUpdate}">自动更新至COMOS</CheckBox>
+        </WrapPanel>
+
+        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" IsReadOnly="False" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  PreviewKeyDown="dgBOM_PreviewKeyDown"
+                  ItemsSource="{Binding DataSource}" 
+		          SelectedItem="{Binding SelectedItem}"
+                 >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="CellEditEnding">
+                    <i:InvokeCommandAction 
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="No." Binding="{Binding Path=No}" IsReadOnly="False"/>
+                <DataGridTextColumn x:Name="dcNameCn" Header="名称" Binding="{Binding Path=NameCn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn x:Name="dcNameEn" Header="Name" Binding="{Binding Path=NameEn}"  
+                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="数量" Binding="{Binding Path=Qty}"/>
+                <DataGridComboBoxColumn Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
+                <DataGridComboBoxColumn Header="供货专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
+                <DataGridComboBoxColumn Header="供货范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyResponsible}" />
+                <DataGridComboBoxColumn Header="安装专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
+                <DataGridComboBoxColumn Header="安装范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionResponsible}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+

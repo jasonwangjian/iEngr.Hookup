@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcBomMgr"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <local:UcBomList Margin="0,25,0,0" x:Name="ucBL"/>
+            <!--<WrapPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Button Content="刷新" x:Name="btnRefresh" Margin="5" Width="80"/>
+                <Button Content="新增" x:Name="btnNewAdd" Click="btnNewAdd_Click" Margin="5" Width="80"/>
+                <Button Content="更替" x:Name="btnUpdate" Click="btnUpdate_Click" Margin="5" Width="80"/>
+                <Button Content="删除" x:Name="btnDelete" Click="btnDelete_Click" Margin="5" Width="80"/>
+            </WrapPanel>-->
+        </Grid>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Height="3" HorizontalAlignment="Stretch"/>
+        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1"  Grid.ColumnSpan="3"/>
+    </Grid>
+</UserControl>

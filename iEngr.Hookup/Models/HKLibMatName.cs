@@ -2,7 +2,7 @@
 
 namespace iEngr.Hookup.Models
 {
-    public class HKLibMatName// : IIdentifiable
+    public class HKLibMatName: IIdentifiable
     {
         public string ID { get; set; }
         public string CatID { get; set; }
@@ -20,5 +20,9 @@ namespace iEngr.Hookup.Models
         public string SupResp { get; set; }
         public string ErecDisc { get; set; }
         public string ErecResp { get; set; }
+        public string Name
+        {
+            get => (HK_General.intLan == 2) ? SpecEn : SpecCn;
+        }
     }
 }

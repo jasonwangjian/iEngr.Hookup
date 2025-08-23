@@ -20,15 +20,16 @@ namespace iEngr.Hookup.ViewModels
         public MatListViewModel()
         {
             HK_General = new HK_General();
-            MatList = new ObservableCollection<MatListItem>();
-            MatItemsSelected = new ObservableCollection<MatListItem>();
+            DataSource = new ObservableCollection<MatListItem>();
+            SelectedItems = new ObservableCollection<MatListItem>();
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
-            QueryCommand = new RelayCommand<object>(_ => Query(),_ => AutoQueryEnable == false);
+            QueryCommand = new RelayCommand<object>(_ => Query());
             NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0);
-            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedMat != null && CountExistingData == 0);
-            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => MatItemsSelected?.Count > 0);
+            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedItem != null && CountExistingData == 0);
+            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count > 0);
             AutoQueryEnable = true;
+            LangInChinese = true;
         }
         private HK_General HK_General;
         // 确保命令支持刷新
@@ -49,10 +50,51 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        public ObservableCollection<MatListItem> MatItemsSelected;
-        private ObservableCollection<MatListItem> _matList;
-        private MatListItem _selectedMat;
+        public ObservableCollection<MatListItem> SelectedItems;
 
+        private bool _langInChinese;
+        public bool LangInChinese
+        {
+            get => _langInChinese;
+            set
+            {
+                SetField(ref _langInChinese, value);
+                IsSpecSegmentCn = value & IsSpecSegment;
+            }
+        }
+        private bool _langInEnglish;
+        public bool LangInEnglish
+        {
+            get => _langInEnglish;
+            set
+            {
+                SetField(ref _langInEnglish, value);
+                IsSpecSegmentEn = value & IsSpecSegment;
+            }
+        }
+        private bool _specSegment;
+        public bool IsSpecSegment
+        {
+            get => _specSegment;
+            set
+            {
+                SetField(ref _specSegment, value);
+                IsSpecSegmentCn = value & LangInChinese;
+                IsSpecSegmentEn = value & LangInEnglish;
+            }
+        }
+        private bool _specSegmentCn;
+        public bool IsSpecSegmentCn
+        {
+            get => _specSegmentCn;
+            set => SetField(ref _specSegmentCn, value);
+        }
+        private bool _specSegmentEn;
+        public bool IsSpecSegmentEn
+        {
+            get => _specSegmentEn;
+            set => SetField(ref _specSegmentEn, value);
+        }
         private bool _autoQueryEnable;
         public bool AutoQueryEnable
         {
@@ -62,16 +104,18 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _autoQueryEnable, value);
                 if (value)
                 {
-                    MatList = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery));
+                    DataSource = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery));
                 }
             }
         }
-        public ObservableCollection<MatListItem> MatList
+        private ObservableCollection<MatListItem> _matList;
+        public ObservableCollection<MatListItem> DataSource
         {
             get => _matList;
             set => SetField(ref _matList, value);
         }
-        public MatListItem SelectedMat
+        private MatListItem _selectedMat;
+        public MatListItem SelectedItem
         {
             get => _selectedMat;
             set => SetField(ref _selectedMat, value);
@@ -98,7 +142,7 @@ namespace iEngr.Hookup.ViewModels
 
                 if (AutoQueryEnable)
                 {
-                    MatList = HK_General.UpdateQueryResult(getConditionLike(value));
+                    DataSource = HK_General.UpdateQueryResult(getConditionLike(value));
                 }
             }
         }
@@ -110,7 +154,7 @@ namespace iEngr.Hookup.ViewModels
                 switch(value)
                 {
                     case "Query":
-                        MatList = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery));
+                        DataSource = HK_General.UpdateQueryResult(getConditionLike(MatDataToQuery,true ),true);
                         break;
                     case "NewAdd":
                         if (HK_General.CountExistingData(getConditionEqual(MatDataToQuery)) !=0) return;
@@ -118,24 +162,24 @@ namespace iEngr.Hookup.ViewModels
                         {
                             countData = 1;
                             MessageBox.Show($"{countData} 条数据已增加！");
-                            MatList.Add(HK_General.UpdateQueryResult(newID));
+                            DataSource.Add(HK_General.UpdateQueryResult(newID));
                         }
                         break;
                     case "Update":
                         if (HK_General.CountExistingData(getConditionEqual(MatDataToQuery)) != 0) return;
-                        if (HK_General.DataUpdate(SelectedMat.ID, MatDataToQuery) == 1)
+                        if (HK_General.DataUpdate(SelectedItem.MatLibItem.ID, MatDataToQuery) == 1)
                         {
                             countData = 1;
-                            SelectedMat.Update(HK_General.UpdateQueryResult(SelectedMat.ID));
+                            SelectedItem.Update(HK_General.UpdateQueryResult(SelectedItem.MatLibItem.ID));
                             MessageBox.Show($"所选数据已更新！");
                             CountExistingData = 1;
                         }
                         break;
                     case "Delete":
-                        for (int i = MatItemsSelected.Count-1; i>=0; i--)
+                        for (int i = SelectedItems.Count-1; i>=0; i--)
                         {
-                            countData += HK_General.DataDel(MatItemsSelected[i].ID);
-                            MatList.Remove(MatItemsSelected[i]);
+                            countData += HK_General.DataDel(SelectedItems[i].MatLibItem.ID);
+                            DataSource.Remove(SelectedItems[i]);
                         }
                         MessageBox.Show($"{countData} 条数据已删除！");
                         break;
@@ -158,20 +202,20 @@ namespace iEngr.Hookup.ViewModels
         {
             var selectedMat = (e.Source as DataGrid)?.SelectedItem as MatListItem;
             if (selectedMat == null) return;
-            // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
-            MatDataFromQuery = $"{selectedMat.CatID}," +
-                            $"{selectedMat.NameID}," +
-                            $"{selectedMat.TechSpecMain.Replace(',','|')}," +
-                            $"{selectedMat.TechSpecAux.Replace(',', '|')}," +
-                            $"{selectedMat.TypeP1}," +
-                            $"{selectedMat.SizeP1}," +
-                            $"{selectedMat.TypeP2}," +
-                            $"{selectedMat.SizeP2}," +
-                            $"{selectedMat.MoreSpecCn}," +
-                            $"{selectedMat.MoreSpecEn}," +
-                            $"{selectedMat.RemarksCn}," +
-                            $"{selectedMat.RemarksEn}," +
-                            $",{selectedMat.MatMatID},,";
+            // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
+            MatDataFromQuery = $"{selectedMat.MatLibItem.CatID}," +
+                            $"{selectedMat.MatLibItem.NameID}," +
+                            $"{selectedMat.MatLibItem.TechSpecMain.Replace(',','|')}," +
+                            $"{selectedMat.MatLibItem.TechSpecAux.Replace(',', '|')}," +
+                            $"{selectedMat.MatLibItem.TypeP1}," +
+                            $"{selectedMat.MatLibItem.SizeP1}," +
+                            $"{selectedMat.MatLibItem.TypeP2}," +
+                            $"{selectedMat.MatLibItem.SizeP2}," +
+                            $"{selectedMat.MatLibItem.MoreSpecCn}," +
+                            $"{selectedMat.MatLibItem.MoreSpecEn}," +
+                            $"{selectedMat.MatLibItem.RemarksCn}," +
+                            $"{selectedMat.MatLibItem.RemarksEn}," +
+                            $",{selectedMat.MatLibItem.MatMatID},,";
         }
         public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
         private void HandleSelectionChanged(SelectionChangedEventArgs e)
@@ -184,23 +228,23 @@ namespace iEngr.Hookup.ViewModels
                 {
                     matItemsSelected.Add(item as MatListItem);
                 }
-                MatItemsSelected = matItemsSelected;
+                SelectedItems = matItemsSelected;
             }
 
         }
 
-        // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+        // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
 
-        private string getConditionLike(string matData) //大类和小类都不确定时，不予查询
+        private string getConditionLike(string matData, bool isForced = false) //类别和名称都不确定时，不予查询
         {
             if (matData == null) return null;
             var arrMatData = matData.Split(',').ToArray<string>();
             List<string> segs = new List<string>();
-            if (string.IsNullOrEmpty(arrMatData[0]) && string.IsNullOrEmpty(arrMatData[1])) return null;
+            if (string.IsNullOrEmpty(arrMatData[0]) && string.IsNullOrEmpty(arrMatData[1]) && !isForced) return null;
             if (!string.IsNullOrEmpty(arrMatData[0]))
                 segs.Add($"mgl.CatID='{arrMatData[0]}'");
             if (!string.IsNullOrEmpty(arrMatData[1]))
-                segs.Add($"mgl.SubCatID='{arrMatData[1]}'");
+                segs.Add($"mgl.NameID='{arrMatData[1]}'");
             if (!string.IsNullOrEmpty(arrMatData[2]))
                 segs.Add(getSpecConditionLike(arrMatData[2], "mgl.TechSpecMain"));
             if (!string.IsNullOrEmpty(arrMatData[3]))
@@ -228,17 +272,17 @@ namespace iEngr.Hookup.ViewModels
             if (!string.IsNullOrEmpty(arrMatData[11]))
                 segs.Add($"mgl.RemarksEn Like '%{arrMatData[11]}%'");
             if (!string.IsNullOrEmpty(arrMatData[13]))
-                segs.Add($"mgl.MatSpec='{arrMatData[13]}'");
+                segs.Add($"mgl.MatMatID='{arrMatData[13]}'");
             segs.Add($"mgl.Status & {255} > 0");
             return segs.Count>0? $"WHERE {string.Join(" AND ", segs)}":null;
         }
-        private string getConditionEqual(string matData) //大类不确定时，不予查询
+        private string getConditionEqual(string matData) //名称不确定时，不予查询
         {
             if (matData == null) return null;
             var arrMatData = matData.Split(',').ToArray<string>();
             List<string> segs = new List<string>();
             if (string.IsNullOrEmpty(arrMatData[1])) return null;
-            segs.Add($"mgl.SubCatID='{arrMatData[1]}'");
+            segs.Add($"mgl.NameID='{arrMatData[1]}'");
             segs.Add(getSpecConditionEqual(arrMatData[2], "mgl.TechSpecMain"));
             segs.Add(getSpecConditionEqual(arrMatData[3], "mgl.TechSpecAux"));
             segs.Add((!string.IsNullOrEmpty(arrMatData[4])) ? $"mgl.TypeP1='{arrMatData[4]}'" : $"(mgl.TypeP1 = '' OR mgl.TypeP1 IS NULL)");
@@ -249,6 +293,7 @@ namespace iEngr.Hookup.ViewModels
             segs.Add((!string.IsNullOrEmpty(arrMatData[9])) ? $"mgl.MoreSpecEn='{arrMatData[9]}'" : $"(mgl.MoreSpecEn = '' OR mgl.MoreSpecEn IS NULL)");
             segs.Add((!string.IsNullOrEmpty(arrMatData[10])) ? $"mgl.RemarksCn='{arrMatData[10]}'" : $"(mgl.RemarksCn = '' OR mgl.RemarksCn IS NULL)");
             segs.Add((!string.IsNullOrEmpty(arrMatData[11])) ? $"mgl.RemarksEn='{arrMatData[11]}'" : $"(mgl.RemarksEn = '' OR mgl.RemarksEn IS NULL)");
+            segs.Add((!string.IsNullOrEmpty(arrMatData[13])) ? $"mgl.MatMatID='{arrMatData[13]}'" : $"(mgl.MatMatID = '' OR mgl.MatMatID IS NULL)");
             segs.Add($"mgl.Status & {255} > 0");
             return segs.Count > 0 ? $"WHERE {string.Join(" AND ", segs)}" : null;
         }

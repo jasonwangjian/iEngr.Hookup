@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -18,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using iEngr.Hookup.Models;
 
 namespace iEngr.Hookup
 {
@@ -26,9 +28,24 @@ namespace iEngr.Hookup
     /// </summary>
     public partial class HK_General
     {
+        public HK_General()
+        {
+            dicMatNameIni();
+            dicPortTypeIni();
+            dicSpecDicIni();
+            dicPipeODIni();
+            dicPNIni();
+            dicSteelIni();
+            dicThreadIni();
+            dicTubeODIni();
+            dicGlandIni();
+            dicGenOptionIni();
+            dicNoLinkSpecIni();
+            dicMatMatIni();
+        }
         int? nullInt = null;
         decimal? nullDecimal = null;
-        internal Dictionary<string, HKMatSubCat> dicSubCat = new Dictionary<string, HKMatSubCat>();
+        internal Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
         internal Dictionary<string, HKLibPortType> dicPortType = new Dictionary<string, HKLibPortType>();
         internal Dictionary<string, HKLibGenOption> dicGenOption = new Dictionary<string, HKLibGenOption>();
         internal Dictionary<string, HKLibGland> dicGland = new Dictionary<string, HKLibGland>();
@@ -39,10 +56,11 @@ namespace iEngr.Hookup
         internal Dictionary<string, HKLibThread> dicThread = new Dictionary<string, HKLibThread>();
         internal Dictionary<string, HKLibTubeOD> dicTubeOD = new Dictionary<string, HKLibTubeOD>();
         internal Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
-        private void dicSubCatIni()
+        internal Dictionary<string, HKLibMatMat> dicMatMat = new Dictionary<string, HKLibMatMat>();
+        private void dicMatNameIni()
         {
-            dicSubCat.Clear();
-            string query = "select * from HK_MatSubCat order by SortNum";
+            dicMatName.Clear();
+            string query = "select * from HK_LibMatName order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
                 try
@@ -52,7 +70,7 @@ namespace iEngr.Hookup
                     {
                         while (reader.Read())
                         {
-                            dicSubCat.Add(Convert.ToString(reader["ID"]), new HKMatSubCat
+                            dicMatName.Add(Convert.ToString(reader["ID"]), new HKLibMatName
                             {
                                 ID = Convert.ToString(reader["ID"]),
                                 SpecCn = Convert.ToString(reader["SpecCn"]),
@@ -71,7 +89,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSubCatIni)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicMatNameIni)}{Environment.NewLine}Error: {ex.Message}");
                 }
             }
         }
@@ -109,7 +127,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPortTypeIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPortTypeIni, Error: {ex.Message}");
                 }
             }
         }
@@ -145,7 +163,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSpecDicIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicSpecDicIni, Error: {ex.Message}");
                 }
             }
         }
@@ -184,7 +202,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPipeODIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPipeODIni, Error: {ex.Message}");
                 }
             }
         }
@@ -220,7 +238,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPNIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPNIni, Error: {ex.Message}");
                 }
             }
         }
@@ -257,7 +275,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSteelIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicSteelIni, Error: {ex.Message}");
                 }
             }
         }
@@ -293,7 +311,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicThreadIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicThreadIni, Error: {ex.Message}");
                 }
             }
         }
@@ -326,7 +344,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicTubeODIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicTubeODIni, Error: {ex.Message}");
                 }
             }
         }
@@ -360,7 +378,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicGlandIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicGlandIni, Error: {ex.Message}");
                 }
             }
         }
@@ -394,7 +412,7 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicGenOptionIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicGenOptionIni, Error: {ex.Message}");
                 }
             }
         }
@@ -414,6 +432,39 @@ namespace iEngr.Hookup
             for (int i = 0; i < lst.Count; i++)
             {
                 dicNoLinkSpec.Add(lst[i], new ObservableCollection<HKLibGenOption>());
+            }
+        }
+        private void dicMatMatIni()
+        {
+            dicMatMat.Clear();
+            string query = "select * from HK_LibMatMat order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicMatMat.Add(Convert.ToString(reader["ID"]), new HKLibMatMat
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                SpecCn = Convert.ToString(reader["SpecCn"]),
+                                SpecEn = Convert.ToString(reader["SpecEn"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                ActiveCode = Convert.ToString(reader["ActiveCode"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
+                }
             }
         }
     }

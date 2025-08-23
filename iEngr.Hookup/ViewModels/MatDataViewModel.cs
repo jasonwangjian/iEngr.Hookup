@@ -30,8 +30,10 @@ namespace iEngr.Hookup.ViewModels
         public MatDataViewModel()
         {
             HK_General = new HK_General();
-            MainCats = GetHKMatMainCats();
-            MainCat = MainCats?[0];
+            MatCats = GetHKLibMatCats();
+            MatCat = MatCats?[0];
+            MatMatAll = GetHKLibMatMats();
+            MatMat = MatMatAll?[0];
             KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
             ResetAllCommand = new RelayCommand<object>(_ => DataResetAll());
             ResetSpecCommand = new RelayCommand<object>(_ => DataResetSpec());
@@ -39,29 +41,19 @@ namespace iEngr.Hookup.ViewModels
         }
 
         private HK_General HK_General;
-        private HKMatMainCat _mainCat;
-        private HKMatSubCat _subCat;
-        private ObservableCollection<HKMatMainCat> _mainCats;
-        private ObservableCollection<HKMatSubCat> _subCats;
-        public HKMatMainCat MainCat
+
+        private HKLibMatCat _mainCat;
+        public HKLibMatCat MatCat
         {
             get => _mainCat;
             set
             {
                 SetField(ref _mainCat, value);
-                SubCats = GetHKMatSubCats(_mainCat);
+                MatNames = GetHKLibMatNames(_mainCat);
             }
-                //set
-                //{
-                //    if (_mainCat != value)
-                //    {
-                //        _mainCat = value;
-                //        OnPropertyChanged(nameof(MainCat));
-                //        SubCats = GetHKMatSubCats(_mainCat);
-                //    }
-                //}
-            }
-        public HKMatSubCat SubCat
+        }
+        private HKLibMatName _subCat;
+        public HKLibMatName MatName
         {
             get => _subCat;
             set
@@ -73,7 +65,7 @@ namespace iEngr.Hookup.ViewModels
                     AlterCode = value?.TypeP2;
                     if (value?.ID == string.Empty)
                     {
-                        StrTypeAllP1 = GetAllP1StringDistinct(SubCats);
+                        StrTypeAllP1 = GetAllP1StringDistinct(MatNames);
                         //StrTypeAllP2 = GetAllP2StringDistinct(SubCats);
                         StrTypeAllP2 = StrTypeAllP1;
                         StrMainSpecT1All = string.Empty;
@@ -108,28 +100,30 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<HKMatMainCat> MainCats
+        private ObservableCollection<HKLibMatCat> _mainCats;
+        public ObservableCollection<HKLibMatCat> MatCats
         {
             get => _mainCats;
             set => SetField(ref _mainCats, value);
         }
-        public ObservableCollection<HKMatSubCat> SubCats
+        private ObservableCollection<HKLibMatName> _subCats;
+        public ObservableCollection<HKLibMatName> MatNames
         {
             get => _subCats;
             set
             {
-                string _id = SubCat?.ID ?? string.Empty;
+                string _id = MatName?.ID ?? string.Empty;
                 if (SetField(ref _subCats, value))
-                    SubCat = SetCurrSelectedItem(value, _id, 0, SubCat);
+                    MatName = SetCurrSelectedItem(value, _id, 0, MatName);
            }
         }
 
-        private CmbItem _typeP1;
-        private CmbItem _typeP2;
+        private MatDataCmbItem _typeP1;
+        private MatDataCmbItem _typeP2;
         private string _strTypeAllP1;
         private string _strTypeAllP2;
-        private ObservableCollection<CmbItem> _typeAllP1;
-        private ObservableCollection<CmbItem> _typeAllP2;
+        private ObservableCollection<MatDataCmbItem> _typeAllP1;
+        private ObservableCollection<MatDataCmbItem> _typeAllP2;
         public string StrTypeAllP1
         {
             get => _strTypeAllP1;
@@ -154,7 +148,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> TypeAllP1
+        public ObservableCollection<MatDataCmbItem> TypeAllP1
         {
             get => _typeAllP1;
             set
@@ -164,7 +158,7 @@ namespace iEngr.Hookup.ViewModels
                     TypeP1 = SetCurrSelectedItem(value, _id, 0, TypeP1);
             }
         }
-        public ObservableCollection<CmbItem> TypeAllP2
+        public ObservableCollection<MatDataCmbItem> TypeAllP2
         {
             get => _typeAllP2;
             set
@@ -173,45 +167,8 @@ namespace iEngr.Hookup.ViewModels
                 if (SetField(ref _typeAllP2, value))
                     TypeP2 = SetCurrSelectedItem(value, _id, 0, TypeP2);
             }
-            //    set
-            //    {
-            //        if (_typeAllP2 != value)
-            //        {
-            //            string _id = (AlterCode == "AS1") ? TypeP1?.ID ?? string.Empty : TypeP2?.ID ?? string.Empty;
-            //            _typeAllP2 = value;
-            //            OnPropertyChanged(nameof(TypeAllP2));
-            //            TypeP2 = SetCurrSelectedItem(value, _id, 0, TypeP2);
-            //        }
-            //    }
         }
-        public string TypeP1ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (TypeAllP1 != null && TypeAllP1.Count > 0)
-                {
-                    CmbItem _replacement = TypeAllP1.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? TypeAllP1[0];
-                    TypeP1 = _replacement;
-                }
-            }
-        }
-        public string TypeP2ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (TypeAllP2 != null && TypeAllP2.Count > 0)
-                {
-                    CmbItem _replacement = TypeAllP2.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? TypeAllP2[0];
-                    TypeP2 = _replacement;
-                }
-            }
-        }
-
-        public CmbItem TypeP1
+        public MatDataCmbItem TypeP1
         {
             get => _typeP1;
             set
@@ -230,7 +187,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public CmbItem TypeP2
+        public MatDataCmbItem TypeP2
         {
             get => _typeP2;
             set
@@ -245,11 +202,11 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _sizeP1;
-        private CmbItem _sizeP2;
-        private ObservableCollection<CmbItem> _sizeAllP1;
-        private ObservableCollection<CmbItem> _sizeAllP2;
-        public ObservableCollection<CmbItem> SizeAllP1
+        private MatDataCmbItem _sizeP1;
+        private MatDataCmbItem _sizeP2;
+        private ObservableCollection<MatDataCmbItem> _sizeAllP1;
+        private ObservableCollection<MatDataCmbItem> _sizeAllP2;
+        public ObservableCollection<MatDataCmbItem> SizeAllP1
         {
             get => _sizeAllP1;
             set
@@ -259,7 +216,7 @@ namespace iEngr.Hookup.ViewModels
                     SizeP1 = SetCurrSelectedItem(value, _id, 0, SizeP1);
             }
         }
-        public ObservableCollection<CmbItem> SizeAllP2
+        public ObservableCollection<MatDataCmbItem> SizeAllP2
         {
             get => _sizeAllP2;
             set
@@ -268,18 +225,8 @@ namespace iEngr.Hookup.ViewModels
                 if (SetField(ref _sizeAllP2, value))
                     SizeP2 = SetCurrSelectedItem(value, _id, 0, SizeP2);
             }
-            //set
-            //{
-            //    if (_sizeAllP2 != value)
-            //    {
-            //        string _id = (AlterCode == "AS1") ? SizeP1?.ID ?? string.Empty : SizeP2?.ID ?? string.Empty;
-            //        _sizeAllP2 = value;
-            //        OnPropertyChanged();
-            //        SizeP2 = SetCurrSelectedItem(value, _id, 0, SizeP2);
-            //    }
-            //}
         }
-        public CmbItem SizeP1
+        public MatDataCmbItem SizeP1
         {
             get => _sizeP1;
             set
@@ -288,97 +235,19 @@ namespace iEngr.Hookup.ViewModels
                 if (SetField(ref _sizeP1, value)  && AlterCode == "AS1")
                     SizeP2 = SetCurrSelectedItem(SizeAllP2, SizeP1?.ID, 0, SizeP2);
             }
-            //set
-            //{
-            //    if (_sizeP1 != value)
-            //    {
-            //        _sizeP1 = value;
-            //        if (AlterCode == "AS1")
-            //        {
-            //            string _id = SizeP1?.ID ?? string.Empty;
-            //            CmbItem _replacement = SizeAllP2?.FirstOrDefault(x => x.ID == _id);
-            //            _replacement = _replacement ?? SizeAllP2?[0];
-            //            SizeP2 = _replacement;
-            //        }
-            //        OnPropertyChanged(nameof(SizeP1));
-            //    }
-            //}
         }
-        public CmbItem SizeP2
+        public MatDataCmbItem SizeP2
         {
             get => _sizeP2;
             set => SetField(ref _sizeP2, value);
         }
-        public string SizeP1ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (SizeAllP1 != null && SizeAllP1.Count > 0)
-                {
-                    CmbItem _replacement = SizeAllP1.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? SizeAllP1[0];
-                    SizeP1 = _replacement;
-                }
-            }
-        }
-        public string SizeP2ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (SizeAllP2 != null && SizeAllP2.Count > 0)
-                {
-                    CmbItem _replacement = SizeAllP2.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? SizeAllP2[0];
-                    SizeP2 = _replacement;
-                }
-            }
-        }
 
-        private string _noLinkSpecTrigger;
-        public string NoLinkSpecTrigger
-        {
-            get => _noLinkSpecTrigger;
-            set
-            {
-                if (string.IsNullOrEmpty(value) && _noLinkSpecTrigger != value)
-                {
-                    var seg = value.Split('|');
-                    if (!HK_General.dicNoLinkSpec[seg[0]].Any(x=>x.ID == seg[1]))
-                    {
-                        HKLibGenOption newSpec = new HKLibGenOption
-                        {
-                            ID = seg[1],
-                            NameCn = seg[1],
-                            NameEn = seg[1],
-                        };
-                        HK_General.dicNoLinkSpec[seg[0]].Add(newSpec);
-                        var lst = HK_General.dicNoLinkSpec[seg[0]].Select(x => new CmbItem
-                        {
-                            ID = x.ID,
-                            NameCn = x.NameCn,
-                            NameEn = x.NameEn
-                        }).ToList();
-                         new ObservableCollection<CmbItem>(lst);
-                    }
-                    if (SizeAllP2 != null && SizeAllP2.Count > 0)
-                    {
-                        CmbItem _replacement = SizeAllP2.FirstOrDefault(x => x.ID == value);
-                        _replacement = _replacement ?? SizeAllP2[0];
-                        SizeP2 = _replacement;
-                    }
-                }
-            }
-        }
-
-
-        private CmbItem _mainSpecT1;
+        private MatDataCmbItem _mainSpecT1;
         private string _strMainSpecT1All;
-        private ObservableCollection<CmbItem> _mainSpecT1All;
-        private CmbItem _mainSpecV1;
-        private ObservableCollection<CmbItem> _mainSpecV1All;
-        public CmbItem MainSpecT1
+        private ObservableCollection<MatDataCmbItem> _mainSpecT1All;
+        private MatDataCmbItem _mainSpecV1;
+        private ObservableCollection<MatDataCmbItem> _mainSpecV1All;
+        public MatDataCmbItem MainSpecT1
         {
             get => _mainSpecT1;
             set
@@ -404,7 +273,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> MainSpecT1All
+        public ObservableCollection<MatDataCmbItem> MainSpecT1All
         {
             get => _mainSpecT1All;
             set
@@ -414,12 +283,12 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecT1 = SetCurrSelectedItem(value,_id, 0, MainSpecT1);
             }
         }
-        public CmbItem MainSpecV1
+        public MatDataCmbItem MainSpecV1
         {
             get => _mainSpecV1;
             set => SetField(ref _mainSpecV1, value);
         }
-        public ObservableCollection<CmbItem> MainSpecV1All
+        public ObservableCollection<MatDataCmbItem> MainSpecV1All
         {
             get => _mainSpecV1All;
             set
@@ -430,12 +299,12 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _mainSpecT2;
+        private MatDataCmbItem _mainSpecT2;
         private string _strMainSpecT2All;
-        private ObservableCollection<CmbItem> _mainSpecT2All;
-        private CmbItem _mainSpecV2;
-        private ObservableCollection<CmbItem> _mainSpecV2All;
-        public CmbItem MainSpecT2
+        private ObservableCollection<MatDataCmbItem> _mainSpecT2All;
+        private MatDataCmbItem _mainSpecV2;
+        private ObservableCollection<MatDataCmbItem> _mainSpecV2All;
+        public MatDataCmbItem MainSpecT2
         {
             get => _mainSpecT2;
             set
@@ -461,7 +330,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> MainSpecT2All
+        public ObservableCollection<MatDataCmbItem> MainSpecT2All
         {
             get => _mainSpecT2All;
             set
@@ -471,12 +340,12 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecT2 = SetCurrSelectedItem(value, _id, 0, MainSpecT2);
             }
         }
-        public CmbItem MainSpecV2
+        public MatDataCmbItem MainSpecV2
         {
             get => _mainSpecV2;
             set => SetField(ref _mainSpecV2, value);
         }
-        public ObservableCollection<CmbItem> MainSpecV2All
+        public ObservableCollection<MatDataCmbItem> MainSpecV2All
         {
             get => _mainSpecV2All;
             set
@@ -487,12 +356,12 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _mainSpecT3;
+        private MatDataCmbItem _mainSpecT3;
         private string _strMainSpecT3All;
-        private ObservableCollection<CmbItem> _mainSpecT3All;
-        private CmbItem _mainSpecV3;
-        private ObservableCollection<CmbItem> _mainSpecV3All;
-        public CmbItem MainSpecT3
+        private ObservableCollection<MatDataCmbItem> _mainSpecT3All;
+        private MatDataCmbItem _mainSpecV3;
+        private ObservableCollection<MatDataCmbItem> _mainSpecV3All;
+        public MatDataCmbItem MainSpecT3
         {
             get => _mainSpecT3;
             set
@@ -518,7 +387,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> MainSpecT3All
+        public ObservableCollection<MatDataCmbItem> MainSpecT3All
         {
             get => _mainSpecT3All;
             set
@@ -528,12 +397,12 @@ namespace iEngr.Hookup.ViewModels
                     MainSpecT3 = SetCurrSelectedItem(value, _id, 0, MainSpecT3);
             }
         }
-        public CmbItem MainSpecV3
+        public MatDataCmbItem MainSpecV3
         {
             get => _mainSpecV3;
             set => SetField(ref _mainSpecV3, value);
         }
-        public ObservableCollection<CmbItem> MainSpecV3All
+        public ObservableCollection<MatDataCmbItem> MainSpecV3All
         {
             get => _mainSpecV3All;
             set
@@ -544,12 +413,12 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _auxSpecT1;
+        private MatDataCmbItem _auxSpecT1;
         private string _strAuxSpecT1All;
-        private ObservableCollection<CmbItem> _auxSpecT1All;
-        private CmbItem _auxSpecV1;
-        private ObservableCollection<CmbItem> _auxSpecV1All;
-        public CmbItem AuxSpecT1
+        private ObservableCollection<MatDataCmbItem> _auxSpecT1All;
+        private MatDataCmbItem _auxSpecV1;
+        private ObservableCollection<MatDataCmbItem> _auxSpecV1All;
+        public MatDataCmbItem AuxSpecT1
         {
             get => _auxSpecT1;
             set
@@ -575,7 +444,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> AuxSpecT1All
+        public ObservableCollection<MatDataCmbItem> AuxSpecT1All
         {
             get => _auxSpecT1All;
             set
@@ -585,12 +454,12 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecT1 = SetCurrSelectedItem(value, _id, 0, AuxSpecT1);
              }
         }
-        public CmbItem AuxSpecV1
+        public MatDataCmbItem AuxSpecV1
         {
             get => _auxSpecV1;
             set => SetField(ref _auxSpecV1, value);
         }
-        public ObservableCollection<CmbItem> AuxSpecV1All
+        public ObservableCollection<MatDataCmbItem> AuxSpecV1All
         {
             get => _auxSpecV1All;
             set
@@ -601,12 +470,12 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _auxSpecT2;
+        private MatDataCmbItem _auxSpecT2;
         private string _strAuxSpecT2All;
-        private ObservableCollection<CmbItem> _auxSpecT2All;
-        private CmbItem _auxSpecV2;
-        private ObservableCollection<CmbItem> _auxSpecV2All;
-        public CmbItem AuxSpecT2
+        private ObservableCollection<MatDataCmbItem> _auxSpecT2All;
+        private MatDataCmbItem _auxSpecV2;
+        private ObservableCollection<MatDataCmbItem> _auxSpecV2All;
+        public MatDataCmbItem AuxSpecT2
         {
             get => _auxSpecT2;
             set
@@ -632,7 +501,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> AuxSpecT2All
+        public ObservableCollection<MatDataCmbItem> AuxSpecT2All
         {
             get => _auxSpecT2All;
             set
@@ -642,12 +511,12 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecT2 = SetCurrSelectedItem(value, _id, 0, AuxSpecT2);
             }
         }
-        public CmbItem AuxSpecV2
+        public MatDataCmbItem AuxSpecV2
         {
             get => _auxSpecV2;
             set => SetField(ref _auxSpecV2, value);
         }
-        public ObservableCollection<CmbItem> AuxSpecV2All
+        public ObservableCollection<MatDataCmbItem> AuxSpecV2All
         {
             get => _auxSpecV2All;
             set
@@ -658,12 +527,12 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem _auxSpecT3;
+        private MatDataCmbItem _auxSpecT3;
         private string _strAuxSpecT3All;
-        private ObservableCollection<CmbItem> _auxSpecT3All;
-        private CmbItem _auxSpecV3;
-        private ObservableCollection<CmbItem> _auxSpecV3All;
-        public CmbItem AuxSpecT3
+        private ObservableCollection<MatDataCmbItem> _auxSpecT3All;
+        private MatDataCmbItem _auxSpecV3;
+        private ObservableCollection<MatDataCmbItem> _auxSpecV3All;
+        public MatDataCmbItem AuxSpecT3
         {
             get => _auxSpecT3;
             set
@@ -689,7 +558,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public ObservableCollection<CmbItem> AuxSpecT3All
+        public ObservableCollection<MatDataCmbItem> AuxSpecT3All
         {
             get => _auxSpecT3All;
             set
@@ -699,12 +568,12 @@ namespace iEngr.Hookup.ViewModels
                     AuxSpecT3 = SetCurrSelectedItem(value, _id, 0, AuxSpecT3);
             }
         }
-        public CmbItem AuxSpecV3
+        public MatDataCmbItem AuxSpecV3
         {
             get => _auxSpecV3;
             set => SetField(ref _auxSpecV3, value);
         }
-        public ObservableCollection<CmbItem> AuxSpecV3All
+        public ObservableCollection<MatDataCmbItem> AuxSpecV3All
         {
             get => _auxSpecV3All;
             set
@@ -716,35 +585,6 @@ namespace iEngr.Hookup.ViewModels
         }
 
 
-        public string MainSpecT2ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (MainSpecT2All != null && MainSpecT2All.Count > 0)
-                {
-                    CmbItem _replacement = MainSpecT2All.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? MainSpecT2All[0];
-                    MainSpecT2 = _replacement;
-                }
-            }
-        }
-        public string MainSpecV2ID
-        {
-            set
-            {
-                value = value ?? string.Empty;
-                if (MainSpecV2All != null && MainSpecV2All.Count > 0)
-                {
-                    CmbItem _replacement = MainSpecV2All.FirstOrDefault(x => x.ID == value);
-                    _replacement = _replacement ?? MainSpecV2All[0];
-                    MainSpecV2 = _replacement;
-                }
-            }
-        }
-
-
-        private string _matMatAll;
         private string _moreSpecCn;
         private string _moreSpecEn;
         private string _remarksEn;
@@ -752,18 +592,13 @@ namespace iEngr.Hookup.ViewModels
         private string _alterCode;
 
 
-        public string MatMatAll
+        private HKLibMatMat _matMat;
+        public HKLibMatMat MatMat
         {
-            get => _matMatAll;
-            set
-            {
-                if (_matMatAll != value)
-                {
-                    _matMatAll = value;
-                    OnPropertyChanged(nameof(MatMatAll));
-                }
-            }
+            get => _matMat;
+            set => SetField(ref _matMat, value);
         }
+        public ObservableCollection<HKLibMatMat> MatMatAll { get;set; }
         public string MoreSpecCn
         {
             get => _moreSpecCn;
@@ -823,84 +658,85 @@ namespace iEngr.Hookup.ViewModels
         {
             set
             {
-                Debug.WriteLine($"收到Query结果: {value}");
-                // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+                //Debug.WriteLine($"收到Query结果: {value}");
+                // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:MoreSpecCn, 9:MoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
                 var arrMatData = value.Split(',').ToArray<string>();
                 string[] seg;
-                MainCat = SetCurrSelectedItem<HKMatMainCat>(MainCats, arrMatData[0], 0);
-                SubCat = SetCurrSelectedItem<HKMatSubCat>(SubCats, arrMatData[1], 0);
+                MatCat = SetCurrSelectedItem<HKLibMatCat>(MatCats, arrMatData[0], 0);
+                MatName = SetCurrSelectedItem<HKLibMatName>(MatNames, arrMatData[1], 0);
+                MatMat = SetCurrSelectedItem<HKLibMatMat>(MatMatAll, arrMatData[13], 0);
                 var arrMainSpec = arrMatData[2].Split('|').ToArray<string>();
                 if (arrMainSpec.Length > 0 && arrMainSpec[0].Contains(":"))
                 {
-                    MainSpecT1 = SetCurrSelectedItem<CmbItem>(MainSpecT1All, arrMainSpec[0].Split(';')[0], 0);
+                    MainSpecT1 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecT1All, arrMainSpec[0].Split(';')[0], 0);
                     seg = arrMainSpec[0].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(MainSpecV1All, seg[0]);
                     }
-                    MainSpecV1 = SetCurrSelectedItem<CmbItem>(MainSpecV1All, seg[1], 0);
+                    MainSpecV1 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecV1All, seg[1], 0);
                 }
                 if (arrMainSpec.Length > 1 && arrMainSpec[1].Contains(":"))
                 {
-                    MainSpecT2 = SetCurrSelectedItem<CmbItem>(MainSpecT2All, arrMainSpec[0].Split(';')[0], 0);
+                    MainSpecT2 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecT2All, arrMainSpec[0].Split(';')[0], 0);
                     seg = arrMainSpec[1].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(MainSpecV2All, seg[0]);
                     }
-                    MainSpecV2 = SetCurrSelectedItem<CmbItem>(MainSpecV2All, seg[1], 0);
+                    MainSpecV2 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecV2All, seg[1], 0);
                 }
                 if (arrMainSpec.Length > 2 && arrMainSpec[2].Contains(":"))
                 {
-                    MainSpecT3 = SetCurrSelectedItem<CmbItem>(MainSpecT3All, arrMainSpec[0].Split(';')[0], 0);
+                    MainSpecT3 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecT3All, arrMainSpec[0].Split(';')[0], 0);
                     seg = arrMainSpec[2].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(MainSpecV3All, seg[0]);
                     }
-                    MainSpecV3 = SetCurrSelectedItem<CmbItem>(MainSpecV3All, seg[1], 0);
+                    MainSpecV3 = SetCurrSelectedItem<MatDataCmbItem>(MainSpecV3All, seg[1], 0);
                 }
                 var arrAuxSpec = arrMatData[3].Split('|').ToArray<string>();
                 if (arrAuxSpec.Length > 0 && arrAuxSpec[0].Contains(":"))
                 {
-                    AuxSpecT1 = SetCurrSelectedItem<CmbItem>(AuxSpecT1All, arrAuxSpec[0].Split(';')[0], 0);
+                    AuxSpecT1 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecT1All, arrAuxSpec[0].Split(';')[0], 0);
                     seg = arrAuxSpec[0].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(AuxSpecV1All, seg[0]);
                     }
-                    AuxSpecV1 = SetCurrSelectedItem<CmbItem>(AuxSpecV1All, seg[1], 0);
+                    AuxSpecV1 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecV1All, seg[1], 0);
                 }
                 if (arrAuxSpec.Length > 1 && arrAuxSpec[1].Contains(":"))
                 {
-                    AuxSpecT2 = SetCurrSelectedItem<CmbItem>(AuxSpecT2All, arrAuxSpec[0].Split(';')[0], 0);
+                    AuxSpecT2 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecT2All, arrAuxSpec[0].Split(';')[0], 0);
                     seg = arrAuxSpec[1].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(AuxSpecV2All, seg[0]);
                     }
-                    AuxSpecV2 = SetCurrSelectedItem<CmbItem>(AuxSpecV2All, seg[1], 0);
+                    AuxSpecV2 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecV2All, seg[1], 0);
                 }
                 if (arrAuxSpec.Length > 2 && arrAuxSpec[2].Contains(":"))
                 {
-                    AuxSpecT3 = SetCurrSelectedItem<CmbItem>(AuxSpecT3All, arrAuxSpec[0].Split(';')[0], 0);
+                    AuxSpecT3 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecT3All, arrAuxSpec[0].Split(';')[0], 0);
                     seg = arrAuxSpec[2].Split(':');
                     if (HK_General.dicNoLinkSpec.ContainsKey(seg[0]))
                     {
                         SetNoLinkDic(seg[0], seg[1]);
                         SetCmbItems(AuxSpecV3All, seg[0]);
                     }
-                    AuxSpecV3 = SetCurrSelectedItem<CmbItem>(AuxSpecV3All, seg[1], 0);
+                    AuxSpecV3 = SetCurrSelectedItem<MatDataCmbItem>(AuxSpecV3All, seg[1], 0);
                 }
-                TypeP1 = SetCurrSelectedItem<CmbItem>(TypeAllP1, arrMatData[4], 0);
-                SizeP1 = SetCurrSelectedItem<CmbItem>(SizeAllP1, arrMatData[5], 0);
-                TypeP2 = SetCurrSelectedItem<CmbItem>(TypeAllP2, arrMatData[6], 0);
-                SizeP2 = SetCurrSelectedItem<CmbItem>(SizeAllP2, arrMatData[7], 0);
+                TypeP1 = SetCurrSelectedItem<MatDataCmbItem>(TypeAllP1, arrMatData[4], 0);
+                SizeP1 = SetCurrSelectedItem<MatDataCmbItem>(SizeAllP1, arrMatData[5], 0);
+                TypeP2 = SetCurrSelectedItem<MatDataCmbItem>(TypeAllP2, arrMatData[6], 0);
+                SizeP2 = SetCurrSelectedItem<MatDataCmbItem>(SizeAllP2, arrMatData[7], 0);
                 MoreSpecCn = arrMatData[8];
                 MoreSpecEn = arrMatData[9];
                 RemarksCn = arrMatData[10];
@@ -936,8 +772,9 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ResetMoreCommand { get; }
         private void DataResetAll()
         {
-            MainCat = MainCats[0];
-            SubCat = SubCats[0];
+            MatCat = MatCats[0];
+            MatName = MatNames[0];
+            MatMat = MatMatAll?[0];
             MainSpecT1 = null;
             MainSpecT2 = null;
             MainSpecT3 = null;
@@ -961,6 +798,7 @@ namespace iEngr.Hookup.ViewModels
         }
         private void DataResetSpec()
         {
+            MatMat = MatMatAll?[0];
             MainSpecT1 = null;
             MainSpecT2 = null;
             MainSpecT3 = null;
@@ -1001,9 +839,9 @@ namespace iEngr.Hookup.ViewModels
                     //binding?.UpdateSource();
                     bool isValid = true;
                     string value = comboBox.Text?.Trim();
-                    var titleItem = (comboBox.DataContext as CmbItem);
+                    var titleItem = (comboBox.DataContext as MatDataCmbItem);
                     string key = titleItem.ID;
-                    var cmbItems = comboBox.ItemsSource as ObservableCollection<CmbItem>;
+                    var cmbItems = comboBox.ItemsSource as ObservableCollection<MatDataCmbItem>;
                     
                     
                     
@@ -1034,13 +872,13 @@ namespace iEngr.Hookup.ViewModels
             });
         }
 
-        private void SetCmbItems(ObservableCollection<CmbItem> items, string key)
+        private void SetCmbItems(ObservableCollection<MatDataCmbItem> items, string key)
         {
             if (string.IsNullOrWhiteSpace(key) || items == null) return;
             items.Clear();
             foreach (var item in HK_General.dicNoLinkSpec[key])
             {
-                items.Add(new CmbItem
+                items.Add(new MatDataCmbItem
                 {
                     ID = item.ID,
                     NameCn = item.NameCn,
@@ -1049,10 +887,10 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private CmbItem SetCurrSelectedItem(ObservableCollection<CmbItem> sourceCollection,
+        private MatDataCmbItem SetCurrSelectedItem(ObservableCollection<MatDataCmbItem> sourceCollection,
                                           string targetId,
                                           int defIndex = 0,
-                                          CmbItem defaultValue = null)
+                                          MatDataCmbItem defaultValue = null)
         {
             // 验证输入
             if (sourceCollection == null || sourceCollection.Count == 0 || targetId == null)
@@ -1070,10 +908,10 @@ namespace iEngr.Hookup.ViewModels
             else
                 return null;
         }
-        private HKMatSubCat SetCurrSelectedItem(ObservableCollection<HKMatSubCat> sourceCollection,
+        private HKLibMatName SetCurrSelectedItem(ObservableCollection<HKLibMatName> sourceCollection,
                                           string targetId,
                                           int defIndex = 0,
-                                          HKMatSubCat defaultValue = null)
+                                          HKLibMatName defaultValue = null)
         {
             // 验证输入
             if (sourceCollection == null || sourceCollection.Count == 0 || targetId == null)
@@ -1091,10 +929,7 @@ namespace iEngr.Hookup.ViewModels
             else
                 return null;
         }
-        public interface IIdentifiable
-        {
-            string ID { get; }
-        }
+
         
         private T SetCurrSelectedItem<T>(ObservableCollection<T> sourceCollection,
                                         string targetId,
@@ -1117,19 +952,19 @@ namespace iEngr.Hookup.ViewModels
 
             return null;
         }
-        private ObservableCollection<HKMatMainCat> GetHKMatMainCats()
+        private ObservableCollection<HKLibMatCat> GetHKLibMatCats()
         {
-            ObservableCollection<HKMatMainCat> mainCats = new ObservableCollection<HKMatMainCat>
+            ObservableCollection<HKLibMatCat> mainCats = new ObservableCollection<HKLibMatCat>
             {
-                new HKMatMainCat
+                new HKLibMatCat
                 {
                 ID =  string.Empty,
-                NameCn = "所有大类",
-                NameEn = "All Main Categories"
+                NameCn = "所有分类",
+                NameEn = "All Categories"
                 }
             };
             // 构建 SQL 查询语句
-            string query = "select * from HK_MatMainCat order by SortNum ";
+            string query = "select * from HK_LibMatCat order by SortNum ";
             using (OdbcConnection conn = HK_General.GetConnection())
             {
                 try
@@ -1139,7 +974,7 @@ namespace iEngr.Hookup.ViewModels
                     {
                         while (reader.Read())
                         {
-                            HKMatMainCat mainCat = new HKMatMainCat
+                            HKLibMatCat mainCat = new HKLibMatCat
                             {
                                 ID = Convert.ToString(reader["ID"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
@@ -1153,30 +988,30 @@ namespace iEngr.Hookup.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常
-                    MessageBox.Show($"{nameof(MatDataViewModel)}.{nameof(GetHKMatMainCats)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"MatDataViewModel.MatDataViewModel, Error: {ex.Message}");
                 }
                 return mainCats;
             }
         }
-        private ObservableCollection<HKMatSubCat> GetHKMatSubCats(HKMatMainCat mainCat)
+        private ObservableCollection<HKLibMatName> GetHKLibMatNames(HKLibMatCat mainCat)
         {
-            ObservableCollection<HKMatSubCat> subCats = new ObservableCollection<HKMatSubCat>();
+            ObservableCollection<HKLibMatName> subCats = new ObservableCollection<HKLibMatName>();
             if (mainCat != null && string.IsNullOrEmpty(mainCat.ID))
-                subCats = new ObservableCollection<HKMatSubCat>(HK_General.dicSubCat.Select(x => x.Value).ToList());
+                subCats = new ObservableCollection<HKLibMatName>(HK_General.dicMatName.Select(x => x.Value).ToList());
             else if (mainCat != null && !string.IsNullOrEmpty(mainCat.ID))
-                subCats = new ObservableCollection<HKMatSubCat>(HK_General.dicSubCat.Select(x => x.Value).Where(x => x.CatID == mainCat.ID).ToList());
-            subCats.Insert(0, new HKMatSubCat
+                subCats = new ObservableCollection<HKLibMatName>(HK_General.dicMatName.Select(x => x.Value).Where(x => x.CatID == mainCat.ID).ToList());
+            subCats.Insert(0, new HKLibMatName
             {
                 ID = string.Empty,
-                SpecCn = string.IsNullOrEmpty(mainCat.ID) ? "所有小类" : "所有" + mainCat.Name,
-                SpecEn = string.IsNullOrEmpty(mainCat.ID) ? "All Sub Categories" : "All " + mainCat.Name
+                SpecCn = string.IsNullOrEmpty(mainCat.ID) ? "所有材料" : "所有" + mainCat.NameCn,
+                SpecEn = string.IsNullOrEmpty(mainCat.ID) ? "All Materials" : "All " + mainCat.NameEn
             });
             return subCats;
         }
-        private string GetAllP1StringDistinct(ObservableCollection<HKMatSubCat> subCats)
+
+        private string GetAllP1StringDistinct(ObservableCollection<HKLibMatName> subCats)
         {
-            List<string> lst = SubCats.OrderBy(x => x.SortNum)
+            List<string> lst = MatNames.OrderBy(x => x.SortNum)
                            .Select(x => x.TypeP1)
                            .Where(x => !string.IsNullOrWhiteSpace(x))
                            .Select(x => x.Trim())
@@ -1193,9 +1028,9 @@ namespace iEngr.Hookup.ViewModels
                            .ToList();
             return string.Join(",", lst);
         }
-        private string GetAllP2StringDistinct(ObservableCollection<HKMatSubCat> subCats)
+        private string GetAllP2StringDistinct(ObservableCollection<HKLibMatName> subCats)
         {
-            List<string> lst = SubCats.OrderBy(x => x.SortNum)
+            List<string> lst = MatNames.OrderBy(x => x.SortNum)
                            .Select(x => x.TypeP2)
                            .Where(x => !string.IsNullOrWhiteSpace(x))
                            .Select(x => x.Trim())
@@ -1222,9 +1057,9 @@ namespace iEngr.Hookup.ViewModels
                            .Distinct(StringComparer.OrdinalIgnoreCase)
                            .ToList());
         }
-         private ObservableCollection<CmbItem> GetPortType(string input)
+         private ObservableCollection<MatDataCmbItem> GetPortType(string input)
         {
-            List<CmbItem> lst =  HK_General.dicPortType.Select(x => x.Value).Where(x => input.Split(',').Contains(x.ID)).OrderBy(x=>x.SortNum).Select(x=> new CmbItem
+            List<MatDataCmbItem> lst =  HK_General.dicPortType.Select(x => x.Value).Where(x => input.Split(',').Contains(x.ID)).OrderBy(x=>x.SortNum).Select(x=> new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.NameCn,
@@ -1234,9 +1069,9 @@ namespace iEngr.Hookup.ViewModels
                 Link = x.Link,
 
             }).ToList();
-            ObservableCollection<CmbItem> allPortTypes = new ObservableCollection<CmbItem>(lst);
+            ObservableCollection<MatDataCmbItem> allPortTypes = new ObservableCollection<MatDataCmbItem>(lst);
             if (allPortTypes.Count > 0)
-                allPortTypes.Insert(0, new CmbItem
+                allPortTypes.Insert(0, new MatDataCmbItem
                 {
                     ID = string.Empty,
                     NameCn = "选择连接类型",
@@ -1244,9 +1079,20 @@ namespace iEngr.Hookup.ViewModels
                 });
             return allPortTypes;
         }
-        private ObservableCollection<CmbItem> GetSpecTitle(string input)
+        public ObservableCollection<HKLibMatMat> GetHKLibMatMats()
         {
-            List<CmbItem> lst = HK_General.dicSpecDic.Select(x => x.Value).Where(x => input.Split('|').Contains(x.ID)).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            List<HKLibMatMat> allMatMats = HK_General.dicMatMat.Select(x => x.Value).OrderBy(x => x.SortNum).ToList();
+            allMatMats.Insert(0, new HKLibMatMat
+            {
+                ID = string.Empty,
+                NameCn = "选择材料材质",
+                NameEn = "Select Material"
+            });
+            return new ObservableCollection<HKLibMatMat>(allMatMats);
+        }
+        private ObservableCollection<MatDataCmbItem> GetSpecTitle(string input)
+        {
+            List<MatDataCmbItem> lst = HK_General.dicSpecDic.Select(x => x.Value).Where(x => input.Split('|').Contains(x.ID)).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.NameCn,
@@ -1256,12 +1102,12 @@ namespace iEngr.Hookup.ViewModels
                 Link = x.Link,
 
             }).ToList();
-            return new ObservableCollection<CmbItem>(lst);
+            return new ObservableCollection<MatDataCmbItem>(lst);
         }
 
-        private ObservableCollection<CmbItem> GetAllSizeOrSpec(CmbItem title)
+        private ObservableCollection<MatDataCmbItem> GetAllSizeOrSpec(MatDataCmbItem title)
         {
-            List<CmbItem> lst = new List<CmbItem>();
+            List<MatDataCmbItem> lst = new List<MatDataCmbItem>();
             if (title == null || string.IsNullOrEmpty(title.ID)) return null;
             if (title.Class.StartsWith("Link") && !string.IsNullOrEmpty(title.Link.Trim()))
             {
@@ -1298,21 +1144,21 @@ namespace iEngr.Hookup.ViewModels
             }
             else
             {
-                lst = HK_General.dicNoLinkSpec[title.ID].Select(x=> new CmbItem
+                lst = HK_General.dicNoLinkSpec[title.ID].Select(x=> new MatDataCmbItem
                 {
                     ID = x.ID,
                     NameCn= x.NameCn,
                     NameEn= x.NameEn
                 }).ToList();
-                return new ObservableCollection<CmbItem>(lst);
+                return new ObservableCollection<MatDataCmbItem>(lst);
             }
         }
 
 
-        private List<CmbItem> getCmbItemsPipeODAll(Dictionary<string, HKLibPipeOD> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsPipeODAll(Dictionary<string, HKLibPipeOD> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = name == "DN" ? $"DN {x.DN} - NPS {x.NPS}"
@@ -1346,10 +1192,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsTubeODAll(Dictionary<string, HKLibTubeOD> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsTubeODAll(Dictionary<string, HKLibTubeOD> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn =  $"{x.SpecCn}mm D.D.",
@@ -1362,10 +1208,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsThreadAll(Dictionary<string, HKLibThread> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsThreadAll(Dictionary<string, HKLibThread> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.SpecCn,
@@ -1381,10 +1227,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsPNAll(Dictionary<string, HKLibPN> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsPNAll(Dictionary<string, HKLibPN> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.SpecCn,
@@ -1400,10 +1246,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsGlandAll(Dictionary<string, HKLibGland> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsGlandAll(Dictionary<string, HKLibGland> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.SpecCn,
@@ -1417,10 +1263,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsSteelAll(Dictionary<string, HKLibSteel> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsSteelAll(Dictionary<string, HKLibSteel> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = (name == "CSSpec" || name == "CS") ? x.CSSpecCn
@@ -1441,10 +1287,10 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private List<CmbItem> getCmbItemsGenOptionAll(Dictionary<string, HKLibGenOption> dic, string name, string cond)
+        private List<MatDataCmbItem> getCmbItemsGenOptionAll(Dictionary<string, HKLibGenOption> dic, string name, string cond)
         {
             string comp = cond.Split(':')[0];
-            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new CmbItem
+            return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
                 NameCn = x.NameCn,
@@ -1458,7 +1304,7 @@ namespace iEngr.Hookup.ViewModels
                                              : x.ID,
             }).ToList();
         }
-        private ObservableCollection<CmbItem> getSizeOrSpecLinked(List<CmbItem> lst, string cond)
+        private ObservableCollection<MatDataCmbItem> getSizeOrSpecLinked(List<MatDataCmbItem> lst, string cond)
         {
             string[] _segParts = cond.Split(':').Select(item => item.Trim()).ToArray();
             string[] segParts = new string[3] { "", "", "" };
@@ -1479,13 +1325,13 @@ namespace iEngr.Hookup.ViewModels
                 default:
                     break;
             }
-            if (lst.Count > 0) lst.Insert(0, new CmbItem
+            if (lst.Count > 0) lst.Insert(0, new MatDataCmbItem
             {
                 ID = string.Empty,
                 NameCn = "规格或尺寸",
                 NameEn = "Spec.or Size",
             });
-            return new ObservableCollection<CmbItem>(lst);
+            return new ObservableCollection<MatDataCmbItem>(lst);
         }
 
 
@@ -1546,12 +1392,12 @@ namespace iEngr.Hookup.ViewModels
         //}
         private string getMatDataString()
         {
-            if (SubCat == null) return null;
-            // 0:CatID, 1:SubCatID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:NoreSpecCn, 9:NoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatSpec, 14,Status
+            if (MatName == null) return null;
+            // 0:CatID,1:NameID, 2:TechSpecMain, 3:TechSpecAux, 4:TypeP1, 5:SizeP1, 6:TypeP2, 7:SizeP2, 8:NoreSpecCn, 9:NoreSpecEn, 10:RemarksCn, 11: RemarksEn, 12, PClass, 13:MatMatID, 14,Status
             string techSpecMain = getMainSpec();
             string techSpecAux = getAuxSpec();
             string pClass = getPClass($"{techSpecMain}|{techSpecAux}");
-            return $"{MainCat?.ID},{SubCat.ID}," +
+            return $"{MatCat?.ID},{MatName.ID}," +
                    $"{techSpecMain}," +
                    $"{techSpecAux}," +
                    //$"{((TypeAllP1 == null) ? null : string.Join("|", TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList()))}," +
@@ -1565,7 +1411,7 @@ namespace iEngr.Hookup.ViewModels
                    $"{RemarksCn}," +
                    $"{RemarksEn}," +
                    $"{pClass}," +
-                   $"{MatMatAll}," +
+                   $"{MatMat?.ID}," +
                    $"," +
                    $"";
         }

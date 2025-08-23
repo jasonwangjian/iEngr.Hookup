@@ -77,10 +77,38 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\NullToBoolConverter .cs" />
+    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="HK_General.cs" />
+    <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="ViewModels\BomListViewModel.cs" />
+    <Compile Include="ViewModels\BomListItem.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListItem.cs" />
+    <Compile Include="ViewModels\MatListViewModel.cs" />
+    <Compile Include="ViewModels\MatMainViewModel.cs" />
+    <Compile Include="Views\DataGridColumnVisibility.cs" />
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcBomList.xaml.cs">
+      <DependentUpon>UcBomList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcBomMgr.xaml.cs">
+      <DependentUpon>UcBomMgr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcMatData.xaml.cs">
+      <DependentUpon>UcMatData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcMatList.xaml.cs">
+      <DependentUpon>UcMatList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcMatMain.xaml.cs">
+      <DependentUpon>UcMatMain.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\GeneralFun.cs" />
@@ -121,5 +149,31 @@
     </None>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Page Include="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcBomList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcBomMgr.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcMatData.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcMatList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcMatMain.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -12,5 +12,9 @@
         public string GBANSI { get; set; }
         public string ASME { get; set; }
         public int SortNum { get; set; }
+        public string Spec
+        {
+            get => SpecCn;
+        }
     }
 }

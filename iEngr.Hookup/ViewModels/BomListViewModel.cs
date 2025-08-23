@@ -26,13 +26,15 @@ namespace iEngr.Hookup.ViewModels
     {
         public BomListViewModel()
         {
-            DataSource = new ObservableCollection<HKBOM>();
+            DataSource = new ObservableCollection<BomListItem>();
             SetDisciplineSource();
             SetResponsibleSource();
             SetUnitSource();
+            //MatMats = 
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             AutoComosUpdate = true;
+            LangInChinese = true;
         }
         private void SetDisciplineSource()
         {
@@ -133,7 +135,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             };
         }
-        public List<GeneralItem> MatMats = new List<GeneralItem>();
+        public List<GeneralItem> MatMats;
         private string _diagramNameCn;
         public string DiagramNameCn
         {
@@ -156,19 +158,28 @@ namespace iEngr.Hookup.ViewModels
         public bool AutoComosUpdate
         {
             get => _autoComosUpdate;
-            set
-            {
-                SetField(ref _autoComosUpdate, value);
-            }
+            set=> SetField(ref _autoComosUpdate, value);
         }
-        ObservableCollection<HKBOM> _dataSource;
-        public ObservableCollection<HKBOM> DataSource
+        private bool _langInChinese;
+        public bool LangInChinese
+        {
+            get => _langInChinese;
+            set=>SetField(ref _langInChinese, value);
+        }
+        private bool _langInEnglish;
+        public bool LangInEnglish
+        {
+            get => _langInEnglish;
+            set=> SetField(ref _langInEnglish, value);
+        }
+        ObservableCollection<BomListItem> _dataSource;
+        public ObservableCollection<BomListItem> DataSource
         {
             get => _dataSource;
             set => SetField(ref _dataSource, value);
         }
-        private HKBOM _selectedItem;
-        public HKBOM SelectedItem
+        private BomListItem _selectedItem;
+        public BomListItem SelectedItem
         {
             get => _selectedItem;
             set
@@ -178,7 +189,7 @@ namespace iEngr.Hookup.ViewModels
                 
             }
         }
-        public ObservableCollection<HKBOM> SelectedItems { get; set; }
+        public ObservableCollection<BomListItem> SelectedItems { get; set; }
 
 
 
@@ -233,10 +244,10 @@ namespace iEngr.Hookup.ViewModels
             var selectedItems = (e.Source as DataGrid)?.SelectedItems;
             if (selectedItems != null)
             {
-                ObservableCollection<HKBOM> _selectedItems = new ObservableCollection<HKBOM>();
+                ObservableCollection<BomListItem> _selectedItems = new ObservableCollection<BomListItem>();
                 foreach (var item in selectedItems)
                 {
-                    _selectedItems.Add(item as HKBOM);
+                    _selectedItems.Add(item as BomListItem);
                 }
                 SelectedItems = _selectedItems;
             }
