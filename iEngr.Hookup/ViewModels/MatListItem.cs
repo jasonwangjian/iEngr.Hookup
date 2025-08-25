@@ -148,6 +148,54 @@ namespace iEngr.Hookup.ViewModels
             get => _remarksEn;
             set => SetField(ref _remarksEn, value);
         }
+        private string _no;
+        public string No
+        {
+            get => _no;
+            set => SetField(ref _no, value);
+        }
+        private string _id;
+        public string ID
+        {
+            get => _id;
+            set=>SetField(ref _id, value);
+        }
+        private string _qty;
+        public string Qty
+        {
+            get => _qty;
+            set=>SetField(ref _qty, value);
+        }
+        private string _unit;
+        public string Unit
+        {
+            get => _unit;
+            set=>SetField(ref _unit, value);
+        }
+        private string _supplyDiscipline;
+        public string SupplyDiscipline
+        {
+            get => _supplyDiscipline;
+            set => SetField(ref _supplyDiscipline, value);
+        }
+        private string _supplyResponsible;
+        public string SupplyResponsible
+        {
+            get => _supplyResponsible;
+            set=>SetField(ref _supplyResponsible, value);
+        }
+        private string _erectionDiscipline;
+        public string ErectionDiscipline
+        {
+            get => _erectionDiscipline;
+            set=>SetField(ref _erectionDiscipline, value);
+        }
+        private string _erectionResponsible;
+        public string ErectionResponsible
+        {
+            get => _erectionResponsible;
+            set=>SetField(ref _erectionResponsible, value);
+        }
         public string AlterCode { get;set; }
         public HKMatGenLib MatLibItem { get; set; }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

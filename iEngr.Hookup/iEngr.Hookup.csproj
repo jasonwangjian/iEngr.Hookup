@@ -80,6 +80,7 @@
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="HK_Genera.DbFuncl.cs" />
     <Compile Include="HK_General.DicIni.cs" />
+    <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
@@ -90,7 +91,7 @@
     <Compile Include="ViewModels\MatListItem.cs" />
     <Compile Include="ViewModels\MatListViewModel.cs" />
     <Compile Include="ViewModels\MatMainViewModel.cs" />
-    <Compile Include="Views\DataGridColumnVisibility.cs" />
+    <Compile Include="Views\Extensions.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

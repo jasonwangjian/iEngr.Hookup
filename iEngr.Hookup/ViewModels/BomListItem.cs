@@ -15,107 +15,233 @@ namespace iEngr.Hookup.Models
 {
     public class BomListItem : MatListItem
     {
-        public void SetDataFromComosObject() {
-            No = ObjMat.Label;
-            NameCn = ObjMat.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
-            NameEn = ObjMat.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
-            RemarksCn = ObjMat.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
-            RemarksEn = ObjMat.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
-            Qty = ObjMat.spec("Z00T00003.Qty").value;
-            Unit = ObjMat.spec("Z00T00003.Unit").value;
-            SupplyDiscipline = ObjMat.spec("Z00T00003.SD").value;
-            SupplyResponsible = ObjMat.spec("Z00T00003.SR").value;
-            ErectionDiscipline = ObjMat.spec("Z00T00003.ED").value;
-            ErectionResponsible = ObjMat.spec("Z00T00003.ER").value;
-        }
-        public void SetComosObjectFromData(MatListItem matItem = null)
+        public void SetDataFromComosObject()
         {
-            ObjMat.Label = No;
-            ObjMat.spec("Z00T00003.Qty").value = Qty;
-            ObjMat.spec("Z00T00003.Unit").value = Unit;
-            ObjMat.spec("Z00T00003.SD").value = SupplyDiscipline;
-            ObjMat.spec("Z00T00003.SR").value = SupplyResponsible;
-            ObjMat.spec("Z00T00003.ED").value = ErectionDiscipline;
-            ObjMat.spec("Z00T00003.ER").value = ErectionResponsible; if (matItem == null)
-            {
-                ObjMat.SetInternationalDescription(4, NameCn);
-                ObjMat.SetInternationalDescription(2, NameEn);
-                ObjMat.spec("Z00T00003.Name").SetInternationalValue(4, NameCn);
-                ObjMat.spec("Z00T00003.Name").SetInternationalValue(2, NameEn);
-                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(4, RemarksCn);
-                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(2, RemarksEn);
-
-            }
-            else
-            {
-                ObjMat.SetInternationalDescription(4, matItem.NameCn);
-                ObjMat.SetInternationalDescription(2, matItem.NameEn);
-                ObjMat.spec("Z00T00003.Name").SetInternationalValue(4, matItem.NameCn);
-                ObjMat.spec("Z00T00003.Name").SetInternationalValue(2, matItem.NameEn);
-                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(4, matItem.RemarksCn);
-                ObjMat.spec("Z00T00003.Remarks").SetInternationalValue(2, matItem.RemarksEn);
-            }
+            No = ObjMatBomItem.Label;
+            ID = ObjMatBomItem.spec("Z00T00003.ID").value;
+            NameCn = ObjMatBomItem.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
+            NameEn = ObjMatBomItem.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
+            SpecAllCn = ObjMatBomItem.spec("Z00T00003.SpecAll").GetInternationalDisplayValue(4);
+            SpecAllEn = ObjMatBomItem.spec("Z00T00003.SpecAll").GetInternationalDisplayValue(2);
+            RemarksCn = ObjMatBomItem.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
+            RemarksEn = ObjMatBomItem.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
+            MatMatCode = ObjMatBomItem.spec("Z00T00003.Mat").value;
+            Qty = ObjMatBomItem.spec("Z00T00003.Qty").value;
+            Unit = ObjMatBomItem.spec("Z00T00003.Unit").value;
+            SupplyDiscipline = ObjMatBomItem.spec("Z00T00003.SD").value;
+            SupplyResponsible = ObjMatBomItem.spec("Z00T00003.SR").value;
+            ErectionDiscipline = ObjMatBomItem.spec("Z00T00003.ED").value;
+            ErectionResponsible = ObjMatBomItem.spec("Z00T00003.ER").value;
         }
+        public void SetComosObjectFromData()
+        {
+            ObjMatBomItem.Label = No;
+            ObjMatBomItem.spec("Z00T00003.ID").value = ID;
+            ObjMatBomItem.spec("Z00T00003.Qty").value = Qty;
+            ObjMatBomItem.spec("Z00T00003.Unit").value = Unit;
+            ObjMatBomItem.spec("Z00T00003.SD").value = SupplyDiscipline;
+            ObjMatBomItem.spec("Z00T00003.SR").value = SupplyResponsible;
+            ObjMatBomItem.spec("Z00T00003.ED").value = ErectionDiscipline;
+            ObjMatBomItem.spec("Z00T00003.ER").value = ErectionResponsible;
+            ObjMatBomItem.spec("Z00T00003.Mat").value = MatMatCode;
+            ObjMatBomItem.SetInternationalDescription(4, NameCn);
+            ObjMatBomItem.SetInternationalDescription(2, NameEn);
+            ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(4, NameCn);
+            ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(2, NameEn);
+            ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(4, SpecAllCn);
+            ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(2, SpecAllEn);
+            ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, RemarksCn);
+            ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, RemarksEn);
+        }
+        //public void SetComosObjectFromData(MatListItem matItem = null)
+        //{
+        //    ObjMatBomItem.Label = No;
+        //    ObjMatBomItem.spec("Z00T00003.Qty").value = Qty;
+        //    ObjMatBomItem.spec("Z00T00003.Unit").value = Unit;
+        //    ObjMatBomItem.spec("Z00T00003.SD").value = SupplyDiscipline;
+        //    ObjMatBomItem.spec("Z00T00003.SR").value = SupplyResponsible;
+        //    ObjMatBomItem.spec("Z00T00003.ED").value = ErectionDiscipline;
+        //    ObjMatBomItem.spec("Z00T00003.ER").value = ErectionResponsible;
+        //    if (matItem == null)
+        //    {
+        //        ObjMatBomItem.spec("Z00T00003.ID").value = ID;
+        //        ObjMatBomItem.spec("Z00T00003.Mat").value = MatMatCode;
+        //        ObjMatBomItem.SetInternationalDescription(4, NameCn);
+        //        ObjMatBomItem.SetInternationalDescription(2, NameEn);
+        //        ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(4, NameCn);
+        //        ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(2, NameEn);
+        //        ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(4, SpecAllCn);
+        //        ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(2, SpecAllEn);
+        //        ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, RemarksCn);
+        //        ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, RemarksEn);
+
+        //    }
+        //    else
+        //    {
+        //        ObjMatBomItem.spec("Z00T00003.ID").value = (matItem.MatLibItem.ID).ToString("D4");
+        //        ObjMatBomItem.spec("Z00T00003.Mat").value = matItem.MatMatCode;
+        //        ObjMatBomItem.SetInternationalDescription(4, matItem.NameCn);
+        //        ObjMatBomItem.SetInternationalDescription(2, matItem.NameEn);
+        //        ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(4, matItem.NameCn);
+        //        ObjMatBomItem.spec("Z00T00003.Name").SetInternationalValue(2, matItem.NameEn);
+        //        ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(4, matItem.SpecAllCn);
+        //        ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(2, matItem.SpecAllEn);
+        //        ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, matItem.RemarksCn);
+        //        ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, matItem.RemarksEn);
+        //    }
+        //}
+        public void SetBomListItemFromMatListItem()
+        {
+            if (ObjMatListItem == null) { return; }
+            //No = ObjMatListItem.No;
+            ID = ObjMatListItem.ID;
+            NameCn = ObjMatListItem.NameCn;
+            NameEn = ObjMatListItem.NameEn;
+            SpecAllCn = ObjMatListItem.SpecAllCn;
+            SpecAllEn = ObjMatListItem.SpecAllEn;
+            //SpecMainCn = ObjMatListItem.SpecMainCn;
+            //SpecMainEn = ObjMatListItem.SpecMainEn;
+            //SpecPortCn = ObjMatListItem.SpecPortCn;
+            //SpecPortEn = ObjMatListItem.SpecPortEn;
+            //SpecAuxCn = ObjMatListItem.SpecAuxCn;
+            //SpecAuxEn = ObjMatListItem.SpecAuxEn;
+            //SpecMoreCn = ObjMatListItem.SpecMoreCn;
+            //SpecMoreEn = ObjMatListItem.SpecMoreEn;
+            RemarksCn = ObjMatListItem.RemarksCn;
+            RemarksEn = ObjMatListItem.RemarksEn;
+            MatMatCode = ObjMatListItem.MatMatCode;
+            Qty = ObjMatListItem.Qty;
+            Unit = ObjMatListItem.Unit;
+            SupplyDiscipline = ObjMatListItem.SupplyDiscipline;
+            SupplyResponsible = ObjMatListItem.SupplyResponsible;
+            ErectionDiscipline = ObjMatListItem.ErectionDiscipline;
+            ErectionResponsible = ObjMatListItem.ErectionResponsible;
+        }
+        public bool AutoComosUpdate { get; set; }
         private string _no;
-        public string No
+        public new string No
         {
             get => _no;
-            set => SetField(ref _no, value);
+            set// => SetField(ref _no, value);
+            {
+                if (SetField(ref _no, value) && AutoComosUpdate)
+                    ObjMatBomItem.Label = value;
+            }
+        }
+        private string _id;
+        public new string ID
+        {
+            get => _id;
+            set
+            {
+                if (SetField(ref _id, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.ID").value = value;
+            }
         }
         private string _qty;
-        public string Qty
+        public new string Qty
         {
             get => _qty;
-            set => SetField(ref _qty, value);
+            set
+            {
+                if (SetField(ref _qty, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.Qty").value = value;
+            }
         }
         private string _unit;
-        public string Unit
+        public new string Unit
         {
             get => _unit;
-            set => SetField(ref _unit, value);
+            set
+            {
+                if (SetField(ref _unit, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.Unit").value = value;
+            }
         }
         private string _supplyDiscipline;
-        public string SupplyDiscipline
+        public new string SupplyDiscipline
         {
             get => _supplyDiscipline;
             set
             {
-                if (SetField(ref _supplyDiscipline, value))
-                {
-                }
-
+                if (SetField(ref _supplyDiscipline, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.SD").value = value;
             }
-       }
+        }
         private string _supplyResponsible;
-        public string SupplyResponsible
+        public new string SupplyResponsible
         {
             get => _supplyResponsible;
-            set => SetField(ref _supplyResponsible, value);
+            set
+            {
+                if (SetField(ref _supplyResponsible, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.SR").value = value;
+            }
         }
         private string _erectionDiscipline;
-        public string ErectionDiscipline
+        public new string ErectionDiscipline
         {
             get => _erectionDiscipline;
-            set => SetField(ref _erectionDiscipline, value);
+            set
+            {
+                if (SetField(ref _erectionDiscipline, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.ED").value = value;
+            }
         }
         private string _erectionResponsible;
-        public string ErectionResponsible
+        public new string ErectionResponsible
         {
             get => _erectionResponsible;
-            set => SetField(ref _erectionResponsible, value);
+            set
+            {
+                if (SetField(ref _erectionResponsible, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.ER").value = value;
+            }
         }
+        private string _remarksCn;
+        public new string RemarksCn
+        {
+            get => _remarksCn;
+            set
+            {
+                if (SetField(ref _remarksCn, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, value);
+            }
+        }
+        private string _remarksEn;
+        public new string RemarksEn
+        {
+            get => _remarksEn;
+            set
+            {
+                if (SetField(ref _remarksEn, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, value);
+            }
+        }
+        private string _specAllCn;
+        public new string SpecAllCn
+        {
+            get => _specAllCn;
+            set => SetField(ref _specAllCn, value);
+        }
+        private string _specAllEn;
+        public new string SpecAllEn
+        {
+            get => _specAllEn;
+            set => SetField(ref _specAllEn, value);
+        }
+
         IComosBaseObject _objMat;
-        public IComosBaseObject ObjMat
+        public IComosBaseObject ObjMatBomItem
         {
             get => _objMat;
             set => SetField(ref _objMat, value);
         }
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        MatListItem _objMatListItem;
+        public MatListItem ObjMatListItem
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
+            get => _objMatListItem;
+            set => SetField(ref _objMatListItem, value);
         }
     }
 }

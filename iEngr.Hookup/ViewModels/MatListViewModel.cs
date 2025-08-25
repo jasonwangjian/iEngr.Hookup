@@ -184,17 +184,6 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-        // INotifyPropertyChanged 实现
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         public RelayCommand<MouseButtonEventArgs> MouseDoubleClickCommand { get; }
         private void HandleMouseDoubleClick(MouseButtonEventArgs e)
         {

@@ -45,12 +45,19 @@
             <CheckBox  IsChecked="{Binding AutoComosUpdate}">自动更新至COMOS</CheckBox>
         </WrapPanel>
 
-        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" IsReadOnly="False" 
+        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
                   ItemsSource="{Binding DataSource}" 
 		          SelectedItem="{Binding SelectedItem}"
                  >
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
+                    <Separator/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="CellEditEnding">
                     <i:InvokeCommandAction 
@@ -66,33 +73,39 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="No." Binding="{Binding Path=No}" IsReadOnly="False"/>
-                <DataGridTextColumn x:Name="dcNameCn" Header="名称" Binding="{Binding Path=NameCn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="技术规格" Binding="{Binding Path=SpecAllCn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="Technical Specification" Binding="{Binding Path=SpecAllEn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="名称" Binding="{Binding Path=NameCn}" IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}" IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="技术规格" Binding="{Binding Path=SpecAllCn}"   IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Technical Specification" Binding="{Binding Path=SpecAllEn}"   IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridComboBoxColumn x:Name="dcMatCode" Header="Mat.Code" DisplayMemberPath="Name" SelectedValuePath="ID"
-                                        SelectedValueBinding="{Binding Path=MatMatCode}" />
+                                        SelectedValueBinding="{Binding Path=MatMatCode}" IsReadOnly="True"/>
                 <DataGridTextColumn x:Name="dcQty" Header="数量" Binding="{Binding Path=Qty}"/>
                 <DataGridComboBoxColumn x:Name="dcUnit" Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
-                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn x:Name="dcSD" Header="供货专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
-                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
-                <DataGridComboBoxColumn x:Name="dcSR" Header="供货范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=Unit}" />
+                <DataGridComboBoxColumn x:Name="dcSR" Header="供货" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyResponsible}" />
-                <DataGridComboBoxColumn x:Name="dcED" Header="安装专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
-                                        SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
-                <DataGridComboBoxColumn x:Name="dcER" Header="安装范围" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                <DataGridComboBoxColumn x:Name="dcSD" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
+                <DataGridComboBoxColumn x:Name="dcER" Header="安装" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionResponsible}" />
+                <DataGridComboBoxColumn x:Name="dcED" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
                 <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
+        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="⇞" Command="{Binding MoveToFirstCommand}"  Margin="5" Width="24"/>
+            <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="5" Width="24"/>
+            <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
+            <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
+        </WrapPanel>
     </Grid>
 </UserControl>
 

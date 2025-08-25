@@ -53,41 +53,41 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=MatLibItem.ID}" />
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" />
                 <DataGridTextColumn x:Name="dcNameCn" Header="材料名称" Binding="{Binding Path=NameCn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcNameEn" Header="Name" Binding="{Binding Path=NameEn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecMainCn" Header="主参数" Binding="{Binding Path=SpecMainCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecMainEn" Header="Main Spec." Binding="{Binding Path=SpecMainEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecPortCn" Header="端口" Binding="{Binding Path=SpecPortCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecPortEn" Header="Port Spec." Binding="{Binding Path=SpecPortEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecAuxCn" Header="副参数" Binding="{Binding Path=SpecAuxCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecAuxEn" Header="Aux.Spec." Binding="{Binding Path=SpecAuxEn}"  
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecMoreCn" Header="更多参数" Binding="{Binding Path=SpecMoreCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentCn, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcSpecMoreEn" Header="More Data" Binding="{Binding Path=SpecMoreEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.IsSpecSegmentEn, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn x:Name="dcSpecAllCn" Header="组合规格描述" Binding="{Binding Path=SpecAllCn}"   
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn x:Name="dcSpecAllEn" Header="Combined Spec." Binding="{Binding Path=SpecAllEn}"   
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Mat.Code." Binding="{Binding Path=MatMatCode}" />
                 <DataGridTextColumn x:Name="dcMatMatCn" Header="材质." Binding="{Binding Path=MatMatCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcMatMatEn" Header="Mat.Mat." Binding="{Binding Path=MatMatEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="PN/CL" Binding="{Binding Path=SpecPClass}" />
-                <DataGridTextColumn x:Name="dcSpecAllCn" Header="组合规格描述" Binding="{Binding Path=SpecAllCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn x:Name="dcSpecAllEn" Header="Combined Spec." Binding="{Binding Path=SpecAllEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcRemCn" Header="备注" Binding="{Binding Path=RemarksCn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn x:Name="dcRemEn" Header="Remarks" Binding="{Binding Path=RemarksEn}"   
-                                    local:DataGridColumnVisibility.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
         <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,5">

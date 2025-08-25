@@ -6,6 +6,7 @@ using Plt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -36,23 +37,28 @@ namespace iEngr.Hookup.Views
         }
         private void DataGridComboBoxColumnBindingIni()
         {
-            var columnsDiscipline = dgBOM.Columns.OfType<DataGridComboBoxColumn>()
-                                                .Where(c => c.Header.ToString().Contains("专业"));
-            foreach (DataGridComboBoxColumn column in columnsDiscipline)
-            {
-                var binding = new Binding("Disciplines");
-                binding.Source = DataContext;
-                BindingOperations.SetBinding(column, DataGridComboBoxColumn.ItemsSourceProperty, binding);
-            }
-            var columnsResponsible = dgBOM.Columns.OfType<DataGridComboBoxColumn>()
-                                                .Where(c => c.Header.ToString().Contains("范围"));
-            foreach (DataGridComboBoxColumn column in columnsResponsible)
-            {
-                var binding = new Binding("Responsibles");
-                binding.Source = DataContext;
-                BindingOperations.SetBinding(column, DataGridComboBoxColumn.ItemsSourceProperty, binding);
-            }
-
+            //var columnsDiscipline = dgBOM.Columns.OfType<DataGridComboBoxColumn>()
+            //                                    .Where(c => c.Header.ToString().Contains("专业"));
+            //foreach (DataGridComboBoxColumn column in columnsDiscipline)
+            //{
+            //    var binding = new Binding("Disciplines");
+            //    binding.Source = DataContext;
+            //    BindingOperations.SetBinding(column, DataGridComboBoxColumn.ItemsSourceProperty, binding);
+            //}
+            //var columnsResponsible = dgBOM.Columns.OfType<DataGridComboBoxColumn>()
+            //                                    .Where(c => c.Header.ToString().Contains("范围"));
+            //foreach (DataGridComboBoxColumn column in columnsResponsible)
+            //{
+            //    var binding = new Binding("Responsibles");
+            //    binding.Source = DataContext;
+            //    BindingOperations.SetBinding(column, DataGridComboBoxColumn.ItemsSourceProperty, binding);
+            //}
+            BindingOperations.SetBinding(dcUnit, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("Units") { Source = DataContext });
+            BindingOperations.SetBinding(dcSR, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("Responsibles") { Source = DataContext });
+            BindingOperations.SetBinding(dcSD, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("Disciplines") { Source = DataContext });
+            BindingOperations.SetBinding(dcER, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("Responsibles") { Source = DataContext });
+            BindingOperations.SetBinding(dcED, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("Disciplines") { Source = DataContext });
+            BindingOperations.SetBinding(dcMatCode, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("MatMats") { Source = DataContext });
         }
 
         // 禁止回车换行的事件处理
@@ -69,6 +75,15 @@ namespace iEngr.Hookup.Views
             //    //    dataGrid.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             //    //}
             //}
+        }
+
+        private void ClearAllSorting_click(object sender, RoutedEventArgs e)
+        {
+            foreach (var column in dgBOM.Columns)
+            {
+                column.SortDirection = null;
+            }
+            dgBOM.Items.SortDescriptions.Clear();
         }
     }
 }

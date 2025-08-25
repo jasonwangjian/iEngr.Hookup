@@ -66,6 +66,12 @@ namespace iEngr.Hookup
                                 TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                                 CatID = Convert.ToString(reader["CatID"]),
                                 Remarks = Convert.ToString(reader["Remarks"]),
+                                Qty = Convert.ToString(reader["Qty"]),
+                                Unit = Convert.ToString(reader["CatID"]),
+                                SupDisc = Convert.ToString(reader["SupDisc"]),
+                                SupResp = Convert.ToString(reader["SupResp"]),
+                                ErecDisc = Convert.ToString(reader["ErecDisc"]),
+                                ErecResp = Convert.ToString(reader["ErecResp"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"])
                             });
                         }

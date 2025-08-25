@@ -20,6 +20,7 @@ namespace iEngr.Hookup
     public static partial class HK_General
     {
         public static int ProjLanguage = 4; // 4: 中文； 2为英文
+        public static bool IsAutoComosUpdate = true;
         public static string UserName = "Anonymous";
         public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         public static readonly string[] portNA = { "NA", "IS" };
@@ -54,6 +55,12 @@ namespace iEngr.Hookup
                 $"mn.SpecCn as NameCn, " +
                 $"mn.SpecEn as NameEn, " +
                 $"mn.TypeP2 as AlterCode, " +
+                $"mn.Qty as Qty, " +
+                $"mn.Unit as Unit, " +
+                $"mn.SupDisc as SupplyDiscipline, " +
+                $"mn.SupResp as SupplyResponsible, " +
+                $"mn.ErecDisc as ErectionDiscipline, " +
+                $"mn.ErecResp as ErectionResponsible, " +
                 $"mgl.TypeP1 as TypeP1, " +
                 $"mgl.TypeP2 as TypeP2, " +
                 $"mgl.SizeP1 as SizeP1, " +
@@ -120,6 +127,13 @@ namespace iEngr.Hookup
                                 MatMatCn = Convert.ToString(reader["SpecMatMatCn"]),
                                 MatMatEn = Convert.ToString(reader["SpecMatMatEn"]),
                                 SpecPClass = Convert.ToString(reader["SpecPN"]),
+                                Qty = Convert.ToString(reader["Qty"]),
+                                Unit = Convert.ToString(reader["Unit"]),
+                                SupplyDiscipline= Convert.ToString(reader["SupplyDiscipline"]),
+                                SupplyResponsible= Convert.ToString(reader["SupplyResponsible"]),
+                                ErectionDiscipline= Convert.ToString(reader["ErectionDiscipline"]),
+                                ErectionResponsible= Convert.ToString(reader["ErectionResponsible"]),
+                                ID = Convert.ToInt32(reader["ID"]).ToString("D4"),
                             };
                             item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
                             item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);
@@ -150,6 +164,12 @@ namespace iEngr.Hookup
                 $"mn.SpecCn as NameCn, " +
                 $"mn.SpecEn as NameEn, " +
                 $"mn.TypeP2 as AlterCode, " +
+                $"mn.Qty as Qty, " +
+                $"mn.Unit as Unit, " +
+                $"mn.SupDisc as SupplyDiscipline, " +
+                $"mn.SupResp as SupplyResponsible, " +
+                $"mn.ErecDisc as ErectionDiscipline, " +
+                $"mn.ErecResp as ErectionResponsible, " +
                 $"mgl.TypeP1 as TypeP1, " +
                 $"mgl.TypeP2 as TypeP2, " +
                 $"mgl.SizeP1 as SizeP1, " +
@@ -214,6 +234,13 @@ namespace iEngr.Hookup
                                 MatMatCn = Convert.ToString(reader["SpecMatMatCn"]),
                                 MatMatEn = Convert.ToString(reader["SpecMatMatEn"]),
                                 SpecPClass = Convert.ToString(reader["SpecPN"]),
+                                Qty = Convert.ToString(reader["Qty"]),
+                                Unit = Convert.ToString(reader["Unit"]),
+                                SupplyDiscipline = Convert.ToString(reader["SupplyDiscipline"]),
+                                SupplyResponsible = Convert.ToString(reader["SupplyResponsible"]),
+                                ErectionDiscipline = Convert.ToString(reader["ErectionDiscipline"]),
+                                ErectionResponsible = Convert.ToString(reader["ErectionResponsible"]),
+                                ID = Convert.ToInt32(reader["ID"]).ToString("D4"),
                             };
                             item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
                             item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);
@@ -601,4 +628,5 @@ namespace iEngr.Hookup
                 return string.Empty;
         }
     }
+
 }

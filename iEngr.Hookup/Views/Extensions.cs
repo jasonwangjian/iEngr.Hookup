@@ -12,10 +12,10 @@ namespace iEngr.Hookup.Views
     using System.Windows.Controls;
     using System.Windows.Data;
 
-    public static class DataGridColumnVisibility
+    public static class Extensions
     {
         public static readonly DependencyProperty IsVisibleProperty =
-            DependencyProperty.RegisterAttached("IsVisible", typeof(bool), typeof(DataGridColumnVisibility),
+            DependencyProperty.RegisterAttached("IsVisible", typeof(bool), typeof(Extensions),
                 new PropertyMetadata(true, OnIsVisibleChanged));
 
         public static bool GetIsVisible(DependencyObject obj)
