@@ -23,24 +23,24 @@ namespace iEngr.Hookup.Views
         public UcMatList()
         {
             InitializeComponent();
-            if (HK_General.intLan != 0)
-            {
-                dcNameCn.Visibility = Visibility.Visible;
-                dcMoreEn.Visibility = Visibility.Visible;
-                dcRemEn.Visibility = Visibility.Visible;
-                dcNameCn.Visibility = Visibility.Collapsed;
-                dcMoreCn.Visibility = Visibility.Collapsed;
-                dcRemCn.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                dcNameCn.Visibility = Visibility.Visible;
-                dcMoreCn.Visibility = Visibility.Visible;
-                dcRemCn.Visibility = Visibility.Visible;
-                dcNameEn.Visibility = Visibility.Collapsed;
-                dcMoreEn.Visibility = Visibility.Collapsed;
-                dcRemEn.Visibility = Visibility.Collapsed;
-            }
+            //if (HK_General.intLan != 2)
+            //{
+            //    dcNameCn.Visibility = Visibility.Visible;
+            //    dcMoreEn.Visibility = Visibility.Visible;
+            //    dcRemEn.Visibility = Visibility.Visible;
+            //    dcNameCn.Visibility = Visibility.Collapsed;
+            //    dcMoreCn.Visibility = Visibility.Collapsed;
+            //    dcRemCn.Visibility = Visibility.Collapsed;
+            //}
+            //else
+            //{
+            //    dcNameCn.Visibility = Visibility.Visible;
+            //    dcMoreCn.Visibility = Visibility.Visible;
+            //    dcRemCn.Visibility = Visibility.Visible;
+            //    dcNameEn.Visibility = Visibility.Collapsed;
+            //    dcMoreEn.Visibility = Visibility.Collapsed;
+            //    dcRemEn.Visibility = Visibility.Collapsed;
+            //}
         }
 
     }

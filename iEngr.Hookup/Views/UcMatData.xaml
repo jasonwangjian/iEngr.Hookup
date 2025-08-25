@@ -49,13 +49,14 @@
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="2" Grid.Column="0" >分类：</Label>
                 <WrapPanel Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="1" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
-                    <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding MainCats}" SelectedItem="{Binding MainCat}"
+                    <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding MatCats}" SelectedItem="{Binding MatCat}"
                       DisplayMemberPath="Name"/>
-                    <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding SubCats}" SelectedItem="{Binding SubCat}"
+                    <ComboBox Margin="2" IsEditable="False" MinWidth="120" ItemsSource="{Binding MatNames}" SelectedItem="{Binding MatName}"
                       DisplayMemberPath="Name"/>
                 </WrapPanel>
                 <Label Grid.Row="3" Grid.Column="0" >主材质：</Label>
-                <ComboBox Margin="2" Grid.Row="3" Grid.Column="1" DisplayMemberPath="Name"/>
+                <ComboBox Margin="2" Grid.Row="3" Grid.Column="1" ItemsSource="{Binding MatMatAll}" SelectedItem="{Binding MatMat}"
+                          DisplayMemberPath="Name"/>
                 <Label Grid.Row="4" Grid.Column="0" >主参数：</Label>
                 <WrapPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >

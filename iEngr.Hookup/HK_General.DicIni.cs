@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -18,31 +19,33 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using iEngr.Hookup.Models;
 
 namespace iEngr.Hookup
 {
     /// <summary>
     /// Database Handle
     /// </summary>
-    public partial class HK_General
+    public static partial class HK_General
     {
-        int? nullInt = null;
-        decimal? nullDecimal = null;
-        internal Dictionary<string, HKMatSubCat> dicSubCat = new Dictionary<string, HKMatSubCat>();
-        internal Dictionary<string, HKLibPortType> dicPortType = new Dictionary<string, HKLibPortType>();
-        internal Dictionary<string, HKLibGenOption> dicGenOption = new Dictionary<string, HKLibGenOption>();
-        internal Dictionary<string, HKLibGland> dicGland = new Dictionary<string, HKLibGland>();
-        internal Dictionary<string, HKLibPipeOD> dicPipeOD = new Dictionary<string, HKLibPipeOD>();
-        internal Dictionary<string, HKLibPN> dicPN = new Dictionary<string, HKLibPN>();
-        internal Dictionary<string, HKLibSpecDic> dicSpecDic = new Dictionary<string, HKLibSpecDic>();
-        internal Dictionary<string, HKLibSteel> dicSteel = new Dictionary<string, HKLibSteel>();
-        internal Dictionary<string, HKLibThread> dicThread = new Dictionary<string, HKLibThread>();
-        internal Dictionary<string, HKLibTubeOD> dicTubeOD = new Dictionary<string, HKLibTubeOD>();
-        internal Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
-        private void dicSubCatIni()
+        internal static int? nullInt = null;
+        internal static decimal? nullDecimal = null;
+        internal static Dictionary<string, HKLibMatName> dicMatName = dicMatNameIni();
+        internal static Dictionary<string, HKLibPortType> dicPortType = dicPortTypeIni();
+        internal static Dictionary<string, HKLibSpecDic> dicSpecDic = dicSpecDicIni();
+        internal static Dictionary<string, HKLibPipeOD> dicPipeOD = dicPipeODIni();
+        internal static Dictionary<string, HKLibPN> dicPN = dicPNIni();
+        internal static Dictionary<string, HKLibSteel> dicSteel = dicSteelIni();
+        internal static Dictionary<string, HKLibThread> dicThread = dicThreadIni();
+        internal static Dictionary<string, HKLibTubeOD> dicTubeOD = dicTubeODIni();
+        internal static Dictionary<string, HKLibGland> dicGland = dicGlandIni();
+        internal static Dictionary<string, HKLibGenOption> dicGenOption = dicGenOptionIni();
+        internal static Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = dicNoLinkSpecIni();
+        internal static Dictionary<string, HKLibMatMat> dicMatMat = dicMatMatIni();
+        private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
-            dicSubCat.Clear();
-            string query = "select * from HK_MatSubCat order by SortNum";
+            Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
+            string query = "select * from HK_LibMatName order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
                 try
@@ -52,7 +55,7 @@ namespace iEngr.Hookup
                     {
                         while (reader.Read())
                         {
-                            dicSubCat.Add(Convert.ToString(reader["ID"]), new HKMatSubCat
+                            dicMatName.Add(Convert.ToString(reader["ID"]), new HKLibMatName
                             {
                                 ID = Convert.ToString(reader["ID"]),
                                 SpecCn = Convert.ToString(reader["SpecCn"]),
@@ -63,6 +66,12 @@ namespace iEngr.Hookup
                                 TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
                                 CatID = Convert.ToString(reader["CatID"]),
                                 Remarks = Convert.ToString(reader["Remarks"]),
+                                Qty = Convert.ToString(reader["Qty"]),
+                                Unit = Convert.ToString(reader["CatID"]),
+                                SupDisc = Convert.ToString(reader["SupDisc"]),
+                                SupResp = Convert.ToString(reader["SupResp"]),
+                                ErecDisc = Convert.ToString(reader["ErecDisc"]),
+                                ErecResp = Convert.ToString(reader["ErecResp"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"])
                             });
                         }
@@ -71,13 +80,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSubCatIni)}{Environment.NewLine}Error: {ex.Message}");
+                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicMatNameIni)}{Environment.NewLine}Error: {ex.Message}");
                 }
             }
+            return dicMatName;
         }
-        private void dicPortTypeIni()
+        private static Dictionary<string, HKLibPortType> dicPortTypeIni()
         {
-            dicPortType.Clear();
+            Dictionary<string, HKLibPortType> dicPortType = new Dictionary<string, HKLibPortType>(); ;
             string query = "select * from HK_LibPortType where SortNum < 101 order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -109,13 +119,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPortTypeIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPortTypeIni, Error: {ex.Message}");
                 }
             }
+            return dicPortType;
         }
-        private void dicSpecDicIni()
+        private static Dictionary<string, HKLibSpecDic> dicSpecDicIni()
         {
-            dicSpecDic.Clear();
+            Dictionary<string, HKLibSpecDic> dicSpecDic = new Dictionary<string, HKLibSpecDic>();
             string query = "select * from HK_LibSpecDic order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -145,13 +156,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSpecDicIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicSpecDicIni, Error: {ex.Message}");
                 }
             }
+            return dicSpecDic;
         }
-        private void dicPipeODIni()
+        private static Dictionary<string, HKLibPipeOD> dicPipeODIni()
         {
-            dicPipeOD.Clear();
+            Dictionary<string, HKLibPipeOD> dicPipeOD = new Dictionary<string, HKLibPipeOD>();
             string query = "select * from HK_LibPipeOD order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -184,13 +196,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPipeODIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPipeODIni, Error: {ex.Message}");
                 }
             }
+            return dicPipeOD;
         }
-        private void dicPNIni()
+        private static Dictionary<string, HKLibPN> dicPNIni()
         {
-            dicPN.Clear();
+            Dictionary<string, HKLibPN> dicPN = new Dictionary<string, HKLibPN>();
             string query = "select * from HK_LibPN order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -220,13 +233,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicPNIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicPNIni, Error: {ex.Message}");
                 }
             }
+            return dicPN;
         }
-        private void dicSteelIni()
+        private static Dictionary<string, HKLibSteel> dicSteelIni()
         {
-            dicSteel.Clear();
+            Dictionary<string, HKLibSteel> dicSteel = new Dictionary<string, HKLibSteel>();
             string query = "select * from HK_LibSteel order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -257,13 +271,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicSteelIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicSteelIni, Error: {ex.Message}");
                 }
             }
+            return dicSteel;
         }
-        private void dicThreadIni()
+        private static Dictionary<string, HKLibThread> dicThreadIni()
         {
-            dicThread.Clear();
+            Dictionary<string, HKLibThread> dicThread = new Dictionary<string, HKLibThread>();
             string query = "select * from HK_LibThread order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -293,13 +308,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicThreadIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicThreadIni, Error: {ex.Message}");
                 }
             }
+            return dicThread;
         }
-        private void dicTubeODIni()
+        private static Dictionary<string, HKLibTubeOD> dicTubeODIni()
         {
-            dicTubeOD.Clear();
+            Dictionary<string, HKLibTubeOD> dicTubeOD = new Dictionary<string, HKLibTubeOD>();
             string query = "select * from HK_LibTubeOD order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -326,13 +342,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicTubeODIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicTubeODIni, Error: {ex.Message}");
                 }
             }
+            return dicTubeOD;
         }
-        private void dicGlandIni()
+        private static Dictionary<string, HKLibGland> dicGlandIni()
         {
-            dicGland.Clear();
+            Dictionary<string, HKLibGland> dicGland = new Dictionary<string, HKLibGland>();
             string query = "select * from HK_LibGland order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -360,13 +377,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicGlandIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicGlandIni, Error: {ex.Message}");
                 }
             }
+            return dicGland;
         }
-        private void dicGenOptionIni()
+        private static Dictionary<string, HKLibGenOption> dicGenOptionIni()
         {
-            dicGenOption.Clear();
+            Dictionary<string, HKLibGenOption> dicGenOption = new Dictionary<string, HKLibGenOption>();
             string query = "select * from HK_LibGenOption order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -394,13 +412,14 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    MessageBox.Show($"{nameof(HK_General)}.{nameof(dicGenOptionIni)}{Environment.NewLine}Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicGenOptionIni, Error: {ex.Message}");
                 }
             }
+            return dicGenOption;
         }
-        private void dicNoLinkSpecIni()
+        private static Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpecIni()
         {
-            dicNoLinkSpec.Clear();
+            Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = new Dictionary<string, ObservableCollection<HKLibGenOption>>();
 
             //List<string> lst = dicSubCat.Values
             //    .SelectMany(v => new[] { v.TechSpecMain, v.TechSpecAux }) // 同时处理两个属性
@@ -415,6 +434,41 @@ namespace iEngr.Hookup
             {
                 dicNoLinkSpec.Add(lst[i], new ObservableCollection<HKLibGenOption>());
             }
+            return dicNoLinkSpec;
+        }
+        private static Dictionary<string, HKLibMatMat> dicMatMatIni()
+        {
+            Dictionary<string, HKLibMatMat> dicMatMat = new Dictionary<string, HKLibMatMat>();
+            string query = "select * from HK_LibMatMat order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicMatMat.Add(Convert.ToString(reader["ID"]), new HKLibMatMat
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                SpecCn = Convert.ToString(reader["SpecCn"]),
+                                SpecEn = Convert.ToString(reader["SpecEn"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                ActiveCode = Convert.ToString(reader["ActiveCode"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
+                }
+            }
+            return dicMatMat;
         }
     }
 }

@@ -38,30 +38,6 @@ namespace iEngr.Hookup.Views
             (ucML.DataContext as MatListViewModel).BtnCommand = "Query";
         }
 
-        private string getQueryString()
-        {
-            var vmMD = ucMD.DataContext as MatDataViewModel;
-            if (vmMD == null) return null;
-            var text = getMainSpec(vmMD);
-            text = getPortType1(vmMD);
-            text = getAuxSpec(vmMD);
-            return text;
-        }
-
-        private string getMatDataString(MatDataViewModel vmMD)
-        {
-            return $"{vmMD.MainCat?.ID},{vmMD.SubCat?.ID},{vmMD.MatMatAll}," +
-                   $"{getMainSpec(vmMD)}," +
-                   $"{string.Join("|", vmMD.TypeAllP1.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
-                   $"{vmMD.SizeP1?.ID}," +
-                   $"{string.Join("|", vmMD.TypeAllP2.Select(x => x.ID).Where(x => !string.IsNullOrEmpty(x)).ToList())}," +
-                   $"{vmMD.SizeP2?.ID}," +
-                   $"{getAuxSpec(vmMD)}," +
-                   $"{vmMD.MoreSpecCn}," +
-                   $"{vmMD.MoreSpecEn}," +
-                   $"{vmMD.RemarksCn}," +
-                   $"{vmMD.RemarksEn}";
-        }
         private string getMainSpec(MatDataViewModel matData)
         {
             List<string> specs = new List<string>();

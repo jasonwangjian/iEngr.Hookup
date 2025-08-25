@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEngr.Hookup
+﻿namespace iEngr.Hookup.Models
 {
     public class HKLibPN
     {
@@ -18,25 +12,9 @@ namespace iEngr.Hookup
         public string GBANSI { get; set; }
         public string ASME { get; set; }
         public int SortNum { get; set; }
-        public string Name
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return SpecCn;
-                else
-                    return SpecEn;
-            }
-        }
         public string Spec
         {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return SpecCn;
-                else
-                    return SpecEn;
-            }
+            get => SpecCn;
         }
     }
 }

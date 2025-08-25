@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static iEngr.Hookup.ViewModels.MatDataViewModel;
+//using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
-namespace iEngr.Hookup
+namespace iEngr.Hookup.Models
 {
-    public class HKMatMainCat : IIdentifiable
+    public class HKLibMatCat : IIdentifiable
     {
         public string ID { get; set; }
         public string NameCn { get; set; }
@@ -16,13 +16,7 @@ namespace iEngr.Hookup
         public int SortNum { get; set; }
         public string Name
         {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
+            get=> (HK_General.ProjLanguage == 2)? NameEn:NameCn;
         }
     }
 }

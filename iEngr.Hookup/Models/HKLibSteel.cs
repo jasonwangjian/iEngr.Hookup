@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEngr.Hookup
+﻿namespace iEngr.Hookup.Models
 {
     public class HKLibSteel
     {
@@ -20,25 +14,5 @@ namespace iEngr.Hookup
         public decimal? IBd { get; set; }
         public int SortNum { get; set; }
         public string Name { get; set; }
-        public string CSSpec
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return CSSpecCn;
-                else
-                    return CSSpecEn;
-            }
-        }
-        public string IBSpec
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return IBSpecCn;
-                else
-                    return IBSpecEn;
-            }
-        }
     }
 }

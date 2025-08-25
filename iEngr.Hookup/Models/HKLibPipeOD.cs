@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEngr.Hookup
+﻿namespace iEngr.Hookup.Models
 {
     public class HKLibPipeOD
     {
@@ -23,15 +17,5 @@ namespace iEngr.Hookup
         public int SortNum { get; set; }
         public string NameCn { get; set; }
         public string NameEn { get; set; }
-        public string Name
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
-        }
     }
 }

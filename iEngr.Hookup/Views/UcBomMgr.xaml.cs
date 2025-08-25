@@ -8,6 +8,7 @@ using Plt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
@@ -25,9 +26,9 @@ namespace iEngr.Hookup.Views
     //    public UcBomMgr()
     //    {
     //        InitializeComponent();
-    //        VMBomList = ucBL.DataContext as BomListViewModels;
+    //        VMBomList = ucBL.DataContext as BomListViewModel;
     //    }
-    //    public BomListViewModels VMBomList;
+    //    public BomListViewModel VMBomList;
     //}
     public partial class UcBomMgr : UserControl, IComosControl, INotifyPropertyChanged
     {
@@ -63,7 +64,7 @@ namespace iEngr.Hookup.Views
                 if (_objects != null)
                 {
                     CurrentObject = _objects.get_Item(1);
-                    SetBomListVMData(CurrentObject);
+                    SetBomListVmData(CurrentObject);
                     SetBomListDataSource(CurrentObject);
                 }
             }
@@ -108,41 +109,41 @@ namespace iEngr.Hookup.Views
             OnPropertyChanged(propertyName);
             return true;
         }
-        // INotifyPropertyChanged 实现
+        //INotifyPropertyChanged 实现
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        private void SetBomListVMData(IComosBaseObject currentObject)
+        private void SetBomListVmData(IComosBaseObject currentObject)
         {
             try
             {
                 if (currentObject is null) return;
                 VmBomList.DiagramNameCn = currentObject.GetInternationalDescription(4);
                 VmBomList.DiagramNameEn = currentObject.GetInternationalDescription(2);
-                IComosDStandardTable sdt =  Project.CDeviceSystem.Project().GetObjectByPathFullName("22-@40\\~22-Z20\\~22-Z20N00003\\~22-Z20N00003A07");
-                IComosDOwnCollection sdtValues = sdt.StandardValues();
-                for (int i = 1; i<= sdtValues.Count();i++)
-                {
-                    IComosDStandardValue stv = sdtValues.Item(i) as IComosDStandardValue;
-                    VmBomList.MatMats.Add(new GeneralItem
-                    {
+                //// 读取标准表数据
+                //IComosDStandardTable sdt = Project.CDeviceSystem.Project().GetObjectByPathFullName("22-@40\\~22-Z20\\~22-Z20N00003\\~22-Z20N00003A07");
+                //IComosDOwnCollection sdtValues = sdt.StandardValues();
+                //for (int i = 1; i <= sdtValues.Count(); i++)
+                //{
+                //    IComosDStandardValue stv = sdtValues.Item(i) as IComosDStandardValue;
+                //    VmBomList.MatMats.Add(new GeneralItem
+                //    {
 
-                        Code = stv.value,
-                        NameCn = stv.GetInternationalDescription(4),
-                        NameEn = stv.GetInternationalDescription(2),
-                        SpecCn= stv.GetXValue(94),
-                        SpecEn= stv.GetXValue(92)
-                        
-                    });
-                    string name = sdtValues.Item(i).Name;
+                //        Code = stv.value,
+                //        NameCn = stv.GetInternationalDescription(4),
+                //        NameEn = stv.GetInternationalDescription(2),
+                //        SpecCn = stv.GetXValue(94),
+                //        SpecEn = stv.GetXValue(92)
 
-                }
-           }
+                //    });
+                //    string name = sdtValues.Item(i).Name;
+
+                //}
+            }
             catch (Exception ex)
             {
-                // 处理异常
-                Console.WriteLine($" ---------------- UcBomMgr.SetBomListVMData Error occurred: {ex.Message}");
+                Debug.WriteLine($" ___UcBomMgr.SetBomListVMData, Error occurred: {ex.Message}");
             }
         }
         private void SetBomListDataSource(IComosBaseObject objQueryStart)
@@ -160,7 +161,7 @@ namespace iEngr.Hookup.Views
                     for (int i = 1; i <= qry.RowCount; i++)
                     {
                         IComosBaseObject item = qry.RowObject[i];
-                        HKBOM bomItem = new HKBOM() { ObjMat = item };
+                        BomListItem bomItem = new BomListItem() { ObjMatBomItem = item };
                         bomItem.SetDataFromComosObject();
                         VmBomList.DataSource.Add(bomItem);
                     }
@@ -168,75 +169,77 @@ namespace iEngr.Hookup.Views
             }
             catch (Exception ex)
             {
-                // 处理异常
-                Console.WriteLine($" ---------------- UcBomMgr.SetBomListDataSource Error occurred: {ex.Message}");
+                Debug.WriteLine($" ___UcBomMgr.SetBomListDataSource Error occurred: {ex.Message}");
             }
         }
-        //private HKBOM GenerateBOMItemFromObjComos(IComosBaseObject objComos)
-        //{
-        //    if (objComos==null) return null;
-        //    HKBOM hKBOM = new HKBOM();
-        //    hKBOM.No = objComos.Label; ;
-        //    hKBOM.ObjMat = objComos;
-        //    hKBOM.Qty = objComos.spec("Z00T00003.Qty").value;//qry.Cell(i, "Qty").Text;
-        //    hKBOM.Unit = objComos.spec("Z00T00003.Unit").value;
-        //    hKBOM.SupplyDiscipline = objComos.spec("Z00T00003.SD").value;
-        //    hKBOM.SupplyResponsible = objComos.spec("Z00T00003.SR").value;
-        //    hKBOM.ErectionDiscipline = objComos.spec("Z00T00003.ED").value;
-        //    hKBOM.ErectionResponsible = objComos.spec("Z00T00003.ER").value;
-        //    hKBOM.RemarksCn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
-        //    hKBOM.RemarksEn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
-        //    hKBOM.NameCn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
-        //    hKBOM.NameEn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
-        //    return hKBOM;
-        //}
+        private BomListItem GenerateBOMItemFromObjComos(IComosBaseObject objComos)
+        {
+            if (objComos == null) return null;
+            BomListItem hKBOM = new BomListItem();
+            hKBOM.No = objComos.Label; ;
+            hKBOM.ObjMatBomItem = objComos;
+            hKBOM.Qty = objComos.spec("Z00T00003.Qty").value;//qry.Cell(i, "Qty").Text;
+            hKBOM.Unit = objComos.spec("Z00T00003.Unit").value;
+            hKBOM.SupplyDiscipline = objComos.spec("Z00T00003.SD").value;
+            hKBOM.SupplyResponsible = objComos.spec("Z00T00003.SR").value;
+            hKBOM.ErectionDiscipline = objComos.spec("Z00T00003.ED").value;
+            hKBOM.ErectionResponsible = objComos.spec("Z00T00003.ER").value;
+            hKBOM.RemarksCn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(4);
+            hKBOM.RemarksEn = objComos.spec("Z00T00003.Remarks").GetInternationalDisplayValue(2);
+            hKBOM.NameCn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(4);
+            hKBOM.NameEn = objComos.spec("Z00T00003.Name").GetInternationalDisplayValue(2);
+            return hKBOM;
+        }
 
+        private void btnRefresh_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            //VmBomList.DataSource.Clear();
+            //SetBomListDataSource(CurrentObject);
+            if (VmBomList.SelectedItem != null && int.TryParse(VmBomList.SelectedItem.ID, out int id))
+            {
+                MatListItem objSelected = HK_General.UpdateQueryResult(id);
+                VmBomList.SelectedItem.ObjMatListItem = objSelected;
+                VmBomList.SelectedItem.SetBomListItemFromMatListItem();
+                VmBomList.SelectedItem.SetComosObjectFromData();
+            }
+        }
         private void btnNewAdd_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HKMatGenLib objItemInMatLib = VmMatList.SelectedMat;
+            MatListItem objItemInMatLib = VmMatList.SelectedItem;
             if (objItemInMatLib == null || CurrentObject == null || VmBomList.DataSource == null) { return; }
             int index = 0;
             string newNo = "0";
-            if (VmBomList.SelectedItem != null) {
+            if (VmBomList.SelectedItem != null)
+            {
                 newNo = VmBomList.SelectedItem.No;
                 index = VmBomList.DataSource.IndexOf(VmBomList.SelectedItem);
             }
-            //newNo = newNo ?? (VmBomList.DataSource.LastOrDefault()?.No ?? "0");
-            //newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
+            newNo = newNo ?? (VmBomList.DataSource.LastOrDefault()?.No ?? "0");
+            newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
             IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
             IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
-            //updateComosData(newMat,objItemInMatLib);
-            HKBOM newBomItem = new HKBOM(){ObjMat = newMat};
+            BomListItem newBomItem = new BomListItem() { ObjMatBomItem = newMat, No = newNo, ObjMatListItem = objItemInMatLib};
+            newBomItem.SetBomListItemFromMatListItem();
             newBomItem.SetComosObjectFromData();
-            newBomItem.SetDataFromComosObject();
+            //newBomItem.SetDataFromComosObject();
             VmBomList.DataSource.Insert(index, newBomItem);
         }
 
         private void btnUpdate_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HKMatGenLib objInLib = VmMatList.SelectedMat;
+            MatListItem objInLib = VmMatList.SelectedItem;
             if (objInLib == null || VmBomList.SelectedItem == null) { return; }
-            //updateComosData(VmBomList.SelectedItem.ObjMat, objInLib);
-            VmBomList.SelectedItem.SetComosObjectFromData(objInLib);
+            VmBomList.SelectedItem.ObjMatListItem = objInLib;
+            VmBomList.SelectedItem.SetBomListItemFromMatListItem();
+            VmBomList.SelectedItem.SetComosObjectFromData();
         }
         private void btnDelete_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            foreach(var item in VmBomList.SelectedItems)
+            foreach (var item in VmBomList.SelectedItems)
             {
-                item.ObjMat.DeleteAll();
+                item.ObjMatBomItem.DeleteAll();
                 VmBomList.DataSource.Remove(item);
             }
         }
-        //private void updateComosData(IComosBaseObject objComos, HKMatGenLib objMatInLib)
-        //{
-        //    if (objMatInLib == null || objComos == null) { return; }
-        //    objComos.SetInternationalDescription(4, objMatInLib.NameCn);
-        //    objComos.SetInternationalDescription(2, objMatInLib.NameEn);
-        //    objComos.spec("Z00T00003.Name").SetInternationalValue(4, objMatInLib.NameCn);
-        //    objComos.spec("Z00T00003.Name").SetInternationalValue(2, objMatInLib.NameEn);
-        //    objComos.spec("Z00T00003.Qty").value = "1";
-        //    objComos.spec("Z00T00003.Unit").value = "pcs";
-        //}
-
     }
 }

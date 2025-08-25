@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static iEngr.Hookup.ViewModels.MatDataViewModel;
+﻿//using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
-namespace iEngr.Hookup
+namespace iEngr.Hookup.Models
 {
-    public class HKMatSubCat : IIdentifiable
+    public class HKLibMatName: IIdentifiable
     {
         public string ID { get; set; }
         public string CatID { get; set; }
-        public string SubCatID { get; set; }
         public string SpecCn { get; set; }
         public string SpecEn { get; set; }
         public string Remarks { get; set; }
@@ -21,16 +14,15 @@ namespace iEngr.Hookup
         public string TypeP2 { get; set; }
         public string TechSpecMain{ get; set; }
         public string TechSpecAux { get; set; }
-
+        public string Qty { get; set; }
+        public string Unit { get; set; }
+        public string SupDisc { get; set; }
+        public string SupResp { get; set; }
+        public string ErecDisc { get; set; }
+        public string ErecResp { get; set; }
         public string Name
         {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return SpecCn;
-                else
-                    return SpecEn;
-            }
+            get => (HK_General.ProjLanguage == 2) ? SpecEn : SpecCn;
         }
     }
 }

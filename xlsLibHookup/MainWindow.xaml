@@ -16,10 +16,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation ="Vertical" Grid.Row="1">
-            <Button x:Name="btnMainCat" Content="材料大类"  Click="btnMainCat_Click" 
+            <Button x:Name="btnMainCat" Content="材料类别"  Click="btnMainCat_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
-            <Button x:Name="btnSubCat" Content="材料小类"  Click="btnSubCat_Click" 
+            <Button x:Name="btnSubCat" Content="材料名称"  Click="btnSubCat_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
             <Button x:Name="btnLibPortType" Content="端口连接类型"  Click="btnLibPortType_Click" 
@@ -47,6 +47,9 @@
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
             <Button x:Name="btnPN" Content="压力等级"  Click="btnLibPN_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnMatMat" Content="材料材质"  Click="btnLibMatMat_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
             <Button x:Name="btnMatGen" Content="安装材料库"  Click="btnMatGenLib_Click" 

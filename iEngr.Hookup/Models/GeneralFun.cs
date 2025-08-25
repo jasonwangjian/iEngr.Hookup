@@ -10,6 +10,70 @@ using System.Windows.Controls;
 
 namespace iEngr.Hookup.Models
 {
+    using System.Collections.ObjectModel;
+
+    public static class ObservableCollectionExtensions
+    {
+        // 上移一位
+        public static bool MoveUp<T>(this ObservableCollection<T> collection, T item)
+        {
+            int currentIndex = collection.IndexOf(item);
+            if (currentIndex > 0)
+            {
+                collection.Move(currentIndex, currentIndex - 1);
+                return true;
+            }
+            return false;
+        }
+
+        // 下移一位
+        public static bool MoveDown<T>(this ObservableCollection<T> collection, T item)
+        {
+            int currentIndex = collection.IndexOf(item);
+            if (currentIndex < collection.Count - 1)
+            {
+                collection.Move(currentIndex, currentIndex + 1);
+                return true;
+            }
+            return false;
+        }
+
+        // 移至首位
+        public static bool MoveToFirst<T>(this ObservableCollection<T> collection, T item)
+        {
+            int currentIndex = collection.IndexOf(item);
+            if (currentIndex > 0)
+            {
+                collection.Move(currentIndex, 0);
+                return true;
+            }
+            return false;
+        }
+
+        // 移至末位
+        public static bool MoveToLast<T>(this ObservableCollection<T> collection, T item)
+        {
+            int currentIndex = collection.IndexOf(item);
+            if (currentIndex < collection.Count - 1)
+            {
+                collection.Move(currentIndex, collection.Count - 1);
+                return true;
+            }
+            return false;
+        }
+
+        // 移动到指定位置
+        public static bool MoveTo<T>(this ObservableCollection<T> collection, T item, int newIndex)
+        {
+            int currentIndex = collection.IndexOf(item);
+            if (currentIndex >= 0 && newIndex >= 0 && newIndex < collection.Count && currentIndex != newIndex)
+            {
+                collection.Move(currentIndex, newIndex);
+                return true;
+            }
+            return false;
+        }
+    }
     public static class GeneralFun
     {
  

@@ -22,18 +22,27 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class BomListViewModel: INotifyPropertyChanged
+    public class BomListViewModel : INotifyPropertyChanged
     {
         public BomListViewModel()
         {
-            DataSource = new ObservableCollection<HKBOM>();
+            DataSource = new ObservableCollection<BomListItem>();
             SetDisciplineSource();
             SetResponsibleSource();
             SetUnitSource();
+            MatMats = HK_General.dicMatMat.Select(x => x.Value).ToList();
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
-            AutoComosUpdate = true;
+            MoveUpCommand = new RelayCommand<object>(_ => MoveUp(), _ => CanMoveUp());
+            MoveDownCommand = new RelayCommand<object>(_ => MoveDown(), _ => CanMoveDown());
+            MoveToFirstCommand = new RelayCommand<object>(_ => MoveToFirst(), _ => CanMoveUp());
+            MoveToLastCommand = new RelayCommand<object>(_ => MoveToLast(), _ => CanMoveDown());
+            AutoComosUpdate = HK_General.IsAutoComosUpdate;
+            LangInChinese = true;
         }
+        public List<GeneralItem> Disciplines { get; set; }
+        public List<GeneralItem> Responsibles { get; set; }
+        public List<GeneralItem> Units { get; set; }
         private void SetDisciplineSource()
         {
             Disciplines = new List<GeneralItem>
@@ -88,12 +97,9 @@ namespace iEngr.Hookup.ViewModels
                 }
             };
         }
-        public List<GeneralItem> Disciplines { get; set; }
-        public List<GeneralItem> Responsibles { get; set; }
-        public List<GeneralItem> Units { get; set; }
         private void SetUnitSource()
         {
-            Responsibles = new List<GeneralItem>
+            Units = new List<GeneralItem>
             {
                 new GeneralItem
                 {
@@ -133,7 +139,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             };
         }
-        public List<GeneralItem> MatMats = new List<GeneralItem>();
+        public List<HKLibMatMat> MatMats { get; set; }
         private string _diagramNameCn;
         public string DiagramNameCn
         {
@@ -159,26 +165,43 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 SetField(ref _autoComosUpdate, value);
+                HK_General.IsAutoComosUpdate = value;
+                for (int i = 0; i < DataSource.Count; i++)
+                {
+                    DataSource[i].AutoComosUpdate = value;
+                }
             }
         }
-        ObservableCollection<HKBOM> _dataSource;
-        public ObservableCollection<HKBOM> DataSource
+        private bool _langInChinese;
+        public bool LangInChinese
+        {
+            get => _langInChinese;
+            set => SetField(ref _langInChinese, value);
+        }
+        private bool _langInEnglish;
+        public bool LangInEnglish
+        {
+            get => _langInEnglish;
+            set => SetField(ref _langInEnglish, value);
+        }
+        ObservableCollection<BomListItem> _dataSource;
+        public ObservableCollection<BomListItem> DataSource
         {
             get => _dataSource;
             set => SetField(ref _dataSource, value);
         }
-        private HKBOM _selectedItem;
-        public HKBOM SelectedItem
+        private BomListItem _selectedItem;
+        public BomListItem SelectedItem
         {
             get => _selectedItem;
             set
             {
                 SetField(ref _selectedItem, value);
                 //value.ObjMat.Label = value.No;
-                
+
             }
         }
-        public ObservableCollection<HKBOM> SelectedItems { get; set; }
+        public ObservableCollection<BomListItem> SelectedItems { get; set; }
 
 
 
@@ -194,38 +217,51 @@ namespace iEngr.Hookup.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        public RelayCommand<object> MoveUpCommand { get; }
+        public RelayCommand<object> MoveDownCommand { get; }
+        public RelayCommand<object> MoveToFirstCommand { get; }
+        public RelayCommand<object> MoveToLastCommand { get; }
+        private void MoveUp() => DataSource.MoveUp(SelectedItem);
+        private void MoveDown() => DataSource.MoveDown(SelectedItem);
+        private void MoveToFirst() => DataSource.MoveToFirst(SelectedItem);
+        private void MoveToLast() => DataSource.MoveToLast(SelectedItem);
+
+        private bool CanMoveUp() => SelectedItem != null && DataSource.IndexOf(SelectedItem) > 0;
+        private bool CanMoveDown() => SelectedItem != null && DataSource.IndexOf(SelectedItem) < DataSource.Count - 1;
 
         public ICommand CellEditEndingCommand { get; }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
         {
-            if (e.EditAction == DataGridEditAction.Commit)
-            {
-                // 获取行数据项
-                var item = e.Row.Item;
 
-                // 获取列信息
-                var column = e.Column as DataGridBoundColumn;
+            //if (e.EditAction == DataGridEditAction.Commit && AutoComosUpdate)
+            //{
+            //    // 获取行数据项
+            //    var item = e.Row.Item;
+            //    //(iteKm as BomListItem)?.SetComosObjectFromData();
 
-                // 获取编辑后的值
-                if (e.EditingElement is TextBox textBox)
-                {
-                    string newValue = textBox.Text;
-                    Debug.WriteLine($"编辑完成: 项目={item}, 列={column?.Header}, 新值={newValue}");
-                }
-                else if (e.EditingElement is ComboBox comboBox)
-                {
-                    object selectedValue = comboBox.SelectedValue;
-                    Debug.WriteLine($"编辑完成: 项目={item}, 列={column?.Header}, 新值={selectedValue}");
-                }
+            //    // 获取列信息
+            //    var column = e.Column as DataGridBoundColumn;
 
-                // 获取绑定路径（属性名）
-                if (column != null)
-                {
-                    var binding = column.Binding as Binding;
-                    string propertyName = binding?.Path.Path;
-                    Debug.WriteLine($"属性名: {propertyName}");
-                }
-            }
+            //    // 获取编辑后的值
+            //    if (e.EditingElement is TextBox textBox)
+            //    {
+            //        string newValue = textBox.Text;
+            //        Debug.WriteLine($"编辑完成: 项目={item}, 列={column?.Header}, 新值={newValue}");
+            //    }
+            //    else if (e.EditingElement is ComboBox comboBox)
+            //    {
+            //        object selectedValue = comboBox.SelectedValue;
+            //        Debug.WriteLine($"编辑完成: 项目={item}, 列={column?.Header}, 新值={selectedValue}");
+            //    }
+
+            //    // 获取绑定路径（属性名）
+            //    if (column != null)
+            //    {
+            //        var binding = column.Binding as Binding;
+            //        string propertyName = binding?.Path.Path;
+            //        Debug.WriteLine($"属性名: {propertyName}");
+            //    }
+            //}
         }
         public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
         private void HandleSelectionChanged(SelectionChangedEventArgs e)
@@ -233,10 +269,10 @@ namespace iEngr.Hookup.ViewModels
             var selectedItems = (e.Source as DataGrid)?.SelectedItems;
             if (selectedItems != null)
             {
-                ObservableCollection<HKBOM> _selectedItems = new ObservableCollection<HKBOM>();
+                ObservableCollection<BomListItem> _selectedItems = new ObservableCollection<BomListItem>();
                 foreach (var item in selectedItems)
                 {
-                    _selectedItems.Add(item as HKBOM);
+                    _selectedItems.Add(item as BomListItem);
                 }
                 SelectedItems = _selectedItems;
             }

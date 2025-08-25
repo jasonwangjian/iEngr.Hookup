@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEngr.Hookup
+﻿namespace iEngr.Hookup.Models
 {
     public class HKLibPortType
     {
@@ -20,35 +14,5 @@ namespace iEngr.Hookup
         public string Link { get; set; }
         public int SortNum { get; set; }
         public string Remarks { get; set; }
-        public string Name
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
-        }
-        public string Prefix
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return PrefixCn;
-                else
-                    return PrefixEn;
-            }
-        }
-        public string Suffix
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return SuffixCn;
-                else
-                    return SuffixEn;
-            }
-        }
     }
 }

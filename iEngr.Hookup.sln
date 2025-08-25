@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xlsLibHookup", "xlsLibHooku
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataGridTest", "DataGridTest\DataGridTest.csproj", "{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeViewTest", "TreeViewTest\TreeViewTest.csproj", "{16E86975-1E13-4F21-AEFA-03AB3C759E52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F0B69CC-653B-41B6-8F0A-59DA25B2BAFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16E86975-1E13-4F21-AEFA-03AB3C759E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16E86975-1E13-4F21-AEFA-03AB3C759E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16E86975-1E13-4F21-AEFA-03AB3C759E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16E86975-1E13-4F21-AEFA-03AB3C759E52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

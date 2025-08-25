@@ -29,8 +29,7 @@ namespace iEngr.Hookup.Views
         public UcMatData()
         {
             InitializeComponent();
-            HK_General HK_General = new HK_General();
-            int intLan = HK_General.intLan;
+            int intLan = HK_General.ProjLanguage;
             string[] portDef = HK_General.portDef;
             ViewModel = new MatDataViewModel();
             DataContext = ViewModel;

@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static iEngr.Hookup.ViewModels.MatDataViewModel;
+﻿//using static iEngr.Hookup.ViewModels.MatDataViewModel;
 
-namespace iEngr.Hookup
+using System.Windows;
+using System.Windows.Controls;
+
+namespace iEngr.Hookup.Models
 {
-    public class CmbItem : IIdentifiable
+    public interface IIdentifiable
+    {
+        string ID { get; }
+    }
+    public class MatDataCmbItem : IIdentifiable
     {
         public string ID { get; set; }
         public string Comp { get; set; }
@@ -15,40 +17,10 @@ namespace iEngr.Hookup
         public string NameEn { get; set; }
         public string Class { get; set; }
         public string Link { get; set; }
-        //public string PrefixCn { get; set; }
-        //public string PrefixEn { get; set; }
-        //public string SuffixCn { get; set; }
-        //public string SuffixEn { get; set; }
         public string Name
         {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
+            get => (HK_General.ProjLanguage == 2) ? NameEn : NameCn;
         }
-        //public string Prefix
-        //{
-        //    get
-        //    {
-        //        if (HK_LibMat.intLan == 0)
-        //            return PrefixCn;
-        //        else
-        //            return PrefixEn;
-        //    }
-        //}
-        //public string Suffix
-        //{
-        //    get
-        //    {
-        //        if (HK_LibMat.intLan == 0)
-        //            return SuffixCn;
-        //        else
-        //            return SuffixEn;
-        //    }
-        //}
     }
     public class GeneralItem
     {
@@ -57,5 +29,9 @@ namespace iEngr.Hookup
         public string NameEn { get; set; }
         public string SpecCn { get; set; }
         public string SpecEn { get; set; }
+        public string Name
+        {
+            get => (HK_General.ProjLanguage == 2) ? NameEn : NameCn;
+        }
     }
 }

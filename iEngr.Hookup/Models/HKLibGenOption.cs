@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEngr.Hookup
+﻿namespace iEngr.Hookup.Models
 {
     public class HKLibGenOption
     {
@@ -16,25 +10,5 @@ namespace iEngr.Hookup
         public string SpecEn { get; set; }
         public int? Inact { get; set; }
          public int SortNum { get; set; }
-        public string Name
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
-        }
-        public string Spec
-        {
-            get
-            {
-                if (HK_General.intLan == 0)
-                    return NameCn;
-                else
-                    return NameEn;
-            }
-        }
     }
 }
