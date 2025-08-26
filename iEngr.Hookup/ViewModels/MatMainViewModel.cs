@@ -94,8 +94,12 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-
-
+        //private MatListItem _selectedMatListItem;
+        //public MatListItem SelectedMatListItem
+        //{
+        //    get => _selectedMatListItem;
+        //    set => SetField(ref _selectedMatListItem, value);
+        //}
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

@@ -37,6 +37,10 @@ namespace iEngr.Hookup.ViewModels
             MoveDownCommand = new RelayCommand<object>(_ => MoveDown(), _ => CanMoveDown());
             MoveToFirstCommand = new RelayCommand<object>(_ => MoveToFirst(), _ => CanMoveUp());
             MoveToLastCommand = new RelayCommand<object>(_ => MoveToLast(), _ => CanMoveDown());
+            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => SelectedMatListItem != null && CurrentObject != null);
+            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => !string.IsNullOrEmpty(SelectedItem?.ID));
+            AlterCommand = new RelayCommand<object>(_ => Alter(), _ => SelectedItem != null && SelectedMatListItem !=null);
+            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count>0);
             AutoComosUpdate = HK_General.IsAutoComosUpdate;
             LangInChinese = true;
         }
@@ -158,6 +162,19 @@ namespace iEngr.Hookup.ViewModels
             get => _objDiagram;
             set => SetField(ref _objDiagram, value);
         }
+        public IComosDProject Project { set; get; }
+        public IComosBaseObject _currentObject;
+        public IComosBaseObject CurrentObject
+        {
+            get => _currentObject;
+            set => SetField(ref _currentObject, value);
+        }
+        //public IComosDProject _project;
+        //public IComosDProject Project
+        //{
+        //    get => _project;
+        //    set => SetField(ref _project, value);
+        //}
         private bool _autoComosUpdate;
         public bool AutoComosUpdate
         {
@@ -203,7 +220,7 @@ namespace iEngr.Hookup.ViewModels
         }
         public ObservableCollection<BomListItem> SelectedItems { get; set; }
 
-
+        public MatListItem SelectedMatListItem { get; set; }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
@@ -228,7 +245,57 @@ namespace iEngr.Hookup.ViewModels
 
         private bool CanMoveUp() => SelectedItem != null && DataSource.IndexOf(SelectedItem) > 0;
         private bool CanMoveDown() => SelectedItem != null && DataSource.IndexOf(SelectedItem) < DataSource.Count - 1;
+        public RelayCommand<object> UpdateCommand { get; }
+        public RelayCommand<object> NewAddCommand { get; }
+        public RelayCommand<object> AlterCommand { get; }
+        public RelayCommand<object> DeleteCommand { get; }
 
+        private void Update()
+        {
+            if (SelectedItem != null && int.TryParse(SelectedItem.ID, out int id))
+            {
+                MatListItem objSelected = HK_General.UpdateQueryResult(id);
+                SelectedItem.ObjMatListItem = objSelected;
+                SelectedItem.SetBomListItemFromMatListItem();
+                SelectedItem.SetComosObjectFromData();
+            }
+        }
+        private void NewAdd()
+        {
+            if (SelectedMatListItem == null || CurrentObject == null || DataSource == null) { return; }
+            int index = 0;
+            string newNo = "0";
+            if (SelectedItem != null)
+            {
+                newNo = SelectedItem.No;
+                index = DataSource.IndexOf(SelectedItem);
+            }
+            newNo = newNo ?? (DataSource.LastOrDefault()?.No ?? "0");
+            newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
+            IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
+            IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
+            BomListItem newBomItem = new BomListItem() { ObjMatBomItem = newMat, No = newNo, ObjMatListItem = SelectedMatListItem };
+            newBomItem.SetBomListItemFromMatListItem();
+            newBomItem.SetComosObjectFromData();
+            //newBomItem.SetDataFromComosObject();
+            DataSource.Insert(index, newBomItem);
+        }
+
+        private void Alter()
+        {
+            if (SelectedMatListItem == null || SelectedItem == null) { return; }
+            SelectedItem.ObjMatListItem = SelectedMatListItem;
+            SelectedItem.SetBomListItemFromMatListItem();
+            SelectedItem.SetComosObjectFromData();
+        }
+        private void Delete()
+        {
+            foreach (var item in SelectedItems)
+            {
+                item.ObjMatBomItem.DeleteAll();
+                DataSource.Remove(item);
+            }
+        }
         public ICommand CellEditEndingCommand { get; }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
         {
