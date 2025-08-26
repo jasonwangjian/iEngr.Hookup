@@ -355,6 +355,16 @@ namespace iEngr.Hookup.Models
            return linkWhereExp;
         }
 
+        public static char[] SeparatorChars = { 'x','X','*','/'};
+        public static string GetStandardNumberString(string input, int countSeparator, string separatorStandard)
+        {
+            foreach (char separator in SeparatorChars)
+            {
+                if (ValidateNumberItemsFormat(input, out List<string> numSegments, separator, countSeparator))
+                    return string.Join(separatorStandard, numSegments);
+            }
+            return null;
+        }
         /// <summary>
         /// 验证字符串是否符合数字项格式，由指定分隔符分隔
         /// </summary>
@@ -364,9 +374,12 @@ namespace iEngr.Hookup.Models
         /// <returns>格式正确返回 true，否则返回 false</returns>
         public static bool ValidateNumberItemsFormat(
             string input,
+            out List<string> numSegments, 
             char separator = 'x',
-            int expectedSeparatorCount = 0)
+            int expectedSeparatorCount= 0
+            )
         {
+            numSegments = new List<string>();
             // 1. 允许空或空白字符串（直接返回true）
             if (string.IsNullOrWhiteSpace(input))
                 return true;
@@ -401,7 +414,10 @@ namespace iEngr.Hookup.Models
                 // 4.4 检查是否为有效尺寸（大于0）
                 if (value <= 0)
                     return false;
+
+                numSegments.Add(trimmedPart);
             }
+
 
             return true;
         }

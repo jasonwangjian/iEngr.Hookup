@@ -536,7 +536,7 @@ namespace iEngr.Hookup
                 if (!string.IsNullOrEmpty(typeP2))
                 {
                     if (string.IsNullOrEmpty(sizeP2))
-                        result1 = (language == 2) ? dicPortType[typeP2].NameEn : dicPortType[typeP2].NameCn;
+                        result2 = (language == 2) ? dicPortType[typeP2].NameEn : dicPortType[typeP2].NameCn;
                     else if (dicPortType.ContainsKey(typeP2))
                     {
                         string prefix = dicPortType[typeP2].PrefixCn;
@@ -547,21 +547,21 @@ namespace iEngr.Hookup
                             suffix = dicPortType[typeP2].SuffixEn;
                         }
                         if (dicPortType[typeP2].Link.StartsWith("LibPipeOD"))
-                            result1 = $"{prefix}{getPipeData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{suffix}";
+                            result2 = $"{prefix}{getPipeData(sizeP2, dicPortType[typeP2].Link.Split(',')[1])}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibPN"))
-                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibGenOption"))
-                            result1 = $"{prefix}{((language == 2) ? dicGenOption[sizeP2].SpecEn : dicGenOption[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicGenOption[sizeP2].SpecEn : dicGenOption[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibGland"))
-                            result1 = $"{prefix}{((language == 2) ? dicGland[sizeP2].SpecEn : dicGland[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicGland[sizeP2].SpecEn : dicGland[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibThread"))
-                            result1 = $"{prefix}{((language == 2) ? dicThread[sizeP2].SpecEn : dicThread[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicThread[sizeP2].SpecEn : dicThread[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibTubeOD"))
-                            result1 = $"{prefix}{((language == 2) ? dicTubeOD[sizeP2].SpecEn : dicTubeOD[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicTubeOD[sizeP2].SpecEn : dicTubeOD[sizeP2].SpecCn)}{suffix}";
                         else if (dicPortType[typeP2].Link.StartsWith("LibSteel"))
-                            result1 = $"{prefix}{getSteelData(sizeP2, dicPortType[typeP2].Link.Split(',')[1], language)}{suffix}";
+                            result2 = $"{prefix}{getSteelData(sizeP2, dicPortType[typeP2].Link.Split(',')[1], language)}{suffix}";
                         else
-                            result1 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
+                            result2 = $"{prefix}{((language == 2) ? dicPN[sizeP2].SpecEn : dicPN[sizeP2].SpecCn)}{suffix}";
                     }
                 }
                 if (alterCode == "AS1" || alterCode == "DF1" && result1 == result2)
