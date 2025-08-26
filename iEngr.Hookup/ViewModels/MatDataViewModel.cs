@@ -650,9 +650,10 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        private string _matDataFromQuery;
+        //private string _matDataFromQuery;
         public string MatDataFromQuery
         {
+            //将Query来的结果设置到各个控件的数据绑定
             set
             {
                 //Debug.WriteLine($"收到Query结果: {value}");
@@ -844,10 +845,54 @@ namespace iEngr.Hookup.ViewModels
                     
                     switch(titleItem.Class)
                     {
-                        case "NumItems":
-                            isValid = GeneralFun.ValidateNumberItemsFormat(value, 'x', 2);
-                            Debug.WriteLine($"错误格式: {value}");
+                        case "Num3Items":
+                            value = GeneralFun.GetStandardNumberString(value, 2, titleItem.Link);
+                            if (value == null)
+                            {
+                                Debug.WriteLine($"错误格式: {value}");
+                                return;
+                            }
                             break;
+                        case "Num2Items":
+                            value = GeneralFun.GetStandardNumberString(value, 1, titleItem.Link);
+                            if (value == null)
+                            {
+                                Debug.WriteLine($"错误格式: {value}");
+                                return;
+                            }
+                            break;
+                        case "Num":
+                            if (decimal.TryParse(value, out decimal num))
+                            {
+                            value = num.ToString();
+                            break;
+                            }
+                                Debug.WriteLine($"错误数字: {value}");
+                                return;
+                        case "NumP":
+                            if (decimal.TryParse(value, out decimal numP) && numP>=0)
+                            {
+                                value = numP.ToString();
+                                break;
+                            }
+                            Debug.WriteLine($"错误数字: {value}");
+                            return;
+                        case "NumInt":
+                            if (decimal.TryParse(value, out decimal numInt))
+                            {
+                             value = numInt.ToString();
+                            break;
+                           }
+                                Debug.WriteLine($"错误整数: {value}");
+                                return;
+                        case "NumIntP":
+                            if (decimal.TryParse(value, out decimal numIntP) && numIntP >=0 )
+                            {
+                                value = numIntP.ToString();
+                                break;
+                            }
+                            Debug.WriteLine($"错误整数: {value}");
+                            return;
                     }
                     SetNoLinkDic(key, value);
                     SetCmbItems(cmbItems, key);

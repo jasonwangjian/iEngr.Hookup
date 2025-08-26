@@ -29,8 +29,8 @@ namespace iEngr.Hookup.ViewModels
             MatMatCode = newData.MatMatCode;
             MatMatCn = newData.MatMatCn;
             MatMatEn = newData.MatMatEn;
-            //SpecAllCn = newData.SpecAllCn;
-            //SpecAllEn = newData.SpecAllEn;
+            SpecAllCn = newData.SpecAllCn; //触发OnPropertyChanged
+            SpecAllEn = newData.SpecAllEn;//触发OnPropertyChanged
             RemarksCn = newData.RemarksCn;
             RemarksEn = newData.RemarksEn;
             SpecPClass = newData.SpecPClass;
