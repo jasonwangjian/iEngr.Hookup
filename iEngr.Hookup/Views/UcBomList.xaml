@@ -106,6 +106,12 @@
             <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
             <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
         </WrapPanel>
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
+            <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
+            <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>
+            <Button Content="删除" Command="{Binding DeleteCommand}"  Margin="5" Width="80"/>
+        </WrapPanel>
     </Grid>
 </UserControl>
 

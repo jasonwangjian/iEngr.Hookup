@@ -76,6 +76,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comos\UcComosBomMgr.xaml.cs">
+      <DependentUpon>UcComosBomMgr.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\NullToBoolConverter .cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="HK_Genera.DbFuncl.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />
+    <Compile Include="ViewModels\BomMgrViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListItem.cs" />
@@ -151,6 +155,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="Comos\UcComosBomMgr.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
