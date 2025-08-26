@@ -53,6 +53,7 @@ namespace iEngr.Hookup.Views
             {
                 _workset = value;
                 Project = Workset.GetCurrentProject();
+                ProjectInitial();
             }
         }
         public IComosDGeneralCollection Objects
@@ -89,6 +90,16 @@ namespace iEngr.Hookup.Views
                     }
                 }
             }
+        }
+
+        private void ProjectInitial()
+        {
+            HK_General.ProjLanguage = int.TryParse(Project.CurrentLanguage.FullName(), out int projLanguange)? projLanguange: 4;
+            //VmBomList.LangInChinese = (HK_General.ProjLanguage == 4);
+            //VmBomList.LangInEnglish = (HK_General.ProjLanguage == 2);
+            //VmMatList.LangInChinese = (HK_General.ProjLanguage == 4);
+            //VmMatList.LangInEnglish = (HK_General.ProjLanguage == 2);
+            HK_General.UserName = string.IsNullOrEmpty(Workset.Globals()?.IniRealName) ? Workset.GetCurrentUser().FullName() : Workset.Globals()?.IniRealName;
         }
         public void OnCanExecute(CanExecuteRoutedEventArgs e) { }
         public void OnPreviewExecuted(ExecutedRoutedEventArgs e) { }

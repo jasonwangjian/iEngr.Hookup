@@ -15,6 +15,10 @@ namespace iEngr.Hookup.Models
 {
     public class BomListItem : MatListItem
     {
+        public BomListItem() 
+        {
+            AutoComosUpdate = HK_General.IsAutoComosUpdate;
+        }
         public void SetDataFromComosObject()
         {
             No = ObjMatBomItem.Label;
@@ -222,13 +226,21 @@ namespace iEngr.Hookup.Models
         public new string SpecAllCn
         {
             get => _specAllCn;
-            set => SetField(ref _specAllCn, value);
+            set
+            {
+                if (SetField(ref _specAllCn, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(4, value);
+            }
         }
         private string _specAllEn;
         public new string SpecAllEn
         {
             get => _specAllEn;
-            set => SetField(ref _specAllEn, value);
+            set
+            {
+                if (SetField(ref _specAllEn, value) && AutoComosUpdate)
+                    ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(2, value);
+            }
         }
 
         IComosBaseObject _objMat;
