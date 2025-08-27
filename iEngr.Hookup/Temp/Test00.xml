@@ -1,0 +1,12 @@
+﻿<TreeViewData>
+  <Window.Resources Gender="男性">1.1<BindingProxy>2.1</BindingProxy></Window.Resources>
+  <Grid>
+    <DataGrid>
+      <DataGrid.Columns>
+        <DataGridTextColumn />
+        <DataGridTextColumn />
+        <DataGridComboBoxColumn />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</TreeViewData>

@@ -62,6 +62,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -79,10 +80,13 @@
     <Compile Include="Comos\UcComosBomMgr.xaml.cs">
       <DependentUpon>UcComosBomMgr.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\IconConverters.cs" />
     <Compile Include="Converters\NullToBoolConverter .cs" />
-    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Converters\ValueConverters.cs" />
+    <Compile Include="Converters\VisibilityConverters.cs" />
     <Compile Include="HK_Genera.DbFuncl.cs" />
     <Compile Include="HK_General.DicIni.cs" />
+    <Compile Include="Models\BasicNotifyPropertyChanged.cs" />
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
@@ -90,6 +94,8 @@
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
+    <Compile Include="ViewModels\HkTreeItem.cs" />
+    <Compile Include="ViewModels\HkTreeViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListItem.cs" />
@@ -104,6 +110,13 @@
     </Compile>
     <Compile Include="Views\UcBomMgr.xaml.cs">
       <DependentUpon>UcBomMgr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcHkTree.xaml.cs">
+      <DependentUpon>UcHkTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcTreeTest.xaml.cs">
+      <DependentUpon>UcTreeTest.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\UcMatData.xaml.cs">
       <DependentUpon>UcMatData.xaml</DependentUpon>
@@ -153,7 +166,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Page Include="Comos\UcComosBomMgr.xaml">
       <SubType>Designer</SubType>
@@ -171,6 +183,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\UcHkTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcTreeTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
     <Page Include="Views\UcMatData.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -183,6 +203,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\T1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icon1.ico" />
+    <Resource Include="Resources\Icon2.ico" />
+    <Resource Include="Resources\DefaultIcon.ico" />
+    <Resource Include="Resources\Y00i00003.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

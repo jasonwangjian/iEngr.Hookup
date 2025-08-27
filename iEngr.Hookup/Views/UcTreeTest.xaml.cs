@@ -4,17 +4,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using System.Xml.Linq;
 
-namespace WpfTreeViewEditor
+namespace iEngr.Hookup.Views
 {
-    public partial class MainWindow : Window
+    /// <summary>
+    /// UcHkTree.xaml 的交互逻辑
+    /// </summary>
+    public partial class UcTreeTest : UserControl
     {
+        public UcTreeTest()
+        {
+            InitializeComponent();
+            currentFileText.Text = "未选择文件";
+            itemCountText.Text = "0 个节点";
+            keyCheckText.Text = "";
+        }
         private string currentFilePath;
         private TreeViewItem selectedTreeViewItem;
         private TreeViewItem editingItem;
@@ -54,13 +70,6 @@ namespace WpfTreeViewEditor
             public string Value { get; set; }
         }
 
-        public MainWindow()
-        {
-            InitializeComponent();
-            currentFileText.Text = "未选择文件";
-            itemCountText.Text = "0 个节点";
-            keyCheckText.Text = "";
-        }
         private TreeViewItem CreateTreeViewItem(string name, string value, string picturePath = "", string gender = "未知")
         {
             // 创建图标和文本的StackPanel
@@ -72,7 +81,7 @@ namespace WpfTreeViewEditor
                 Width = 16,
                 Height = 16,
                 Margin = new Thickness(0, 0, 5, 0),
-                Source = (ImageSource)FindResource("UnknownIcon"),
+                Source = new BitmapImage(new Uri("pack://application:,,,/iEngr.Hookup;component/Resources/Icon1.ico")),
                 ToolTip = "性别"
             };
 
@@ -240,7 +249,6 @@ namespace WpfTreeViewEditor
             var dialog = new OpenFileDialog
             {
                 Filter = "XML文件 (*.xml)|*.xml|所有文件 (*.*)|*.*",
-                
                 DefaultExt = ".xml",
                 Title = "选择XML文件"
             };

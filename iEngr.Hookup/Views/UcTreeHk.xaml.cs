@@ -1,4 +1,4 @@
-﻿using iEngr.Hookup;
+﻿using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,19 +14,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-
-namespace WpfAppTest
+namespace iEngr.Hookup.Views
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// UcTreeHk.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class UcTreeHk : UserControl
     {
-        public MainWindow()
+        public UcTreeHk()
         {
             InitializeComponent();
-            
+            this.DataContext = new HkTreeViewModel();
         }
-        
     }
 }

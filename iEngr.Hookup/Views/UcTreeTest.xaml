@@ -1,0 +1,178 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcTreeTest"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <!-- 矢量图标资源 - 使用GeometryDrawing -->
+        <DrawingImage x:Key="UnknownIcon">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="Gray">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="8,8" RadiusX="6" RadiusY="6"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="DarkGray" Thickness="1"/>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <DrawingImage x:Key="MaleIcon">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="Blue">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <!-- 男性符号 -->
+                            <EllipseGeometry Center="8,8" RadiusX="5" RadiusY="5"/>
+                            <LineGeometry StartPoint="8,3" EndPoint="8,13"/>
+                            <LineGeometry StartPoint="3,8" EndPoint="13,8"/>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <DrawingImage x:Key="FemaleIcon">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="Pink">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <!-- 女性符号 -->
+                            <EllipseGeometry Center="8,8" RadiusX="5" RadiusY="5"/>
+                            <LineGeometry StartPoint="8,3" EndPoint="8,10"/>
+                            <LineGeometry StartPoint="5,6" EndPoint="11,6"/>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <DrawingImage x:Key="PictureIcon">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="DarkOrange">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <!-- 图片图标 -->
+                            <RectangleGeometry Rect="2,2,12,10"/>
+                            <LineGeometry StartPoint="2,8" EndPoint="14,8"/>
+                            <LineGeometry StartPoint="10,4" EndPoint="12,2"/>
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="Black" Thickness="1"/>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+
+        <!-- TreeViewItem样式 - 带连线和图标 -->
+        <!-- BooleanToVisibility转换器 -->
+        <!--<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>-->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- TreeView样式 -->
+        <Style TargetType="TreeView">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeView">
+                        <Border Name="Bd" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Padding="{TemplateBinding Padding}">
+                            <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 编辑模板 -->
+        <DataTemplate x:Key="EditTemplate">
+            <StackPanel Orientation="Horizontal" Margin="2" VerticalAlignment="Center">
+                <TextBox x:Name="editNameTextBox" Width="150" Margin="0,0,5,0" 
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                         KeyDown="EditTextBox_KeyDown" VerticalContentAlignment="Center"/>
+                <TextBlock Text=": " VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="editValueTextBox" Width="150" Margin="5,0,10,0"
+                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                         KeyDown="EditTextBox_KeyDown" VerticalContentAlignment="Center"/>
+                <Button Content="✓" Width="30" Margin="0,0,5,0" Click="EditConfirm_Click" 
+                        ToolTip="确认编辑" Background="LightGreen" FontWeight="Bold"/>
+                <Button Content="✗" Width="30" Click="EditCancel_Click"
+                        ToolTip="取消编辑" Background="LightCoral" FontWeight="Bold"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 右键菜单 -->
+        <ContextMenu x:Key="SimpleContextMenu">
+            <MenuItem Header="添加子节点" Click="ContextMenu_AddNode_Click"/>
+            <MenuItem Header="编辑节点" Click="ContextMenu_EditNode_Click"/>
+            <MenuItem Header="删除节点" Click="ContextMenu_DeleteNode_Click"/>
+            <Separator/>
+            <MenuItem Header="设置图片路径" Click="ContextMenu_SetPicturePath_Click"/>
+            <MenuItem Header="设置性别" Click="ContextMenu_SetGender_Click"/>
+            <Separator/>
+            <MenuItem Header="复制" Click="ContextMenu_Copy_Click"/>
+            <MenuItem Header="剪切" Click="ContextMenu_Cut_Click"/>
+            <MenuItem Header="粘贴" Click="ContextMenu_Paste_Click" Name="pasteMenuItem"/>
+            <Separator/>
+            <MenuItem Header="展开所有" Click="ContextMenu_ExpandAll_Click"/>
+            <MenuItem Header="折叠所有" Click="ContextMenu_CollapseAll_Click"/>
+        </ContextMenu>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 工具栏 -->
+        <ToolBar Grid.Row="0" Background="#FFF0F0F0" Height="40">
+            <Button Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Content="测试按钮"/>
+            <Button Content="📂 加载XML" Click="LoadXml_Click" ToolTip="加载XML文件"/>
+            <Button Content="💾 保存XML" Click="SaveXml_Click" ToolTip="保存XML文件"/>
+            <Separator/>
+            <Button Content="🔍 检查重复Key" Click="CheckDuplicateKeys_Click" ToolTip="检查重复的Key值"/>
+            <Separator/>
+            <TextBlock Text="当前文件:" VerticalAlignment="Center" Margin="10,0,5,0"/>
+            <TextBlock x:Name="currentFileText" Text="未选择文件" VerticalAlignment="Center" 
+                       Margin="0,0,10,0" Foreground="Blue"/>
+        </ToolBar>
+
+        <!-- TreeView -->
+        <TreeView x:Name="treeView" Grid.Row="1" Margin="10"
+          SelectedItemChanged="TreeView_SelectedItemChanged"
+                  MouseRightButtonDown="TreeView_MouseRightButtonDown"
+          ContextMenuOpening="TreeView_ContextMenuOpening"
+          FontSize="14" BorderThickness="1" BorderBrush="Gray">
+        </TreeView>
+        <!-- 状态栏 -->
+        <StatusBar Grid.Row="2" Background="#FFE0E0E0" Height="25">
+            <StatusBarItem>
+                <TextBlock x:Name="statusText" Text="就绪" Margin="10,0"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="keyCheckText" Text="" Margin="10,0" Foreground="DarkRed"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock x:Name="itemCountText" Text="0 个节点" Margin="10,0" Foreground="DarkBlue"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</UserControl>
