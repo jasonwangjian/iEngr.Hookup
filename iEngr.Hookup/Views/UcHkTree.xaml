@@ -13,6 +13,13 @@
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
+        <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
+        StringTemplate="{StaticResource StringEditorTemplate}"
+        IntegerTemplate="{StaticResource IntegerEditorTemplate}"
+        DoubleTemplate="{StaticResource DoubleEditorTemplate}"
+        BooleanTemplate="{StaticResource BooleanEditorTemplate}"
+        EnumTemplate="{StaticResource EnumEditorTemplate}"
+        DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
 
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
 
@@ -69,6 +76,9 @@
                       CommandParameter="{Binding}"
                       InputGestureText="Delete"/>
             <Separator/>
+            <MenuItem Header="编辑属性" 
+                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
             <MenuItem Header="编辑" 
                       Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
@@ -159,6 +169,38 @@
                         Foreground="Black"/>
             </StackPanel>
         </DataTemplate>
+
+        <!-- 属性编辑器模板 -->
+        <DataTemplate x:Key="StringEditorTemplate">
+            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
+                 Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="IntegerEditorTemplate">
+            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
+                 Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DoubleEditorTemplate">
+            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
+                 Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="BooleanEditorTemplate">
+            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumEditorTemplate">
+            <ComboBox ItemsSource="{Binding Options}" 
+                  SelectedItem="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DateTimeEditorTemplate">
+            <DatePicker SelectedDate="{Binding Value}" 
+                    Width="150" Margin="2"/>
+        </DataTemplate>
+
         
         <!-- 主要的HierarchicalDataTemplate -->
         <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 

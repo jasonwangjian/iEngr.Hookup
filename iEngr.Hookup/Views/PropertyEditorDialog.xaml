@@ -1,0 +1,131 @@
+﻿<Window x:Class="iEngr.Hookup.Views.PropertyEditorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
+        Title="编辑属性" Height="500" Width="800"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <!-- 定义各种编辑器模板 -->
+        <DataTemplate x:Key="StringEditorTemplate">
+            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="IntegerEditorTemplate">
+            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DoubleEditorTemplate">
+            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="BooleanEditorTemplate">
+            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumEditorTemplate">
+            <ComboBox ItemsSource="{Binding Options}" 
+                  SelectedItem="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DateTimeEditorTemplate">
+            <DatePicker SelectedDate="{Binding Value}" 
+                    Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <!-- 转换器实例 -->
+        <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
+        StringTemplate="{StaticResource StringEditorTemplate}"
+        IntegerTemplate="{StaticResource IntegerEditorTemplate}"
+        DoubleTemplate="{StaticResource DoubleEditorTemplate}"
+        BooleanTemplate="{StaticResource BooleanEditorTemplate}"
+        EnumTemplate="{StaticResource EnumEditorTemplate}"
+        DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 可用属性 -->
+        <GroupBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Header="可用属性" Margin="5">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Text="{Binding FilterText}" Width="200"/>
+                </StackPanel>
+                <ListBox ItemsSource="{Binding FilteredProperties}" 
+                         SelectionMode="Multiple"
+                         SelectionChanged="AvailablePropertiesListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Width="120"/>
+                                <TextBlock Text="{Binding Category}" Foreground="Gray" FontSize="10"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </GroupBox>
+
+        <!-- 已选属性编辑器 -->
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="已选属性（最多5个）" Margin="5">
+            <ItemsControl ItemsSource="{Binding SelectedProperties}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="{Binding DisplayName}" 
+                                           VerticalAlignment="Center"/>
+
+                                <ContentControl Grid.Column="1" 
+                                                Content="{Binding}"
+                                                ContentTemplate="{Binding Type, Converter={StaticResource PropertyEditorConverter}}"
+                                                Margin="5,0"/>
+
+                                <Button Grid.Column="2" 
+                                        Command="{Binding DataContext.RemovePropertyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding Key}"
+                                        Content="✕" 
+                                        Width="20" Height="20"
+                                        ToolTip="移除属性"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </GroupBox>
+
+        <!-- 统计信息 -->
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="统计信息" Margin="5">
+            <StackPanel>
+                <TextBlock Text="{Binding SelectedProperties.Count, StringFormat='已选择: {0}/5 个属性'}" Margin="5"/>
+                <ProgressBar Value="{Binding SelectedProperties.Count, Mode=OneWay}" Maximum="5" Height="10" Margin="5"/>
+                <Button Command="{Binding AddSelectedPropertiesCommand}" 
+                        Content="添加选中属性"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- 按钮 -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                    Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+            <Button Content="确定" Command="{Binding OKCommand}" Width="80" Margin="5"/>
+            <Button Content="取消" Command="{Binding CancelCommand}" Width="80" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

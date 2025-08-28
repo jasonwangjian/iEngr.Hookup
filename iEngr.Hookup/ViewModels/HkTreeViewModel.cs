@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,10 @@ namespace iEngr.Hookup.ViewModels
             CutCommand = new RelayCommand<object>(Cut, _ => SelectedItem != null);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
+            EditPropertiesCommand = new RelayCommand<HkTreeItem>(
+                execute: EditProperties,
+                canExecute: item => item != null
+            );
             StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null);
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
@@ -749,12 +754,21 @@ namespace iEngr.Hookup.ViewModels
         #endregion
 
         #region 编辑节点
+        public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
         public ICommand StartEditCommand { get; set; }
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
 
         private HkTreeItem _editingItem;
         // 开始编辑
+        private void EditProperties(HkTreeItem item)
+        {
+            var dialog = new PropertyEditorDialog(item);
+            if (dialog.ShowDialog() == true)
+            {
+                OnPropertyChanged(nameof(TreeItems));
+            }
+        }
         private void StartEdit(object parameter)
         {
             if (parameter is HkTreeItem item)

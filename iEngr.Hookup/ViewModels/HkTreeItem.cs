@@ -12,6 +12,18 @@ namespace iEngr.Hookup.ViewModels
 {
     public class HkTreeItem : BasicNotifyPropertyChanged
     {
+        private RelayCommand<string> _removePropertyCommand;
+        public RelayCommand<string> RemovePropertyCommand
+        {
+            get
+            {
+                return _removePropertyCommand ??= new RelayCommand<string>(
+                    execute: RemoveProperty,
+                    canExecute: key => !string.IsNullOrEmpty(key) && HasProperty(key)
+                );
+            }
+        }
+        private Dictionary<string, object> _properties = new Dictionary<string, object>();
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -152,8 +164,93 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
+        // 动态属性字典
+        public Dictionary<string, object> Properties
+        {
+            get => _properties;
+            set
+            {
+                _properties = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // 用户选择的属性键（最多5个）
+        private ObservableCollection<string> _selectedPropertyKeys = new ObservableCollection<string>();
+        public ObservableCollection<string> SelectedPropertyKeys
+        {
+            get => _selectedPropertyKeys;
+            set
+            {
+                _selectedPropertyKeys = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<HkTreeItem> Children { get; set; }
         public HkTreeItem Parent { get; set; }
+
+        public HkTreeItem()
+        {
+            Children = new ObservableCollection<HkTreeItem>();
+            SelectedPropertyKeys = new ObservableCollection<string>();
+        }
+
+        // 获取属性值
+        public object GetProperty(string key)
+        {
+            return _properties.ContainsKey(key) ? _properties[key] : null;
+        }
+
+        // 设置属性值
+        public void SetProperty(string key, object value)
+        {
+            if (_properties.ContainsKey(key))
+            {
+                _properties[key] = value;
+            }
+            else
+            {
+                _properties.Add(key, value);
+            }
+            OnPropertyChanged(nameof(Properties));
+        }
+
+        // 检查是否已选择某个属性
+        public bool HasProperty(string key)
+        {
+            return _selectedPropertyKeys.Contains(key);
+        }
+
+        // 添加属性
+        public bool AddProperty(string key)
+        {
+            if (_selectedPropertyKeys.Count >= 5)
+                return false;
+
+            if (!_selectedPropertyKeys.Contains(key))
+            {
+                _selectedPropertyKeys.Add(key);
+                OnPropertyChanged(nameof(SelectedPropertyKeys));
+                return true;
+            }
+            return false;
+        }
+
+        // 移除属性
+        public void RemoveProperty(string key)
+        {
+            if (_selectedPropertyKeys.Contains(key))
+            {
+                _selectedPropertyKeys.Remove(key);
+                if (_properties.ContainsKey(key))
+                {
+                    _properties.Remove(key);
+                }
+                OnPropertyChanged(nameof(SelectedPropertyKeys));
+                OnPropertyChanged(nameof(Properties));
+            }
+        }
 
         public HkTreeItem Clone()
         {
@@ -171,10 +268,6 @@ namespace iEngr.Hookup.ViewModels
             }
 
             return clone;
-        }
-        public HkTreeItem()
-        {
-            Children = new ObservableCollection<HkTreeItem>();
         }
 
         // 在HkTreeItem中添加验证
