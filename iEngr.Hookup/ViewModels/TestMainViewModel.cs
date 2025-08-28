@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class TestMainViewModel : INotifyPropertyChanged
     {
         private ObservableCollection<Person> _people;
         private Person _selectedPerson;
@@ -30,7 +30,7 @@ namespace iEngr.Hookup
         public ICommand AddPersonCommand { get; }
         public ICommand DeletePersonCommand { get; }
 
-        public MainViewModel()
+        public TestMainViewModel()
         {
             People = new ObservableCollection<Person>
         {

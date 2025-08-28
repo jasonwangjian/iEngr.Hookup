@@ -32,10 +32,10 @@ namespace iEngr.Hookup.Views
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e.NewValue is HkTreeItem newItem && DataContext is MainViewModel viewModel)
+            if (e.NewValue is HkTreeItem newItem && DataContext is HkTreeViewModel viewModel)
             {
-                _viewModel.SelectedItem = newItem;
-                _viewModel.LastSelectedItem = newItem;
+                viewModel.SelectedItem = newItem;
+                viewModel.LastSelectedItem = newItem;
             }
         }
 
@@ -65,10 +65,10 @@ namespace iEngr.Hookup.Views
                 // 选中该项
                 treeViewItem.IsSelected = true;
 
-                if (DataContext is MainViewModel viewModel)
+                if (DataContext is HkTreeViewModel viewModel)
                 {
-                    _viewModel.SelectedItem = item;
-                    _viewModel.LastSelectedItem = item;
+                    viewModel.SelectedItem = item;
+                    viewModel.LastSelectedItem = item;
                 }
 
                 e.Handled = true;

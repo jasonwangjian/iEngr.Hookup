@@ -9,7 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.DataContext>
-        <vm:MainViewModel />
+        <vm:TestMainViewModel />
     </UserControl.DataContext>
     <UserControl.Resources>
         <!-- 创建转换器 -->

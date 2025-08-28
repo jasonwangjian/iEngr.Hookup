@@ -13,7 +13,7 @@
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
 
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
-        
+
         <!-- 国家列表 -->
         <x:Array x:Key="Countries" Type="sys:String" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -22,7 +22,7 @@
             <sys:String>Germany</sys:String>
             <sys:String>Japan</sys:String>
         </x:Array>
-        
+
         <!-- 上下文菜单 -->
         <ContextMenu x:Key="TreeViewContextMenu">
             <!-- 展开折叠功能 -->
@@ -200,7 +200,8 @@
 
             <!-- TreeView -->
             <TreeView x:Name="twHk" ItemsSource="{Binding TreeItems}" 
-                  SelectedItemChanged="TreeView_SelectedItemChanged">
+          SelectedItemChanged="TreeView_SelectedItemChanged"
+          PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
                         <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>

@@ -96,7 +96,7 @@
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\TestMainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListItem.cs" />
     <Compile Include="ViewModels\MatListViewModel.cs" />
