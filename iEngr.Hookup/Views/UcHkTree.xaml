@@ -10,7 +10,9 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <cv:NullVisibilityConverter x:Key="NullVisibilityConverter"/>
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
+        <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
 
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
 
@@ -68,14 +70,9 @@
                       InputGestureText="Delete"/>
             <Separator/>
             <MenuItem Header="编辑" 
-                      Command="{Binding PlacementTarget.Tag.EditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <MenuItem Header="保存" 
-                      Command="{Binding PlacementTarget.Tag.SaveCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-            <MenuItem Header="取消" 
-                      Command="{Binding PlacementTarget.Tag.CancelEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
+            <Separator/>
         </ContextMenu>
 
         <!-- TreeViewItem样式 -->
@@ -92,6 +89,10 @@
         <!-- 显示模板 -->
         <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
+                <!-- 编辑状态指示器 -->
+                <TextBlock Text="✎" Foreground="Transparent" FontSize="10" Margin="0,0,3,0"
+                   Visibility="{Binding IsEditing, Converter={StaticResource NullVisibilityConverter}}"
+                   ToolTip="正在编辑"/>
                 <!-- 国家图标 -->
                 <Image Width="16" Height="16" Margin="0,0,5,0"
                    Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
@@ -124,24 +125,41 @@
         <DataTemplate x:Key="EditTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <!-- 名称编辑 -->
-                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                      Width="100" Margin="0,0,5,0"/>
 
                 <!-- 国家编辑 -->
-                <ComboBox SelectedItem="{Binding Country, UpdateSourceTrigger=PropertyChanged}"
+                <ComboBox SelectedItem="{Binding EditCountry, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Source={StaticResource Countries}}"
                       Width="80" Margin="0,0,5,0"/>
 
                 <!-- 人口编辑 -->
-                <TextBox Text="{Binding Population, UpdateSourceTrigger=PropertyChanged}"
+                <TextBox Text="{Binding EditPopulation, UpdateSourceTrigger=PropertyChanged}"
                      Width="50" Margin="0,0,5,0"/>
-
+                <TextBlock Text="人口不能为负数" Foreground="Red" FontSize="9"
+                           Visibility="{Binding EditPopulation, Converter={StaticResource NegativeNumberToVisibilityConverter}}"/>
                 <!-- 描述编辑 -->
-                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                     Width="150"/>
+                <TextBox Text="{Binding EditDescription, UpdateSourceTrigger=PropertyChanged}"
+                     Width="150" Margin="0,0,5,0"/>
+
+                <!-- 确认按钮 -->
+                <Button Content="✓" Width="20" Height="20" Margin="2,0"
+                        Command="{Binding DataContext.ConfirmEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                        CommandParameter="{Binding}"
+                        ToolTip="确认修改"
+                        Background ="White"
+                        Foreground="Black"/>
+
+                <!-- 取消按钮 -->
+                <Button Content="✗" Width="20" Height="20" Margin="2,0"
+                        Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                        CommandParameter="{Binding}"
+                        ToolTip="取消编辑"
+                        Background ="White"
+                        Foreground="Black"/>
             </StackPanel>
         </DataTemplate>
-
+        
         <!-- 主要的HierarchicalDataTemplate -->
         <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 
                               ItemsSource="{Binding Children}">
@@ -200,8 +218,9 @@
 
             <!-- TreeView -->
             <TreeView x:Name="twHk" ItemsSource="{Binding TreeItems}" 
-          SelectedItemChanged="TreeView_SelectedItemChanged"
-          PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown">
+                      SelectedItemChanged="TreeView_SelectedItemChanged"
+                      PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
+                      KeyDown="TreeView_KeyDown">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
                         <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>

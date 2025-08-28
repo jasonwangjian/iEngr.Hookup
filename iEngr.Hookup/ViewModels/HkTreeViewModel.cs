@@ -81,8 +81,8 @@ namespace iEngr.Hookup.ViewModels
             CutCommand = new RelayCommand<object>(Cut, _ => SelectedItem != null);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
-            EditCommand = new RelayCommand<object>(EditItem, _ => SelectedItem != null);
-            SaveCommand = new RelayCommand<object>(SaveItem);
+            StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null);
+            ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
             // 从XML文件加载数据
             LoadTreeDataFromXml();
@@ -665,7 +665,7 @@ namespace iEngr.Hookup.ViewModels
             }
 
             // 递归处理子节点
-            foreach (var childNode in xmlNode.Elements("Node"))
+            foreach (var childNode in xmlNode.Elements())
             {
                 var childItem = ParseXmlNode(childNode, treeItem);
                 treeItem.Children.Add(childItem);
@@ -749,55 +749,69 @@ namespace iEngr.Hookup.ViewModels
         #endregion
 
         #region 编辑节点
-        public ICommand EditCommand { get; set; }
-        public ICommand SaveCommand { get; set; }
+        public ICommand StartEditCommand { get; set; }
+        public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
 
         private HkTreeItem _editingItem;
-        private void EditItem(object parameter)
+        // 开始编辑
+        private void StartEdit(object parameter)
         {
-            // 保存当前状态
-            var currentSelection = SelectedItem;
-
             if (parameter is HkTreeItem item)
             {
+                // 取消之前的编辑
                 if (_editingItem != null && _editingItem != item)
                 {
-                    _editingItem.IsEditing = false;
+                    _editingItem.CancelEdit();
                 }
 
                 item.IsEditing = true;
                 _editingItem = item;
-
-                // 确保该项被选中
                 SelectedItem = item;
             }
-            else
-            {
-                // 恢复之前的选中状态
-                SelectedItem = currentSelection;
-            }
         }
 
-        private void SaveItem(object parameter)
+        private bool CanExecuteConfirmEdit(object parameter)
         {
-            if (_editingItem != null)
+            if (parameter is HkTreeItem item)
             {
-                _editingItem.IsEditing = false;
-                _editingItem = null;
-                // 保存到XML
-                SaveTreeDataToXml();
+                return !item.HasValidationErrors;
+            }
+            return _editingItem != null && !_editingItem.HasValidationErrors;
+        }
+        // 确认编辑
+        private void ConfirmEdit(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                if (item.ConfirmEdit())
+                {
+                    _editingItem = null;
+                    // 编辑成功
+                }
+                else
+                {
+                    // 编辑失败，显示错误信息
+                    PasteStatusMessage = " (验证错误: 名称不能为空且人口不能为负数)";
+                }
             }
         }
 
+
+        // 取消编辑
         private void CancelEdit(object parameter)
         {
-            if (_editingItem != null)
+            if (parameter is HkTreeItem item)
             {
-                _editingItem.IsEditing = false;
+                item.CancelEdit();
                 _editingItem = null;
             }
-        }
+            else if (_editingItem != null)
+            {
+                _editingItem.CancelEdit();
+                _editingItem = null;
+            }
+        }        
         #endregion
     }
 }

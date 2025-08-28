@@ -122,5 +122,24 @@ namespace iEngr.Hookup.Views
                 e.Handled = true;
             }
         }
+        // 在MainWindow代码后台添加键盘事件处理
+        private void TreeView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (DataContext is HkTreeViewModel viewModel)
+            {
+                if (e.Key == Key.Enter && viewModel.SelectedItem != null && viewModel.SelectedItem.IsEditing)
+                {
+                    // 回车键确认编辑
+                    viewModel.ConfirmEditCommand.Execute(viewModel.SelectedItem);
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Escape && viewModel.SelectedItem != null && viewModel.SelectedItem.IsEditing)
+                {
+                    // ESC键取消编辑
+                    viewModel.CancelEditCommand.Execute(viewModel.SelectedItem);
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }
