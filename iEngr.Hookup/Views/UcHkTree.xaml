@@ -13,6 +13,16 @@
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
 
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
+        
+        <!-- 国家列表 -->
+        <x:Array x:Key="Countries" Type="sys:String" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib">
+            <sys:String>China</sys:String>
+            <sys:String>USA</sys:String>
+            <sys:String>Germany</sys:String>
+            <sys:String>Japan</sys:String>
+        </x:Array>
+        
         <!-- 上下文菜单 -->
         <ContextMenu x:Key="TreeViewContextMenu">
             <!-- 展开折叠功能 -->
@@ -56,6 +66,16 @@
                       Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"
                       InputGestureText="Delete"/>
+            <Separator/>
+            <MenuItem Header="编辑" 
+                      Command="{Binding PlacementTarget.Tag.EditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="保存" 
+                      Command="{Binding PlacementTarget.Tag.SaveCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="取消" 
+                      Command="{Binding PlacementTarget.Tag.CancelEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
         </ContextMenu>
 
         <!-- TreeViewItem样式 -->
@@ -69,14 +89,12 @@
             <Setter Property="Padding" Value="2"/>
         </Style>
 
-        <!-- 数据模板 -->
-        <!-- 简单的数据模板用于测试 -->
-        <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 
-                                  ItemsSource="{Binding Children}">
+        <!-- 显示模板 -->
+        <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <!-- 国家图标 -->
                 <Image Width="16" Height="16" Margin="0,0,5,0"
-                Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
+                   Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
                     <Image.ToolTip>
                         <StackPanel>
                             <TextBlock Text="{Binding Country}" FontWeight="Bold"/>
@@ -91,16 +109,56 @@
 
                 <!-- 人口信息 -->
                 <TextBlock Text="{Binding Population, StringFormat=' ({0}百万)'}" 
-                           Foreground="Gray" FontSize="11" Margin="5,0,0,0"
-                           Visibility="{Binding Population, Converter={StaticResource NullVisibilityConverter}}"/>
+                       Foreground="Gray" FontSize="11" Margin="5,0,0,0"
+                       Visibility="{Binding Population, Converter={StaticResource NullVisibilityConverter}}"/>
 
                 <!-- 描述信息 -->
                 <TextBlock Text="{Binding Description, StringFormat=' - {0}'}" 
-                           Foreground="DarkGray" FontSize="10" FontStyle="Italic"
-                           Margin="5,0,0,0"
-                           Visibility="{Binding Description, Converter={StaticResource NullVisibilityConverter}}"/>
+                       Foreground="DarkGray" FontSize="10" FontStyle="Italic"
+                       Margin="5,0,0,0"
+                       Visibility="{Binding Description, Converter={StaticResource NullVisibilityConverter}}"/>
             </StackPanel>
+        </DataTemplate>
+
+        <!-- 编辑模板 -->
+        <DataTemplate x:Key="EditTemplate">
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <!-- 名称编辑 -->
+                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+                     Width="100" Margin="0,0,5,0"/>
+
+                <!-- 国家编辑 -->
+                <ComboBox SelectedItem="{Binding Country, UpdateSourceTrigger=PropertyChanged}"
+                      ItemsSource="{Binding Source={StaticResource Countries}}"
+                      Width="80" Margin="0,0,5,0"/>
+
+                <!-- 人口编辑 -->
+                <TextBox Text="{Binding Population, UpdateSourceTrigger=PropertyChanged}"
+                     Width="50" Margin="0,0,5,0"/>
+
+                <!-- 描述编辑 -->
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                     Width="150"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 主要的HierarchicalDataTemplate -->
+        <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 
+                              ItemsSource="{Binding Children}">
+            <ContentPresenter x:Name="contentPresenter" Content="{Binding}">
+                <ContentPresenter.Style>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="ContentTemplate" Value="{StaticResource DisplayTemplate}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                <Setter Property="ContentTemplate" Value="{StaticResource EditTemplate}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentPresenter.Style>
+            </ContentPresenter>
         </HierarchicalDataTemplate>
+
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -142,8 +200,7 @@
 
             <!-- TreeView -->
             <TreeView x:Name="twHk" ItemsSource="{Binding TreeItems}" 
-                  SelectedItemChanged="TreeView_SelectedItemChanged"
-                  PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown">
+                  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
                         <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>

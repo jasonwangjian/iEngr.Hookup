@@ -13,7 +13,17 @@ namespace iEngr.Hookup.ViewModels
     public class HkTreeItem : BasicNotifyPropertyChanged
     {
         private bool _isExpanded;
-
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set => SetField(ref _isExpanded, value);
+        }
+        private bool _isEditing;
+        public bool IsEditing
+        {
+            get => _isEditing;
+            set => SetField(ref _isEditing, value);
+        }
         private string _name;
         public string Name
         {
@@ -67,11 +77,6 @@ namespace iEngr.Hookup.ViewModels
         public ObservableCollection<HkTreeItem> Children { get; set; }
         public HkTreeItem Parent { get; set; }
 
-        public bool IsExpanded
-        {
-            get => _isExpanded;
-            set => SetField(ref _isExpanded, value);
-        }
         public HkTreeItem Clone()
         {
             var clone = new HkTreeItem

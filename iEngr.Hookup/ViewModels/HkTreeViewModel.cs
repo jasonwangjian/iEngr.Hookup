@@ -25,10 +25,23 @@ namespace iEngr.Hookup.ViewModels
             get => _selectedItem;
             set
             {
-                _selectedItem = value;
-                OnPropertyChanged();
-                UpdateCommandStates();
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    if (_selectedItem != null)
+                    {
+                        _lastSelectedItem = _selectedItem;
+                    }
+                    OnPropertyChanged();
+                    UpdateCommandStates();
+                }
             }
+        }
+        private HkTreeItem _lastSelectedItem; // 保存上次选中的项目
+        public HkTreeItem LastSelectedItem
+        {
+            get => _lastSelectedItem;
+            set => _lastSelectedItem = value;
         }
 
         // 更新命令状态
@@ -43,7 +56,7 @@ namespace iEngr.Hookup.ViewModels
             CommandManager.InvalidateRequerySuggested();
         }
 
-        private bool _isEditing;
+
         // 剪贴板内容
         private HkTreeItem _clipboardContent;
         private bool _isCutOperation; // 标记是剪切还是复制操作
@@ -68,6 +81,9 @@ namespace iEngr.Hookup.ViewModels
             CutCommand = new RelayCommand<object>(Cut, _ => SelectedItem != null);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
+            EditCommand = new RelayCommand<object>(EditItem, _ => SelectedItem != null);
+            SaveCommand = new RelayCommand<object>(SaveItem);
+            CancelEditCommand = new RelayCommand<object>(CancelEdit);
             // 从XML文件加载数据
             LoadTreeDataFromXml();
         }
@@ -729,6 +745,58 @@ namespace iEngr.Hookup.ViewModels
 
             TreeItems.Add(parent1);
             TreeItems.Add(parent2);
+        }
+        #endregion
+
+        #region 编辑节点
+        public ICommand EditCommand { get; set; }
+        public ICommand SaveCommand { get; set; }
+        public ICommand CancelEditCommand { get; set; }
+
+        private HkTreeItem _editingItem;
+        private void EditItem(object parameter)
+        {
+            // 保存当前状态
+            var currentSelection = SelectedItem;
+
+            if (parameter is HkTreeItem item)
+            {
+                if (_editingItem != null && _editingItem != item)
+                {
+                    _editingItem.IsEditing = false;
+                }
+
+                item.IsEditing = true;
+                _editingItem = item;
+
+                // 确保该项被选中
+                SelectedItem = item;
+            }
+            else
+            {
+                // 恢复之前的选中状态
+                SelectedItem = currentSelection;
+            }
+        }
+
+        private void SaveItem(object parameter)
+        {
+            if (_editingItem != null)
+            {
+                _editingItem.IsEditing = false;
+                _editingItem = null;
+                // 保存到XML
+                SaveTreeDataToXml();
+            }
+        }
+
+        private void CancelEdit(object parameter)
+        {
+            if (_editingItem != null)
+            {
+                _editingItem.IsEditing = false;
+                _editingItem = null;
+            }
         }
         #endregion
     }
