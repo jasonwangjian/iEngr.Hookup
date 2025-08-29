@@ -13,7 +13,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <Deterministic>true</Deterministic>
-	<LangVersion>8.0</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Converters\IconConverters.cs" />
     <Compile Include="Converters\NullToBoolConverter .cs" />
+    <Compile Include="Converters\PropertyKeyToNameConverter.cs" />
     <Compile Include="Converters\PropertyTypeToEditorTemplateConverter.cs" />
     <Compile Include="Converters\ValueConverters.cs" />
     <Compile Include="Converters\VisibilityConverters.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
+    <Compile Include="ViewModels\PropertyEditItem.cs" />
     <Compile Include="ViewModels\PropertyEditorViewModel.cs" />
     <Compile Include="ViewModels\TestMainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />

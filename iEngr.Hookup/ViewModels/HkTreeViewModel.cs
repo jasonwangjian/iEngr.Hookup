@@ -693,21 +693,21 @@ namespace iEngr.Hookup.ViewModels
         // 保存树形数据到XML文件（可选功能）
         public void SaveTreeDataToXml()
         {
-            try
-            {
-                XDocument doc = new XDocument(
-                    new XElement("TreeNodes",
-                        from item in TreeItems
-                        select ConvertToXmlNode(item)
-                    )
-                );
+            //try
+            //{
+            //    XDocument doc = new XDocument(
+            //        new XElement("TreeNodes",
+            //            from item in TreeItems
+            //            select ConvertToXmlNode(item)
+            //        )
+            //    );
 
-                doc.Save(GetXmlFilePath());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"保存XML数据失败: {ex.Message}");
-            }
+            //    doc.Save(GetXmlFilePath());
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"保存XML数据失败: {ex.Message}");
+            //}
         }
 
         // 将TreeItem转换为XML节点（递归方法）
@@ -761,12 +761,56 @@ namespace iEngr.Hookup.ViewModels
 
         private HkTreeItem _editingItem;
         // 开始编辑
-        private void EditProperties(HkTreeItem item)
+        private void EditProperties(object parameter)
         {
-            var dialog = new PropertyEditorDialog(item);
-            if (dialog.ShowDialog() == true)
+            if (parameter is HkTreeItem item)
             {
-                OnPropertyChanged(nameof(TreeItems));
+                var dialog = new PropertyEditorDialog(item);
+
+                // 直接订阅ViewModel的事件
+                if (dialog.DataContext is PropertyEditorViewModel viewModel)
+                {
+                    viewModel.PropertiesUpdated += (sender, editedItem) =>
+                    {
+
+                        var temp = editedItem.DisplayProperties; // 强制调用getter
+                        editedItem.DisplayProperties= temp;
+
+                        // 方法3：特定属性通知
+                        editedItem.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                        // 强制绑定更新
+                        editedItem.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+
+                        editedItem.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                        editedItem.OnPropertyChanged(nameof(HkTreeItem.Properties));
+                        editedItem.OnPropertyChanged(""); // 通知所有属性更改
+
+                        // 临时保存当前集合
+                        //var tempList = new List<HkTreeItem>(TreeItems);
+
+                        //// 清空并重新添加（强制刷新）
+                        //TreeItems.Clear();
+                        //foreach (var item in tempList)
+                        //{
+                        //    TreeItems.Add(item);
+                        //}
+
+
+                        OnPropertyChanged(nameof(SelectedItem)); // 测试
+
+                        // 刷新TreeView
+                        OnPropertyChanged(nameof(TreeItems));
+
+                        SaveTreeDataToXml();
+                    };
+                }
+
+                if (dialog.ShowDialog() == true)
+                {
+                    // 对话框确认关闭后的处理
+                    item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                    SaveTreeDataToXml();
+                }
             }
         }
         private void StartEdit(object parameter)
@@ -825,7 +869,35 @@ namespace iEngr.Hookup.ViewModels
                 _editingItem.CancelEdit();
                 _editingItem = null;
             }
-        }        
-        #endregion
+        }
+        public void RefreshTreeView()
+        {
+            // 通知TreeView刷新显示
+            OnPropertyChanged(nameof(TreeItems));
+
+            // 如果需要，可以强制刷新每个项目
+            foreach (var item in TreeItems)
+            {
+                item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                RefreshChildItems(item);
+            }
+        }
+
+        private void RefreshChildItems(HkTreeItem parentItem)
+        {
+            foreach (var child in parentItem.Children)
+            {
+                child.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                RefreshChildItems(child);
+            }
+        }
+        // 在属性编辑完成后调用
+        public void OnPropertiesEdited(HkTreeItem editedItem)
+        {
+            editedItem.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+            // 如果需要，可以在这里保存到XML
+            SaveTreeDataToXml();
+        }
+        #endregion 
     }
 }

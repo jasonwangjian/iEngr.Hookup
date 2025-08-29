@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,6 +25,31 @@ namespace iEngr.Hookup.ViewModels
             }
         }
         private Dictionary<string, object> _properties = new Dictionary<string, object>();
+        // 添加一个用于显示的属性字符串
+        public string DisplayProperties
+        {
+            get
+            {
+                if (SelectedPropertyKeys == null || SelectedPropertyKeys.Count == 0)
+                    return string.Empty;
+
+                var displayText = new StringBuilder();
+                foreach (var key in SelectedPropertyKeys)
+                {
+                    if (Properties.ContainsKey(key))
+                    {
+                        var propValue = Properties[key];
+                        var propDef = PropertyLibrary.GetPropertyDefinition(key);
+                        if (propDef != null && propValue != null)
+                        {
+                            displayText.Append($"{propDef.DisplayName}: {propValue}  ");
+                        }
+                    }
+                }
+                return displayText.ToString().Trim();
+            }
+            set => OnPropertyChanged();
+        }
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -202,7 +228,7 @@ namespace iEngr.Hookup.ViewModels
             return _properties.ContainsKey(key) ? _properties[key] : null;
         }
 
-        // 设置属性值
+        // 在设置属性时通知显示更新
         public void SetProperty(string key, object value)
         {
             if (_properties.ContainsKey(key))
@@ -214,7 +240,9 @@ namespace iEngr.Hookup.ViewModels
                 _properties.Add(key, value);
             }
             OnPropertyChanged(nameof(Properties));
+            OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
         }
+
 
         // 检查是否已选择某个属性
         public bool HasProperty(string key)
@@ -240,16 +268,17 @@ namespace iEngr.Hookup.ViewModels
         // 移除属性
         public void RemoveProperty(string key)
         {
+            if (_properties.ContainsKey(key))
+            {
+                _properties.Remove(key);
+            }
             if (_selectedPropertyKeys.Contains(key))
             {
                 _selectedPropertyKeys.Remove(key);
-                if (_properties.ContainsKey(key))
-                {
-                    _properties.Remove(key);
-                }
-                OnPropertyChanged(nameof(SelectedPropertyKeys));
-                OnPropertyChanged(nameof(Properties));
             }
+            OnPropertyChanged(nameof(Properties));
+            OnPropertyChanged(nameof(SelectedPropertyKeys));
+            OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
         }
 
         public HkTreeItem Clone()
@@ -305,5 +334,9 @@ namespace iEngr.Hookup.ViewModels
             EditDescription = Description;
             IsEditing = false;
         }
+        // 重写INotifyPropertyChanged 实现，protected改为internal
+        public new event PropertyChangedEventHandler PropertyChanged;
+        public new void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

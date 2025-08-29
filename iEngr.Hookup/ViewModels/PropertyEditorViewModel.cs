@@ -29,17 +29,16 @@ namespace iEngr.Hookup.ViewModels
         }
 
         // 修改更新方法
-        public void UpdateSelectedAvailableProperties(IList selectedItems)
+        public void UpdateSelectedAvailableItems(IList selectedItems)
         {
-            var newSelection = new ObservableCollection<PropertyDefinition>();
+            _selectedAvailableProperties.Clear();
             foreach (var item in selectedItems)
             {
                 if (item is PropertyDefinition property)
                 {
-                    newSelection.Add(property);
+                    _selectedAvailableProperties.Add(property);
                 }
             }
-            SelectedAvailableProperties = newSelection; // 现在可以赋值了
         }
         private readonly HkTreeItem _treeItem;
         private string _filterText;
@@ -60,11 +59,9 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        public bool CanAddMoreProperties => SelectedProperties.Count < 5 && SelectedAvailableProperties.Any();
 
         public RelayCommand<object> AddSelectedPropertiesCommand { get; }
         public RelayCommand<string> RemovePropertyCommand { get; }
-        public event EventHandler<bool?> CloseRequested;
 
         public RelayCommand<object> OKCommand { get; }
         public RelayCommand<object> CancelCommand { get; }
@@ -72,6 +69,9 @@ namespace iEngr.Hookup.ViewModels
         public PropertyEditorViewModel(HkTreeItem treeItem)
         {
             _treeItem = treeItem;
+
+            // 初始化编辑属性
+            InitializeEditingProperties();
 
             AvailableProperties = new ObservableCollection<PropertyDefinition>(PropertyLibrary.AllProperties);
             SelectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
@@ -129,19 +129,18 @@ namespace iEngr.Hookup.ViewModels
                          prop.Category.Contains(FilterText);
         }
 
+        // 修改CanAddMoreProperties
+        public bool CanAddMoreProperties => EditingProperties.Count < 5 && SelectedAvailableProperties.Any();
+        // 修改添加属性的方法
         private void AddSelectedProperties()
         {
             foreach (var prop in SelectedAvailableProperties.ToList())
             {
-                if (SelectedProperties.Count >= 5) break;
-                if (!SelectedProperties.Any(p => p.Key == prop.Key))
+                if (EditingProperties.Count >= 5) break;
+                if (!EditingProperties.Any(p => p.Definition.Key == prop.Key))
                 {
-                    SelectedProperties.Add(prop);
-                    // 设置默认值
-                    if (!_treeItem.Properties.ContainsKey(prop.Key) && prop.DefaultValue != null)
-                    {
-                        _treeItem.SetProperty(prop.Key, prop.DefaultValue);
-                    }
+                    var editItem = new PropertyEditItem(prop);
+                    EditingProperties.Add(editItem);
                 }
             }
             SelectedAvailableProperties.Clear();
@@ -160,38 +159,57 @@ namespace iEngr.Hookup.ViewModels
             AddSelectedPropertiesCommand.RaiseCanExecuteChanged();
         }
 
+        // 修改移除属性的方法
         private void RemoveProperty(string key)
         {
-            if (string.IsNullOrEmpty(key)) return;
-
-            // 使用循环而不是LINQ，避免并发修改问题
-            PropertyDefinition propertyToRemove = null;
-            foreach (var prop in SelectedProperties)
+            var editItem = EditingProperties.FirstOrDefault(p => p.Definition.Key == key);
+            if (editItem != null)
             {
-                if (prop.Key == key)
-                {
-                    propertyToRemove = prop;
-                    break;
-                }
-            }
-
-            if (propertyToRemove != null)
-            {
-                SelectedProperties.Remove(propertyToRemove);
-                _treeItem.RemoveProperty(key);
-
-                // 通知UI更新
-                OnPropertyChanged(nameof(SelectedProperties));
-                OnPropertyChanged(nameof(CanAddMoreProperties));
+                EditingProperties.Remove(editItem);
             }
         }
+
+        public event EventHandler<bool?> CloseRequested;
+        public event EventHandler<HkTreeItem> PropertiesUpdated;
+        private ObservableCollection<PropertyEditItem> _editingProperties = new ObservableCollection<PropertyEditItem>();
+        public ObservableCollection<PropertyEditItem> EditingProperties => _editingProperties;
         private void OK()
         {
-            // 更新树节点的选择属性
+            // 1. 更新选择属性键
             _treeItem.SelectedPropertyKeys = new ObservableCollection<string>(
-                SelectedProperties.Select(p => p.Key));
+                EditingProperties.Select(p => p.Definition.Key));
 
+            // 2. 更新属性值
+            foreach (var editItem in EditingProperties)
+            {
+                _treeItem.SetProperty(editItem.Definition.Key, editItem.Value);
+            }
+
+            PropertiesUpdated?.Invoke(this, _treeItem);
             CloseRequested?.Invoke(this, true);
+        }
+        // 初始化编辑属性
+        private void InitializeEditingProperties()
+        {
+            _editingProperties.Clear();
+
+            // 添加已选择的属性
+            foreach (var key in _treeItem.SelectedPropertyKeys)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(key);
+                if (propDef != null)
+                {
+                    var editItem = new PropertyEditItem(propDef);
+
+                    // 设置现有值或默认值
+                    if (_treeItem.Properties.ContainsKey(key))
+                    {
+                        editItem.Value = _treeItem.Properties[key];
+                    }
+
+                    _editingProperties.Add(editItem);
+                }
+            }
         }
 
         private void Cancel()

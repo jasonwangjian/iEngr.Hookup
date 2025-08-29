@@ -9,17 +9,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <cv:NullVisibilityConverter x:Key="NullVisibilityConverter"/>
+        <cv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <cv:PropertyKeyToNameConverter x:Key="PropertyKeyToNameConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
-        <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
-        StringTemplate="{StaticResource StringEditorTemplate}"
-        IntegerTemplate="{StaticResource IntegerEditorTemplate}"
-        DoubleTemplate="{StaticResource DoubleEditorTemplate}"
-        BooleanTemplate="{StaticResource BooleanEditorTemplate}"
-        EnumTemplate="{StaticResource EnumEditorTemplate}"
-        DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
 
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
 
@@ -97,37 +91,36 @@
         </Style>
 
         <!-- 显示模板 -->
+        <!-- 显示模板 -->
         <DataTemplate x:Key="DisplayTemplate">
-            <StackPanel Orientation="Horizontal" Margin="2">
-                <!-- 编辑状态指示器 -->
-                <TextBlock Text="✎" Foreground="Transparent" FontSize="10" Margin="0,0,3,0"
-                   Visibility="{Binding IsEditing, Converter={StaticResource NullVisibilityConverter}}"
-                   ToolTip="正在编辑"/>
-                <!-- 国家图标 -->
-                <Image Width="16" Height="16" Margin="0,0,5,0"
-                   Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
-                    <Image.ToolTip>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Country}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Description}"/>
-                            <TextBlock Text="{Binding Population, StringFormat='人口: {0}百万'}"/>
-                        </StackPanel>
-                    </Image.ToolTip>
-                </Image>
-
-                <!-- 节点名称 -->
-                <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                <!-- 人口信息 -->
-                <TextBlock Text="{Binding Population, StringFormat=' ({0}百万)'}" 
-                       Foreground="Gray" FontSize="11" Margin="5,0,0,0"
-                       Visibility="{Binding Population, Converter={StaticResource NullVisibilityConverter}}"/>
-
-                <!-- 描述信息 -->
-                <TextBlock Text="{Binding Description, StringFormat=' - {0}'}" 
-                       Foreground="DarkGray" FontSize="10" FontStyle="Italic"
-                       Margin="5,0,0,0"
-                       Visibility="{Binding Description, Converter={StaticResource NullVisibilityConverter}}"/>
+            <StackPanel Orientation="Vertical" Margin="2">
+                <!-- 节点名称和图标 -->
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Margin="0,0,5,0"
+                   Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}"/>
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                </StackPanel>
+                <!-- 确保这里正确绑定了DisplayProperties -->
+                <TextBlock Text="{Binding DisplayProperties}" 
+                   Foreground="Gray" FontSize="10" FontStyle="Italic"
+                   Margin="5,2,0,0"
+                   TextWrapping="Wrap"/>
+                <!-- 属性显示区域 -->
+                <ItemsControl ItemsSource="{Binding SelectedPropertyKeys}" 
+                      Margin="5,2,0,0"
+                      Visibility="{Binding SelectedPropertyKeys.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,1">
+                                <TextBlock Text="{Binding Converter={StaticResource PropertyKeyToNameConverter}}" 
+                                   Foreground="DarkGray" FontSize="10"/>
+                                <TextBlock Text=": " Foreground="DarkGray" FontSize="10"/>
+                                <TextBlock Text="{Binding Path=Properties[{0}], RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
+                                   Foreground="Gray" FontSize="10" FontStyle="Italic"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </DataTemplate>
 

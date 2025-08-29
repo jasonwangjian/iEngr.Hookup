@@ -42,7 +42,7 @@ namespace iEngr.Hookup.Converters
             throw new NotImplementedException();
         }
     }
-    public class NullVisibilityConverter : IValueConverter
+    public class NullToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (((value is int count) ? count : 0) > 0) ? Visibility.Visible : Visibility.Collapsed;

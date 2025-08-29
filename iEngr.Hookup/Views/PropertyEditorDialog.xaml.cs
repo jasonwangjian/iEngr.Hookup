@@ -7,23 +7,23 @@ namespace iEngr.Hookup.Views
 {
     public partial class PropertyEditorDialog : Window
     {
+        public PropertyEditorViewModel ViewModel => DataContext as PropertyEditorViewModel;
         public PropertyEditorDialog(HkTreeItem treeItem)
         {
             InitializeComponent();
-            var viewModel = new PropertyEditorViewModel(treeItem);
-            this.DataContext = viewModel;
-            viewModel.CloseRequested += (sender, result) =>
+            DataContext = new PropertyEditorViewModel(treeItem);
+            ViewModel.CloseRequested += (sender, result) =>
             {
-                this.DialogResult = result;
-                this.Close();
+                DialogResult = result;
+                Close();
             };
         }
 
         private void AvailablePropertiesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DataContext is PropertyEditorViewModel viewModel && sender is ListBox listBox)
+            if (ViewModel != null && sender is ListBox listBox)
             {
-                viewModel.UpdateSelectedAvailableProperties(listBox.SelectedItems);
+                ViewModel.UpdateSelectedAvailableItems(listBox.SelectedItems);
             }
         }
     }
