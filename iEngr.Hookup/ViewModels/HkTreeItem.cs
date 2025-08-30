@@ -78,7 +78,6 @@ namespace iEngr.Hookup.ViewModels
             {
                 _country = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(HasValidationErrors)); // 添加这一行
             }
         }
 
@@ -90,7 +89,6 @@ namespace iEngr.Hookup.ViewModels
             {
                 _description = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(HasValidationErrors)); // 添加这一行
             }
         }
 
@@ -98,12 +96,7 @@ namespace iEngr.Hookup.ViewModels
         public int Population
         {
             get => _population;
-            set
-            {
-                _population = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasValidationErrors)); // 添加这一行
-            }
+            set =>SetField(ref _population, value); 
         }
 
         // 编辑时的临时属性
@@ -111,15 +104,7 @@ namespace iEngr.Hookup.ViewModels
         public string EditName
         {
             get => _editName;
-            set
-            {
-                if (_editName != value)
-                {
-                    _editName = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(HasValidationErrors)); // 添加这一行
-                }
-            }
+            set=> SetField(ref _editName, value);
         }
 
         private string _editCountry;

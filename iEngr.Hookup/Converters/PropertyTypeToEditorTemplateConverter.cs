@@ -8,80 +8,34 @@ namespace iEngr.Hookup.Converters
 {
     public class PropertyTypeToEditorTemplateConverter : IValueConverter
     {
-        private DataTemplate _stringTemplate;
-        private DataTemplate _integerTemplate;
-        private DataTemplate _doubleTemplate;
-        private DataTemplate _booleanTemplate;
-        private DataTemplate _enumTemplate;
-        private DataTemplate _dateTimeTemplate;
-
-        public DataTemplate StringTemplate
-        {
-            get => _stringTemplate;
-            set => _stringTemplate = value;
-        }
-
-        public DataTemplate IntegerTemplate
-        {
-            get => _integerTemplate;
-            set => _integerTemplate = value;
-        }
-
-        public DataTemplate DoubleTemplate
-        {
-            get => _doubleTemplate;
-            set => _doubleTemplate = value;
-        }
-
-        public DataTemplate BooleanTemplate
-        {
-            get => _booleanTemplate;
-            set => _booleanTemplate = value;
-        }
-
-        public DataTemplate EnumTemplate
-        {
-            get => _enumTemplate;
-            set => _enumTemplate = value;
-        }
-
-        public DataTemplate DateTimeTemplate
-        {
-            get => _dateTimeTemplate;
-            set => _dateTimeTemplate = value;
-        }
+        public DataTemplate StringTemplate { get; set; }
+        public DataTemplate IntegerTemplate { get; set; }
+        public DataTemplate DoubleTemplate { get; set; }
+        public DataTemplate BooleanTemplate { get; set; }
+        public DataTemplate EnumTemplate { get; set; }
+        public DataTemplate DateTimeTemplate { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return StringTemplate;
-
-            if (value is PropertyType propertyType)
+            if (value is PropertyType type)
             {
-                switch (propertyType)
+                return type switch
                 {
-                    case PropertyType.String:
-                        return StringTemplate ?? throw new InvalidOperationException("StringTemplate is not set");
-                    case PropertyType.Integer:
-                        return IntegerTemplate ?? throw new InvalidOperationException("IntegerTemplate is not set");
-                    case PropertyType.Double:
-                        return DoubleTemplate ?? throw new InvalidOperationException("DoubleTemplate is not set");
-                    case PropertyType.Boolean:
-                        return BooleanTemplate ?? throw new InvalidOperationException("BooleanTemplate is not set");
-                    case PropertyType.Enum:
-                        return EnumTemplate ?? throw new InvalidOperationException("EnumTemplate is not set");
-                    case PropertyType.DateTime:
-                        return DateTimeTemplate ?? throw new InvalidOperationException("DateTimeTemplate is not set");
-                    default:
-                        return StringTemplate ?? throw new InvalidOperationException("StringTemplate is not set");
-                }
+                    PropertyType.String => StringTemplate,
+                    PropertyType.Integer => IntegerTemplate,
+                    PropertyType.Double => DoubleTemplate,
+                    PropertyType.Boolean => BooleanTemplate,
+                    PropertyType.Enum => EnumTemplate,
+                    PropertyType.DateTime => DateTimeTemplate,
+                    _ => StringTemplate
+                };
             }
-
-            return StringTemplate ?? throw new InvalidOperationException("StringTemplate is not set");
+            return StringTemplate;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("PropertyTypeToEditorTemplateConverter only supports one-way conversion");
+            throw new NotImplementedException();
         }
     }
 }

@@ -9,7 +9,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <cv:NullVisibilityConverter x:Key="NullVisibilityConverter"/>
+        <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
+        <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
+        <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
@@ -101,7 +103,7 @@
             <StackPanel Orientation="Horizontal" Margin="2">
                 <!-- 编辑状态指示器 -->
                 <TextBlock Text="✎" Foreground="Transparent" FontSize="10" Margin="0,0,3,0"
-                   Visibility="{Binding IsEditing, Converter={StaticResource NullVisibilityConverter}}"
+                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
                    ToolTip="正在编辑"/>
                 <!-- 国家图标 -->
                 <Image Width="16" Height="16" Margin="0,0,5,0"
@@ -119,15 +121,15 @@
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
 
                 <!-- 人口信息 -->
-                <TextBlock Text="{Binding Population, StringFormat=' ({0}百万)'}" 
+                <TextBlock Text="{Binding Population, StringFormat=' ({0}千万)'}" 
                        Foreground="Gray" FontSize="11" Margin="5,0,0,0"
-                       Visibility="{Binding Population, Converter={StaticResource NullVisibilityConverter}}"/>
+                       Visibility="{Binding Population, Converter={StaticResource PositiveNumberToVisibilityConverter}}"/>
 
                 <!-- 描述信息 -->
                 <TextBlock Text="{Binding Description, StringFormat=' - {0}'}" 
                        Foreground="DarkGray" FontSize="10" FontStyle="Italic"
                        Margin="5,0,0,0"
-                       Visibility="{Binding Description, Converter={StaticResource NullVisibilityConverter}}"/>
+                       Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
             </StackPanel>
         </DataTemplate>
 
@@ -137,7 +139,8 @@
                 <!-- 名称编辑 -->
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                      Width="100" Margin="0,0,5,0"/>
-
+                <TextBlock Text="不能为空" Foreground="Red" FontSize="9"
+                           Visibility="{Binding EditName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
                 <!-- 国家编辑 -->
                 <ComboBox SelectedItem="{Binding EditCountry, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Source={StaticResource Countries}}"

@@ -16,7 +16,7 @@
     <UserControl.Resources>
         <!-- 创建转换器 -->
         <cv:AS1ToBoolConverter x:Key="AS1ToBoolConverter" />
-        <cv:NullVisibilityConverter x:Key="NullVisibilityConverter" />
+        <cv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <cv:NoLinkEditableConverter x:Key="NoLinkEditableConverter"/>
         <cv:NoLinkCmbWidthConverter x:Key="NoLinkCmbWidthConverter"/>
     </UserControl.Resources>
@@ -62,14 +62,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbMainSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding MainSpecT1All}" SelectedItem="{Binding MainSpecT1}" 
-                      Visibility ="{Binding MainSpecT1All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding MainSpecT1All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbMainSpecV1" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbMainSpecT1}"
                       ItemsSource="{Binding DataContext.MainSpecV1All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.MainSpecV1, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.MainSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.MainSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.MainSpecT1.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.MainSpecT1.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
@@ -85,14 +85,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbMainSpecT2" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding MainSpecT2All}" SelectedItem="{Binding MainSpecT2}" 
-                      Visibility ="{Binding MainSpecT2All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding MainSpecT2All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbMainSpecV2" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbMainSpecT2}"
                       ItemsSource="{Binding DataContext.MainSpecV2All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.MainSpecV2, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.MainSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.MainSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.MainSpecT2.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.MainSpecT2.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
@@ -108,14 +108,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbMainSpecT3" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding MainSpecT3All}" SelectedItem="{Binding MainSpecT3}" 
-                      Visibility ="{Binding MainSpecT3All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding MainSpecT3All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbMainSpecV3" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbMainSpecT3}"
                       ItemsSource="{Binding DataContext.MainSpecV3All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.MainSpecV3, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.MainSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.MainSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.MainSpecT3.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.MainSpecT3.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
@@ -135,11 +135,11 @@
                 <WrapPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <ComboBox MinWidth="120"  Margin="2" IsEditable="False" DisplayMemberPath="Name" 
                       ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}" 
-                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullToVisibilityConverter}}"
                      ></ComboBox>
                     <ComboBox x:Name ="cmbSizeP1"  MinWidth="120"  Margin="2" IsEditable="False" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
                       ItemsSource="{Binding SizeAllP1}" SelectedItem="{Binding SizeP1}" 
-                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       ></ComboBox>
                 </WrapPanel>
                 <WrapPanel  Grid.Row="6" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
@@ -148,14 +148,14 @@
                 <WrapPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <ComboBox MinWidth="120" Margin="2" IsEditable="False" DisplayMemberPath="Name"
                       IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"
-                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       ItemsSource="{Binding TypeAllP2}" SelectedItem="{Binding TypeP2}"
             ></ComboBox>
 
                     <ComboBox x:Name ="cmbSizeP2" MinWidth="120"  Margin="2" IsEditable="False" KeyDown="cbSpec_KeyDown" DisplayMemberPath="Name"
                       IsEnabled="{Binding AlterCode, Converter={StaticResource AS1ToBoolConverter}}"
                       ItemsSource="{Binding SizeAllP2}" SelectedItem="{Binding SizeP2}" 
-                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding TypeAllP2.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       ></ComboBox>
                 </WrapPanel>
                 <Label Grid.Row="7" Grid.Column="0" >副参数：</Label>
@@ -163,14 +163,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbAuxSpecT1" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding AuxSpecT1All}" SelectedItem="{Binding AuxSpecT1}" 
-                      Visibility ="{Binding AuxSpecT1All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding AuxSpecT1All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbAuxSpecV1" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT1}"
                       ItemsSource="{Binding DataContext.AuxSpecV1All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.AuxSpecV1, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.AuxSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.AuxSpecT1All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.AuxSpecT1.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.AuxSpecT1.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
@@ -186,14 +186,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbAuxSpecT2" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding AuxSpecT2All}" SelectedItem="{Binding AuxSpecT2}" 
-                      Visibility ="{Binding AuxSpecT2All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding AuxSpecT2All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbAuxSpecV2" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT2}"
                       ItemsSource="{Binding DataContext.AuxSpecV2All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.AuxSpecV2, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.AuxSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.AuxSpecT2All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.AuxSpecT2.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.AuxSpecT2.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
@@ -209,14 +209,14 @@
                     <WrapPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
                         <ComboBox x:Name="cbAuxSpecT3" Margin="2" IsEditable="False" DisplayMemberPath="Name" BorderThickness="0"
                       ItemsSource="{Binding AuxSpecT3All}" SelectedItem="{Binding AuxSpecT3}" 
-                      Visibility ="{Binding AuxSpecT3All.Count, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding AuxSpecT3All.Count, Converter={StaticResource NullToVisibilityConverter}}"
                       >
                         </ComboBox>
                         <ComboBox x:Name="cbAuxSpecV3" Margin="2" DisplayMemberPath="Name"
                       DataContext="{Binding SelectedItem, ElementName=cbAuxSpecT3}"
                       ItemsSource="{Binding DataContext.AuxSpecV3All, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
                       SelectedItem="{Binding DataContext.AuxSpecV3, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" 
-                      Visibility ="{Binding DataContext.AuxSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullVisibilityConverter}}"
+                      Visibility ="{Binding DataContext.AuxSpecT3All.Count, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NullToVisibilityConverter}}"
                       IsEditable="{Binding DataContext.AuxSpecT3.Class, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkEditableConverter}}"
                       MinWidth="{Binding DataContext.AuxSpecT3.Class,RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}, Converter={StaticResource NoLinkCmbWidthConverter}}"
                       >
