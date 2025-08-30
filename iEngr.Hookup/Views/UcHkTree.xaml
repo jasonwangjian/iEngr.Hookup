@@ -101,10 +101,6 @@
         <!-- 显示模板 -->
         <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
-                <!-- 编辑状态指示器 -->
-                <TextBlock Text="✎" Foreground="Transparent" FontSize="10" Margin="0,0,3,0"
-                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
-                   ToolTip="正在编辑"/>
                 <!-- 国家图标 -->
                 <Image Width="16" Height="16" Margin="0,0,5,0"
                    Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
@@ -118,7 +114,8 @@
                 </Image>
 
                 <!-- 节点名称 -->
-                <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding NodeName}" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
 
                 <!-- 显示的属性 -->
                 <TextBlock Text="{Binding DisplayProperties}" 
@@ -272,7 +269,7 @@
             </StatusBar>
 
             <!-- TreeView -->
-            <TreeView x:Name="twHk" ItemsSource="{Binding TreeItems}" 
+            <TreeView x:Name="tvHk" ItemsSource="{Binding TreeItems}"
                       SelectedItemChanged="TreeView_SelectedItemChanged"
                       PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
                       KeyDown="TreeView_KeyDown">

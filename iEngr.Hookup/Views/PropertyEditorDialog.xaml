@@ -29,6 +29,14 @@
                   Width="150" Margin="2"/>
         </DataTemplate>
 
+        <DataTemplate x:Key="EnumListEditorTemplate">
+            <ComboBox ItemsSource="{Binding GeneralItems}" 
+                  DisplayMemberPath ="Name"
+                  SelectedValuePath="Code"
+                  SelectedValue="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
         <DataTemplate x:Key="DateTimeEditorTemplate">
             <DatePicker SelectedDate="{Binding Value}" 
                     Width="150" Margin="2"/>
@@ -41,6 +49,7 @@
         DoubleTemplate="{StaticResource DoubleEditorTemplate}"
         BooleanTemplate="{StaticResource BooleanEditorTemplate}"
         EnumTemplate="{StaticResource EnumEditorTemplate}"
+        EnumListTemplate="{StaticResource EnumListEditorTemplate}"
         DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
     </Window.Resources>
     <Grid>

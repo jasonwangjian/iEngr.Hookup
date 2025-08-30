@@ -78,15 +78,23 @@ namespace iEngr.Hookup.ViewModels
             SelectedProperties = new ObservableCollection<PropertyDefinition>();
 
             // 初始化已选属性
-            foreach (var key in treeItem.SelectedPropertyKeys)
+            foreach (var prop in treeItem.Properties)
             {
-                var prop = PropertyLibrary.GetPropertyDefinition(key);
-                if (prop != null)
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
                 {
-                    SelectedProperties.Add(prop);
+                    propDef.Value = prop.Value;
+                    SelectedProperties.Add(propDef);
                 }
             }
-
+            //foreach (var key in treeItem.SelectedPropertyKeys)
+            //{
+            //    var prop = PropertyLibrary.GetPropertyDefinition(key);
+            //    if (prop != null)
+            //    {
+            //        SelectedProperties.Add(prop);
+            //    }
+            //}
             // 设置过滤
             _filteredPropertiesSource = new CollectionViewSource { Source = AvailableProperties };
             _filteredPropertiesSource.Filter += FilterProperties;

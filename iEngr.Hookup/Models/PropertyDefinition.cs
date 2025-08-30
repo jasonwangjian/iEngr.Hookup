@@ -11,6 +11,7 @@ namespace iEngr.Hookup.Models
         public object DefaultValue { get; set; }
         public object Value { get; set; }
         public ObservableCollection<object> Options { get; set; }
+        public ObservableCollection<GeneralItem> GeneralItems { get; set; }
     }
 
     public enum PropertyType
@@ -20,6 +21,7 @@ namespace iEngr.Hookup.Models
         Double,
         Boolean,
         DateTime,
-        Enum
+        Enum,
+        EnumList
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -609,6 +610,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     XDocument doc = XDocument.Load(xmlFilePath);
                     var treeItem = ParseXmlNode(doc.Root, null);
+                    treeItem.IsExpanded = true;
                     TreeItems.Add(treeItem);
                     //var rootNodes = doc.Root.Elements();
                     //foreach (var node in rootNodes)
@@ -637,37 +639,25 @@ namespace iEngr.Hookup.ViewModels
         {
             var treeItem = new HkTreeItem
             {
-                Name = (xmlNode.Attribute("Name")?.Value ?? "未命名节点") + xmlNode.Name.LocalName + GetElementValue(xmlNode),
+                NodeName = xmlNode.Name.LocalName,
+                NodeValue = GetElementValue(xmlNode),
                 Parent = parent
             };
 
             // 解析扩展属性
-            var isExpandedAttr = xmlNode.Attribute("IsExpanded");
-            if (isExpandedAttr != null && bool.TryParse(isExpandedAttr.Value, out bool isExpanded))
-            {
-                treeItem.IsExpanded = isExpanded;
-            }
+            treeItem.ID = xmlNode.Attribute("ID")?.Value;
+            treeItem.Name = xmlNode.Attribute("Name")?.Value;
 
-            // 解析Country属性
-            var countryAttr = xmlNode.Attribute("Country");
-            if (countryAttr != null)
-            {
-                treeItem.Country = countryAttr.Value;
-            }
-
-            // 解析Population属性
-            var populationAttr = xmlNode.Attribute("Population");
-            if (populationAttr != null && int.TryParse(populationAttr.Value, out int population))
-            {
-                treeItem.Population = population;
-            }
-
-            // 解析Description属性
-            var descriptionAttr = xmlNode.Attribute("Description");
-            if (descriptionAttr != null)
-            {
-                treeItem.Description = descriptionAttr.Value;
-            }
+            // 解析字典属性
+            string[] reservedAttributes = { "ID", "Name"};
+            treeItem.Properties = xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => (object)x.Value);
+            //treeItem.Properties = new Dictionary<string, object>();
+            //foreach (var attribute in xmlNode.Attributes())
+            //{
+            //    if (!reservedAttributes.Contains(attribute.Name.ToString()))
+            //        treeItem.Properties.Add(attribute.Name.ToString(), attribute.Value);
+            //}
+            //treeItem.RefreshDisplayProperties();
 
             // 递归处理子节点
             foreach (var childNode in xmlNode.Elements())
@@ -693,32 +683,69 @@ namespace iEngr.Hookup.ViewModels
         // 保存树形数据到XML文件（可选功能）
         public void SaveTreeDataToXml()
         {
-            //try
-            //{
-            //    XDocument doc = new XDocument(
-            //        new XElement("TreeNodes",
-            //            from item in TreeItems
-            //            select ConvertToXmlNode(item)
-            //        )
-            //    );
+            try
+            {
+                XDocument doc = new XDocument(
+                    new XDeclaration("1.0", "utf-8", "yes"),
+                    ConvertToXmlNode(TreeItems[0])
+                //new XElement("HookupConfig",
+                //    from item in TreeItems
+                //    select ConvertToXmlNode(item)
+                //)
+                );
 
-            //    doc.Save(GetXmlFilePath());
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"保存XML数据失败: {ex.Message}");
-            //}
+                doc.Save(GetXmlFilePath());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"保存XML数据失败: {ex.Message}");
+            }
         }
 
         // 将TreeItem转换为XML节点（递归方法）
         private XElement ConvertToXmlNode(HkTreeItem treeItem)
         {
-            return new XElement("Node",
-                new XAttribute("Name", treeItem.Name),
-                from child in treeItem.Children
-                select ConvertToXmlNode(child)
-            );
+            string elementName = CleanXmlName(treeItem.NodeName);
+            var element = new XElement(elementName);
+
+            // 设置节点值
+            if (!string.IsNullOrEmpty(treeItem.NodeValue))
+            {
+                element.Value = treeItem.NodeValue;
+            }
+
+            // 添加附加属性
+            if (!string.IsNullOrEmpty(treeItem.Name))
+            {
+                element.SetAttributeValue("Name", treeItem.Name);
+            }
+            
+            foreach(var prop in treeItem.Properties)
+            {
+                element.SetAttributeValue(prop.Key, prop.Value);
+            }
+
+
+            // 递归处理子节点
+            foreach (HkTreeItem childItem in treeItem.Children)
+            {
+                element.Add(ConvertToXmlNode(childItem));
+            }
+
+            return element;
         }
+        private string CleanXmlName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return "未命名";
+
+            string cleaned = new string(name.Where(c =>
+                char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == '.').ToArray());
+
+            return string.IsNullOrEmpty(cleaned) ? "未命名" : cleaned;
+        }
+
+
+
         // 默认测试数据（备用）
         private void InitializeDefaultData()
         {
@@ -791,6 +818,8 @@ namespace iEngr.Hookup.ViewModels
                 if (item.ConfirmEdit())
                 {
                     _editingItem = null;
+                    item.RefreshDisplayProperties();
+                    //item.OnPropertyChanged(nameof(item.DisplayProperties));
                     // 编辑成功
                 }
                 else
@@ -800,7 +829,6 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-
 
         // 取消编辑
         private void CancelEdit(object parameter)
@@ -816,19 +844,17 @@ namespace iEngr.Hookup.ViewModels
                 _editingItem = null;
             }
         }
-        #endregion
-
-        #region 编辑节点属性
+        //编辑节点属性
         public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
-        // 开始编辑
         private void EditProperties(HkTreeItem item)
         {
             var dialog = new PropertyEditorDialog(item);
             if (dialog.ShowDialog() == true)
             {
                 item.RefreshDisplayProperties();
-                //OnPropertyChanged(nameof(TreeItems));
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                SaveTreeDataToXml();
+                //OnPropertyChanged(nameof(TreeItems));
             }
         }
 

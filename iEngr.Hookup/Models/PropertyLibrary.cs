@@ -8,6 +8,16 @@ namespace iEngr.Hookup.Services
     {
         public static ObservableCollection<PropertyDefinition> AllProperties { get; } = new ObservableCollection<PropertyDefinition>
         {
+            // Specifications
+            new PropertyDefinition { Key = "ConnType", DisplayName = "连接方式", Type = PropertyType.EnumList, Category = "Spec",
+                          GeneralItems= new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x=>x.Value).Select(x=> new GeneralItem
+                          {
+                              Code = x.ID,
+                              NameCn =x.NameCn,
+                              NameEn=x.NameEn
+
+                          }).ToList())},
+
             // 基础信息
             new PropertyDefinition { Key = "Description", DisplayName = "描述", Type = PropertyType.String, Category = "基本信息" },
             new PropertyDefinition { Key = "Code", DisplayName = "代码", Type = PropertyType.String, Category = "基本信息" },

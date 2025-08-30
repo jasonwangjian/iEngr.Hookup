@@ -13,6 +13,7 @@ namespace iEngr.Hookup.Converters
         public DataTemplate DoubleTemplate { get; set; }
         public DataTemplate BooleanTemplate { get; set; }
         public DataTemplate EnumTemplate { get; set; }
+        public DataTemplate EnumListTemplate { get; set; }
         public DataTemplate DateTimeTemplate { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -26,6 +27,7 @@ namespace iEngr.Hookup.Converters
                     PropertyType.Double => DoubleTemplate,
                     PropertyType.Boolean => BooleanTemplate,
                     PropertyType.Enum => EnumTemplate,
+                    PropertyType.EnumList => EnumListTemplate,
                     PropertyType.DateTime => DateTimeTemplate,
                     _ => StringTemplate
                 };

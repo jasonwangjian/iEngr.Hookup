@@ -24,7 +24,6 @@ namespace iEngr.Hookup.ViewModels
                 );
             }
         }
-        private Dictionary<string, object> _properties = new Dictionary<string, object>();
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -53,11 +52,29 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        private string _id;
+        public string ID
+        {
+            get => _id;
+            set => SetField(ref _id, value);
+        }
         private string _name;
         public string Name
         {
             get => _name;
             set => SetField(ref _name, value);
+        }
+        private string _nodeName;
+        public string NodeName
+        {
+            get => _nodeName;
+            set => SetField(ref _nodeName, value);
+        }
+        private string _nodeValue;
+        public string NodeValue
+        {
+            get => _nodeValue;
+            set => SetField(ref _nodeValue, value);
         }
         private string _functionCode;
         public string FunctionCode
@@ -153,8 +170,35 @@ namespace iEngr.Hookup.ViewModels
         public string _displayProperties;
         public string DisplayProperties
         {
+            //get
+            //{
+            //    if (SelectedPropertyKeys == null || SelectedPropertyKeys.Count == 0)
+            //        return string.Empty;
+
+            //    var displayText = new StringBuilder();
+            //    foreach (var prop in Properties)
+            //    {
+            //            var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+            //            if (propDef != null)
+            //            {
+            //                displayText.Append($"{propDef.DisplayName}: {prop.Value}");
+            //            }
+            //    }                
+            //    //foreach (var key in SelectedPropertyKeys)
+            //    //{
+            //    //    if (Properties.ContainsKey(key))
+            //    //    {
+            //    //        var prop = PropertyLibrary.GetPropertyDefinition(key);
+            //    //        if (prop != null)
+            //    //        {
+            //    //            displayText.Append($"{prop.DisplayName}: {prop.Value}  ");
+            //    //        }
+            //    //    }
+            //    //}
+            //    return displayText.ToString().Trim();
+            //}
             get => _displayProperties;
-            set => SetField(ref _displayProperties, value); 
+            set => SetField(ref _displayProperties, value);
         }
         public void RefreshDisplayProperties()
         {
@@ -162,28 +206,25 @@ namespace iEngr.Hookup.ViewModels
                 DisplayProperties = string.Empty;
 
             var displayText = new StringBuilder();
-            foreach (var key in SelectedPropertyKeys)
+            foreach (var prop in Properties)
             {
-                if (Properties.ContainsKey(key))
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
                 {
-                    var propValue = Properties[key];
-                    var propDef = PropertyLibrary.GetPropertyDefinition(key);
-                    if (propDef != null && propValue != null)
-                    {
-                        displayText.Append($"{propDef.DisplayName}: {propValue}  ");
-                    }
+                    displayText.Append($"{propDef.DisplayName}: {(propDef.GeneralItems != null? propDef.GeneralItems.FirstOrDefault(x => x.Code == prop.Value.ToString())?.Name : prop.Value)}");
                 }
             }
             DisplayProperties = displayText.ToString().Trim();
         }
         // 动态属性字典
+        private Dictionary<string, object> _properties = new Dictionary<string, object>();
         public Dictionary<string, object> Properties
         {
             get => _properties;
             set
             {
-                _properties = value;
-                OnPropertyChanged();
+                if (SetField(ref _properties, value))
+                    RefreshDisplayProperties(); ;
             }
         }
 
