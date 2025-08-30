@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class HkTreeItem : BasicNotifyPropertyChanged
+    public class HkTreeItem : INotifyPropertyChanged
     {
         private RelayCommand<string> _removePropertyCommand;
         public RelayCommand<string> RemovePropertyCommand
@@ -148,7 +149,33 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        // 添加一个用于显示的属性字符串
+        public string _displayProperties;
+        public string DisplayProperties
+        {
+            get => _displayProperties;
+            set => SetField(ref _displayProperties, value); 
+        }
+        public void RefreshDisplayProperties()
+        {
+            if (SelectedPropertyKeys == null || SelectedPropertyKeys.Count == 0)
+                DisplayProperties = string.Empty;
 
+            var displayText = new StringBuilder();
+            foreach (var key in SelectedPropertyKeys)
+            {
+                if (Properties.ContainsKey(key))
+                {
+                    var propValue = Properties[key];
+                    var propDef = PropertyLibrary.GetPropertyDefinition(key);
+                    if (propDef != null && propValue != null)
+                    {
+                        displayText.Append($"{propDef.DisplayName}: {propValue}  ");
+                    }
+                }
+            }
+            DisplayProperties = displayText.ToString().Trim();
+        }
         // 动态属性字典
         public Dictionary<string, object> Properties
         {
@@ -199,6 +226,7 @@ namespace iEngr.Hookup.ViewModels
                 _properties.Add(key, value);
             }
             OnPropertyChanged(nameof(Properties));
+            OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
         }
 
         // 检查是否已选择某个属性
@@ -234,6 +262,7 @@ namespace iEngr.Hookup.ViewModels
                 }
                 OnPropertyChanged(nameof(SelectedPropertyKeys));
                 OnPropertyChanged(nameof(Properties));
+                OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
             }
         }
 
@@ -290,5 +319,16 @@ namespace iEngr.Hookup.ViewModels
             EditDescription = Description;
             IsEditing = false;
         }
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+        // INotifyPropertyChanged 实现
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -39,7 +39,7 @@ namespace iEngr.Hookup.ViewModels
                     newSelection.Add(property);
                 }
             }
-            SelectedAvailableProperties = newSelection; // 现在可以赋值了
+            SelectedAvailableProperties = newSelection;
         }
         private readonly HkTreeItem _treeItem;
         private string _filterText;
@@ -137,11 +137,11 @@ namespace iEngr.Hookup.ViewModels
                 if (!SelectedProperties.Any(p => p.Key == prop.Key))
                 {
                     SelectedProperties.Add(prop);
-                    // 设置默认值
-                    if (!_treeItem.Properties.ContainsKey(prop.Key) && prop.DefaultValue != null)
-                    {
-                        _treeItem.SetProperty(prop.Key, prop.DefaultValue);
-                    }
+                    //// 设置默认值
+                    //if (!_treeItem.Properties.ContainsKey(prop.Key) && prop.DefaultValue != null)
+                    //{
+                    //    _treeItem.SetProperty(prop.Key, prop.DefaultValue);
+                    //}
                 }
             }
             SelectedAvailableProperties.Clear();
@@ -188,10 +188,23 @@ namespace iEngr.Hookup.ViewModels
         private void OK()
         {
             // 更新树节点的选择属性
-            _treeItem.SelectedPropertyKeys = new ObservableCollection<string>(
-                SelectedProperties.Select(p => p.Key));
+            //_treeItem.SelectedPropertyKeys = new ObservableCollection<string>(
+            //    SelectedProperties.Select(p => p.Key));
+            SetItemProperties(SelectedProperties);
 
+            // 请求关闭对话框
             CloseRequested?.Invoke(this, true);
+        }
+        private void SetItemProperties(ObservableCollection<PropertyDefinition> selectedProperties)
+        {
+            _treeItem.SelectedPropertyKeys.Clear();
+            _treeItem.Properties.Clear();
+            for (int i=0;i<selectedProperties?.Count;i++)
+            {
+                var prop = selectedProperties[i];
+                _treeItem.SelectedPropertyKeys.Add(prop.Key);
+                _treeItem.SetProperty(prop.Key, prop.Value);
+            }
         }
 
         private void Cancel()

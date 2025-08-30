@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class HkTreeViewModel : BasicNotifyPropertyChanged
+    public class HkTreeViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<HkTreeItem> TreeItems { get; set; }
         private HkTreeItem _selectedItem;
@@ -693,21 +693,21 @@ namespace iEngr.Hookup.ViewModels
         // 保存树形数据到XML文件（可选功能）
         public void SaveTreeDataToXml()
         {
-            try
-            {
-                XDocument doc = new XDocument(
-                    new XElement("TreeNodes",
-                        from item in TreeItems
-                        select ConvertToXmlNode(item)
-                    )
-                );
+            //try
+            //{
+            //    XDocument doc = new XDocument(
+            //        new XElement("TreeNodes",
+            //            from item in TreeItems
+            //            select ConvertToXmlNode(item)
+            //        )
+            //    );
 
-                doc.Save(GetXmlFilePath());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"保存XML数据失败: {ex.Message}");
-            }
+            //    doc.Save(GetXmlFilePath());
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"保存XML数据失败: {ex.Message}");
+            //}
         }
 
         // 将TreeItem转换为XML节点（递归方法）
@@ -754,21 +754,11 @@ namespace iEngr.Hookup.ViewModels
         #endregion
 
         #region 编辑节点
-        public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
         public ICommand StartEditCommand { get; set; }
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
 
         private HkTreeItem _editingItem;
-        // 开始编辑
-        private void EditProperties(HkTreeItem item)
-        {
-            var dialog = new PropertyEditorDialog(item);
-            if (dialog.ShowDialog() == true)
-            {
-                OnPropertyChanged(nameof(TreeItems));
-            }
-        }
         private void StartEdit(object parameter)
         {
             if (parameter is HkTreeItem item)
@@ -825,7 +815,34 @@ namespace iEngr.Hookup.ViewModels
                 _editingItem.CancelEdit();
                 _editingItem = null;
             }
-        }        
+        }
         #endregion
+
+        #region 编辑节点属性
+        public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
+        // 开始编辑
+        private void EditProperties(HkTreeItem item)
+        {
+            var dialog = new PropertyEditorDialog(item);
+            if (dialog.ShowDialog() == true)
+            {
+                item.RefreshDisplayProperties();
+                //OnPropertyChanged(nameof(TreeItems));
+                //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+            }
+        }
+
+        #endregion 
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+        // INotifyPropertyChanged 实现
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -9,6 +9,7 @@ namespace iEngr.Hookup.Models
         public PropertyType Type { get; set; }
         public string Category { get; set; }
         public object DefaultValue { get; set; }
+        public object Value { get; set; }
         public ObservableCollection<object> Options { get; set; }
     }
 

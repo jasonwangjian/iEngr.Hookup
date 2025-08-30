@@ -120,6 +120,12 @@
                 <!-- 节点名称 -->
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
 
+                <!-- 显示的属性 -->
+                <TextBlock Text="{Binding DisplayProperties}" 
+                   Foreground="Gray" FontSize="10" FontStyle="Italic"
+                   Margin="5,2,0,0"
+                   TextWrapping="Wrap"/>
+                
                 <!-- 人口信息 -->
                 <TextBlock Text="{Binding Population, StringFormat=' ({0}千万)'}" 
                        Foreground="Gray" FontSize="11" Margin="5,0,0,0"
@@ -136,6 +142,10 @@
         <!-- 编辑模板 -->
         <DataTemplate x:Key="EditTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
+                <!-- 编辑状态指示器 -->
+                <TextBlock Text="✎" Foreground="Black" FontSize="10" Margin="0,0,3,0"
+                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                   ToolTip="正在编辑"/>
                 <!-- 名称编辑 -->
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                      Width="100" Margin="0,0,5,0"/>
