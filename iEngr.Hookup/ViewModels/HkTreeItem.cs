@@ -13,6 +13,19 @@ namespace iEngr.Hookup.ViewModels
 {
     public class HkTreeItem : INotifyPropertyChanged
     {
+        public HkTreeItem()
+        {
+            Children = new ObservableCollection<HkTreeItem>();
+            SelectedPropertyKeys = new ObservableCollection<string>();
+            FunctionItems = new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x => x.Value).Select(x => new GeneralItem
+            {
+                Code = x.ID,
+                NameCn = x.NameCn,
+                NameEn = x.NameEn
+
+            }).ToList());
+        }
+        public ObservableCollection<GeneralItem> FunctionItems { get; set; }
         private RelayCommand<string> _removePropertyCommand;
         public RelayCommand<string> RemovePropertyCommand
         {
@@ -44,7 +57,7 @@ namespace iEngr.Hookup.ViewModels
                     {
                         // 进入编辑模式时保存原始值
                         EditName = Name;
-                        EditCountry = Country;
+                        EditFunctionCode = FunctionCode;
                         EditPopulation = Population;
                         EditDescription = Description;
                     }
@@ -76,17 +89,30 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeValue;
             set => SetField(ref _nodeValue, value);
         }
+
         private string _functionCode;
         public string FunctionCode
         {
             get => _functionCode;
             set => SetField(ref _functionCode, value);
         }
-        private string _device;
-        public string Device
+        private string _editFunctionCode;
+        public string EditFunctionCode
         {
-            get => _device;
-            set => SetField(ref _device, value);
+            get => _editFunctionCode;
+            set => SetField(ref _editFunctionCode, value);
+        }
+        private string _editDeviceCode;
+        public string EditDeviceCode
+        {
+            get => _editDeviceCode;
+            set => SetField(ref _editDeviceCode, value);
+        }
+        private string _deviceCode;
+        public string DeviceCode
+        {
+            get => _deviceCode;
+            set => SetField(ref _deviceCode, value);
         }
         private string _country;
         public string Country
@@ -125,19 +151,7 @@ namespace iEngr.Hookup.ViewModels
             set=> SetField(ref _editName, value);
         }
 
-        private string _editCountry;
-        public string EditCountry
-        {
-            get => _editCountry;
-            set
-            {
-                if (_editCountry != value)
-                {
-                    _editCountry = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+
 
         private int _editPopulation;
         public int EditPopulation
@@ -224,7 +238,7 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 if (SetField(ref _properties, value))
-                    RefreshDisplayProperties(); ;
+                    RefreshDisplayProperties(); 
             }
         }
 
@@ -242,12 +256,6 @@ namespace iEngr.Hookup.ViewModels
 
         public ObservableCollection<HkTreeItem> Children { get; set; }
         public HkTreeItem Parent { get; set; }
-
-        public HkTreeItem()
-        {
-            Children = new ObservableCollection<HkTreeItem>();
-            SelectedPropertyKeys = new ObservableCollection<string>();
-        }
 
         // 获取属性值
         public object GetProperty(string key)
@@ -344,7 +352,7 @@ namespace iEngr.Hookup.ViewModels
             }
 
             Name = EditName;
-            Country = EditCountry;
+            FunctionCode = EditFunctionCode;
             Population = EditPopulation;
             Description = EditDescription;
             IsEditing = false;
@@ -355,7 +363,7 @@ namespace iEngr.Hookup.ViewModels
         {
             // 恢复原始值
             EditName = Name;
-            EditCountry = Country;
+            EditFunctionCode = FunctionCode;
             EditPopulation = Population;
             EditDescription = Description;
             IsEditing = false;

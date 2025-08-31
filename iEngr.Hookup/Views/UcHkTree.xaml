@@ -9,22 +9,42 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <!-- 定义各种编辑器模板 -->
+        <DataTemplate x:Key="StringEditorTemplate">
+            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="BooleanEditorTemplate">
+            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumEditorTemplate">
+            <ComboBox ItemsSource="{Binding Options}" 
+                  SelectedItem="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumListEditorTemplate">
+            <ComboBox ItemsSource="{Binding GeneralItems}" 
+                  DisplayMemberPath ="Name"
+                  SelectedValuePath="Code"
+                  SelectedValue="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
         <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
         <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
         <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
+        <cv:ChildOfRootToVisibilityConverter  x:Key="ChildOfRootToVisibilityConverter"/> 
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
         <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
-        StringTemplate="{StaticResource StringEditorTemplate}"
-        IntegerTemplate="{StaticResource IntegerEditorTemplate}"
-        DoubleTemplate="{StaticResource DoubleEditorTemplate}"
-        BooleanTemplate="{StaticResource BooleanEditorTemplate}"
-        EnumTemplate="{StaticResource EnumEditorTemplate}"
-        DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
-
+            StringTemplate="{StaticResource StringEditorTemplate}"
+            BooleanTemplate="{StaticResource BooleanEditorTemplate}"
+            EnumTemplate="{StaticResource EnumEditorTemplate}"
+            EnumListTemplate="{StaticResource EnumListEditorTemplate}"/>
         <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
-
         <!-- 国家列表 -->
         <x:Array x:Key="Countries" Type="sys:String" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -73,18 +93,21 @@
                       Command="{Binding PlacementTarget.Tag.PasteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"
                       InputGestureText="Ctrl+V"/>
-            <MenuItem Header="删除" 
-                      Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"
-                      InputGestureText="Delete"/>
             <Separator/>
-            <MenuItem Header="编辑属性" 
-                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            <MenuItem Header="新建" 
+                      Command="{Binding PlacementTarget.Tag.StartEditNewCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
             <MenuItem Header="编辑" 
                       Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <Separator/>
+             <MenuItem Header="属性" 
+                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+             <MenuItem Header="删除" 
+                      Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Delete"/>
+           <Separator/>
         </ContextMenu>
 
         <!-- TreeViewItem样式 -->
@@ -143,15 +166,18 @@
                 <TextBlock Text="✎" Foreground="Black" FontSize="10" Margin="0,0,3,0"
                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
                    ToolTip="正在编辑"/>
-                <!-- 名称编辑 -->
+                <!-- 功能编辑 -->
+                <ComboBox ItemsSource="{Binding FunctionItems}" 
+                      DisplayMemberPath ="Name"
+                      SelectedValuePath="Code"
+                      SelectedValue="{Binding FunctionCode}" 
+                      Visibility="{Binding  Converter={StaticResource ChildOfRootToVisibilityConverter}}"
+                      Width="80" Margin="0,0,5,0"/>
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                      Width="100" Margin="0,0,5,0"/>
-                <TextBlock Text="不能为空" Foreground="Red" FontSize="9"
+                <TextBlock Text="👈不能为空" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
                            Visibility="{Binding EditName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
-                <!-- 国家编辑 -->
-                <ComboBox SelectedItem="{Binding EditCountry, UpdateSourceTrigger=PropertyChanged}"
-                      ItemsSource="{Binding Source={StaticResource Countries}}"
-                      Width="80" Margin="0,0,5,0"/>
+
 
                 <!-- 人口编辑 -->
                 <TextBox Text="{Binding EditPopulation, UpdateSourceTrigger=PropertyChanged}"
@@ -180,37 +206,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <!-- 属性编辑器模板 -->
-        <DataTemplate x:Key="StringEditorTemplate">
-            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
-                 Width="150" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="IntegerEditorTemplate">
-            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
-                 Width="150" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DoubleEditorTemplate">
-            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" 
-                 Width="150" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="BooleanEditorTemplate">
-            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="EnumEditorTemplate">
-            <ComboBox ItemsSource="{Binding Options}" 
-                  SelectedItem="{Binding Value}" 
-                  Width="150" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DateTimeEditorTemplate">
-            <DatePicker SelectedDate="{Binding Value}" 
-                    Width="150" Margin="2"/>
-        </DataTemplate>
-
+        
         
         <!-- 主要的HierarchicalDataTemplate -->
         <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 

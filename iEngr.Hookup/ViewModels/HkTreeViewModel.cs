@@ -1,4 +1,5 @@
-﻿using iEngr.Hookup.Models;
+﻿using iEngr.Hookup.Converters;
+using iEngr.Hookup.Models;
 using iEngr.Hookup.Views;
 using Microsoft.Win32;
 using System;
@@ -45,6 +46,8 @@ namespace iEngr.Hookup.ViewModels
             get => _lastSelectedItem;
             set => _lastSelectedItem = value;
         }
+        public bool IsNewAddedItemEdit { get; set; }
+
 
         // 更新命令状态
         private void UpdateCommandStates()
@@ -87,6 +90,7 @@ namespace iEngr.Hookup.ViewModels
                 execute: EditProperties,
                 canExecute: item => item != null
             );
+            StartEditNewCommand = new RelayCommand<object>(StartEditNew);
             StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null);
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
@@ -646,8 +650,8 @@ namespace iEngr.Hookup.ViewModels
 
             // 解析扩展属性
             treeItem.ID = xmlNode.Attribute("ID")?.Value;
+            treeItem.FunctionCode = xmlNode.Attribute("FunctionCode")?.Value;
             treeItem.Name = xmlNode.Attribute("Name")?.Value;
-
             // 解析字典属性
             string[] reservedAttributes = { "ID", "Name"};
             treeItem.Properties = xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => (object)x.Value);
@@ -715,12 +719,20 @@ namespace iEngr.Hookup.ViewModels
             }
 
             // 添加附加属性
+            // 添加附加属性
+            if (!string.IsNullOrEmpty(treeItem.ID))
+            {
+                element.SetAttributeValue("ID", treeItem.ID);
+            }
+            if (!string.IsNullOrEmpty(treeItem.FunctionCode))
+            {
+                element.SetAttributeValue("FunctionCode", treeItem.FunctionCode);
+            }
             if (!string.IsNullOrEmpty(treeItem.Name))
             {
                 element.SetAttributeValue("Name", treeItem.Name);
             }
-            
-            foreach(var prop in treeItem.Properties)
+            foreach (var prop in treeItem.Properties)
             {
                 element.SetAttributeValue(prop.Key, prop.Value);
             }
@@ -781,11 +793,33 @@ namespace iEngr.Hookup.ViewModels
         #endregion
 
         #region 编辑节点
+        public ICommand StartEditNewCommand { get; set; }
         public ICommand StartEditCommand { get; set; }
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
 
         private HkTreeItem _editingItem;
+        private void StartEditNew(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                item.IsExpanded = true;
+                HkTreeItem newIten = new HkTreeItem
+                {
+                    Parent = item,
+                };
+                item.Children.Add(newIten);
+                // 取消之前的编辑
+                if (_editingItem != null)
+                {
+                    _editingItem.CancelEdit();
+                }
+                IsNewAddedItemEdit = true;
+                newIten.IsEditing = true;
+                _editingItem = newIten;
+                SelectedItem = newIten;
+            }
+        }
         private void StartEdit(object parameter)
         {
             if (parameter is HkTreeItem item)
@@ -818,7 +852,10 @@ namespace iEngr.Hookup.ViewModels
                 if (item.ConfirmEdit())
                 {
                     _editingItem = null;
+                    IsNewAddedItemEdit = false;
                     item.RefreshDisplayProperties();
+                    SaveTreeDataToXml();
+
                     //item.OnPropertyChanged(nameof(item.DisplayProperties));
                     // 编辑成功
                 }
@@ -835,7 +872,25 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is HkTreeItem item)
             {
-                item.CancelEdit();
+                if (IsNewAddedItemEdit)
+                {
+
+                    // 选择父节点
+                    if (item.Parent != null)
+                    {
+                        SelectedItem = item.Parent;
+                    }
+                    else
+                    {
+                        SelectedItem = null;
+                    }
+                    // 从父节点中移除
+                    item.Parent.Children.Remove(item);
+                    IsNewAddedItemEdit = false;
+                }
+
+                else
+                    item.CancelEdit();
                 _editingItem = null;
             }
             else if (_editingItem != null)
