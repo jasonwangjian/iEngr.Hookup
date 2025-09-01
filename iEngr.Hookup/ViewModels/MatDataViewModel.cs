@@ -34,6 +34,7 @@ namespace iEngr.Hookup.ViewModels
             MatMatAll = GetHKLibMatMats();
             MatMat = MatMatAll?[0];
             KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownSpec);
+            KeyDownTextCommand = new RelayCommand<KeyEventArgs>(HandleKeyDownText);
             ResetAllCommand = new RelayCommand<object>(_ => DataResetAll());
             ResetSpecCommand = new RelayCommand<object>(_ => DataResetSpec());
             ResetMoreCommand = new RelayCommand<object>(_ => DataResetMore());
@@ -593,28 +594,48 @@ namespace iEngr.Hookup.ViewModels
         public HKLibMatMat MatMat
         {
             get => _matMat;
-            set => SetField(ref _matMat, value);
+            set
+            {
+                if (SetField(ref _matMat, value))
+                    MatDataToQuery = getMatDataString();
+            }
         }
         public ObservableCollection<HKLibMatMat> MatMatAll { get;set; }
         public string MoreSpecCn
         {
             get => _moreSpecCn;
-            set => SetField(ref _moreSpecCn, value);
+            set
+            {
+                if (SetField(ref _moreSpecCn, value))
+                    MatDataToQuery = getMatDataString();
+            }
         }
         public string MoreSpecEn
         {
             get => _moreSpecEn;
-            set => SetField(ref _moreSpecEn, value);
+            set
+            {
+                if (SetField(ref _moreSpecEn, value))
+                    MatDataToQuery = getMatDataString();
+            }
         }
         public string RemarksCn
         {
             get => _remarksCn;
-            set => SetField(ref _remarksCn, value);
+            set
+            {
+                if (SetField(ref _remarksCn, value))
+                    MatDataToQuery = getMatDataString();
+            }
         }
         public string RemarksEn
         {
             get => _remarksEn;
-            set => SetField(ref _remarksEn, value);
+            set
+            {
+                if (SetField(ref _remarksEn, value))
+                    MatDataToQuery = getMatDataString();
+            }
         }
         public string AlterCode
         {
@@ -899,6 +920,27 @@ namespace iEngr.Hookup.ViewModels
                     comboBox.SelectedItem  = SetCurrSelectedItem(cmbItems, value, -1);
                 }
                 e.Handled = true; // 标记事件已处理
+            }
+        }
+        public ICommand KeyDownTextCommand { get; }
+        private void HandleKeyDownText(KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) // 示例：按Enter键时处理
+            {
+                var textBox = (e.Source as TextBox);
+                if (textBox != null)
+                {
+                    if (textBox.Name == "tbMoreSpecCn")
+                        MoreSpecCn = textBox.Text;
+                    else if (textBox.Name == "tbMoreSpecEn")
+                        MoreSpecEn = textBox.Text;
+                    else if (textBox.Name == "tbRemarksCn")
+                        RemarksCn = textBox.Text;
+                    else if (textBox.Name == "tbRemarksEn")
+                        RemarksEn = textBox.Text;
+
+                    e.Handled = true; // 标记事件已处理
+                }
             }
         }
 
