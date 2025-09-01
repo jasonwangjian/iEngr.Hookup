@@ -123,7 +123,11 @@ namespace iEngr.Hookup.ViewModels
         public string MatDataFromQuery
         {
             get => _matDataFromQuery;
-            set=> SetField(ref _matDataFromQuery, value);
+            set 
+            {
+                _matDataFromQuery = value;
+                OnPropertyChanged();
+            }
         }
         private string _matDataToQuery;
         public string MatDataToQuery

@@ -398,7 +398,12 @@ namespace iEngr.Hookup.ViewModels
         public MatDataCmbItem MainSpecV3
         {
             get => _mainSpecV3;
-            set => SetField(ref _mainSpecV3, value);
+            set
+            {
+               if (SetField(ref _mainSpecV3, value))
+                    MatDataToQuery = getMatDataString();
+
+            }
         }
         public ObservableCollection<MatDataCmbItem> MainSpecV3All
         {
@@ -652,19 +657,21 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (_matDataToQuery != value)
                 {
-                    // 重置去抖动计时器
-                    _debounceTimer?.Stop();
-                    _debounceTimer = new DispatcherTimer
-                    {
-                        Interval = TimeSpan.FromMilliseconds(100) // 设置适当的延迟时间
-                    };
-                    _debounceTimer.Tick += (s, e) =>
-                    {
-                        _debounceTimer.Stop();
-                        _matDataToQuery = value;
-                        OnPropertyChanged();
-                    };
-                    _debounceTimer.Start();
+                    _matDataToQuery = value;
+                    OnPropertyChanged();
+                    //// 重置去抖动计时器
+                    //_debounceTimer?.Stop();
+                    //_debounceTimer = new DispatcherTimer
+                    //{
+                    //    Interval = TimeSpan.FromMilliseconds(100) // 设置适当的延迟时间
+                    //};
+                    //_debounceTimer.Tick += (s, e) =>
+                    //{
+                    //    _debounceTimer.Stop();
+                    //    _matDataToQuery = value;
+                    //    OnPropertyChanged();
+                    //};
+                    //_debounceTimer.Start();
                     // 触发自定义事件
                     DataChanged?.Invoke(this, value);
                     //Debug.WriteLine($"子控件数据已更新: {value}");
