@@ -9,37 +9,82 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 
 namespace iEngr.Hookup.Converters
 {
-    public class AS1ToBoolConverter : IValueConverter
+
+    
+    public class ChildOfRootToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => (string)value != "AS1";
+        {
+            return ((value as HkTreeItem).Parent?.NodeName == "HookupConfig")  ? Visibility.Visible : Visibility.Collapsed;
+        }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotSupportedException();
+        {
+            throw new NotImplementedException();
+        }
     }
-    public class NullVisibilityConverter : IValueConverter
+    public class NoEmptyToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !string.IsNullOrEmpty(value?.ToString()) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class NullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value == null ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class NegativeNumberToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int number)
+                return number < 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            if (value is string str && int.TryParse(str, out int parsedNumber))
+                return parsedNumber < 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (value is bool boolValue && boolValue) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class PositiveNumberToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             => (((value is int count) ? count : 0) > 0) ? Visibility.Visible : Visibility.Collapsed;
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotSupportedException();
-    }
-    public class NoLinkEditableConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-             => ((value is string classStr) ? classStr : null) != "Link";
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotSupportedException();
-    }
-    public class NoLinkCmbWidthConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-           => (((value is string classStr) ? classStr : null) == "Link")?  "40" : "80";
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotSupportedException();

@@ -1,0 +1,280 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcHkTree"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <!-- 定义各种编辑器模板 -->
+        <DataTemplate x:Key="StringEditorTemplate">
+            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="BooleanEditorTemplate">
+            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumEditorTemplate">
+            <ComboBox ItemsSource="{Binding Options}" 
+                  SelectedItem="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EnumListEditorTemplate">
+            <ComboBox ItemsSource="{Binding GeneralItems}" 
+                  DisplayMemberPath ="Name"
+                  SelectedValuePath="Code"
+                  SelectedValue="{Binding Value}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+        <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
+        <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
+        <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
+        <cv:ChildOfRootToVisibilityConverter  x:Key="ChildOfRootToVisibilityConverter"/> 
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
+        <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
+        <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
+            StringTemplate="{StaticResource StringEditorTemplate}"
+            BooleanTemplate="{StaticResource BooleanEditorTemplate}"
+            EnumTemplate="{StaticResource EnumEditorTemplate}"
+            EnumListTemplate="{StaticResource EnumListEditorTemplate}"/>
+        <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
+        <!-- 国家列表 -->
+        <x:Array x:Key="Countries" Type="sys:String" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib">
+            <sys:String>China</sys:String>
+            <sys:String>USA</sys:String>
+            <sys:String>Germany</sys:String>
+            <sys:String>Japan</sys:String>
+        </x:Array>
+
+        <!-- 上下文菜单 -->
+        <ContextMenu x:Key="TreeViewContextMenu">
+            <!-- 展开折叠功能 -->
+            <MenuItem Header="展开所有" 
+                      Command="{Binding PlacementTarget.Tag.ExpandAllCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Ctrl+E"/>
+            <MenuItem Header="折叠所有" 
+                      Command="{Binding PlacementTarget.Tag.CollapseAllCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Ctrl+W"/>
+            <Separator/>
+            <!-- 移动功能 -->
+            <MenuItem Header="上移" 
+                      Command="{Binding PlacementTarget.Tag.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="下移" 
+                      Command="{Binding PlacementTarget.Tag.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="移动到父节点" 
+                      Command="{Binding PlacementTarget.Tag.MoveToParentCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="移动到子节点" 
+                      Command="{Binding PlacementTarget.Tag.MoveToChildCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <Separator/>
+            <!-- 复制剪切粘贴功能 -->
+            <MenuItem Header="复制" 
+                      Command="{Binding PlacementTarget.Tag.CopyCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Ctrl+C"/>
+            <MenuItem Header="剪切" 
+                      Command="{Binding PlacementTarget.Tag.CutCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Ctrl+X"/>
+            <MenuItem Header="粘贴" 
+                      Command="{Binding PlacementTarget.Tag.PasteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Ctrl+V"/>
+            <Separator/>
+            <MenuItem Header="新建" 
+                      Command="{Binding PlacementTarget.Tag.StartEditNewCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="编辑" 
+                      Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+             <MenuItem Header="属性" 
+                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+             <MenuItem Header="删除" 
+                      Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      InputGestureText="Delete"/>
+           <Separator/>
+        </ContextMenu>
+
+        <!-- TreeViewItem样式 -->
+        <Style x:Key="TreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="ContextMenu" Value="{StaticResource TreeViewContextMenu}"/>
+            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=TreeView}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+
+        <!-- 显示模板 -->
+        <DataTemplate x:Key="DisplayTemplate">
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <!-- 国家图标 -->
+                <Image Width="16" Height="16" Margin="0,0,5,0"
+                   Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
+                    <Image.ToolTip>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Country}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Description}"/>
+                            <TextBlock Text="{Binding Population, StringFormat='人口: {0}百万'}"/>
+                        </StackPanel>
+                    </Image.ToolTip>
+                </Image>
+
+                <!-- 节点名称 -->
+                <TextBlock Text="{Binding NodeName}" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+
+                <!-- 显示的属性 -->
+                <TextBlock Text="{Binding DisplayProperties}" 
+                   Foreground="Gray" FontSize="10" FontStyle="Italic"
+                   Margin="5,2,0,0"
+                   TextWrapping="Wrap"/>
+                
+                <!-- 人口信息 -->
+                <TextBlock Text="{Binding Population, StringFormat=' ({0}千万)'}" 
+                       Foreground="Gray" FontSize="11" Margin="5,0,0,0"
+                       Visibility="{Binding Population, Converter={StaticResource PositiveNumberToVisibilityConverter}}"/>
+
+                <!-- 描述信息 -->
+                <TextBlock Text="{Binding Description, StringFormat=' - {0}'}" 
+                       Foreground="DarkGray" FontSize="10" FontStyle="Italic"
+                       Margin="5,0,0,0"
+                       Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 编辑模板 -->
+        <DataTemplate x:Key="EditTemplate">
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <!-- 编辑状态指示器 -->
+                <TextBlock Text="✎" Foreground="Black" FontSize="10" Margin="0,0,3,0"
+                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                   ToolTip="正在编辑"/>
+                <!-- 功能编辑 -->
+                <ComboBox ItemsSource="{Binding FunctionItems}" 
+                      DisplayMemberPath ="Name"
+                      SelectedValuePath="Code"
+                      SelectedValue="{Binding FunctionCode}" 
+                      Visibility="{Binding  Converter={StaticResource ChildOfRootToVisibilityConverter}}"
+                      Width="80" Margin="0,0,5,0"/>
+                <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
+                     Width="100" Margin="0,0,5,0"/>
+                <TextBlock Text="👈不能为空" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
+                           Visibility="{Binding EditName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
+
+
+                <!-- 人口编辑 -->
+                <TextBox Text="{Binding EditPopulation, UpdateSourceTrigger=PropertyChanged}"
+                     Width="50" Margin="0,0,5,0"/>
+                <TextBlock Text="人口不能为负数" Foreground="Red" FontSize="9"
+                           Visibility="{Binding EditPopulation, Converter={StaticResource NegativeNumberToVisibilityConverter}}"/>
+                <!-- 描述编辑 -->
+                <TextBox Text="{Binding EditDescription, UpdateSourceTrigger=PropertyChanged}"
+                     Width="150" Margin="0,0,5,0"/>
+
+                <!-- 确认按钮 -->
+                <Button Content="✓" Width="20" Height="20" Margin="2,0"
+                        Command="{Binding DataContext.ConfirmEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                        CommandParameter="{Binding}"
+                        ToolTip="确认修改"
+                        Background ="White"
+                        Foreground="Black"/>
+
+                <!-- 取消按钮 -->
+                <Button Content="✗" Width="20" Height="20" Margin="2,0"
+                        Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                        CommandParameter="{Binding}"
+                        ToolTip="取消编辑"
+                        Background ="White"
+                        Foreground="Black"/>
+            </StackPanel>
+        </DataTemplate>
+
+        
+        
+        <!-- 主要的HierarchicalDataTemplate -->
+        <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 
+                              ItemsSource="{Binding Children}">
+            <ContentPresenter x:Name="contentPresenter" Content="{Binding}">
+                <ContentPresenter.Style>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="ContentTemplate" Value="{StaticResource DisplayTemplate}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                <Setter Property="ContentTemplate" Value="{StaticResource EditTemplate}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentPresenter.Style>
+            </ContentPresenter>
+        </HierarchicalDataTemplate>
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="1" Grid.Column="1">
+            <!-- 状态栏 -->
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation ="Horizontal" ></StackPanel>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+
+                <TextBlock Grid.Column="0" Margin="5,0">
+                    <Run Text="选中: "/>
+                    <Run Text="{Binding SelectedItem.Name, FallbackValue='无'}"/>
+                    <Run Text=", 父节点: "/>
+                    <Run Text="{Binding SelectedItem.Parent.Name, FallbackValue='根节点'}"/>
+                </TextBlock>
+
+                <TextBlock Grid.Column="1" Margin="5,0" HorizontalAlignment="Center">
+                    <Run Text="剪贴板: "/>
+                    <Run Text="{Binding ClipboardContent, Mode=OneWay, FallbackValue='空'}"/>
+                    <Run Text="{Binding PasteStatusMessage}" Foreground="Red"/>
+                </TextBlock>
+
+                <TextBlock Grid.Column="2" Margin="5,0" HorizontalAlignment="Right">
+                    <Run Text="右键菜单"/>
+                </TextBlock>
+            </StatusBar>
+
+            <!-- TreeView -->
+            <TreeView x:Name="tvHk" ItemsSource="{Binding TreeItems}"
+                      SelectedItemChanged="TreeView_SelectedItemChanged"
+                      PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
+                      KeyDown="TreeView_KeyDown">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
+                        <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
+        </DockPanel>
+    </Grid>
+</UserControl>

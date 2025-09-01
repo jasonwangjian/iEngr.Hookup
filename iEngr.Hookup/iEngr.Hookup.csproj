@@ -13,6 +13,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +63,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -79,18 +81,26 @@
     <Compile Include="Comos\UcComosBomMgr.xaml.cs">
       <DependentUpon>UcComosBomMgr.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\IconConverters.cs" />
     <Compile Include="Converters\NullToBoolConverter .cs" />
-    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Converters\PropertyTypeToEditorTemplateConverter.cs" />
+    <Compile Include="Converters\ValueConverters.cs" />
+    <Compile Include="Converters\VisibilityConverters.cs" />
     <Compile Include="HK_Genera.DbFuncl.cs" />
     <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Models\PropertyDefinition.cs" />
+    <Compile Include="Models\PropertyLibrary.cs" />
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\HkTreeItem.cs" />
+    <Compile Include="ViewModels\HkTreeViewModel.cs" />
+    <Compile Include="ViewModels\PropertyEditorViewModel.cs" />
+    <Compile Include="ViewModels\TestMainViewModel.cs" />
     <Compile Include="ViewModels\MatDataViewModel.cs" />
     <Compile Include="ViewModels\MatListItem.cs" />
     <Compile Include="ViewModels\MatListViewModel.cs" />
@@ -99,11 +109,21 @@
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PropertyEditorDialog.xaml.cs">
+      <DependentUpon>PropertyEditorDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UcBomList.xaml.cs">
       <DependentUpon>UcBomList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcBomMgr.xaml.cs">
       <DependentUpon>UcBomMgr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcHkTree.xaml.cs">
+      <DependentUpon>UcHkTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcTreeTest.xaml.cs">
+      <DependentUpon>UcTreeTest.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\UcMatData.xaml.cs">
       <DependentUpon>UcMatData.xaml</DependentUpon>
@@ -153,7 +173,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Page Include="Comos\UcComosBomMgr.xaml">
       <SubType>Designer</SubType>
@@ -163,6 +182,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\PropertyEditorDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\UcBomList.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -170,6 +193,14 @@
     <Page Include="Views\UcBomMgr.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcHkTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcTreeTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Views\UcMatData.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -183,6 +214,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\T1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icon1.ico" />
+    <Resource Include="Resources\Icon2.ico" />
+    <Resource Include="Resources\DefaultIcon.ico" />
+    <Resource Include="Resources\Y00i00003.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

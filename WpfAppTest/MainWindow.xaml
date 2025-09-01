@@ -9,10 +9,17 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+
+        </Grid.ColumnDefinitions>
         <!--<external:MainWindow/>-->
         <!--<external:HK_LibMatHandle/>-->
         <!--<mv:UcMatMain/>-->
         <!--<mv:UcMatMain/>-->
-        <mv:UcBomMgr/>
+        <!--<mv:UcBomMgr/>-->
+        <mv:UcTreeTest/>
+        <mv:UcHkTree Grid.Column="1"/>
     </Grid>
 </Window>
