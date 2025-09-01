@@ -358,16 +358,16 @@ namespace iEngr.Hookup.ViewModels
             IsEditing = false;
             return true;
         }
-        // 取消编辑方法
-        public void CancelEdit()
-        {
-            // 恢复原始值
-            EditName = Name;
-            EditFunctionCode = FunctionCode;
-            EditPopulation = Population;
-            EditDescription = Description;
-            IsEditing = false;
-        }
+        //// 取消编辑方法
+        //public void CancelEdit()
+        //{
+        //    // 恢复原始值
+        //    EditName = Name;
+        //    EditFunctionCode = FunctionCode;
+        //    EditPopulation = Population;
+        //    EditDescription = Description;
+        //    IsEditing = false;
+        //}
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

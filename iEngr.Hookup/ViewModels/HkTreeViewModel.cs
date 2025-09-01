@@ -46,7 +46,7 @@ namespace iEngr.Hookup.ViewModels
             get => _lastSelectedItem;
             set => _lastSelectedItem = value;
         }
-        public bool IsNewAddedItemEdit { get; set; }
+        public bool IsNewAddedItemEditing { get; set; }
 
 
         // 更新命令状态
@@ -317,11 +317,10 @@ namespace iEngr.Hookup.ViewModels
         }
         #endregion
 
-        #region 复制剪切粘贴删除
+        #region 复制剪切粘贴
         public ICommand CopyCommand { get; set; }
         public ICommand CutCommand { get; set; }
         public ICommand PasteCommand { get; set; }
-        public ICommand DeleteCommand { get; set; }
         public bool CanDelete
         {
             get
@@ -524,82 +523,6 @@ namespace iEngr.Hookup.ViewModels
             OnPropertyChanged(nameof(CanPaste));
             CommandManager.InvalidateRequerySuggested();
         }
-        // 在MainViewModel中添加带确认的删除方法
-        private void DeleteWithConfirmation(object parameter)
-        {
-            if (parameter is HkTreeItem item)
-            {
-                SelectedItem = item;
-            }
-
-            if (!CanDelete) return;
-
-            // 显示确认对话框（在实际项目中需要实现对话框服务）
-            var message = $"确定要删除节点 '{SelectedItem.Name}' 及其所有子节点吗？";
-            var caption = "确认删除";
-
-            // 这里使用MessageBox作为示例，实际项目中建议使用DialogService
-            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                ExecuteDelete(SelectedItem);
-            }
-        }
-
-        // 实际的删除执行方法
-        private void ExecuteDelete(HkTreeItem itemToDelete)
-        {
-            var parent = itemToDelete.Parent;
-            var siblingToSelect = FindSiblingToSelect(itemToDelete);
-
-            // 从父节点中移除
-            parent.Children.Remove(itemToDelete);
-
-            // 选择兄弟节点或父节点
-            if (siblingToSelect != null)
-            {
-                SelectedItem = siblingToSelect;
-            }
-            else if (parent != null)
-            {
-                SelectedItem = parent;
-            }
-            else
-            {
-                SelectedItem = null;
-            }
-
-            // 清空相关剪贴板内容
-            if (_clipboardContent == itemToDelete)
-            {
-                ClearClipboard();
-            }
-        }
-        // 查找要选中的兄弟节点
-        private HkTreeItem FindSiblingToSelect(HkTreeItem deletedItem)
-        {
-            if (deletedItem.Parent == null) return null;
-
-            var siblings = deletedItem.Parent.Children;
-            int deletedIndex = siblings.IndexOf(deletedItem);
-
-            if (siblings.Count > 0)
-            {
-                // 尝试选择后面的兄弟节点
-                if (deletedIndex < siblings.Count - 1)
-                {
-                    return siblings[deletedIndex + 1];
-                }
-                // 尝试选择前面的兄弟节点
-                else if (deletedIndex > 0)
-                {
-                    return siblings[deletedIndex - 1];
-                }
-            }
-
-            return null;
-        }
         #endregion
 
         #region 文件操作;  Xml - TreeView转换
@@ -797,7 +720,7 @@ namespace iEngr.Hookup.ViewModels
         public ICommand StartEditCommand { get; set; }
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
-
+        public ICommand DeleteCommand { get; set; }
         private HkTreeItem _editingItem;
         private void StartEditNew(object parameter)
         {
@@ -812,9 +735,9 @@ namespace iEngr.Hookup.ViewModels
                 // 取消之前的编辑
                 if (_editingItem != null)
                 {
-                    _editingItem.CancelEdit();
+                    _editingItem.IsEditing = false;
                 }
-                IsNewAddedItemEdit = true;
+                IsNewAddedItemEditing = true;
                 newIten.IsEditing = true;
                 _editingItem = newIten;
                 SelectedItem = newIten;
@@ -827,7 +750,14 @@ namespace iEngr.Hookup.ViewModels
                 // 取消之前的编辑
                 if (_editingItem != null && _editingItem != item)
                 {
-                    _editingItem.CancelEdit();
+                    if (IsNewAddedItemEditing)
+                    {
+                        // 从父节点中移除
+                        _editingItem.Parent.Children.Remove(_editingItem);
+                        IsNewAddedItemEditing = false;
+                    }
+
+                    _editingItem.IsEditing = false; ;
                 }
 
                 item.IsEditing = true;
@@ -852,7 +782,7 @@ namespace iEngr.Hookup.ViewModels
                 if (item.ConfirmEdit())
                 {
                     _editingItem = null;
-                    IsNewAddedItemEdit = false;
+                    IsNewAddedItemEditing = false;
                     item.RefreshDisplayProperties();
                     SaveTreeDataToXml();
 
@@ -872,7 +802,7 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is HkTreeItem item)
             {
-                if (IsNewAddedItemEdit)
+                if (IsNewAddedItemEditing)
                 {
 
                     // 选择父节点
@@ -886,16 +816,16 @@ namespace iEngr.Hookup.ViewModels
                     }
                     // 从父节点中移除
                     item.Parent.Children.Remove(item);
-                    IsNewAddedItemEdit = false;
+                    IsNewAddedItemEditing = false;
                 }
 
                 else
-                    item.CancelEdit();
+                    item.IsEditing=false;
                 _editingItem = null;
             }
             else if (_editingItem != null)
             {
-                _editingItem.CancelEdit();
+                _editingItem.IsEditing = false; ;
                 _editingItem = null;
             }
         }
@@ -911,6 +841,82 @@ namespace iEngr.Hookup.ViewModels
                 SaveTreeDataToXml();
                 //OnPropertyChanged(nameof(TreeItems));
             }
+        }
+        // 在MainViewModel中添加带确认的删除方法
+        private void DeleteWithConfirmation(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                SelectedItem = item;
+            }
+
+            if (!CanDelete) return;
+
+            // 显示确认对话框（在实际项目中需要实现对话框服务）
+            var message = $"确定要删除节点 '{SelectedItem.Name}' 及其所有子节点吗？";
+            var caption = "确认删除";
+
+            // 这里使用MessageBox作为示例，实际项目中建议使用DialogService
+            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                ExecuteDelete(SelectedItem);
+            }
+        }
+
+        // 实际的删除执行方法
+        private void ExecuteDelete(HkTreeItem itemToDelete)
+        {
+            var parent = itemToDelete.Parent;
+            var siblingToSelect = FindSiblingToSelect(itemToDelete);
+
+            // 从父节点中移除
+            parent.Children.Remove(itemToDelete);
+
+            // 选择兄弟节点或父节点
+            if (siblingToSelect != null)
+            {
+                SelectedItem = siblingToSelect;
+            }
+            else if (parent != null)
+            {
+                SelectedItem = parent;
+            }
+            else
+            {
+                SelectedItem = null;
+            }
+
+            // 清空相关剪贴板内容
+            if (_clipboardContent == itemToDelete)
+            {
+                ClearClipboard();
+            }
+        }
+        // 查找要选中的兄弟节点
+        private HkTreeItem FindSiblingToSelect(HkTreeItem deletedItem)
+        {
+            if (deletedItem.Parent == null) return null;
+
+            var siblings = deletedItem.Parent.Children;
+            int deletedIndex = siblings.IndexOf(deletedItem);
+
+            if (siblings.Count > 0)
+            {
+                // 尝试选择后面的兄弟节点
+                if (deletedIndex < siblings.Count - 1)
+                {
+                    return siblings[deletedIndex + 1];
+                }
+                // 尝试选择前面的兄弟节点
+                else if (deletedIndex > 0)
+                {
+                    return siblings[deletedIndex - 1];
+                }
+            }
+
+            return null;
         }
 
         #endregion 
