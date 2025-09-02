@@ -52,6 +52,7 @@ namespace iEngr.Hookup.ViewModels
         // 更新命令状态
         private void UpdateCommandStates()
         {
+            OnPropertyChanged(nameof(IsNodeValided));
             OnPropertyChanged(nameof(CanMoveToParent));
             OnPropertyChanged(nameof(CanMoveToChild));
             OnPropertyChanged(nameof(CanMoveUp));
@@ -88,14 +89,25 @@ namespace iEngr.Hookup.ViewModels
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
                 execute: EditProperties,
-                canExecute: item => item != null
+                canExecute: item => item != null & IsNodeValided
             );
-            StartEditNewCommand = new RelayCommand<object>(StartEditNew);
-            StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null);
+            StartEditNewCommand = new RelayCommand<object>(StartEditNew,_=> IsNodeValided);
+            StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided);
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
             // 从XML文件加载数据
             LoadTreeDataFromXml();
+        }
+        //节点是否合法
+        public bool IsNodeValided
+        {
+            get
+            {
+                if (SelectedItem == null) return false;
+                if (HK_General.dicTreeNode.ContainsKey(SelectedItem.NodeName))
+                    return true;
+                return false;
+            }
         }
         #region 移动
         public ICommand MoveToParentCommand { get; set; }

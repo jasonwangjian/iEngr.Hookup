@@ -34,7 +34,7 @@
 
         <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
         <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
-        <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
+        <cv:EmptyToVisibilityConverter  x:Key="EmptyToVisibilityConverter"/>
         <cv:ChildOfRootToVisibilityConverter  x:Key="ChildOfRootToVisibilityConverter"/> 
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
@@ -167,16 +167,16 @@
                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
                    ToolTip="正在编辑"/>
                 <!-- 功能编辑 -->
-                <ComboBox ItemsSource="{Binding FunctionItems}" 
+                <ComboBox ItemsSource="{Binding NodeItems}" 
                       DisplayMemberPath ="Name"
                       SelectedValuePath="Code"
-                      SelectedValue="{Binding FunctionCode}" 
+                      SelectedValue="{Binding EditNodeName}" 
                       Visibility="{Binding  Converter={StaticResource ChildOfRootToVisibilityConverter}}"
                       Width="80" Margin="0,0,5,0"/>
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                      Width="100" Margin="0,0,5,0"/>
                 <TextBlock Text="👈不能为空" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
-                           Visibility="{Binding EditName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
+                           Visibility="{Binding EditName, Converter={StaticResource EmptyToVisibilityConverter}}"/>
 
 
                 <!-- 人口编辑 -->

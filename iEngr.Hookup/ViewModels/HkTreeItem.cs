@@ -17,15 +17,33 @@ namespace iEngr.Hookup.ViewModels
         {
             Children = new ObservableCollection<HkTreeItem>();
             SelectedPropertyKeys = new ObservableCollection<string>();
-            FunctionItems = new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x => x.Value).Select(x => new GeneralItem
-            {
-                Code = x.ID,
-                NameCn = x.NameCn,
-                NameEn = x.NameEn
+            //FunctionItems = new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x => x.Value).Select(x => new GeneralItem
+            //{
+            //    Code = x.ID,
+            //    NameCn = x.NameCn,
+            //    NameEn = x.NameEn
 
-            }).ToList());
+            //}).ToList());
         }
-        public ObservableCollection<GeneralItem> FunctionItems { get; set; }
+        public ObservableCollection<GeneralItem> NodeItems
+        {
+            get
+            {
+                List<GeneralItem> list = HK_General.dicTreeNode
+                    .Where(x => x.Key == Parent?.NodeName)
+                    .Select(x => x.Value).FirstOrDefault()?
+                    .Select(x => new GeneralItem
+                    {
+                        Code = x.ID,
+                        NameCn = x.NameCn,
+                        NameEn = x.NameEn
+                    })?.ToList();
+                if (list == null) return null;
+               return new ObservableCollection<GeneralItem>(list);
+
+            }
+        }
+
         private RelayCommand<string> _removePropertyCommand;
         public RelayCommand<string> RemovePropertyCommand
         {
@@ -57,7 +75,7 @@ namespace iEngr.Hookup.ViewModels
                     {
                         // 进入编辑模式时保存原始值
                         EditName = Name;
-                        EditFunctionCode = FunctionCode;
+                        EditNodeName = NodeName;
                         EditPopulation = Population;
                         EditDescription = Description;
                     }
@@ -65,6 +83,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+
         private string _id;
         public string ID
         {
@@ -83,6 +102,12 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeName;
             set => SetField(ref _nodeName, value);
         }
+        private string _editNodeName;
+        public string EditNodeName
+        {
+            get => _editNodeName;
+            set => SetField(ref _editNodeName, value);
+        }
         private string _nodeValue;
         public string NodeValue
         {
@@ -95,12 +120,6 @@ namespace iEngr.Hookup.ViewModels
         {
             get => _functionCode;
             set => SetField(ref _functionCode, value);
-        }
-        private string _editFunctionCode;
-        public string EditFunctionCode
-        {
-            get => _editFunctionCode;
-            set => SetField(ref _editFunctionCode, value);
         }
         private string _editDeviceCode;
         public string EditDeviceCode
@@ -352,7 +371,7 @@ namespace iEngr.Hookup.ViewModels
             }
 
             Name = EditName;
-            FunctionCode = EditFunctionCode;
+            NodeName = EditNodeName;
             Population = EditPopulation;
             Description = EditDescription;
             IsEditing = false;

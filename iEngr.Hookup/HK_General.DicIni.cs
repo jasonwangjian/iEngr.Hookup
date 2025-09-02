@@ -42,6 +42,7 @@ namespace iEngr.Hookup
         internal static Dictionary<string, HKLibGenOption> dicGenOption = dicGenOptionIni();
         internal static Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = dicNoLinkSpecIni();
         internal static Dictionary<string, HKLibMatMat> dicMatMat = dicMatMatIni();
+        internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNode = dicTreeNodeIni();
         private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
             Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
@@ -469,6 +470,77 @@ namespace iEngr.Hookup
                 }
             }
             return dicMatMat;
+        }
+        private static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNodeIni()
+        {
+            Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNode = new Dictionary<string, ObservableCollection<HKLibTreeNode>>();
+            dicTreeNode.Add("SpecNode", new ObservableCollection<HKLibTreeNode>());
+            string query = "select * from HK_LibTreeNode order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = Convert.ToString(reader["ID"]);
+                            string parent = Convert.ToString(reader["Parent"]);
+                            if (dicTreeNode.ContainsKey(parent))
+                            {
+                                if (!dicTreeNode[parent].Any(x=>x.ID == id))
+                                {
+                                    dicTreeNode[parent].Add(new HKLibTreeNode
+                                    {
+                                        ID = id,
+                                        Parent = parent,
+                                        NameCn = Convert.ToString(reader["NameCn"]),
+                                        NameEn = Convert.ToString(reader["NameEn"]),
+                                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                        NodeType = Convert.ToString(reader["NodeType"]),
+                                        IdentType = Convert.ToString(reader["IdentType"]),
+                                        FullName = Convert.ToString(reader["FullName"]),
+                                        NestedName = Convert.ToString(reader["NestedName"]),
+                                        SpecValue = Convert.ToString(reader["SpecValue"]),
+                                        Status = Convert.ToByte(reader["Status"]),
+                                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                dicTreeNode.Add(parent, new ObservableCollection<HKLibTreeNode>
+                                {
+                                    new HKLibTreeNode
+                                    {
+                                        ID = id,
+                                        Parent = parent,
+                                        NameCn = Convert.ToString(reader["NameCn"]),
+                                        NameEn = Convert.ToString(reader["NameEn"]),
+                                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                        NodeType = Convert.ToString(reader["NodeType"]),
+                                        IdentType = Convert.ToString(reader["IdentType"]),
+                                        FullName = Convert.ToString(reader["FullName"]),
+                                        NestedName = Convert.ToString(reader["NestedName"]),
+                                        SpecValue = Convert.ToString(reader["SpecValue"]),
+                                        Status = Convert.ToByte(reader["Status"]),
+                                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
+                }
+            }
+            return dicTreeNode;
         }
     }
 }

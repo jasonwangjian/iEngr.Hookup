@@ -33,6 +33,24 @@ namespace iEngr.Hookup.Views
             string[] portDef = HK_General.portDef;
             ViewModel = new MatDataViewModel();
             DataContext = ViewModel;
+            ViewModel.ClearCmbText += OnClearCmbText;
+        }
+
+        private void OnClearCmbText(object sender, bool value)
+        {
+            cbMainSpecV1.Text = null;
+            cbMainSpecV2.Text = null;
+            cbMainSpecV3.Text = null;
+            cbAuxSpecV1.Text = null;
+            cbAuxSpecV2.Text = null;
+            cbAuxSpecV3.Text = null;
+            cmbSizeP1.Text = null;
+            cmbSizeP2.Text = null;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                //MatDataToQuery = newData;
+                //Debug.WriteLine($"通过自定义事件收到数据: {newData}");
+            });
         }
         private void cbSpec_KeyDown(object sender, KeyEventArgs e)
         {

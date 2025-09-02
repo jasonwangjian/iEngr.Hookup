@@ -55,6 +55,9 @@
             <Button x:Name="btnMatGen" Content="安装材料库"  Click="btnMatGenLib_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnHkMNode" Content="Hookup树节点类型"  Click="btnHkMNode_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
         </StackPanel>
         <StackPanel Orientation ="Horizontal" Grid.Column="1">
             <Button x:Name="btnUpload" IsEnabled="True" Margin="5" Content="Upload" FontSize="11" Click="btnUpload_Click"/>

@@ -540,6 +540,44 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibTreeNode":
+                        if (isDataExisting("HK_LibTreeNode", (result as HKLibTreeNode).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibTreeNode SET " +
+                                $"Parent='{(result as HKLibTreeNode).Parent}'," +
+                                $"NameCn='{(result as HKLibTreeNode).NameCn}'," +
+                                $"NameEn='{(result as HKLibTreeNode).NameEn}'," +
+                                $"RemarksCn='{(result as HKLibTreeNode).RemarksCn}'," +
+                                $"RemarksEn='{(result as HKLibTreeNode).RemarksEn}'," +
+                                $"NodeType='{(result as HKLibTreeNode).NodeType}'," +
+                                $"IdentType='{(result as HKLibTreeNode).IdentType}'," +
+                                $"FullName='{(result as HKLibTreeNode).FullName}'," +
+                                $"NestedName='{(result as HKLibTreeNode).NestedName}'," +
+                                $"SpecValue='{(result as HKLibTreeNode).SpecValue}'," +
+                                $"Status={(result as HKLibTreeNode).Status}," +
+                                $"SortNum={(result as HKLibTreeNode).SortNum} " +
+                                $"WHERE ID='{(result as HKLibTreeNode).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibTreeNode (ID, Parent, NameCn, NameEn, RemarksCn, RemarksEn, NodeType, IdentType, FullName, NestedName, SpecValue, Status, SortNum) VALUES (" +
+                                $"'{(result as HKLibTreeNode).ID}'," +
+                                $"'{(result as HKLibTreeNode).Parent}'," +
+                                $"'{(result as HKLibTreeNode).NameCn}'," +
+                                $"'{(result as HKLibTreeNode).NameEn}'," +
+                                $"'{(result as HKLibTreeNode).RemarksCn}'," +
+                                $"'{(result as HKLibTreeNode).RemarksEn}'," +
+                                $"'{(result as HKLibTreeNode).NodeType}'," +
+                                $"'{(result as HKLibTreeNode).IdentType}'," +
+                                $"'{(result as HKLibTreeNode).FullName}'," +
+                                $"'{(result as HKLibTreeNode).NestedName}'," +
+                                $"'{(result as HKLibTreeNode).SpecValue}'," +
+                                $"{(result as HKLibTreeNode).Status}," +
+                                $"{(result as HKLibTreeNode).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -1178,8 +1216,51 @@ namespace xlsLibHookup
             }
             return data;
         }
-
-
+        private ObservableCollection<HKLibTreeNode> GetXlsHKNodeLib(string id = null)
+        {
+            ObservableCollection<HKLibTreeNode> data = new ObservableCollection<HKLibTreeNode>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibTreeNode$]"
+                                      : $"select * from [LibTreeNode$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibTreeNode item = new HKLibTreeNode
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        Parent = Convert.ToString(reader["Parent"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        NodeType = Convert.ToString(reader["NodeType"]),
+                        IdentType = Convert.ToString(reader["IdentType"]),
+                        FullName = Convert.ToString(reader["FullName"]),
+                        NestedName = Convert.ToString(reader["NestedName"]),
+                        SpecValue = Convert.ToString(reader["SpecValue"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+                
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibMatCat();
@@ -1231,6 +1312,11 @@ namespace xlsLibHookup
         private void btnMatGenLib_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsMatGenLib();
+        }
+
+        private void btnHkMNode_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKNodeLib();
         }
     }
 }

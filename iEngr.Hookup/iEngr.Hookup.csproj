@@ -86,9 +86,11 @@
     <Compile Include="Converters\PropertyTypeToEditorTemplateConverter.cs" />
     <Compile Include="Converters\ValueConverters.cs" />
     <Compile Include="Converters\VisibilityConverters.cs" />
-    <Compile Include="HK_Genera.DbFuncl.cs" />
+    <Compile Include="HK_General.cs" />
+    <Compile Include="HK_General.DbFunc.cs" />
     <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\Extensions.cs" />
+    <Compile Include="Models\HKLibTreeNode.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />

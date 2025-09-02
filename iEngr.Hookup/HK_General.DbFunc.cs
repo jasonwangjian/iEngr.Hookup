@@ -19,11 +19,6 @@ namespace iEngr.Hookup
 
     public static partial class HK_General
     {
-        public static int ProjLanguage = 4; // 4: 中文； 2为英文
-        public static bool IsAutoComosUpdate = true;
-        public static string UserName = "Anonymous";
-        public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
-        public static readonly string[] portNA = { "NA", "IS" };
         internal static OdbcConnection GetConnection()
         {
             try

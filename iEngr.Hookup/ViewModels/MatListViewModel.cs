@@ -23,10 +23,11 @@ namespace iEngr.Hookup.ViewModels
             SelectedItems = new ObservableCollection<MatListItem>();
             MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
-            QueryCommand = new RelayCommand<object>(_ => Query());
-            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0);
-            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedItem != null && CountExistingData == 0);
+            QueryCommand = new RelayCommand<object>(_ => Query(),_=> string.IsNullOrEmpty(HK_General.ErrMsgOmMatData));
+            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => CountExistingData == 0 && string.IsNullOrEmpty(HK_General.ErrMsgOmMatData));
+            UpdateCommand = new RelayCommand<object>(_ => Update(), _ => SelectedItem != null && CountExistingData == 0 && string.IsNullOrEmpty(HK_General.ErrMsgOmMatData));
             DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count > 0);
+            CountExistingData = HK_General.CountExistingData(getConditionEqual(MatDataToQuery));
             AutoQueryEnable = true;
             LangInChinese = true;
         }

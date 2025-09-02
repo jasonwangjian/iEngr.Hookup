@@ -26,6 +26,7 @@ namespace iEngr.Hookup.ViewModels
     {
         // 添加自定义事件
         public event EventHandler<string> DataChanged;
+        public event EventHandler<bool> ClearCmbText;
 
         public MatDataViewModel()
         {
@@ -398,12 +399,7 @@ namespace iEngr.Hookup.ViewModels
         public MatDataCmbItem MainSpecV3
         {
             get => _mainSpecV3;
-            set
-            {
-               if (SetField(ref _mainSpecV3, value))
-                    MatDataToQuery = getMatDataString();
-
-            }
+            set => SetField(ref _mainSpecV3, value);
         }
         public ObservableCollection<MatDataCmbItem> MainSpecV3All
         {
@@ -769,6 +765,16 @@ namespace iEngr.Hookup.ViewModels
                 RemarksEn = arrMatData[11];
             }
         }
+        private string _statusText;
+        public string StatusText
+        {
+            get => _statusText;
+            set
+            {
+                if (SetField(ref _statusText, value))
+                    HK_General.ErrMsgOmMatData = value;
+            }
+        }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -804,15 +810,15 @@ namespace iEngr.Hookup.ViewModels
             MainSpecT1 = null;
             MainSpecT2 = null;
             MainSpecT3 = null;
-            MainSpecV1 = MainSpecV1All?[0];
-            MainSpecV2 = MainSpecV2All?[0]; ;
-            MainSpecV3 = MainSpecV3All?[0]; ;
+            MainSpecV1 = MainSpecV1All?.Count > 0 ? MainSpecV1All?[0] : null;
+            MainSpecV2 = MainSpecV2All?.Count > 0 ? MainSpecV2All?[0] : null;
+            MainSpecV3 = MainSpecV3All?.Count > 0 ? MainSpecV3All?[0] : null;
             AuxSpecT1 = null;
             AuxSpecT2 = null;
             AuxSpecT3 = null;
-            AuxSpecV1 = AuxSpecV1All?[0]; ;
-            AuxSpecV2 = AuxSpecV2All?[0];
-            AuxSpecV3 = AuxSpecV3All?[0]; ;
+            AuxSpecV1 = AuxSpecV1All?.Count > 0 ? AuxSpecV1All?[0] : null;
+            AuxSpecV2 = AuxSpecV2All?.Count > 0 ? AuxSpecV2All?[0] : null;
+            AuxSpecV3 = AuxSpecV3All?.Count > 0 ? AuxSpecV3All?[0] : null;
             TypeP1 = TypeAllP1?[0];
             TypeP2 = TypeAllP2?[0];
             SizeP1 = SizeAllP1?[0];
@@ -821,6 +827,9 @@ namespace iEngr.Hookup.ViewModels
             MoreSpecEn = null;
             RemarksCn = null;
             RemarksEn= null;
+            StatusText = string.Empty;
+            HK_General.ErrMsgOmMatData = string.Empty;
+            ClearCmbText?.Invoke(this, true);
         }
         private void DataResetSpec()
         {
@@ -828,19 +837,22 @@ namespace iEngr.Hookup.ViewModels
             MainSpecT1 = null;
             MainSpecT2 = null;
             MainSpecT3 = null;
-            MainSpecV1 = MainSpecV1All?[0];
-            MainSpecV2 = MainSpecV2All?[0]; ;
-            MainSpecV3 = MainSpecV3All?[0]; ;
+            MainSpecV1 = MainSpecV1All?.Count > 0 ? MainSpecV1All?[0] : null;
+            MainSpecV2 = MainSpecV2All?.Count > 0 ? MainSpecV2All?[0] : null;
+            MainSpecV3 = MainSpecV3All?.Count > 0 ? MainSpecV3All?[0] : null;
             AuxSpecT1 = null;
             AuxSpecT2 = null;
             AuxSpecT3 = null;
-            AuxSpecV1 = AuxSpecV1All?[0]; ;
-            AuxSpecV2 = AuxSpecV2All?[0];
-            AuxSpecV3 = AuxSpecV3All?[0]; ;
+            AuxSpecV1 = AuxSpecV1All?.Count > 0 ? AuxSpecV1All?[0] : null;
+            AuxSpecV2 = AuxSpecV2All?.Count > 0 ? AuxSpecV2All?[0] : null;
+            AuxSpecV3 = AuxSpecV3All?.Count > 0 ? AuxSpecV3All?[0] : null;
             TypeP1 = TypeAllP1?[0];
             TypeP2 = TypeAllP2?[0];
             SizeP1 = SizeAllP1?[0];
             SizeP2 = SizeAllP1?[0];
+            StatusText = string.Empty;
+            HK_General.ErrMsgOmMatData = string.Empty;
+            ClearCmbText?.Invoke(this, true);
         }
         private void DataResetMore()
         {
@@ -863,8 +875,9 @@ namespace iEngr.Hookup.ViewModels
                     // 确保绑定更新
                     //var binding = comboBox.GetBindingExpression(ComboBox.TextProperty);
                     //binding?.UpdateSource();
-                    bool isValid = true;
+                    //bool isValid = true;
                     string value = comboBox.Text?.Trim();
+                    string standardValue= string.Empty;
                     var titleItem = (comboBox.DataContext as MatDataCmbItem);
                     string key = titleItem.ID;
                     var cmbItems = comboBox.ItemsSource as ObservableCollection<MatDataCmbItem>;
@@ -874,57 +887,92 @@ namespace iEngr.Hookup.ViewModels
                     switch(titleItem.Class)
                     {
                         case "Num3Items":
-                            value = GeneralFun.GetStandardNumberString(value, 2, titleItem.Link);
-                            if (value == null)
+                            standardValue = GeneralFun.GetStandardNumberString(value, 2, titleItem.Link);
+                            if (standardValue == null)
                             {
                                 Debug.WriteLine($"错误格式: {value}");
+                                StatusText = $"错误格式: {value}";
                                 return;
                             }
+                            StatusText = string.Empty;
                             break;
                         case "Num2Items":
-                            value = GeneralFun.GetStandardNumberString(value, 1, titleItem.Link);
-                            if (value == null)
+                            standardValue = GeneralFun.GetStandardNumberString(value, 1, titleItem.Link);
+                            if (standardValue == null)
                             {
                                 Debug.WriteLine($"错误格式: {value}");
+                                StatusText = $"错误格式: {value}";
                                 return;
                             }
+                            StatusText = string.Empty;
                             break;
                         case "Num":
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                StatusText = string.Empty; 
+                                return;
+                            }
                             if (decimal.TryParse(value, out decimal num))
                             {
-                            value = num.ToString();
-                            break;
-                            }
-                                Debug.WriteLine($"错误数字: {value}");
-                                return;
-                        case "NumP":
-                            if (decimal.TryParse(value, out decimal numP) && numP>=0)
-                            {
-                                value = numP.ToString();
+                                standardValue = num.ToString();
+                                StatusText = string.Empty;
                                 break;
                             }
                             Debug.WriteLine($"错误数字: {value}");
+                            StatusText = $"错误数字: {value}";
+                            return;
+                        case "NumP":
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                StatusText = string.Empty;
+                                return;
+                            }
+                            if (decimal.TryParse(value, out decimal numP) && numP>=0)
+                            {
+                                standardValue = numP.ToString();
+                                StatusText = string.Empty;
+                                break;
+                            }
+                            Debug.WriteLine($"错误数字: {value}");
+                            StatusText = $"错误数字: {value}";
                             return;
                         case "NumInt":
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                StatusText = string.Empty;
+                                return;
+                            }
                             if (decimal.TryParse(value, out decimal numInt))
                             {
-                             value = numInt.ToString();
-                            break;
-                           }
-                                Debug.WriteLine($"错误整数: {value}");
-                                return;
-                        case "NumIntP":
-                            if (decimal.TryParse(value, out decimal numIntP) && numIntP >=0 )
-                            {
-                                value = numIntP.ToString();
+                                standardValue = numInt.ToString();
+                                StatusText = string.Empty;
                                 break;
                             }
                             Debug.WriteLine($"错误整数: {value}");
+                            StatusText = $"错误整数: {value}";
                             return;
+                        case "NumIntP":
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                StatusText = string.Empty;
+                                return;
+                            }
+                            if (decimal.TryParse(value, out decimal numIntP) && numIntP >=0 )
+                            {
+                                standardValue = numIntP.ToString();
+                                StatusText = string.Empty;
+                                break;
+                            }
+                            Debug.WriteLine($"错误整数: {value}");
+                            StatusText = $"错误整数: {value}";
+                            return;
+                        //default :
+                        //    StatusText = string.Empty;
+                        //    break ;
                     }
-                    SetNoLinkDic(key, value);
+                    SetNoLinkDic(key, standardValue);
                     SetCmbItems(cmbItems, key);
-                    comboBox.SelectedItem  = SetCurrSelectedItem(cmbItems, value, -1);
+                    comboBox.SelectedItem  = SetCurrSelectedItem(cmbItems, standardValue, -1);
                 }
                 e.Handled = true; // 标记事件已处理
             }
