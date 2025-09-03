@@ -25,24 +25,6 @@ namespace iEngr.Hookup.ViewModels
 
             //}).ToList());
         }
-        public ObservableCollection<GeneralItem> NodeItems
-        {
-            get
-            {
-                List<GeneralItem> list = HK_General.dicTreeNode
-                    .Where(x => x.Key == Parent?.NodeName)
-                    .Select(x => x.Value).FirstOrDefault()?
-                    .Select(x => new GeneralItem
-                    {
-                        Code = x.ID,
-                        NameCn = x.NameCn,
-                        NameEn = x.NameEn
-                    })?.ToList();
-                if (list == null) return null;
-               return new ObservableCollection<GeneralItem>(list);
-
-            }
-        }
 
         private RelayCommand<string> _removePropertyCommand;
         public RelayCommand<string> RemovePropertyCommand
@@ -76,7 +58,7 @@ namespace iEngr.Hookup.ViewModels
                         // 进入编辑模式时保存原始值
                         EditName = Name;
                         EditNodeName = NodeName;
-                        EditPopulation = Population;
+                        EditNodeValue = NodeValue;
                         EditDescription = Description;
                     }
                     OnPropertyChanged();
@@ -101,12 +83,31 @@ namespace iEngr.Hookup.ViewModels
         {
             get => _nodeName;
             set => SetField(ref _nodeName, value);
+
         }
-        private string _editNodeName;
         public string EditNodeName
         {
             get => _editNodeName;
             set => SetField(ref _editNodeName, value);
+            //{
+            //    if (SetField(ref _editNodeName, value))
+            //    {
+            //        if (NodeName == "SpecNode")
+            //        {
+            //            if (string.IsNullOrEmpty(Name)) ErrMsgName = "不能为空";
+            //            else if (Siblings.Any(x => x.Name == Name)) ErrMsgName = $"重名：{Name}";
+            //            else ErrMsgName = string.Empty;
+            //            return;
+            //        }
+            //    }
+            //    ErrMsgName = string.Empty;
+            //}
+        }
+        private string _errMsgName;
+        public string ErrMsgName
+        {
+            get => _errMsgName;
+            set => SetField(ref _errMsgName, value);
         }
         private string _nodeValue;
         public string NodeValue
@@ -115,11 +116,11 @@ namespace iEngr.Hookup.ViewModels
             set => SetField(ref _nodeValue, value);
         }
 
-        private string _functionCode;
-        public string FunctionCode
+        private string _picturePath;
+        public string PicturePath
         {
-            get => _functionCode;
-            set => SetField(ref _functionCode, value);
+            get => _picturePath;
+            set => SetField(ref _picturePath, value);
         }
         private string _editDeviceCode;
         public string EditDeviceCode
@@ -163,24 +164,36 @@ namespace iEngr.Hookup.ViewModels
         }
 
         // 编辑时的临时属性
+        private string _editNodeName;
+
         private string _editName;
         public string EditName
         {
             get => _editName;
-            set=> SetField(ref _editName, value);
-        }
-
-
-
-        private int _editPopulation;
-        public int EditPopulation
-        {
-            get => _editPopulation;
             set
             {
-                if (_editPopulation != value)
+                if (SetField(ref _editName, value))
                 {
-                    _editPopulation = value;
+                    if (NodeName == "SpecNode")
+                    {
+                        if (string.IsNullOrEmpty(value)) ErrMsgName = "不能为空";
+                        else if (Siblings.Any(x => x.Name == value)) ErrMsgName = $"重名：{value}";
+                        else ErrMsgName = string.Empty;
+                        return;
+                    }
+                }
+                //ErrMsgName = string.Empty;
+            }
+        }
+        private string _editNodeValue;
+        public string EditNodeValue
+        {
+            get => _editNodeValue;
+            set
+            {
+                if (_editNodeValue != value)
+                {
+                    _editNodeValue = value;
                     OnPropertyChanged();
                 }
             }
@@ -275,6 +288,32 @@ namespace iEngr.Hookup.ViewModels
 
         public ObservableCollection<HkTreeItem> Children { get; set; }
         public HkTreeItem Parent { get; set; }
+        public List<HkTreeItem> Siblings 
+        {
+            get
+            {
+                return Parent.Children.Where(x=> x != this).ToList();
+            }
+        }
+        public ObservableCollection<GeneralItem> NodeItems
+        {
+            get
+            {
+                List<GeneralItem> list = HK_General.dicParentTreeNode
+                    .Where(x => x.Key == Parent?.NodeName)
+                    .Select(x => x.Value).FirstOrDefault()?
+                    .Select(x => new GeneralItem
+                    {
+                        Code = x.ID,
+                        NameCn = x.NameCn,
+                        NameEn = x.NameEn
+                    })?
+                    .Where(x => !Siblings.Select(s => s.NodeName).Contains(x.Code)).ToList();
+                if (list == null) return null;
+                return new ObservableCollection<GeneralItem>(list);
+
+            }
+        }
 
         // 获取属性值
         public object GetProperty(string key)
@@ -357,10 +396,11 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                return string.IsNullOrWhiteSpace(EditName) ||
-                       EditPopulation < 0;
+                return string.IsNullOrWhiteSpace(EditName) && NodeName == "SpecNode" ||
+                       !string.IsNullOrEmpty(ErrMsgName);
             }
         }
+
 
         // 在ConfirmEdit方法中添加验证
         public bool ConfirmEdit()
@@ -372,7 +412,7 @@ namespace iEngr.Hookup.ViewModels
 
             Name = EditName;
             NodeName = EditNodeName;
-            Population = EditPopulation;
+            NodeValue = EditNodeValue;
             Description = EditDescription;
             IsEditing = false;
             return true;

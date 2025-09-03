@@ -42,7 +42,8 @@ namespace iEngr.Hookup
         internal static Dictionary<string, HKLibGenOption> dicGenOption = dicGenOptionIni();
         internal static Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = dicNoLinkSpecIni();
         internal static Dictionary<string, HKLibMatMat> dicMatMat = dicMatMatIni();
-        internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNode = dicTreeNodeIni();
+        internal static Dictionary<string, HKLibTreeNode> dicTreeNode = dicTreeNodeIni();
+        internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNode = dicParentTreeNodeIni();
         private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
             Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
@@ -471,10 +472,50 @@ namespace iEngr.Hookup
             }
             return dicMatMat;
         }
-        private static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNodeIni()
+        private static Dictionary<string, HKLibTreeNode> dicTreeNodeIni()
         {
-            Dictionary<string, ObservableCollection<HKLibTreeNode>> dicTreeNode = new Dictionary<string, ObservableCollection<HKLibTreeNode>>();
-            dicTreeNode.Add("SpecNode", new ObservableCollection<HKLibTreeNode>());
+            Dictionary<string, HKLibTreeNode> dicTreeNode = new Dictionary<string, HKLibTreeNode>();
+            string query = "select * from HK_LibTreeNode order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = Convert.ToString(reader["ID"]);
+                            dicTreeNode.Add(id, new HKLibTreeNode
+                            {
+                                ID = id,
+                                Parent = Convert.ToString(reader["Parent"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameEn"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                NodeType = Convert.ToString(reader["NodeType"]),
+                                IdentType = Convert.ToString(reader["IdentType"]),
+                                FullName = Convert.ToString(reader["FullName"]),
+                                NestedName = Convert.ToString(reader["NestedName"]),
+                                SpecValue = Convert.ToString(reader["SpecValue"]),
+                                Status = Convert.ToByte(reader["Status"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"]),
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
+                }
+            }
+            return dicTreeNode;
+        }
+        private static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNodeIni()
+        {
+            Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNode = new Dictionary<string, ObservableCollection<HKLibTreeNode>>();
             string query = "select * from HK_LibTreeNode order by SortNum";
             using (OdbcConnection conn = GetConnection())
             {
@@ -487,11 +528,11 @@ namespace iEngr.Hookup
                         {
                             string id = Convert.ToString(reader["ID"]);
                             string parent = Convert.ToString(reader["Parent"]);
-                            if (dicTreeNode.ContainsKey(parent))
+                            if (dicParentTreeNode.ContainsKey(parent))
                             {
-                                if (!dicTreeNode[parent].Any(x=>x.ID == id))
+                                if (!dicParentTreeNode[parent].Any(x=>x.ID == id))
                                 {
-                                    dicTreeNode[parent].Add(new HKLibTreeNode
+                                    dicParentTreeNode[parent].Add(new HKLibTreeNode
                                     {
                                         ID = id,
                                         Parent = parent,
@@ -511,7 +552,7 @@ namespace iEngr.Hookup
                             }
                             else
                             {
-                                dicTreeNode.Add(parent, new ObservableCollection<HKLibTreeNode>
+                                dicParentTreeNode.Add(parent, new ObservableCollection<HKLibTreeNode>
                                 {
                                     new HKLibTreeNode
                                     {
@@ -540,7 +581,7 @@ namespace iEngr.Hookup
                     Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
                 }
             }
-            return dicTreeNode;
+            return dicParentTreeNode;
         }
     }
 }

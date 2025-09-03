@@ -34,17 +34,19 @@
 
         <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
         <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
-        <cv:EmptyToVisibilityConverter  x:Key="EmptyToVisibilityConverter"/>
-        <cv:ChildOfRootToVisibilityConverter  x:Key="ChildOfRootToVisibilityConverter"/> 
+        <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
+        <cv:CmbNodeToVisibilityConverter  x:Key="CmbNodeToVisibilityConverter"/>
+        <cv:TextNodeToVisibilityConverter  x:Key="TextNodeToVisibilityConverter"/>
+        <cv:NodeNameToValueConverter  x:Key="NodeNameToValueConverter"/>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <cv:CountryToIconResourceConverter x:Key="CountryToIconConverter"/>
+        <cv:StringToIconResourceConverter x:Key="StringToIconResourceConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
         <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
             StringTemplate="{StaticResource StringEditorTemplate}"
             BooleanTemplate="{StaticResource BooleanEditorTemplate}"
             EnumTemplate="{StaticResource EnumEditorTemplate}"
             EnumListTemplate="{StaticResource EnumListEditorTemplate}"/>
-        <BitmapImage x:Key="DefaultIcon" UriSource="/Resources/DefaultIcon.ico"/>
+        <BitmapImage x:Key="PictureIcon" UriSource="/Resources/PictureIcon.png"/>
         <!-- 国家列表 -->
         <x:Array x:Key="Countries" Type="sys:String" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -100,10 +102,13 @@
             <MenuItem Header="编辑" 
                       Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-             <MenuItem Header="属性" 
+             <MenuItem Header="设置标签" 
                       Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-             <MenuItem Header="删除" 
+            <MenuItem Header="选择图形" 
+                      Command="{Binding PlacementTarget.Tag.SetPictureCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="删除" 
                       Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"
                       InputGestureText="Delete"/>
@@ -124,21 +129,27 @@
         <!-- 显示模板 -->
         <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
-                <!-- 国家图标 -->
+
+                <!-- 节点名称 -->
+                <TextBlock Text="{Binding NodeName, Converter={StaticResource NodeNameToValueConverter}}" 
+                           Visibility="{Binding  Converter={StaticResource CmbNodeToVisibilityConverter}}"
+                           FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding NodeValue}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Name}" 
+                           Visibility="{Binding  Converter={StaticResource TextNodeToVisibilityConverter}}"
+                           VerticalAlignment="Center"/>
+                <!-- 图标 -->
                 <Image Width="16" Height="16" Margin="0,0,5,0"
-                   Source="{Binding Country, Converter={StaticResource CountryToIconConverter}}">
-                    <Image.ToolTip>
+                   Source="{StaticResource PictureIcon}"
+                   Visibility="{Binding PicturePath,  Converter={StaticResource NoEmptyToVisibilityConverter}}">
+                    <!--<Image.ToolTip>
                         <StackPanel>
                             <TextBlock Text="{Binding Country}" FontWeight="Bold"/>
                             <TextBlock Text="{Binding Description}"/>
                             <TextBlock Text="{Binding Population, StringFormat='人口: {0}百万'}"/>
                         </StackPanel>
-                    </Image.ToolTip>
+                    </Image.ToolTip>-->
                 </Image>
-
-                <!-- 节点名称 -->
-                <TextBlock Text="{Binding NodeName}" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
 
                 <!-- 显示的属性 -->
                 <TextBlock Text="{Binding DisplayProperties}" 
@@ -171,22 +182,13 @@
                       DisplayMemberPath ="Name"
                       SelectedValuePath="Code"
                       SelectedValue="{Binding EditNodeName}" 
-                      Visibility="{Binding  Converter={StaticResource ChildOfRootToVisibilityConverter}}"
+                      Visibility="{Binding  Converter={StaticResource CmbNodeToVisibilityConverter}}"
                       Width="80" Margin="0,0,5,0"/>
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
-                     Width="100" Margin="0,0,5,0"/>
-                <TextBlock Text="👈不能为空" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
-                           Visibility="{Binding EditName, Converter={StaticResource EmptyToVisibilityConverter}}"/>
-
-
-                <!-- 人口编辑 -->
-                <TextBox Text="{Binding EditPopulation, UpdateSourceTrigger=PropertyChanged}"
-                     Width="50" Margin="0,0,5,0"/>
-                <TextBlock Text="人口不能为负数" Foreground="Red" FontSize="9"
-                           Visibility="{Binding EditPopulation, Converter={StaticResource NegativeNumberToVisibilityConverter}}"/>
-                <!-- 描述编辑 -->
-                <TextBox Text="{Binding EditDescription, UpdateSourceTrigger=PropertyChanged}"
-                     Width="150" Margin="0,0,5,0"/>
+                      Visibility="{Binding  Converter={StaticResource TextNodeToVisibilityConverter}}"
+                      Width="100" Margin="0,0,5,0"/>
+                <TextBlock Text="{Binding ErrMsgName}" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
+                           Visibility="{Binding ErrMsgName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
 
                 <!-- 确认按钮 -->
                 <Button Content="✓" Width="20" Height="20" Margin="2,0"
@@ -195,12 +197,20 @@
                         ToolTip="确认修改"
                         Background ="White"
                         Foreground="Black"/>
-
                 <!-- 取消按钮 -->
                 <Button Content="✗" Width="20" Height="20" Margin="2,0"
                         Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
                         CommandParameter="{Binding}"
                         ToolTip="取消编辑"
+                        Background ="White"
+                        Foreground="Black"/>
+                
+                <!-- 删除图形按钮 -->
+                <Button Content="Ⓧ" Width="20" Height="20" Margin="2,0"
+                        Command="{Binding DataContext.PictureDelCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                        CommandParameter="{Binding}"
+                        ToolTip="删除图形"
+                        Visibility="{Binding PicturePath, Converter={StaticResource NoEmptyToVisibilityConverter}}"
                         Background ="White"
                         Foreground="Black"/>
             </StackPanel>

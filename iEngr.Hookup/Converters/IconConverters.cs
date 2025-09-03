@@ -9,17 +9,18 @@ using System.Windows.Media.Imaging;
 
 namespace iEngr.Hookup.Converters
 {
-    public class CountryToIconResourceConverter : IValueConverter
+    public class StringToIconResourceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string countryCode)
+            if (value is string iconName)
             {
                 // 构建资源键名
-                string resourceKey = $"{countryCode}Icon";
+                string resourceKey = $"{iconName}Icon";
 
                 // 在应用程序资源中查找
-                var resource = System.Windows.Application.Current.TryFindResource(resourceKey);
+                var resource = System.Windows.Application.Current.TryFindResource(resourceKey)
+                    ?? new BitmapImage(new Uri("pack://application:,,,/iEngr.Hookup;component/Resources/" + resourceKey + ".png"));
 
                 if (resource != null)
                 {

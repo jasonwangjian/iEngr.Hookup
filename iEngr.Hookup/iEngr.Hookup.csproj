@@ -226,5 +226,11 @@
     <Resource Include="Resources\DefaultIcon.ico" />
     <Resource Include="Resources\Y00i00003.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FolderIcon.png" />
+    <Resource Include="Resources\ListIcon.png" />
+    <Resource Include="Resources\PictureIcon.png" />
+    <Resource Include="Resources\TagLabelIcon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

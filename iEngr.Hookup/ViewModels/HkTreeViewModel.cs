@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -89,12 +90,17 @@ namespace iEngr.Hookup.ViewModels
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
                 execute: EditProperties,
-                canExecute: item => item != null & IsNodeValided
+                canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "SpecNode"
             );
-            StartEditNewCommand = new RelayCommand<object>(StartEditNew,_=> IsNodeValided);
-            StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided);
+            SetPictureCommand = new RelayCommand<HkTreeItem>(
+                execute: SetPicture,
+                canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig" && !HK_General.dicParentTreeNode["HookupConfig"].Any(x=> x.ID == SelectedItem.NodeName)
+            );
+            StartEditNewCommand = new RelayCommand<object>(StartEditNew,_=> IsNodeValided && SelectedItem.NodeItems?.Count>0);
+            StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig");
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
+            PictureDelCommand = new RelayCommand<object>(PictureDel);
             // 从XML文件加载数据
             LoadTreeDataFromXml();
         }
@@ -103,7 +109,7 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                if (SelectedItem == null) return false;
+                if (SelectedItem == null  || string.IsNullOrEmpty(SelectedItem.NodeName)) return false;
                 if (HK_General.dicTreeNode.ContainsKey(SelectedItem.NodeName))
                     return true;
                 return false;
@@ -585,10 +591,10 @@ namespace iEngr.Hookup.ViewModels
 
             // 解析扩展属性
             treeItem.ID = xmlNode.Attribute("ID")?.Value;
-            treeItem.FunctionCode = xmlNode.Attribute("FunctionCode")?.Value;
+            treeItem.PicturePath = xmlNode.Attribute("PicturePath")?.Value;
             treeItem.Name = xmlNode.Attribute("Name")?.Value;
             // 解析字典属性
-            string[] reservedAttributes = { "ID", "Name"};
+            string[] reservedAttributes = { "ID", "Name", "PicturePath" };
             treeItem.Properties = xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => (object)x.Value);
             //treeItem.Properties = new Dictionary<string, object>();
             //foreach (var attribute in xmlNode.Attributes())
@@ -659,9 +665,9 @@ namespace iEngr.Hookup.ViewModels
             {
                 element.SetAttributeValue("ID", treeItem.ID);
             }
-            if (!string.IsNullOrEmpty(treeItem.FunctionCode))
+            if (!string.IsNullOrEmpty(treeItem.PicturePath))
             {
-                element.SetAttributeValue("FunctionCode", treeItem.FunctionCode);
+                element.SetAttributeValue("PicturePath", treeItem.PicturePath);
             }
             if (!string.IsNullOrEmpty(treeItem.Name))
             {
@@ -733,26 +739,43 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
+        public ICommand PictureDelCommand { get; set; }
         private HkTreeItem _editingItem;
         private void StartEditNew(object parameter)
         {
             if (parameter is HkTreeItem item)
             {
                 item.IsExpanded = true;
-                HkTreeItem newIten = new HkTreeItem
+                HkTreeItem newItem = new HkTreeItem
                 {
                     Parent = item,
                 };
-                item.Children.Add(newIten);
+
+                item.Children.Add(newItem);
+                if (HK_General.dicTreeNode.TryGetValue(item.NodeName, out HKLibTreeNode node))
+                {
+                    if (node.NodeType == "ComboBox")
+                        newItem.NodeName = newItem.NodeItems.FirstOrDefault()?.Code;
+                    else if (node.NodeType == "TextBox")
+                    {
+                        newItem.NodeName = "SpecNode";
+                        newItem.Name = string.Empty;
+                    }
+                }
+                else
+                {
+                    item.Children.Remove(newItem);
+                    return;
+                }
                 // 取消之前的编辑
                 if (_editingItem != null)
                 {
                     _editingItem.IsEditing = false;
                 }
                 IsNewAddedItemEditing = true;
-                newIten.IsEditing = true;
-                _editingItem = newIten;
-                SelectedItem = newIten;
+                newItem.IsEditing = true;
+                _editingItem = newItem;
+                SelectedItem = newItem;
             }
         }
         private void StartEdit(object parameter)
@@ -841,6 +864,13 @@ namespace iEngr.Hookup.ViewModels
                 _editingItem = null;
             }
         }
+        private void PictureDel(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                item.PicturePath = null;
+            }
+        }
         //编辑节点属性
         public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
         private void EditProperties(HkTreeItem item)
@@ -848,6 +878,24 @@ namespace iEngr.Hookup.ViewModels
             var dialog = new PropertyEditorDialog(item);
             if (dialog.ShowDialog() == true)
             {
+                item.RefreshDisplayProperties();
+                //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                SaveTreeDataToXml();
+                //OnPropertyChanged(nameof(TreeItems));
+            }
+        }
+        //设置节点安装图图片
+        public RelayCommand<HkTreeItem> SetPictureCommand { get; set; }
+        private void SetPicture(HkTreeItem item)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "图片文件 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
+                Title = "选择图片文件"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                item.PicturePath= dialog.FileName;
                 item.RefreshDisplayProperties();
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
                 SaveTreeDataToXml();

@@ -14,12 +14,31 @@ using iEngr.Hookup.ViewModels;
 namespace iEngr.Hookup.Converters
 {
 
-    
-    public class ChildOfRootToVisibilityConverter : IValueConverter
+
+
+    public class CmbNodeToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ((value as HkTreeItem).Parent?.NodeName == "HookupConfig")  ? Visibility.Visible : Visibility.Collapsed;
+            string nodeName = (value as HkTreeItem).Parent?.NodeName;
+            if (string.IsNullOrEmpty(nodeName)) return Visibility.Visible;
+            return HK_General.dicTreeNode[nodeName]?.NodeType == "ComboBox" ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class TextNodeToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string nodeName = (value as HkTreeItem).Parent?.NodeName;
+            if (string.IsNullOrEmpty(nodeName)) return Visibility.Collapsed;
+            if (!HK_General.dicTreeNode.ContainsKey((value as HkTreeItem).NodeName)) return Visibility.Collapsed;
+            if (nodeName == "SpecNode") return Visibility.Visible;
+            return HK_General.dicTreeNode[nodeName]?.NodeType == "TextBox" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
