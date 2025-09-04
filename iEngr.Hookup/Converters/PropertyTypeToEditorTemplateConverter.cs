@@ -9,11 +9,10 @@ namespace iEngr.Hookup.Converters
     public class PropertyTypeToEditorTemplateConverter : IValueConverter
     {
         public DataTemplate StringTemplate { get; set; }
-        public DataTemplate IntegerTemplate { get; set; }
-        public DataTemplate DoubleTemplate { get; set; }
         public DataTemplate BooleanTemplate { get; set; }
         public DataTemplate EnumTemplate { get; set; }
-        public DataTemplate EnumListTemplate { get; set; }
+        public DataTemplate EnumItemTemplate { get; set; }
+        public DataTemplate EnumItemsTemplate { get; set; }
         public DataTemplate DateTimeTemplate { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -23,11 +22,10 @@ namespace iEngr.Hookup.Converters
                 return type switch
                 {
                     PropertyType.String => StringTemplate,
-                    PropertyType.Integer => IntegerTemplate,
-                    PropertyType.Double => DoubleTemplate,
                     PropertyType.Boolean => BooleanTemplate,
                     PropertyType.Enum => EnumTemplate,
-                    PropertyType.EnumList => EnumListTemplate,
+                    PropertyType.EnumItem => EnumItemTemplate,
+                    PropertyType.EnumItems => EnumItemsTemplate,
                     PropertyType.DateTime => DateTimeTemplate,
                     _ => StringTemplate
                 };

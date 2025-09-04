@@ -1,5 +1,6 @@
 ﻿using iEngr.Hookup.Converters;
 using iEngr.Hookup.Models;
+using iEngr.Hookup.Services;
 using iEngr.Hookup.Views;
 using Microsoft.Win32;
 using System;
@@ -595,7 +596,26 @@ namespace iEngr.Hookup.ViewModels
             treeItem.Name = xmlNode.Attribute("Name")?.Value;
             // 解析字典属性
             string[] reservedAttributes = { "ID", "Name", "PicturePath" };
-            treeItem.Properties = xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => (object)x.Value);
+            treeItem.Properties = new Dictionary<string, object>();
+            Dictionary<string,string> dicProp =  xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => x.Value);
+            foreach (var prop in dicProp)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    if (propDef.Type == PropertyType.EnumItems)
+                    {
+                        treeItem.Properties.Add(prop.Key, new ObservableCollection<GeneralItem>(propDef.Items.Where(x=> prop.Value.Split(',').Contains(x.Code)).ToList()));
+                    }
+                    else if(propDef.Type == PropertyType.EnumItem)
+                    {
+                        treeItem.Properties.Add(prop.Key, propDef.Items.FirstOrDefault(x => x.Code==prop.Value));
+                    }
+                    else
+                        treeItem.Properties.Add(prop.Key, prop.Value);
+                }
+            }
+            treeItem.RefreshDisplayProperties();
             //treeItem.Properties = new Dictionary<string, object>();
             //foreach (var attribute in xmlNode.Attributes())
             //{
@@ -675,7 +695,12 @@ namespace iEngr.Hookup.ViewModels
             }
             foreach (var prop in treeItem.Properties)
             {
-                element.SetAttributeValue(prop.Key, prop.Value);
+                string value = prop.Value?.ToString();
+                if (prop.Value is ObservableCollection<GeneralItem> items)
+                    value = string.Join(",", items.Select(x => x.Code).ToList());
+                else if (prop.Value is GeneralItem item)
+                    value = item?.Code;
+                element.SetAttributeValue(prop.Key, value);
             }
 
 

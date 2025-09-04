@@ -13,6 +13,72 @@ namespace iEngr.Hookup.ViewModels
 {
     public class PropertyEditorViewModel : INotifyPropertyChanged
     {
+        public PropertyEditorViewModel(HkTreeItem treeItem)
+        {
+            _treeItem = treeItem;
+
+            AvailableProperties = new ObservableCollection<PropertyDefinition>(PropertyLibrary.AllProperties);
+            SelectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
+            SelectedProperties = new ObservableCollection<PropertyDefinition>();
+
+            // 初始化已选属性
+            foreach (var prop in treeItem.Properties)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    if (propDef.Type == PropertyType.EnumItems)
+                    {
+                        propDef.SelectedItems = prop.Value as ObservableCollection<GeneralItem>;
+                        if (propDef.SelectedItems != null)
+                            propDef.Value = string.Join(", ", propDef.SelectedItems.Select(x => x.Code)?.ToList());
+                    }
+                    else if (propDef.Type == PropertyType.EnumItem)
+                    {
+                        propDef.SelectedItem = prop.Value as GeneralItem;
+                        propDef.Value = propDef.SelectedItem?.Code;
+                    }
+                    else
+                        propDef.Value = prop.Value;
+                    SelectedProperties.Add(propDef);
+                }
+            }
+            //foreach (var key in treeItem.SelectedPropertyKeys)
+            //{
+            //    var prop = PropertyLibrary.GetPropertyDefinition(key);
+            //    if (prop != null)
+            //    {
+            //        SelectedProperties.Add(prop);
+            //    }
+            //}
+            // 设置过滤
+            _filteredPropertiesSource = new CollectionViewSource { Source = AvailableProperties };
+            _filteredPropertiesSource.Filter += FilterProperties;
+
+            // 命令
+            AddSelectedPropertiesCommand = new RelayCommand<object>(
+                execute: _ => AddSelectedProperties(),
+                canExecute: _ => CanAddMoreProperties
+            );
+
+            RemovePropertyCommand = new RelayCommand<string>(
+                execute: RemoveProperty,
+                canExecute: key => !string.IsNullOrEmpty(key)
+            );
+            SelectedProperties.CollectionChanged += SelectedProperties_CollectionChanged;
+
+            OKCommand = new RelayCommand<object>(_ => OK());
+            CancelCommand = new RelayCommand<object>(_ => Cancel());
+
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(SelectedProperties))
+                {
+                    ((RelayCommand<object>)AddSelectedPropertiesCommand).RaiseCanExecuteChanged();
+                }
+            };
+        }
+
         private ObservableCollection<PropertyDefinition> _selectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
 
         public ObservableCollection<PropertyDefinition> SelectedAvailableProperties
@@ -68,60 +134,6 @@ namespace iEngr.Hookup.ViewModels
 
         public RelayCommand<object> OKCommand { get; }
         public RelayCommand<object> CancelCommand { get; }
-
-        public PropertyEditorViewModel(HkTreeItem treeItem)
-        {
-            _treeItem = treeItem;
-
-            AvailableProperties = new ObservableCollection<PropertyDefinition>(PropertyLibrary.AllProperties);
-            SelectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
-            SelectedProperties = new ObservableCollection<PropertyDefinition>();
-
-            // 初始化已选属性
-            foreach (var prop in treeItem.Properties)
-            {
-                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
-                if (propDef != null)
-                {
-                    propDef.Value = prop.Value;
-                    SelectedProperties.Add(propDef);
-                }
-            }
-            //foreach (var key in treeItem.SelectedPropertyKeys)
-            //{
-            //    var prop = PropertyLibrary.GetPropertyDefinition(key);
-            //    if (prop != null)
-            //    {
-            //        SelectedProperties.Add(prop);
-            //    }
-            //}
-            // 设置过滤
-            _filteredPropertiesSource = new CollectionViewSource { Source = AvailableProperties };
-            _filteredPropertiesSource.Filter += FilterProperties;
-
-            // 命令
-            AddSelectedPropertiesCommand = new RelayCommand<object>(
-                execute: _ => AddSelectedProperties(),
-                canExecute: _ => CanAddMoreProperties
-            );
-
-            RemovePropertyCommand = new RelayCommand<string>(
-                execute: RemoveProperty,
-                canExecute: key => !string.IsNullOrEmpty(key)
-            );
-            SelectedProperties.CollectionChanged += SelectedProperties_CollectionChanged;
-
-            OKCommand = new RelayCommand<object>(_ => OK());
-            CancelCommand = new RelayCommand<object>(_ => Cancel());
-
-            PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(SelectedProperties))
-                {
-                    ((RelayCommand<object>)AddSelectedPropertiesCommand).RaiseCanExecuteChanged();
-                }
-            };
-        }
 
         private void FilterProperties(object sender, FilterEventArgs e)
         {
@@ -211,7 +223,8 @@ namespace iEngr.Hookup.ViewModels
             {
                 var prop = selectedProperties[i];
                 _treeItem.SelectedPropertyKeys.Add(prop.Key);
-                _treeItem.SetProperty(prop.Key, prop.Value);
+                _treeItem.SetProperty(prop.Key, prop.Type == PropertyType.EnumItems ? prop.SelectedItems :
+                                                prop.Type == PropertyType.EnumItem ? prop.SelectedItem: prop.Value);
             }
         }
 

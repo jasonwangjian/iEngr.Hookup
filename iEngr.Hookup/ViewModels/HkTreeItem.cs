@@ -257,7 +257,18 @@ namespace iEngr.Hookup.ViewModels
                 var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
                 if (propDef != null)
                 {
-                    displayText.Append($"{propDef.DisplayName}: {(propDef.GeneralItems != null? propDef.GeneralItems.FirstOrDefault(x => x.Code == prop.Value.ToString())?.Name : prop.Value)}");
+                    string displayValue = prop.Value?.ToString();
+                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                    {
+                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+
+                    }
+                    else if (prop.Value is GeneralItem item)
+                    {
+                        displayValue =  item.Name;
+                        //displayValue = propDef.Items.FirstOrDefault(x => x.Code == prop.Value?.ToString())?.Name;
+                    }
+                    displayText.Append($"{propDef.DisplayName}:{displayValue}; ");
                 }
             }
             DisplayProperties = displayText.ToString().Trim();

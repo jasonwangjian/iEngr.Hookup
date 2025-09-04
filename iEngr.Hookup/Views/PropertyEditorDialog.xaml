@@ -1,8 +1,9 @@
 ﻿<Window x:Class="iEngr.Hookup.Views.PropertyEditorDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
-        Title="编辑属性" Height="500" Width="800"
+        Title="🏷️属性标签管理" Height="500" Width="800"
         WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -10,46 +11,41 @@
         <DataTemplate x:Key="StringEditorTemplate">
             <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
         </DataTemplate>
-
-        <DataTemplate x:Key="IntegerEditorTemplate">
-            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DoubleEditorTemplate">
-            <TextBox Text="{Binding Value}" Width="150" Margin="2"/>
-        </DataTemplate>
-
         <DataTemplate x:Key="BooleanEditorTemplate">
             <CheckBox IsChecked="{Binding Value}" Margin="2"/>
         </DataTemplate>
-
         <DataTemplate x:Key="EnumEditorTemplate">
             <ComboBox ItemsSource="{Binding Options}" 
                   SelectedItem="{Binding Value}" 
                   Width="150" Margin="2"/>
         </DataTemplate>
-
-        <DataTemplate x:Key="EnumListEditorTemplate">
-            <ComboBox ItemsSource="{Binding GeneralItems}" 
-                  DisplayMemberPath ="Name"
-                  SelectedValuePath="Code"
-                  SelectedValue="{Binding Value}" 
-                  Width="150" Margin="2"/>
-        </DataTemplate>
-
         <DataTemplate x:Key="DateTimeEditorTemplate">
             <DatePicker SelectedDate="{Binding Value}" 
                     Width="150" Margin="2"/>
         </DataTemplate>
+        <DataTemplate x:Key="EnumItemEditorTemplate">
+            <ComboBox ItemsSource="{Binding Items}" 
+                  DisplayMemberPath ="Name"
+                  SelectedItem="{Binding SelectedItem}" 
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+        <DataTemplate x:Key="EnumItemsEditorTemplate">
+            <xctk:CheckComboBox ItemsSource="{Binding Items}" 
+                  DisplayMemberPath ="Name"
+                  SelectedItemsOverride="{Binding SelectedItems, Mode=TwoWay}"
+                  Delimiter=", "
+                  Width="150" Margin="2"/>
+        </DataTemplate>
+
+
 
         <!-- 转换器实例 -->
         <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
         StringTemplate="{StaticResource StringEditorTemplate}"
-        IntegerTemplate="{StaticResource IntegerEditorTemplate}"
-        DoubleTemplate="{StaticResource DoubleEditorTemplate}"
         BooleanTemplate="{StaticResource BooleanEditorTemplate}"
         EnumTemplate="{StaticResource EnumEditorTemplate}"
-        EnumListTemplate="{StaticResource EnumListEditorTemplate}"
+        EnumItemTemplate="{StaticResource EnumItemEditorTemplate}"
+        EnumItemsTemplate="{StaticResource EnumItemsEditorTemplate}"
         DateTimeTemplate="{StaticResource DateTimeEditorTemplate}"/>
     </Window.Resources>
     <Grid>

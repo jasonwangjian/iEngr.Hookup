@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TreeViewTest", "TreeViewTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatLibMgr", "MatLibMgr\MatLibMgr.csproj", "{565576A3-02B2-4EC9-AC6E-52F01F996B71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckComboBoxExample", "CheckComboBoxExample\CheckComboBoxExample.csproj", "{D1F48B80-59ED-442F-929A-501AAA0ADD72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{565576A3-02B2-4EC9-AC6E-52F01F996B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{565576A3-02B2-4EC9-AC6E-52F01F996B71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{565576A3-02B2-4EC9-AC6E-52F01F996B71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1F48B80-59ED-442F-929A-501AAA0ADD72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1F48B80-59ED-442F-929A-501AAA0ADD72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1F48B80-59ED-442F-929A-501AAA0ADD72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1F48B80-59ED-442F-929A-501AAA0ADD72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,6 +14,9 @@ namespace iEngr.Hookup.Models
         public string FullName { get; set; }
         public string NestedName { get; set; }
         public string SpecValue { get; set; }
+        public string IconName {  get; set; }   
+        public bool IsPropNode { get; set; }
+        public bool IsPropHolder { get; set; }  
         public byte Status { get; set; }
         public int SortNum { get; set; }
         public string Name

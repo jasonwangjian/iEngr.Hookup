@@ -555,6 +555,9 @@ namespace xlsLibHookup
                                 $"NestedName='{(result as HKLibTreeNode).NestedName}'," +
                                 $"SpecValue='{(result as HKLibTreeNode).SpecValue}'," +
                                 $"Status={(result as HKLibTreeNode).Status}," +
+                                $"IconName='{(result as HKLibTreeNode).IconName}'," +
+                                $"IsPropNode='{(result as HKLibTreeNode).IsPropNode}'," +
+                                $"IsPropHolder='{(result as HKLibTreeNode).IsPropHolder}'," +
                                 $"SortNum={(result as HKLibTreeNode).SortNum} " +
                                 $"WHERE ID='{(result as HKLibTreeNode).ID}'";
                         }
@@ -573,6 +576,9 @@ namespace xlsLibHookup
                                 $"'{(result as HKLibTreeNode).NestedName}'," +
                                 $"'{(result as HKLibTreeNode).SpecValue}'," +
                                 $"{(result as HKLibTreeNode).Status}," +
+                                $"'{(result as HKLibTreeNode).IconName}'," +
+                                $"'{(result as HKLibTreeNode).IsPropNode}'," +
+                                $"'{(result as HKLibTreeNode).IsPropHolder}'," +
                                 $"{(result as HKLibTreeNode).SortNum}" +
                                 $")";
                         }
@@ -1246,6 +1252,9 @@ namespace xlsLibHookup
                         NestedName = Convert.ToString(reader["NestedName"]),
                         SpecValue = Convert.ToString(reader["SpecValue"]),
                         Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        IconName = Convert.ToString(reader["IconName"]),
+                        IsPropNode = Convert.ToBoolean(reader["IsPropNode"]),
+                        IsPropHolder = Convert.ToBoolean(reader["IsPropHolder"]),
                         SortNum = Convert.ToInt32(reader["SortNum"]),
                     };
                     data.Add(item);
