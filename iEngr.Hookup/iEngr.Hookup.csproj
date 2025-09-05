@@ -183,6 +183,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -233,19 +234,24 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\T1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Icon1.ico" />
-    <Resource Include="Resources\Icon2.ico" />
+    <Resource Include="Resources\BomIcon.ico" />
+    <Resource Include="Resources\ConfigIcon.ico" />
     <Resource Include="Resources\DefaultIcon.ico" />
-    <Resource Include="Resources\Y00i00003.ico" />
+    <Resource Include="Resources\PictureIcon.ico" />
+    <Resource Include="Resources\TagLabelIcon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\FolderIcon.png" />
-    <Resource Include="Resources\ListIcon.png" />
+    <Resource Include="Resources\BomInheritIcon.ico" />
+    <Resource Include="Resources\PictureInheritIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\BomIcon.png" />
+    <Resource Include="Resources\BomInheritIcon.png" />
     <Resource Include="Resources\PictureIcon.png" />
-    <Resource Include="Resources\TagLabelIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\CopyIcon.png" />
+    <Resource Include="Resources\CutIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

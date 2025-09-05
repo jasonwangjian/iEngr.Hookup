@@ -43,7 +43,7 @@ namespace iEngr.Hookup
         internal static Dictionary<string, ObservableCollection<HKLibGenOption>> dicNoLinkSpec = dicNoLinkSpecIni();
         internal static Dictionary<string, HKLibMatMat> dicMatMat = dicMatMatIni();
         internal static Dictionary<string, HKLibTreeNode> dicTreeNode = dicTreeNodeIni();
-        internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNode = dicParentTreeNodeIni();
+        //internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNode = dicParentTreeNodeIni();
         private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
             Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
@@ -500,6 +500,9 @@ namespace iEngr.Hookup
                                 NestedName = Convert.ToString(reader["NestedName"]),
                                 SpecValue = Convert.ToString(reader["SpecValue"]),
                                 Status = Convert.ToByte(reader["Status"]),
+                                IconName = Convert.ToString(reader["IconName"]),
+                                IsPropNode = Convert.ToBoolean(reader["IsPropNode"]),
+                                IsPropHolder = Convert.ToBoolean(reader["IsPropHolder"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"]),
                             });
                         }

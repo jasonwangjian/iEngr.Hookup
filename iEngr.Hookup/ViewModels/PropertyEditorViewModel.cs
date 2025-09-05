@@ -217,14 +217,22 @@ namespace iEngr.Hookup.ViewModels
         }
         private void SetItemProperties(ObservableCollection<PropertyDefinition> selectedProperties)
         {
-            _treeItem.SelectedPropertyKeys.Clear();
+            //_treeItem.SelectedPropertyKeys.Clear();
+            //_treeItem.Properties.Clear();
+            //for (int i=0;i<selectedProperties?.Count;i++)
+            //{
+            //    var prop = selectedProperties[i];
+            //    _treeItem.SelectedPropertyKeys.Add(prop.Key);
+            //    _treeItem.SetProperty(prop.Key, prop.Type == PropertyType.EnumItems ? prop.SelectedItems :
+            //                                    prop.Type == PropertyType.EnumItem ? prop.SelectedItem: prop.Value);
+            //}
             _treeItem.Properties.Clear();
-            for (int i=0;i<selectedProperties?.Count;i++)
+            for (int i = 0; i < selectedProperties?.Count; i++)
             {
                 var prop = selectedProperties[i];
-                _treeItem.SelectedPropertyKeys.Add(prop.Key);
+                //_treeItem.SelectedPropertyKeys.Add(prop.Key);
                 _treeItem.SetProperty(prop.Key, prop.Type == PropertyType.EnumItems ? prop.SelectedItems :
-                                                prop.Type == PropertyType.EnumItem ? prop.SelectedItem: prop.Value);
+                                                prop.Type == PropertyType.EnumItem ? prop.SelectedItem : prop.Value);
             }
         }
 

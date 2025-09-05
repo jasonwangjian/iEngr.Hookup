@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
+using Xceed.Wpf.Toolkit;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -93,11 +94,8 @@ namespace iEngr.Hookup.ViewModels
                 execute: EditProperties,
                 canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "SpecNode"
             );
-            SetPictureCommand = new RelayCommand<HkTreeItem>(
-                execute: SetPicture,
-                canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig" && !HK_General.dicParentTreeNode["HookupConfig"].Any(x=> x.ID == SelectedItem.NodeName)
-            );
-            StartEditNewCommand = new RelayCommand<object>(StartEditNew,_=> IsNodeValided && SelectedItem.NodeItems?.Count>0);
+            SetPictureCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
+            StartEditNewCommand = new RelayCommand<object>(StartEditNew, CanEditNew);
             StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig");
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
@@ -433,6 +431,7 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is HkTreeItem item)
             {
                 SelectedItem = item;
+                SelectedItem.OperationStatus = "Copy";
             }
 
             if (SelectedItem == null) return;
@@ -450,6 +449,7 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is HkTreeItem item)
             {
                 SelectedItem = item;
+                SelectedItem.OperationStatus = "Cut";
             }
 
             if (SelectedItem == null) return;
@@ -529,6 +529,7 @@ namespace iEngr.Hookup.ViewModels
 
         private void ClearClipboard()
         {
+            _clipboardContent.OperationStatus = null;
             _clipboardContent = null;
             _isCutOperation = false;
             PasteStatusMessage = string.Empty;
@@ -615,14 +616,8 @@ namespace iEngr.Hookup.ViewModels
                         treeItem.Properties.Add(prop.Key, prop.Value);
                 }
             }
-            treeItem.RefreshDisplayProperties();
-            //treeItem.Properties = new Dictionary<string, object>();
-            //foreach (var attribute in xmlNode.Attributes())
-            //{
-            //    if (!reservedAttributes.Contains(attribute.Name.ToString()))
-            //        treeItem.Properties.Add(attribute.Name.ToString(), attribute.Value);
-            //}
-            //treeItem.RefreshDisplayProperties();
+            //treeItem.OnPropertyChanged(nameof(treeItem.DisplayProperties));
+            treeItem.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
 
             // 递归处理子节点
             foreach (var childNode in xmlNode.Elements())
@@ -766,6 +761,16 @@ namespace iEngr.Hookup.ViewModels
         public ICommand DeleteCommand { get; set; }
         public ICommand PictureDelCommand { get; set; }
         private HkTreeItem _editingItem;
+        private bool CanEditNew(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                return IsNodeValided &&
+                        (HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode || 
+                        SelectedItem.NodeItems?.Count>0);
+            }
+            return false;
+        }
         private void StartEditNew(object parameter)
         {
             if (parameter is HkTreeItem item)
@@ -843,11 +848,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _editingItem = null;
                     IsNewAddedItemEditing = false;
-                    item.RefreshDisplayProperties();
                     SaveTreeDataToXml();
-
-                    //item.OnPropertyChanged(nameof(item.DisplayProperties));
-                    // 编辑成功
                 }
                 else
                 {
@@ -903,14 +904,23 @@ namespace iEngr.Hookup.ViewModels
             var dialog = new PropertyEditorDialog(item);
             if (dialog.ShowDialog() == true)
             {
-                item.RefreshDisplayProperties();
+                //item.RefreshDisplayProperties();
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
                 SaveTreeDataToXml();
-                //OnPropertyChanged(nameof(TreeItems));
             }
         }
         //设置节点安装图图片
         public RelayCommand<HkTreeItem> SetPictureCommand { get; set; }
+        private bool CanSetPicture(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                return IsNodeValided &&
+                        HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
+            }
+            return false;
+        }
         private void SetPicture(HkTreeItem item)
         {
             var dialog = new OpenFileDialog
@@ -921,10 +931,7 @@ namespace iEngr.Hookup.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 item.PicturePath= dialog.FileName;
-                item.RefreshDisplayProperties();
-                //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
                 SaveTreeDataToXml();
-                //OnPropertyChanged(nameof(TreeItems));
             }
         }
         // 在MainViewModel中添加带确认的删除方法
@@ -942,7 +949,7 @@ namespace iEngr.Hookup.ViewModels
             var caption = "确认删除";
 
             // 这里使用MessageBox作为示例，实际项目中建议使用DialogService
-            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = Xceed.Wpf.Toolkit.MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {

@@ -32,6 +32,16 @@
                   Width="150" Margin="2"/>
         </DataTemplate>
 
+        <BitmapImage x:Key="ConfigIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/ConfigIcon.ico"/>
+        <BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico"/>
+        <BitmapImage x:Key="PictureIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/PictureIcon.png"/>
+        <BitmapImage x:Key="BomIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomIcon.png"/>
+        <BitmapImage x:Key="PictureInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomInheritIcon.png"/>
+        <BitmapImage x:Key="BomInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomInheritIcon.png"/>
+        <BitmapImage x:Key="TagLabelIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/TagLabelIcon.ico"/>
+        <BitmapImage x:Key="CopyIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/CopyIcon.png"/>
+        <BitmapImage x:Key="CutIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/CutIcon.png"/>
+
         <cv:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter"/>
         <cv:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
         <cv:NoEmptyToVisibilityConverter  x:Key="NoEmptyToVisibilityConverter"/>
@@ -46,15 +56,7 @@
             BooleanTemplate="{StaticResource BooleanEditorTemplate}"
             EnumTemplate="{StaticResource EnumEditorTemplate}"
             EnumItemTemplate="{StaticResource EnumItemEditorTemplate}"/>
-        <BitmapImage x:Key="PictureIcon" UriSource="/Resources/DefaultIcon.ico"/>
-        <!-- 国家列表 -->
-        <x:Array x:Key="Countries" Type="sys:String" 
-             xmlns:sys="clr-namespace:System;assembly=mscorlib">
-            <sys:String>China</sys:String>
-            <sys:String>USA</sys:String>
-            <sys:String>Germany</sys:String>
-            <sys:String>Japan</sys:String>
-        </x:Array>
+
 
         <!-- 上下文菜单 -->
         <ContextMenu x:Key="TreeViewContextMenu">
@@ -129,8 +131,33 @@
         <!-- 显示模板 -->
         <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
-
-                <!-- 节点名称 -->
+                <!-- 图标 -->
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource CutIcon}"
+                   Visibility="{Binding IsCutOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
+                </Image>
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource CopyIcon}"
+                   Visibility="{Binding IsCopyOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
+                </Image>
+                <Image cv:IconResourceHelper.ResourceKey="{Binding NodeItem.IconName}" 
+                       Width="16" Height="16" Margin="0,0,5,0" />
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource PictureIcon}"
+                   Visibility="{Binding PicturePath,  Converter={StaticResource NoEmptyToVisibilityConverter}}">
+                </Image>
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource PictureInheritIcon}"
+                   Visibility="{Binding IsInheritPictureActive,  Converter={StaticResource BoolToVisibilityConverter}}">
+                </Image>
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource BomIcon}"
+                   Visibility="{Binding DiagID, Converter={StaticResource NoEmptyToVisibilityConverter}}">
+                </Image>
+                <Image Width="16" Height="16" Margin="2,0,2,0"
+                   Source="{StaticResource BomInheritIcon}"
+                   Visibility="{Binding InheritDiagID,  Converter={StaticResource BoolToVisibilityConverter}}">
+                </Image>
                 <TextBlock Text="{Binding NodeName, Converter={StaticResource NodeNameToValueConverter}}" 
                            Visibility="{Binding  Converter={StaticResource CmbNodeToVisibilityConverter}}"
                            FontWeight="Bold" VerticalAlignment="Center"/>
@@ -138,18 +165,6 @@
                 <TextBlock Text="{Binding Name}" 
                            Visibility="{Binding  Converter={StaticResource TextNodeToVisibilityConverter}}"
                            VerticalAlignment="Center"/>
-                <!-- 图标 -->
-                <Image Width="16" Height="16" Margin="0,0,5,0"
-                   Source="{StaticResource PictureIcon}"
-                   Visibility="{Binding PicturePath,  Converter={StaticResource NoEmptyToVisibilityConverter}}">
-                    <!--<Image.ToolTip>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Country}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Description}"/>
-                            <TextBlock Text="{Binding Population, StringFormat='人口: {0}百万'}"/>
-                        </StackPanel>
-                    </Image.ToolTip>-->
-                </Image>
 
                 <!-- 显示的属性 -->
                 <TextBlock Text="{Binding DisplayProperties}" 
@@ -157,16 +172,6 @@
                    Margin="5,2,0,0"
                    TextWrapping="Wrap"/>
                 
-                <!-- 人口信息 -->
-                <TextBlock Text="{Binding Population, StringFormat=' ({0}千万)'}" 
-                       Foreground="Gray" FontSize="11" Margin="5,0,0,0"
-                       Visibility="{Binding Population, Converter={StaticResource PositiveNumberToVisibilityConverter}}"/>
-
-                <!-- 描述信息 -->
-                <TextBlock Text="{Binding Description, StringFormat=' - {0}'}" 
-                       Foreground="DarkGray" FontSize="10" FontStyle="Italic"
-                       Margin="5,0,0,0"
-                       Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
             </StackPanel>
         </DataTemplate>
 
@@ -257,8 +262,7 @@
                 </StatusBar.ItemsPanel>
 
                 <TextBlock Grid.Column="0" Margin="5,0">
-                    <Run Text="选中: "/>
-                    <Run Text="{Binding SelectedItem.Name, FallbackValue='无'}"/>
+                    <Run Text="{Binding SelectedItem.NodeName, Converter={StaticResource NodeNameToValueConverter}}"/>
                     <Run Text=", 父节点: "/>
                     <Run Text="{Binding SelectedItem.Parent.Name, FallbackValue='根节点'}"/>
                 </TextBlock>

@@ -16,34 +16,14 @@ namespace iEngr.Hookup.ViewModels
         public HkTreeItem()
         {
             Children = new ObservableCollection<HkTreeItem>();
-            SelectedPropertyKeys = new ObservableCollection<string>();
-            //FunctionItems = new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x => x.Value).Select(x => new GeneralItem
-            //{
-            //    Code = x.ID,
-            //    NameCn = x.NameCn,
-            //    NameEn = x.NameEn
-
-            //}).ToList());
         }
 
-        private RelayCommand<string> _removePropertyCommand;
-        public RelayCommand<string> RemovePropertyCommand
-        {
-            get
-            {
-                return _removePropertyCommand ??= new RelayCommand<string>(
-                    execute: RemoveProperty,
-                    canExecute: key => !string.IsNullOrEmpty(key) && HasProperty(key)
-                );
-            }
-        }
         private bool _isExpanded;
         public bool IsExpanded
         {
             get => _isExpanded;
             set => SetField(ref _isExpanded, value);
         }
-        // 编辑状态属性
         private bool _isEditing;
         public bool IsEditing
         {
@@ -58,19 +38,55 @@ namespace iEngr.Hookup.ViewModels
                         // 进入编辑模式时保存原始值
                         EditName = Name;
                         EditNodeName = NodeName;
-                        EditNodeValue = NodeValue;
-                        EditDescription = Description;
                     }
                     OnPropertyChanged();
                 }
             }
         }
-
-        private string _id;
-        public string ID
+        private string _operationStatus;
+        public string OperationStatus
         {
-            get => _id;
-            set => SetField(ref _id, value);
+            get => _operationStatus;
+            set
+            {
+                if (SetField(ref _operationStatus, value))
+                {
+                    OnPropertyChanged(nameof(IsCutOperation));
+                    OnPropertyChanged(nameof(IsCopyOperation));
+                }
+            }
+        }
+        public bool IsCutOperation
+        {
+            get
+            {
+                return OperationStatus?.ToLower() == "cut";
+            }
+        }
+        public bool IsCopyOperation
+        {
+            get
+            {
+                return OperationStatus?.ToLower() == "copy";
+            }
+        }
+
+        public string ID { get; set; }
+        public HKLibTreeNode NodeItem { get; set; }
+        private string _diagID;
+        public string DiagID
+        {
+            get => _diagID;
+            set => SetField(ref _diagID, value);
+        }
+        public string InheritDiagID
+        {
+            get
+            {
+                if (Parent?.NodeItem?.IsPropNode == true)
+                    return Parent.DiagID ?? Parent.InheritDiagID;
+                return null;
+            }
         }
         private string _name;
         public string Name
@@ -82,32 +98,12 @@ namespace iEngr.Hookup.ViewModels
         public string NodeName
         {
             get => _nodeName;
-            set => SetField(ref _nodeName, value);
+            set { if(SetField(ref _nodeName, value) && value != null)
+                {
+                    NodeItem = HK_General.dicTreeNode.TryGetValue(value, out HKLibTreeNode nodeItem) ? nodeItem : new HKLibTreeNode();
+                }
+            }
 
-        }
-        public string EditNodeName
-        {
-            get => _editNodeName;
-            set => SetField(ref _editNodeName, value);
-            //{
-            //    if (SetField(ref _editNodeName, value))
-            //    {
-            //        if (NodeName == "SpecNode")
-            //        {
-            //            if (string.IsNullOrEmpty(Name)) ErrMsgName = "不能为空";
-            //            else if (Siblings.Any(x => x.Name == Name)) ErrMsgName = $"重名：{Name}";
-            //            else ErrMsgName = string.Empty;
-            //            return;
-            //        }
-            //    }
-            //    ErrMsgName = string.Empty;
-            //}
-        }
-        private string _errMsgName;
-        public string ErrMsgName
-        {
-            get => _errMsgName;
-            set => SetField(ref _errMsgName, value);
         }
         private string _nodeValue;
         public string NodeValue
@@ -120,51 +116,36 @@ namespace iEngr.Hookup.ViewModels
         public string PicturePath
         {
             get => _picturePath;
-            set => SetField(ref _picturePath, value);
-        }
-        private string _editDeviceCode;
-        public string EditDeviceCode
-        {
-            get => _editDeviceCode;
-            set => SetField(ref _editDeviceCode, value);
-        }
-        private string _deviceCode;
-        public string DeviceCode
-        {
-            get => _deviceCode;
-            set => SetField(ref _deviceCode, value);
-        }
-        private string _country;
-        public string Country
-        {
-            get => _country;
             set
             {
-                _country = value;
-                OnPropertyChanged();
+                if (SetField(ref _picturePath, value))
+                    OnPropertyChanged(nameof(IsInheritPictureActive));
+            }
+        }
+        public string InheritPicturePath
+        {
+            get
+            {
+                if (Parent?.NodeItem?.IsPropNode == true)
+                    return Parent.PicturePath ?? Parent.InheritPicturePath;
+                return null;
+
+            }
+        }
+        public bool IsInheritPictureActive
+        {
+            get
+            {
+                return PicturePath == null && InheritPicturePath != null;
             }
         }
 
-        private string _description;
-        public string Description
-        {
-            get => _description;
-            set
-            {
-                _description = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private int _population;
-        public int Population
-        {
-            get => _population;
-            set =>SetField(ref _population, value); 
-        }
-
-        // 编辑时的临时属性
         private string _editNodeName;
+        public string EditNodeName
+        {
+            get => _editNodeName;
+            set => SetField(ref _editNodeName, value);
+        }
 
         private string _editName;
         public string EditName
@@ -182,7 +163,6 @@ namespace iEngr.Hookup.ViewModels
                         return;
                     }
                 }
-                //ErrMsgName = string.Empty;
             }
         }
         private string _editNodeValue;
@@ -198,81 +178,76 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-
-        private string _editDescription;
-        public string EditDescription
+        private string _errMsgName;
+        public string ErrMsgName
         {
-            get => _editDescription;
-            set
-            {
-                if (_editDescription != value)
-                {
-                    _editDescription = value;
-                    OnPropertyChanged();
-                }
-            }
+            get => _errMsgName;
+            set => SetField(ref _errMsgName, value);
         }
+
         // 添加一个用于显示的属性字符串
-        public string _displayProperties;
+        //public string _displayKCProperties;
         public string DisplayProperties
         {
-            //get
-            //{
-            //    if (SelectedPropertyKeys == null || SelectedPropertyKeys.Count == 0)
-            //        return string.Empty;
 
-            //    var displayText = new StringBuilder();
-            //    foreach (var prop in Properties)
-            //    {
-            //            var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
-            //            if (propDef != null)
-            //            {
-            //                displayText.Append($"{propDef.DisplayName}: {prop.Value}");
-            //            }
-            //    }                
-            //    //foreach (var key in SelectedPropertyKeys)
-            //    //{
-            //    //    if (Properties.ContainsKey(key))
-            //    //    {
-            //    //        var prop = PropertyLibrary.GetPropertyDefinition(key);
-            //    //        if (prop != null)
-            //    //        {
-            //    //            displayText.Append($"{prop.DisplayName}: {prop.Value}  ");
-            //    //        }
-            //    //    }
-            //    //}
-            //    return displayText.ToString().Trim();
-            //}
-            get => _displayProperties;
-            set => SetField(ref _displayProperties, value);
-        }
-        public void RefreshDisplayProperties()
-        {
-            if (SelectedPropertyKeys == null || SelectedPropertyKeys.Count == 0)
-                DisplayProperties = string.Empty;
-
-            var displayText = new StringBuilder();
-            foreach (var prop in Properties)
+            //get => _displayProperties;
+            //set => SetField(ref _displayProperties, value);
+            get
             {
-                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
-                if (propDef != null)
-                {
-                    string displayValue = prop.Value?.ToString();
-                    if (prop.Value is ObservableCollection<GeneralItem> items)
-                    {
-                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                if (Properties == null || Properties.Count == 0)
+                    return string.Empty;
 
-                    }
-                    else if (prop.Value is GeneralItem item)
+                var displayText = new StringBuilder();
+                foreach (var prop in Properties)
+                {
+                    var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                    if (propDef != null)
                     {
-                        displayValue =  item.Name;
-                        //displayValue = propDef.Items.FirstOrDefault(x => x.Code == prop.Value?.ToString())?.Name;
+                        string displayValue = prop.Value?.ToString();
+                        if (prop.Value is ObservableCollection<GeneralItem> items)
+                        {
+                            displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+
+                        }
+                        else if (prop.Value is GeneralItem item)
+                        {
+                            displayValue = item.Name;
+                            //displayValue = propDef.Items.FirstOrDefault(x => x.Code == prop.Value?.ToString())?.Name;
+                        }
+                        displayText.Append($"{propDef.DisplayName}:{displayValue}; ");
                     }
-                    displayText.Append($"{propDef.DisplayName}:{displayValue}; ");
                 }
+                return displayText.ToString().Trim();
             }
-            DisplayProperties = displayText.ToString().Trim();
+            set => OnPropertyChanged();
         }
+        //public void RefreshDisplayProperties()
+        //{
+        //    if (Properties == null || Properties.Count == 0)
+        //        DisplayProperties = string.Empty;
+
+        //    var displayText = new StringBuilder();
+        //    foreach (var prop in Properties)
+        //    {
+        //        var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+        //        if (propDef != null)
+        //        {
+        //            string displayValue = prop.Value?.ToString();
+        //            if (prop.Value is ObservableCollection<GeneralItem> items)
+        //            {
+        //                displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+
+        //            }
+        //            else if (prop.Value is GeneralItem item)
+        //            {
+        //                displayValue =  item.Name;
+        //                //displayValue = propDef.Items.FirstOrDefault(x => x.Code == prop.Value?.ToString())?.Name;
+        //            }
+        //            displayText.Append($"{propDef.DisplayName}:{displayValue}; ");
+        //        }
+        //    }
+        //    DisplayProperties = displayText.ToString().Trim();
+        //}
         // 动态属性字典
         private Dictionary<string, object> _properties = new Dictionary<string, object>();
         public Dictionary<string, object> Properties
@@ -281,21 +256,21 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 if (SetField(ref _properties, value))
-                    RefreshDisplayProperties(); 
+                    OnPropertyChanged(DisplayProperties); 
             }
         }
 
         // 用户选择的属性键（最多5个）
-        private ObservableCollection<string> _selectedPropertyKeys = new ObservableCollection<string>();
-        public ObservableCollection<string> SelectedPropertyKeys
-        {
-            get => _selectedPropertyKeys;
-            set
-            {
-                _selectedPropertyKeys = value;
-                OnPropertyChanged();
-            }
-        }
+        //private ObservableCollection<string> _selectedPropertyKeys = new ObservableCollection<string>();
+        //public ObservableCollection<string> SelectedPropertyKeys
+        //{
+        //    get => _selectedPropertyKeys;
+        //    set
+        //    {
+        //        _selectedPropertyKeys = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
         public ObservableCollection<HkTreeItem> Children { get; set; }
         public HkTreeItem Parent { get; set; }
@@ -306,21 +281,30 @@ namespace iEngr.Hookup.ViewModels
                 return Parent.Children.Where(x=> x != this).ToList();
             }
         }
-        public ObservableCollection<GeneralItem> NodeItems
+        public ObservableCollection<GeneralItem> NodeItems //可用于选择的节点
         {
             get
             {
-                List<GeneralItem> list = HK_General.dicParentTreeNode
-                    .Where(x => x.Key == Parent?.NodeName)
-                    .Select(x => x.Value).FirstOrDefault()?
+                //List<GeneralItem> list = HK_General.dicParentTreeNode
+                //    .Where(x => x.Key == Parent?.NodeName)
+                //    .Select(x => x.Value).FirstOrDefault()?
+                //    .Select(x => new GeneralItem
+                //    {
+                //        Code = x.ID,
+                //        NameCn = x.NameCn,
+                //        NameEn = x.NameEn
+                //    })?
+                //    .Where(x => !Siblings.Select(s => s.NodeName).Contains(x.Code)).ToList();
+                List<GeneralItem> list = HK_General.dicTreeNode
+                    .Select(x=>x.Value)
+                    .Where(x => x.Parent == Parent?.NodeName)
                     .Select(x => new GeneralItem
                     {
                         Code = x.ID,
                         NameCn = x.NameCn,
                         NameEn = x.NameEn
                     })?
-                    .Where(x => !Siblings.Select(s => s.NodeName).Contains(x.Code)).ToList();
-                if (list == null) return null;
+                    .Where(x => !Siblings.Select(s => s.NodeName).Contains(x.Code)).ToList(); if (list == null) return null;
                 return new ObservableCollection<GeneralItem>(list);
 
             }
@@ -347,41 +331,48 @@ namespace iEngr.Hookup.ViewModels
             OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
         }
 
-        // 检查是否已选择某个属性
-        public bool HasProperty(string key)
-        {
-            return _selectedPropertyKeys.Contains(key);
-        }
+        //// 检查是否已选择某个属性
+        //public bool HasProperty(string key)
+        //{
+        //    //return _selectedPropertyKeys.Contains(key);
+        //    return Properties.ContainsKey(key);
+        //}
 
         // 添加属性
-        public bool AddProperty(string key)
-        {
-            if (_selectedPropertyKeys.Count >= 5)
-                return false;
+        //public bool AddProperty(string key)
+        //{
+        //    if (_selectedPropertyKeys.Count >= 5)
+        //        return false;
 
-            if (!_selectedPropertyKeys.Contains(key))
-            {
-                _selectedPropertyKeys.Add(key);
-                OnPropertyChanged(nameof(SelectedPropertyKeys));
-                return true;
-            }
-            return false;
-        }
+        //    if (!_selectedPropertyKeys.Contains(key))
+        //    {
+        //        _selectedPropertyKeys.Add(key);
+        //        OnPropertyChanged(nameof(SelectedPropertyKeys));
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         // 移除属性
         public void RemoveProperty(string key)
         {
-            if (_selectedPropertyKeys.Contains(key))
+            //if (_selectedPropertyKeys.Contains(key))
+            //{
+            //    _selectedPropertyKeys.Remove(key);
+            //    if (_properties.ContainsKey(key))
+            //    {
+            //        _properties.Remove(key);
+            //    }
+            //    OnPropertyChanged(nameof(SelectedPropertyKeys));
+            //    OnPropertyChanged(nameof(Properties));
+            //    OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
+            //}
+            if (_properties.ContainsKey(key))
             {
-                _selectedPropertyKeys.Remove(key);
-                if (_properties.ContainsKey(key))
-                {
-                    _properties.Remove(key);
-                }
-                OnPropertyChanged(nameof(SelectedPropertyKeys));
-                OnPropertyChanged(nameof(Properties));
-                OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
+                _properties.Remove(key);
             }
+            OnPropertyChanged(nameof(Properties));
+            OnPropertyChanged(nameof(DisplayProperties)); // 通知显示更新
         }
 
         public HkTreeItem Clone()
@@ -424,20 +415,10 @@ namespace iEngr.Hookup.ViewModels
             Name = EditName;
             NodeName = EditNodeName;
             NodeValue = EditNodeValue;
-            Description = EditDescription;
             IsEditing = false;
             return true;
         }
-        //// 取消编辑方法
-        //public void CancelEdit()
-        //{
-        //    // 恢复原始值
-        //    EditName = Name;
-        //    EditFunctionCode = FunctionCode;
-        //    EditPopulation = Population;
-        //    EditDescription = Description;
-        //    IsEditing = false;
-        //}
+
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
