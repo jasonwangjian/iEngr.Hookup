@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<HookupConfig>
+  <Detector Name="测试">
+    <AE>
+      <AE-- />
+      <AEAL />
+    </AE>
+  </Detector>
+  <Converter Name="转换器测试">
+    <PanelType>
+      <SpecNode Name="1 进 2 出">
+        <SpecNode PicturePath="C:\Users\admin\Downloads\tag-one.png" Name="1 进 1 出" ConnType="R2" ConnTypes="R2C">
+          <SpecNode Name="测试1" />
+        </SpecNode>
+      </SpecNode>
+      <SpecNode Name="测试二" />
+      <SpecNode PicturePath="C:\Users\admin\Downloads\pic.png" Name="测试一">
+        <SpecNode PicturePath="C:\Users\admin\Downloads\tag-one.png" Name="1 进 1 出" ConnType="GG" ConnTypes="R2C">
+          <SpecNode Name="测试1" />
+        </SpecNode>
+        <SpecNode PicturePath="C:\Users\admin\Downloads\tag-one.png" Name="1 进 1 出" ConnTypes="R2C">
+          <SpecNode Name="测试1" />
+        </SpecNode>
+      </SpecNode>
+    </PanelType>
+  </Converter>
+  <Guage />
+  <Autuator />
+  <RackBox />
+  <Auxiliary />
+</HookupConfig>
