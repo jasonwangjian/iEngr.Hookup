@@ -32,4 +32,22 @@ namespace iEngr.Hookup
         public static string ErrMsgOmMatData {  get; set; }
 
     }
+    public static class DictionaryExtensions
+    {
+        public static Dictionary<TKey, TValue> Copy<TKey, TValue>(
+            this Dictionary<TKey, TValue> original)
+        {
+            return new Dictionary<TKey, TValue>(original);
+        }
+
+        public static Dictionary<TKey, TValue> DeepCopy<TKey, TValue>(
+            this Dictionary<TKey, TValue> original) where TValue : ICloneable
+        {
+            return original.ToDictionary(
+                pair => pair.Key,
+                pair => (TValue)pair.Value.Clone()
+            );
+        }
+    }
+
 }

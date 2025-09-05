@@ -51,6 +51,8 @@
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:StringToIconResourceConverter x:Key="StringToIconResourceConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
+        <cv:BoolToRedConverter x:Key="BoolToRedConverter"/>
+
         <cv:PropertyTypeToEditorTemplateConverter x:Key="PropertyEditorConverter"
             StringTemplate="{StaticResource StringEditorTemplate}"
             BooleanTemplate="{StaticResource BooleanEditorTemplate}"
@@ -163,6 +165,7 @@
                            FontWeight="Bold" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding NodeValue}" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding Name}" 
+                           Foreground="{Binding IsDuplicatedName, Converter={StaticResource BoolToRedConverter}}"
                            Visibility="{Binding  Converter={StaticResource TextNodeToVisibilityConverter}}"
                            VerticalAlignment="Center"/>
 

@@ -86,8 +86,8 @@ namespace iEngr.Hookup.ViewModels
             MoveDownCommand = new RelayCommand<object>(MoveDown, _ => CanMoveDown);
             ExpandAllCommand = new RelayCommand<object>(ExpandAll);
             CollapseAllCommand = new RelayCommand<object>(CollapseAll);
-            CopyCommand = new RelayCommand<object>(Copy, _ => SelectedItem != null);
-            CutCommand = new RelayCommand<object>(Cut, _ => SelectedItem != null);
+            CopyCommand = new RelayCommand<object>(Copy, CanCopyOrCut);
+            CutCommand = new RelayCommand<object>(Cut, CanCopyOrCut);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
             DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
@@ -364,6 +364,7 @@ namespace iEngr.Hookup.ViewModels
         }
         public bool CanPaste => _clipboardContent != null &&
                                SelectedItem != null &&
+                               SelectedItem.NodeItem.IsPropHolder == true &&
                                !IsPasteOperationInvalid();
         // 检查粘贴操作是否无效，设置状态消息
         private bool IsPasteOperationInvalid()
@@ -399,20 +400,6 @@ namespace iEngr.Hookup.ViewModels
 
             return false;
         }
-
-        // 检查target是否是source的后代或是source本身
-        private bool IsDescendantOrSelf(HkTreeItem target, HkTreeItem source)
-        {
-            if (target == null || source == null)
-                return false;
-
-            // 如果是同一个节点
-            if (target == source)
-                return true;
-
-            // 检查是否是后代节点
-            return IsDescendant(target, source);
-        }
         // 检查target是否是source的后代
         private bool IsDescendant(HkTreeItem target, HkTreeItem source)
         {
@@ -425,6 +412,17 @@ namespace iEngr.Hookup.ViewModels
             }
             return false;
         }
+        private bool CanCopyOrCut(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                return IsNodeValided &&
+                       SelectedItem != null &&
+                       HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
+            }
+            return false;
+        }
+
         // 复制功能 - 需要创建新实例
         private void Copy(object parameter)
         {
@@ -517,6 +515,8 @@ namespace iEngr.Hookup.ViewModels
             var newItem = _clipboardContent.Clone();
 
             // 添加到新位置
+            if (SelectedItem.Children.Any(x => x.Name == newItem.Name))
+                PasteStatusMessage = "重名";
             SelectedItem.Children.Add(newItem);
             newItem.Parent = SelectedItem;
 
@@ -766,8 +766,9 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is HkTreeItem item)
             {
                 return IsNodeValided &&
-                        (HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode || 
-                        SelectedItem.NodeItems?.Count>0);
+                       SelectedItem != null &&
+                       (HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode || 
+                       SelectedItem.NodeItems?.Count>0);
             }
             return false;
         }
@@ -917,7 +918,8 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is HkTreeItem item)
             {
                 return IsNodeValided &&
-                        HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
+                       SelectedItem != null &&
+                       HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
             }
             return false;
         }

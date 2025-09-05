@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -70,7 +71,14 @@ namespace iEngr.Hookup.ViewModels
                 return OperationStatus?.ToLower() == "copy";
             }
         }
-
+        public bool IsDuplicatedName
+        {
+            get
+            {
+                return NodeItem != null && NodeItem.IsPropNode == true && Siblings.Any(x=>x.Name == Name) ;
+            }
+            set => OnPropertyChanged(nameof(IsDuplicatedName));
+        }
         public string ID { get; set; }
         public HKLibTreeNode NodeItem { get; set; }
         private string _diagID;
@@ -379,8 +387,13 @@ namespace iEngr.Hookup.ViewModels
         {
             var clone = new HkTreeItem
             {
-                Name = this.Name,
-                IsExpanded = this.IsExpanded
+                IsExpanded = IsExpanded,
+                NodeName = NodeName,
+                NodeValue = NodeValue,
+                Name = Name,
+                PicturePath = PicturePath,
+                DiagID = DiagID,
+                Properties = new Dictionary<string, object>(Properties)
             };
 
             foreach (var child in this.Children)

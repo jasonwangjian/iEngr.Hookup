@@ -97,7 +97,7 @@
       <DependentUpon>UcComosBomMgr.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\IconConverters.cs" />
-    <Compile Include="Converters\NullToBoolConverter .cs" />
+    <Compile Include="Converters\ColorConverter .cs" />
     <Compile Include="Converters\PropertyTypeToEditorTemplateConverter.cs" />
     <Compile Include="Converters\ValueConverters.cs" />
     <Compile Include="Converters\VisibilityConverters.cs" />
@@ -123,9 +123,6 @@
     <Compile Include="ViewModels\MatListViewModel.cs" />
     <Compile Include="ViewModels\MatMainViewModel.cs" />
     <Compile Include="Views\Extensions.cs" />
-    <Compile Include="Views\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\PropertyEditorDialog.xaml.cs">
       <DependentUpon>PropertyEditorDialog.xaml</DependentUpon>
     </Compile>
@@ -195,10 +192,6 @@
     <Page Include="Comos\UcComosBomMgr.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\PropertyEditorDialog.xaml">
       <SubType>Designer</SubType>
