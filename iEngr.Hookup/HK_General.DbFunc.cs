@@ -39,6 +39,51 @@ namespace iEngr.Hookup
                 return null;
             }
         }
+        private static int GetNewID(string tableName)
+        {
+            string query = $"SELECT  MAX(ID) FROM {tableName}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteScalar() + 1;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.GetNewID(string tableName), Error: {ex.Message}");
+                }
+            }
+            return 0;
+        }
+        internal static bool IsIDExisting(string tableName, int id)
+        {
+            string query = $"SELECT CASE WHEN EXISTS(SELECT ID FROM {tableName} WHERE ID = {id})" +
+                           $" THEN  1 ELSE 0 END AS result";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return ((int)command.ExecuteScalar()==1);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.IsIDExisting(string tableName, int id), Error: {ex.Message}");
+                    return false;
+                }
+            }
+        }
+
+        #region MatGenLib
         internal static ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
         {
             ObservableCollection<MatListItem> result = new ObservableCollection<MatListItem>();
@@ -435,7 +480,6 @@ namespace iEngr.Hookup
             }
             return 0;
         }
-
         private static string getSpecMainAux(string input, int language = 4)
         {
             string result = string.Empty;
@@ -622,6 +666,155 @@ namespace iEngr.Hookup
             else
                 return string.Empty;
         }
+        #endregion
+        #region TreeNode
+        internal static int NewNodeAdd(HkTreeItem item, int count =0)
+        {
+            if (item == null || item.Parent == null) return 0;
+            string tableName = "HK_TreeNode";
+            int newID = GetNewID(tableName);
+            item.ID = newID.ToString();
+            using (OdbcConnection conn = GetConnection())
+            {
+                string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
+                try
+                {
+                    string query = $"INSERT INTO {tableName} (ID, NodeName, NodeValue, Name, " +
+                                            $"DiagID, PicturePath, Properties, IsExpanded, " +
+                                            $"ParentID, Status, LastBy, LastOn) VALUES (" +
+                                            $"{newID}," +
+                                            $"'{item.NodeName}'," +
+                                            $"'{item.NodeValue}'," +
+                                            $"'{item.Name}'," +
+                                            $"{diagramID}," +
+                                            $"'{item.PicturePath}'," +
+                                            $"'{item.PropertiesString}'," +
+                                            $"'{item.IsExpanded}'," +
+                                            $"'{item.Parent.ID}'," +
+                                            $"1," +
+                                            $"'{UserName}'," +
+                                            $"'{DateTime.Now.ToString()}'" +
+                                            $")";
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        count += command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.NewNodeAdd(HkTreeItem item, int count =0), Error: {ex.Message}");
+                    //MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            foreach (var subItem in item.Children)
+            {
+                UpdateNode(subItem,count);
+            }
+            return count;
+        }
+        internal static int UpdateNode(HkTreeItem item, int count=0, bool IsRecursive = false)
+        {
+            if (item == null || item.Parent == null) return 0;
+            if (!int.TryParse(item.ID, out int id))
+            {
+                return NewNodeAdd(item,count);
+            }
+            string tableName = "HK_TreeNode";
+            if (!IsIDExisting(tableName, id))
+            {
+                item.ID = null;
+                return NewNodeAdd(item, count);
+            }
+            using (OdbcConnection conn = GetConnection())
+            {
+                string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
+                try
+                {
+                    string query = $"UPDATE {tableName} SET " +
+                                               $"NodeName = '{item.NodeName}'," +
+                                               $"NodeValue = '{item.NodeValue}'," +
+                                               $"Name = '{item.Name}'," +
+                                               $"DiagID = {diagramID}," +
+                                               $"PicturePath = '{item.PicturePath}'," +
+                                               $"Properties = '{item.PropertiesString}'," +
+                                               $"IsExpanded = '{item.IsExpanded}'," +
+                                               $"ParentID = '{item.Parent.ID}'," +
+                                               $"Status = 1," +
+                                               $"LastBy='{UserName}'," +
+                                               $"LastOn = '{DateTime.Now.ToString()}' " +
+                                               $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        count += command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.UpdateNode(HkTreeItem item, int count=0), Error: {ex.Message}");
+                    //MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            if (IsRecursive)
+            {
+                foreach (var subItem in item.Children)
+                {
+                    UpdateNode(subItem, count, true);
+                }
+            }
+            return count;
+        }
+        internal static List<HkTreeItem> GetAllTreeNodeItems()
+        {
+            List<HkTreeItem> result = new List<HkTreeItem>();
+            string query = $"select * " +
+                $"from HK_TreeNode " +
+                $"where Status >=0";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            HkTreeItem item = new HkTreeItem
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                NodeName = Convert.ToString(reader["NodeName"]),
+                                NodeValue = Convert.ToString(reader["NodeValue"]),
+                                Name = Convert.ToString(reader["Name"]),
+                                DiagID = Convert.ToString(reader["DiagID"]),
+                                PicturePath = Convert.ToString(reader["PicturePath"]),
+                                PropertiesString = Convert.ToString(reader["Properties"]),
+                                IsExpanded = Convert.ToBoolean(reader["IsExpanded"]),
+                                ParentID = Convert.ToString(reader["ParentID"]),
+                                Status = Convert.ToByte(reader["Status"]),
+                                LastOn = Convert.ToDateTime(reader["LastOn"]),
+                                LastBy = Convert.ToString(reader["PicturePath"]),
+                            };
+                            result.Add(item);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General. GetAllTreeNodeItems(), Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+                return result;
+            }
+        }
     }
 
+
+    #endregion
 }
+

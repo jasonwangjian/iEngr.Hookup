@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Xceed.Wpf.Toolkit;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -80,6 +81,10 @@ namespace iEngr.Hookup.ViewModels
             set => OnPropertyChanged(nameof(IsDuplicatedName));
         }
         public string ID { get; set; }
+        public byte Status { get; set; }
+        public string ParentID { get; set; }
+        public DateTime LastOn { get; set; }
+        public string LastBy { get; set; }
         public HKLibTreeNode NodeItem { get; set; }
         private string _diagID;
         public string DiagID
@@ -267,7 +272,26 @@ namespace iEngr.Hookup.ViewModels
                     OnPropertyChanged(DisplayProperties); 
             }
         }
-
+        public string _propertiesString;
+        public string PropertiesString
+        {
+            get
+            {
+                if (Properties == null || Properties.Count == 0) return _propertiesString;
+                List<string> keyValues = new List<string>();
+                foreach (var prop in Properties)
+                {
+                    string value = prop.Value?.ToString();
+                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                        value = string.Join(",", items.Select(x => x.Code).ToList());
+                    else if (prop.Value is GeneralItem item)
+                        value = item?.Code;
+                    keyValues.Add(prop.Key + ":" + value);
+                }
+                return string.Join(",", keyValues);
+            }
+            set => _propertiesString = value;
+        }
         // 用户选择的属性键（最多5个）
         //private ObservableCollection<string> _selectedPropertyKeys = new ObservableCollection<string>();
         //public ObservableCollection<string> SelectedPropertyKeys
@@ -286,7 +310,7 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                return Parent.Children.Where(x=> x != this).ToList();
+                return Parent?.Children.Where(x=> x != this).ToList() ?? new List<HkTreeItem>();
             }
         }
         public ObservableCollection<GeneralItem> NodeItems //可用于选择的节点

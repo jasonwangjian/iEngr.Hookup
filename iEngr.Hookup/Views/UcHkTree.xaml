@@ -79,12 +79,6 @@
             <MenuItem Header="下移" 
                       Command="{Binding PlacementTarget.Tag.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <MenuItem Header="移动到父节点" 
-                      Command="{Binding PlacementTarget.Tag.MoveToParentCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-            <MenuItem Header="移动到子节点" 
-                      Command="{Binding PlacementTarget.Tag.MoveToChildCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
             <Separator/>
             <!-- 复制剪切粘贴功能 -->
             <MenuItem Header="复制" 
@@ -266,19 +260,12 @@
 
                 <TextBlock Grid.Column="0" Margin="5,0">
                     <Run Text="{Binding SelectedItem.NodeName, Converter={StaticResource NodeNameToValueConverter}}"/>
-                    <Run Text=", 父节点: "/>
-                    <Run Text="{Binding SelectedItem.Parent.Name, FallbackValue='根节点'}"/>
                 </TextBlock>
 
                 <TextBlock Grid.Column="1" Margin="5,0" HorizontalAlignment="Center">
-                    <Run Text="剪贴板: "/>
-                    <Run Text="{Binding ClipboardContent, Mode=OneWay, FallbackValue='空'}"/>
                     <Run Text="{Binding PasteStatusMessage}" Foreground="Red"/>
                 </TextBlock>
 
-                <TextBlock Grid.Column="2" Margin="5,0" HorizontalAlignment="Right">
-                    <Run Text="右键菜单"/>
-                </TextBlock>
             </StatusBar>
 
             <!-- TreeView -->
