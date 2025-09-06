@@ -770,6 +770,56 @@ namespace iEngr.Hookup
             }
             return count;
         }
+        internal static int NodeDelete(string tableName, int id)
+        {
+            string query = $"DELETE FROM {tableName} WHERE ID = {id}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.NodeDelete(int id), Error: {ex.Message}");
+                    return 0;
+                }
+            }
+
+        }
+        internal static int NodeDelete(HkTreeItem item, ref int count, bool IsRecursive = false)
+        {
+            if (item == null) return count;
+            if (IsRecursive)
+            {
+                foreach (var childItem in item.Children)
+                {
+                    NodeDelete(childItem, ref count, IsRecursive);
+                }
+            }
+            else
+            {
+                foreach (var childItem in item.Children)
+                {
+                    childItem.Parent = item.Parent;
+                    UpdateNode(childItem);
+                }
+
+            }
+            // 构建 SQL 查询语句
+            if (int.TryParse(item.ID, out int id))
+            {
+                count += NodeDelete("HK_TreeNode",id);
+            }
+            return count;
+
+        }
+
         internal static List<HkTreeItem> GetAllTreeNodeItems()
         {
             List<HkTreeItem> result = new List<HkTreeItem>();
@@ -812,9 +862,9 @@ namespace iEngr.Hookup
                 return result;
             }
         }
+    #endregion
     }
 
 
-    #endregion
 }
 

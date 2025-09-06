@@ -435,11 +435,12 @@ namespace iEngr.Hookup.ViewModels
 
         #region 解析TreeNode
         List<HkTreeItem> allItems;
+        HkTreeItem rootItem;
         int AllParsedCount = 0;
         private void LoadTreeNode()
         {
             allItems = HK_General.GetAllTreeNodeItems();
-            HkTreeItem rootItem = allItems.FirstOrDefault(x => x.ID == "0");
+            rootItem = allItems.FirstOrDefault(x => x.ID == "0");
             if (rootItem != null)
             {
                 ParseTreeNode(rootItem);
@@ -751,6 +752,8 @@ namespace iEngr.Hookup.ViewModels
             {
                 SelectedItem = null;
             }
+            int testCount = 0;
+             PasteStatusMessage= HK_General.NodeDelete(itemToDelete, ref testCount, true).ToString();
 
             // 清空相关剪贴板内容
             if (_clipboardContent == itemToDelete)
