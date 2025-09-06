@@ -21,6 +21,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
 using Xceed.Wpf.Toolkit;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -88,7 +89,7 @@ namespace iEngr.Hookup.ViewModels
             CopyCommand = new RelayCommand<object>(Copy, CanCopyOrCut);
             CutCommand = new RelayCommand<object>(Cut, CanCopyOrCut);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
-            DeleteCommand = new RelayCommand<object>(DeleteWithConfirmation, _ => CanDelete);
+            DeleteCommand = new RelayCommand<object>(DeleteRecursiveWithConfirmation, _ => CanDelete);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
                 execute: EditProperties,
                 canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "SpecNode"
@@ -432,215 +433,6 @@ namespace iEngr.Hookup.ViewModels
         }
         #endregion
 
-        #region 文件操作;  Xml - TreeView转换
-        // 从XML文件加载树形数据
-        private void LoadTreeDataFromXml()
-        {
-            try
-            {
-                string xmlFilePath = GetXmlFilePath();
-
-                if (File.Exists(xmlFilePath))
-                {
-                    XDocument doc = XDocument.Load(xmlFilePath);
-                    var treeItem = ParseXmlNode(doc.Root, null);
-                    treeItem.IsExpanded = true;
-                    TreeItems.Add(treeItem);
-                    //var rootNodes = doc.Root.Elements();
-                    //foreach (var node in rootNodes)
-                    //{
-                    //    treeItem = ParseXmlNode(node, null);
-                    //    TreeItems.Add(treeItem);
-                    //}
-                }
-                else
-                {
-                    // 如果XML文件不存在，使用默认测试数据
-                    InitializeDefaultData();
-                    // 可选：保存默认数据到XML文件
-                    SaveTreeDataToXml();
-                }
-            }
-            catch (Exception ex)
-            {
-                // 加载失败时使用默认数据
-                InitializeDefaultData();
-                Console.WriteLine($"加载XML数据失败: {ex.Message}");
-            }
-        }
-        // 解析XML节点（递归方法）
-        private HkTreeItem ParseXmlNode(XElement xmlNode, HkTreeItem parent)
-        {
-            var treeItem = new HkTreeItem
-            {
-                NodeName = xmlNode.Name.LocalName,
-                NodeValue = GetElementValue(xmlNode),
-                Parent = parent
-            };
-
-            // 解析扩展属性
-            treeItem.ID = xmlNode.Attribute("ID")?.Value;
-            treeItem.PicturePath = xmlNode.Attribute("PicturePath")?.Value;
-            treeItem.Name = xmlNode.Attribute("Name")?.Value;
-            // 解析字典属性
-            string[] reservedAttributes = { "ID", "Name", "PicturePath" };
-            treeItem.Properties = new Dictionary<string, object>();
-            Dictionary<string, string> dicProp = xmlNode.Attributes().Where(x => !reservedAttributes.Contains(x.Name.ToString())).ToDictionary(x => x.Name.ToString(), x => x.Value);
-            foreach (var prop in dicProp)
-            {
-                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
-                if (propDef != null)
-                {
-                    if (propDef.Type == PropertyType.EnumItems)
-                    {
-                        treeItem.Properties.Add(prop.Key, new ObservableCollection<GeneralItem>(propDef.Items.Where(x => prop.Value.Split(',').Contains(x.Code)).ToList()));
-                    }
-                    else if (propDef.Type == PropertyType.EnumItem)
-                    {
-                        treeItem.Properties.Add(prop.Key, propDef.Items.FirstOrDefault(x => x.Code == prop.Value));
-                    }
-                    else
-                        treeItem.Properties.Add(prop.Key, prop.Value);
-                }
-            }
-            //treeItem.OnPropertyChanged(nameof(treeItem.DisplayProperties));
-            treeItem.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
-
-            // 递归处理子节点
-            foreach (var childNode in xmlNode.Elements())
-            {
-                var childItem = ParseXmlNode(childNode, treeItem);
-                treeItem.Children.Add(childItem);
-            }
-
-            return treeItem;
-        }
-        // 获取XML文件路径
-        private string GetXmlFilePath()
-        {
-            // 可以根据需要调整文件路径
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "HookupConfig.xml");
-        }
-        private string GetElementValue(XElement element)
-        {
-            var textNodes = element.Nodes().OfType<XText>();
-            return string.Concat(textNodes.Select(t => t.Value)).Trim();
-        }
-
-        // 保存树形数据到XML文件（可选功能）
-        public void SaveTreeDataToXml()
-        {
-            try
-            {
-                XDocument doc = new XDocument(
-                    new XDeclaration("1.0", "utf-8", "yes"),
-                    ConvertToXmlNode(TreeItems[0])
-                //new XElement("HookupConfig",
-                //    from item in TreeItems
-                //    select ConvertToXmlNode(item)
-                //)
-                );
-
-                doc.Save(GetXmlFilePath());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"保存XML数据失败: {ex.Message}");
-            }
-        }
-
-        // 将TreeItem转换为XML节点（递归方法）
-        private XElement ConvertToXmlNode(HkTreeItem treeItem)
-        {
-            string elementName = CleanXmlName(treeItem.NodeName);
-            var element = new XElement(elementName);
-
-            // 设置节点值
-            if (!string.IsNullOrEmpty(treeItem.NodeValue))
-            {
-                element.Value = treeItem.NodeValue;
-            }
-
-            // 添加附加属性
-            // 添加附加属性
-            if (!string.IsNullOrEmpty(treeItem.ID))
-            {
-                element.SetAttributeValue("ID", treeItem.ID);
-            }
-            if (!string.IsNullOrEmpty(treeItem.PicturePath))
-            {
-                element.SetAttributeValue("PicturePath", treeItem.PicturePath);
-            }
-            if (!string.IsNullOrEmpty(treeItem.Name))
-            {
-                element.SetAttributeValue("Name", treeItem.Name);
-            }
-            foreach (var prop in treeItem.Properties)
-            {
-                string value = prop.Value?.ToString();
-                if (prop.Value is ObservableCollection<GeneralItem> items)
-                    value = string.Join(",", items.Select(x => x.Code).ToList());
-                else if (prop.Value is GeneralItem item)
-                    value = item?.Code;
-                element.SetAttributeValue(prop.Key, value);
-            }
-
-
-            // 递归处理子节点
-            foreach (HkTreeItem childItem in treeItem.Children)
-            {
-                element.Add(ConvertToXmlNode(childItem));
-            }
-
-            return element;
-        }
-        private string CleanXmlName(string name)
-        {
-            if (string.IsNullOrEmpty(name)) return "未命名";
-
-            string cleaned = new string(name.Where(c =>
-                char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == '.').ToArray());
-
-            return string.IsNullOrEmpty(cleaned) ? "未命名" : cleaned;
-        }
-
-
-
-        // 默认测试数据（备用）
-        private void InitializeDefaultData()
-        {
-            TreeItems.Clear();
-
-            // 创建简单的默认数据结构
-            var parent1 = new HkTreeItem { Name = "默认节点1" };
-            var parent2 = new HkTreeItem { Name = "默认节点2" };
-
-            for (int j = 1; j <= 2; j++)
-            {
-                var child = new HkTreeItem
-                {
-                    Name = $"子节点 {j}",
-                    Parent = parent1
-                };
-                parent1.Children.Add(child);
-            }
-
-            for (int j = 1; j <= 2; j++)
-            {
-                var child = new HkTreeItem
-                {
-                    Name = $"子节点 {j}",
-                    Parent = parent2
-                };
-                parent2.Children.Add(child);
-            }
-
-            TreeItems.Add(parent1);
-            TreeItems.Add(parent2);
-        }
-
-        #endregion
-
         #region 解析TreeNode
         List<HkTreeItem> allItems;
         int AllParsedCount = 0;
@@ -827,7 +619,6 @@ namespace iEngr.Hookup.ViewModels
                 {
                     _editingItem = null;
                     IsNewAddedItemEditing = false;
-                    SaveTreeDataToXml();
                     HK_General.UpdateNode(item, 0, true);
                 }
                 else
@@ -887,7 +678,7 @@ namespace iEngr.Hookup.ViewModels
                 //item.RefreshDisplayProperties();
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
                 item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
-                SaveTreeDataToXml();
+                HK_General.UpdateNode(item);
             }
         }
         //设置节点安装图图片
@@ -912,11 +703,11 @@ namespace iEngr.Hookup.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 item.PicturePath = dialog.FileName;
-                SaveTreeDataToXml();
+                HK_General.UpdateNode(item);
             }
         }
         // 在MainViewModel中添加带确认的删除方法
-        private void DeleteWithConfirmation(object parameter)
+        private void DeleteRecursiveWithConfirmation(object parameter)
         {
             if (parameter is HkTreeItem item)
             {
@@ -930,16 +721,16 @@ namespace iEngr.Hookup.ViewModels
             var caption = "确认删除";
 
             // 这里使用MessageBox作为示例，实际项目中建议使用DialogService
-            var result = Xceed.Wpf.Toolkit.MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
-                ExecuteDelete(SelectedItem);
+                ExecuteDeleteRecursive(SelectedItem);
             }
         }
 
         // 实际的删除执行方法
-        private void ExecuteDelete(HkTreeItem itemToDelete)
+        private void ExecuteDeleteRecursive(HkTreeItem itemToDelete)
         {
             var parent = itemToDelete.Parent;
             var siblingToSelect = FindSiblingToSelect(itemToDelete);
