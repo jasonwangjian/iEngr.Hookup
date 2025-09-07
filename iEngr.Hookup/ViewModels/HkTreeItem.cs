@@ -97,8 +97,15 @@ namespace iEngr.Hookup.ViewModels
             get
             {
                 if (Parent?.NodeItem?.IsPropNode == true)
-                    return Parent.DiagID ?? Parent.InheritDiagID;
+                    return !string.IsNullOrEmpty(Parent.DiagID)? Parent.DiagID:Parent.InheritDiagID;
                 return null;
+            }
+        }
+        public bool IsInheritDiagIDActive
+        {
+            get
+            {
+                return string.IsNullOrEmpty(DiagID) && !string.IsNullOrEmpty(InheritDiagID);
             }
         }
         private string _name;
@@ -140,7 +147,7 @@ namespace iEngr.Hookup.ViewModels
             get
             {
                 if (Parent?.NodeItem?.IsPropNode == true)
-                    return Parent.PicturePath ?? Parent.InheritPicturePath;
+                    return !string.IsNullOrEmpty(Parent.PicturePath)? Parent.PicturePath : Parent.InheritPicturePath;
                 return null;
 
             }
@@ -149,7 +156,7 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                return PicturePath == null && InheritPicturePath != null;
+                return string.IsNullOrEmpty(PicturePath) && !string.IsNullOrEmpty(InheritPicturePath);
             }
         }
 
@@ -170,9 +177,9 @@ namespace iEngr.Hookup.ViewModels
                 {
                     if (NodeName == "SpecNode")
                     {
-                        if (string.IsNullOrEmpty(value)) ErrMsgName = "不能为空";
-                        else if (Siblings.Any(x => x.Name == value)) ErrMsgName = $"重名：{value}";
-                        else ErrMsgName = string.Empty;
+                        if (string.IsNullOrEmpty(value)) ValidationErrors = "不能为空;";
+                        else if (Siblings.Any(x => x.Name == value)) ValidationErrors = $"重名：{value};";
+                        else ValidationErrors = string.Empty;
                         return;
                     }
                 }
@@ -191,11 +198,11 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        private string _errMsgName;
-        public string ErrMsgName
+        private string _validationErrors;
+        public string ValidationErrors
         {
-            get => _errMsgName;
-            set => SetField(ref _errMsgName, value);
+            get => _validationErrors;
+            set => SetField(ref _validationErrors, value);
         }
 
         // 添加一个用于显示的属性字符串
@@ -270,6 +277,19 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (SetField(ref _properties, value))
                     OnPropertyChanged(DisplayProperties); 
+            }
+        }
+        public Dictionary<string, object> InheritProperties
+        {
+            get
+            {
+                //if (Parent?.NodeItem?.IsPropNode == true)
+                //{
+                //    Dictionary<string, object> inheritProperties = new Dictionary<string, object>();
+                //    return !string.IsNullOrEmpty(Parent.PicturePath) ? Parent.PicturePath : Parent.InheritPicturePath;
+                //}
+                return new Dictionary<string, object>();
+
             }
         }
         public string _propertiesString;
@@ -409,14 +429,16 @@ namespace iEngr.Hookup.ViewModels
 
         public HkTreeItem Clone()
         {
+            // 根据DiagID创建新的BOM，并生成新的DiagID
+            string newDiagID = "TBA";
             var clone = new HkTreeItem
             {
                 IsExpanded = IsExpanded,
                 NodeName = NodeName,
                 NodeValue = NodeValue,
                 Name = Name,
-                PicturePath = PicturePath,
-                DiagID = DiagID,
+                PicturePath = PicturePath, // 保留原来的图形
+                DiagID = newDiagID,
                 Properties = new Dictionary<string, object>(Properties)
             };
 
@@ -431,20 +453,20 @@ namespace iEngr.Hookup.ViewModels
         }
 
         // 在HkTreeItem中添加验证
-        public bool HasValidationErrors
-        {
-            get
-            {
-                return string.IsNullOrWhiteSpace(EditName) && NodeName == "SpecNode" ||
-                       !string.IsNullOrEmpty(ErrMsgName);
-            }
-        }
+        //public bool HasValidationErrors
+        //{
+        //    get
+        //    {
+        //        return string.IsNullOrWhiteSpace(EditName) && NodeName == "SpecNode" ||
+        //               !string.IsNullOrEmpty(ValidationErrors);
+        //    }
+        //}
 
 
         // 在ConfirmEdit方法中添加验证
         public bool ConfirmEdit()
         {
-            if (HasValidationErrors)
+            if (!string.IsNullOrEmpty(ValidationErrors))
             {
                 return false;
             }

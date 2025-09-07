@@ -36,7 +36,7 @@
         <BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico"/>
         <BitmapImage x:Key="PictureIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/PictureIcon.png"/>
         <BitmapImage x:Key="BomIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomIcon.png"/>
-        <BitmapImage x:Key="PictureInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomInheritIcon.png"/>
+        <BitmapImage x:Key="PictureInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/PictureInheritIcon.png"/>
         <BitmapImage x:Key="BomInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomInheritIcon.png"/>
         <BitmapImage x:Key="TagLabelIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/TagLabelIcon.ico"/>
         <BitmapImage x:Key="CopyIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/CopyIcon.png"/>
@@ -100,17 +100,34 @@
             <MenuItem Header="编辑" 
                       Command="{Binding PlacementTarget.Tag.StartEditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-             <MenuItem Header="设置标签" 
-                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-            <MenuItem Header="选择图形" 
-                      Command="{Binding PlacementTarget.Tag.SetPictureCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
             <MenuItem Header="删除" 
                       Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"
-                      InputGestureText="Delete"/>
-           <Separator/>
+                      ToolTip="删除此节点及其所有子节点"/>
+            <MenuItem Header="单点删除" 
+                      Command="{Binding PlacementTarget.Tag.DeleteSingleCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"
+                      ToolTip="仅删除此节点，所有子节点移动到父节点"/>
+            <Separator/>
+            <MenuItem Header="分配图形" 
+                      Command="{Binding PlacementTarget.Tag.PictureSetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="删除图形" 
+                      Command="{Binding PlacementTarget.Tag.PictureDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="新建BOM" 
+                      Command="{Binding PlacementTarget.Tag.DiagramSetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="分配BOM" 
+                      Command="{Binding PlacementTarget.Tag.DiagramNewCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="删除BOM" 
+                      Command="{Binding PlacementTarget.Tag.DiagramDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <Separator/>
+            <MenuItem Header="设置标签" 
+                      Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
         </ContextMenu>
 
         <!-- TreeViewItem样式 -->
@@ -128,6 +145,8 @@
         <DataTemplate x:Key="DisplayTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <!-- 图标 -->
+                <Image cv:IconResourceHelper.ResourceKey="{Binding NodeItem.IconName}" 
+                       Width="16" Height="16" Margin="0,0,5,0" />
                 <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource CutIcon}"
                    Visibility="{Binding IsCutOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
@@ -136,8 +155,6 @@
                    Source="{StaticResource CopyIcon}"
                    Visibility="{Binding IsCopyOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
                 </Image>
-                <Image cv:IconResourceHelper.ResourceKey="{Binding NodeItem.IconName}" 
-                       Width="16" Height="16" Margin="0,0,5,0" />
                 <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource PictureIcon}"
                    Visibility="{Binding PicturePath,  Converter={StaticResource NoEmptyToVisibilityConverter}}">
@@ -152,7 +169,7 @@
                 </Image>
                 <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource BomInheritIcon}"
-                   Visibility="{Binding InheritDiagID,  Converter={StaticResource BoolToVisibilityConverter}}">
+                   Visibility="{Binding IsInheritDiagIDActive,  Converter={StaticResource BoolToVisibilityConverter}}">
                 </Image>
                 <TextBlock Text="{Binding NodeName, Converter={StaticResource NodeNameToValueConverter}}" 
                            Visibility="{Binding  Converter={StaticResource CmbNodeToVisibilityConverter}}"
@@ -165,10 +182,13 @@
 
                 <!-- 显示的属性 -->
                 <TextBlock Text="{Binding DisplayProperties}" 
+                   Margin="5,2,0,0"
+                   TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding DisplayProperties}" 
                    FontStyle="Italic"
                    Margin="5,2,0,0"
                    TextWrapping="Wrap"/>
-                
+
             </StackPanel>
         </DataTemplate>
 
@@ -176,6 +196,8 @@
         <DataTemplate x:Key="EditTemplate">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <!-- 编辑状态指示器 -->
+                <Image cv:IconResourceHelper.ResourceKey="{Binding NodeItem.IconName}" 
+                       Width="16" Height="16" Margin="0,0,5,0" />
                 <TextBlock Text="✎" Foreground="Black" FontSize="10" Margin="0,0,3,0"
                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
                    ToolTip="正在编辑"/>
@@ -204,15 +226,6 @@
                         Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
                         CommandParameter="{Binding}"
                         ToolTip="取消编辑"
-                        Background ="White"
-                        Foreground="Black"/>
-                
-                <!-- 删除图形按钮 -->
-                <Button Content="❌" Width="20" Height="20" Margin="2,0"
-                        Command="{Binding DataContext.PictureDelCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-                        CommandParameter="{Binding}"
-                        ToolTip="删除图形"
-                        Visibility="{Binding PicturePath, Converter={StaticResource NoEmptyToVisibilityConverter}}"
                         Background ="White"
                         Foreground="Black"/>
             </StackPanel>
@@ -251,21 +264,20 @@
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="1" Grid.Column="1">
             <!-- 状态栏 -->
-            <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar DockPanel.Dock="Bottom" ItemsSource="{Binding StatusMessages.Items}">
                 <StatusBar.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation ="Horizontal" ></StackPanel>
+                        <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </StatusBar.ItemsPanel>
 
-                <TextBlock Grid.Column="0" Margin="5,0">
-                    <Run Text="{Binding SelectedItem.NodeName, Converter={StaticResource NodeNameToValueConverter}}"/>
-                </TextBlock>
-
-                <TextBlock Grid.Column="1" Margin="5,0" HorizontalAlignment="Center">
-                    <Run Text="{Binding PasteStatusMessage}" Foreground="Red"/>
-                </TextBlock>
-
+                <StatusBar.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="5,0">
+                            <TextBlock Text="{Binding Value}" Foreground="Red"  Margin="0,0,5,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </StatusBar.ItemTemplate>
             </StatusBar>
 
             <!-- TreeView -->

@@ -35,7 +35,7 @@ namespace iEngr.Hookup.Views
             if (e.NewValue is HkTreeItem newItem && DataContext is HkTreeViewModel viewModel)
             {
                 viewModel.SelectedItem = newItem;
-                viewModel.LastSelectedItem = newItem;
+                //viewModel.LastSelectedItem = newItem;
             }
         }
 
@@ -68,7 +68,7 @@ namespace iEngr.Hookup.Views
                 if (DataContext is HkTreeViewModel viewModel)
                 {
                     viewModel.SelectedItem = item;
-                    viewModel.LastSelectedItem = item;
+                    //viewModel.LastSelectedItem = item;
                 }
 
                 e.Handled = true;
@@ -115,10 +115,10 @@ namespace iEngr.Hookup.Views
                         break;
                 }
             }
-            else if (e.Key == Key.Delete)
+            else if (e.Key == Key.Escape)
             {
-                // 处理Delete键删除
-                _viewModel.DeleteCommand.Execute(_viewModel.SelectedItem);
+                // 清除剪贴板
+                _viewModel.ClearClipboard();
                 e.Handled = true;
             }
         }

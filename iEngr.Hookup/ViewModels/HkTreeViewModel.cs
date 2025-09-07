@@ -1,4 +1,5 @@
-﻿using iEngr.Hookup.Converters;
+﻿using ComosQueryInterface;
+using iEngr.Hookup.Converters;
 using iEngr.Hookup.Models;
 using iEngr.Hookup.Services;
 using iEngr.Hookup.Views;
@@ -9,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Eventing.Reader;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -21,6 +23,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
 using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Primitives;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace iEngr.Hookup.ViewModels
@@ -43,6 +46,7 @@ namespace iEngr.Hookup.ViewModels
                         _lastSelectedItem = _selectedItem;
                     }
                     OnPropertyChanged();
+                    StatusMessages.Remove("DeletedNodeCount");
                     UpdateCommandStates();
                 }
             }
@@ -71,13 +75,11 @@ namespace iEngr.Hookup.ViewModels
         // 剪贴板内容
         private HkTreeItem _clipboardContent;
         private bool _isCutOperation; // 标记是剪切还是复制操作
-        public string ClipboardContent => _clipboardContent != null ?
-            $"{_clipboardContent.Name} ({(_isCutOperation ? "剪切" : "复制")})" : "空";
-        private string _pasteStatusMessage;
-        public string PasteStatusMessage
+        public ObservableDictionary<string, string> _statusMessages = new ObservableDictionary<string, string>();
+        public ObservableDictionary<string, string> StatusMessages
         {
-            get => _pasteStatusMessage;
-            set => SetField(ref _pasteStatusMessage, value);
+            get => _statusMessages;
+            set => SetField(ref _statusMessages, value);
         }
         public HkTreeViewModel()
         {
@@ -90,16 +92,20 @@ namespace iEngr.Hookup.ViewModels
             CutCommand = new RelayCommand<object>(Cut, CanCopyOrCut);
             PasteCommand = new RelayCommand<object>(Paste, _ => CanPaste);
             DeleteCommand = new RelayCommand<object>(DeleteRecursiveWithConfirmation, _ => CanDelete);
+            DeleteSingleCommand = new RelayCommand<object>(DeleteSingleWithConfirmation, _ => CanDeleteSingle);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
                 execute: EditProperties,
                 canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "SpecNode"
             );
-            SetPictureCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
+            PictureSetCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
             StartEditNewCommand = new RelayCommand<object>(StartEditNew, CanEditNew);
             StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig");
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
-            PictureDelCommand = new RelayCommand<object>(PictureDel);
+            PictureDelCommand = new RelayCommand<object>(PictureDel, _=> !string.IsNullOrEmpty(SelectedItem.PicturePath));
+            DiagramSetCommand = new RelayCommand<HkTreeItem>(DiagramSet, CanSetPicture);
+            DiagramNewCommand = new RelayCommand<HkTreeItem>(DiagramNew, CanSetPicture);
+            DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => !string.IsNullOrEmpty(SelectedItem.DiagID));
             // 从XML文件加载数据
             LoadTreeNode();
             //LoadTreeDataFromXml();
@@ -110,12 +116,12 @@ namespace iEngr.Hookup.ViewModels
             get
             {
                 if (SelectedItem == null || string.IsNullOrEmpty(SelectedItem.NodeName)) return false;
-                if (HK_General.dicTreeNode.ContainsKey(SelectedItem.NodeName))
+                if (SelectedItem.NodeItem  != null)
                     return true;
                 return false;
             }
         }
-        #region 移动
+        #region 节点上下移动
         public ICommand MoveUpCommand { get; set; }
         public ICommand MoveDownCommand { get; set; }
         public bool CanMoveUp => SelectedItem != null &&
@@ -248,7 +254,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 return IsNodeValided &&
                        SelectedItem != null &&
-                       HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
+                       SelectedItem.NodeItem.IsPropNode;
             }
             return false;
         }
@@ -259,8 +265,6 @@ namespace iEngr.Hookup.ViewModels
                                !IsPasteOperationInvalid();
         private bool IsPasteOperationInvalid()
         {
-            PasteStatusMessage = string.Empty;
-
             if (_clipboardContent == null || SelectedItem == null)
                 return true;
 
@@ -269,21 +273,18 @@ namespace iEngr.Hookup.ViewModels
                 // 检查是否粘贴到自己
                 if (SelectedItem == _clipboardContent)
                 {
-                    PasteStatusMessage = " (不能粘贴到自己)";
                     return true;
                 }
 
                 // 检查是否粘贴到自己的子节点
                 if (IsDescendant(SelectedItem, _clipboardContent))
                 {
-                    PasteStatusMessage = " (不能粘贴到子节点)";
                     return true;
                 }
 
                 // 检查是否粘贴到原位置
                 if (SelectedItem == _clipboardContent.Parent)
                 {
-                    PasteStatusMessage = " (已在目标位置)";
                     return true;
                 }
             }
@@ -314,8 +315,8 @@ namespace iEngr.Hookup.ViewModels
 
             if (SelectedItem == null) return;
 
-            // 深拷贝节点（创建新实例）
-            _clipboardContent = SelectedItem.Clone();
+            // 直接使用原有实例，不创建副本,带粘贴时再深拷贝节点（创建新实例）
+            _clipboardContent = SelectedItem;
             _isCutOperation = false;
 
             UpdateClipboardState();
@@ -370,7 +371,7 @@ namespace iEngr.Hookup.ViewModels
             SelectedItem.Children
                 .Where(x => x.Name == itemToMove.Name)
                 .ToList()
-                .ForEach(si => si.IsDuplicatedName = true);
+                .ForEach(si => { si.IsDuplicatedName = true;});
 
             // 如果是从剪贴板剪切过来的同一个节点，直接移动到新位置
             if (itemToMove.Parent != null)
@@ -385,6 +386,9 @@ namespace iEngr.Hookup.ViewModels
             // 添加到新位置
             SelectedItem.Children.Add(itemToMove);
             itemToMove.Parent = SelectedItem;
+
+            // 更新数据库
+            HK_General.UpdateNode(itemToMove);
 
             // 展开目标节点并选中移动的节点
             SelectedItem.IsExpanded = true;
@@ -408,6 +412,9 @@ namespace iEngr.Hookup.ViewModels
             SelectedItem.Children.Add(newItem);
             newItem.Parent = SelectedItem;
 
+            // 更新数据库
+            HK_General.UpdateNode(newItem, 0, true);
+
             // 展开目标节点并选中新节点
             SelectedItem.IsExpanded = true;
             SelectedItem = newItem;
@@ -415,19 +422,18 @@ namespace iEngr.Hookup.ViewModels
             // 保持剪贴板内容不变，可以继续粘贴
         }
 
-        private void ClearClipboard()
+        public void ClearClipboard()
         {
-            _clipboardContent.OperationStatus = null;
+            if (_clipboardContent != null)
+                _clipboardContent.OperationStatus = null;
             _clipboardContent = null;
             _isCutOperation = false;
-            PasteStatusMessage = string.Empty;
             UpdateClipboardState();
         }
 
         // 更新剪贴板状态
         private void UpdateClipboardState()
         {
-            OnPropertyChanged(nameof(ClipboardContent));
             OnPropertyChanged(nameof(CanPaste));
             CommandManager.InvalidateRequerySuggested();
         }
@@ -444,15 +450,15 @@ namespace iEngr.Hookup.ViewModels
             if (rootItem != null)
             {
                 ParseTreeNode(rootItem);
-                if (AllParsedCount < allItems.Count-1)
-                    PasteStatusMessage = (allItems.Count-1- AllParsedCount).ToString();
+                if (AllParsedCount < allItems.Count - 1)
+                    StatusMessages["InValidNode"] = (allItems.Count - 1 - AllParsedCount).ToString() + "个无法解析的节点记录;";
                 rootItem.IsExpanded = true;
                 TreeItems.Add(rootItem);
             }
             else
             {
                 // 加载失败
-
+                MessageBox.Show("Hookup Diagram 节点树加载失败，请联系管理员！");
             }
         }
         private void ParseTreeNode(HkTreeItem item, int count = 0)
@@ -507,39 +513,15 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ConfirmEditCommand { get; set; }
         public ICommand CancelEditCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
-        public ICommand PictureDelCommand { get; set; }
-        public bool CanDelete
-        {
-            get
-            {
-                if (SelectedItem == null) return false;
-
-                // 根节点不能删除
-                if (TreeItems.Contains(SelectedItem))
-                {
-                    PasteStatusMessage = " (根节点不能删除)";
-                    return false;
-                }
-
-                // 必须有父节点才能删除
-                if (SelectedItem.Parent == null)
-                {
-                    PasteStatusMessage = " (该节点不能删除)";
-                    return false;
-                }
-
-                PasteStatusMessage = string.Empty;
-                return true;
-            }
-        }
+        public ICommand DeleteSingleCommand { get; set; }
         private bool CanEditNew(object parameter)
         {
             if (parameter is HkTreeItem item)
             {
                 return IsNodeValided &&
                        SelectedItem != null &&
-                       (HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode ||
-                       SelectedItem.Children?.Count < HK_General.dicTreeNode.Select(x=>x.Value).Where(x=>x.Parent == SelectedItem.NodeName).Count());
+                       (SelectedItem.NodeItem.IsPropHolder ||
+                       SelectedItem.Children?.Count < HK_General.dicTreeNode.Select(x => x.Value).Where(x => x.Parent == SelectedItem.NodeName).Count());
             }
             return false;
         }
@@ -554,11 +536,11 @@ namespace iEngr.Hookup.ViewModels
                 };
 
                 item.Children.Add(newItem);
-                if (HK_General.dicTreeNode.TryGetValue(item.NodeName, out HKLibTreeNode node))
+                if (item.NodeItem != null)
                 {
-                    if (node.NodeType == "ComboBox")
+                    if (item.NodeItem.NodeType == "ComboBox")
                         newItem.NodeName = newItem.NodeItems.FirstOrDefault()?.Code;
-                    else if (node.NodeType == "TextBox")
+                    else if (item.NodeItem.NodeType == "TextBox")
                     {
                         newItem.NodeName = "SpecNode";
                         newItem.Name = string.Empty;
@@ -607,9 +589,19 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is HkTreeItem item)
             {
-                return !item.HasValidationErrors;
+                //return string.IsNullOrEmpty(item.ValidationErrors);
+                if (string.IsNullOrEmpty(item.ValidationErrors))
+                {
+                    StatusMessages.Remove("EditName");
+                    return true;
+                }
+                else
+                {
+                    StatusMessages["EditName"] = item.ValidationErrors;
+                    return false;
+                }
             }
-            return _editingItem != null && !_editingItem.HasValidationErrors;
+            return _editingItem != null && string.IsNullOrEmpty(_editingItem.ValidationErrors);
         }
         // 确认编辑
         private void ConfirmEdit(object parameter)
@@ -618,6 +610,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (item.ConfirmEdit())
                 {
+                    StatusMessages.Remove("EditName");
                     _editingItem = null;
                     IsNewAddedItemEditing = false;
                     HK_General.UpdateNode(item, 0, true);
@@ -625,7 +618,7 @@ namespace iEngr.Hookup.ViewModels
                 else
                 {
                     // 编辑失败，显示错误信息
-                    PasteStatusMessage = " (验证错误: 名称不能为空且人口不能为负数)";
+                    StatusMessages["InvalidName"] = item.ValidationErrors;
                 }
             }
         }
@@ -637,7 +630,6 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (IsNewAddedItemEditing)
                 {
-
                     // 选择父节点
                     if (item.Parent != null)
                     {
@@ -650,6 +642,7 @@ namespace iEngr.Hookup.ViewModels
                     // 从父节点中移除
                     item.Parent.Children.Remove(item);
                     IsNewAddedItemEditing = false;
+                    item.ValidationErrors = string.Empty;
                 }
 
                 else
@@ -658,56 +651,32 @@ namespace iEngr.Hookup.ViewModels
             }
             else if (_editingItem != null)
             {
-                _editingItem.IsEditing = false; ;
+                _editingItem.IsEditing = false; 
                 _editingItem = null;
             }
+            StatusMessages.Remove("EditName");
         }
-        private void PictureDel(object parameter)
+        public bool CanDelete
         {
-            if (parameter is HkTreeItem item)
+            get
             {
-                item.PicturePath = null;
+                if (SelectedItem == null) return false;
+
+                // 根节点不能删除
+                if (TreeItems.Contains(SelectedItem))
+                {
+                    return false;
+                }
+
+                // 必须有父节点才能删除
+                if (SelectedItem.Parent == null)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
-        //编辑节点属性
-        public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
-        private void EditProperties(HkTreeItem item)
-        {
-            var dialog = new PropertyEditorDialog(item);
-            if (dialog.ShowDialog() == true)
-            {
-                //item.RefreshDisplayProperties();
-                //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
-                item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
-                HK_General.UpdateNode(item);
-            }
-        }
-        //设置节点安装图图片
-        public RelayCommand<HkTreeItem> SetPictureCommand { get; set; }
-        private bool CanSetPicture(object parameter)
-        {
-            if (parameter is HkTreeItem item)
-            {
-                return IsNodeValided &&
-                       SelectedItem != null &&
-                       HK_General.dicTreeNode[SelectedItem.NodeName].IsPropNode;
-            }
-            return false;
-        }
-        private void SetPicture(HkTreeItem item)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "图片文件 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
-                Title = "选择图片文件"
-            };
-            if (dialog.ShowDialog() == true)
-            {
-                item.PicturePath = dialog.FileName;
-                HK_General.UpdateNode(item);
-            }
-        }
-        // 在MainViewModel中添加带确认的删除方法
         private void DeleteRecursiveWithConfirmation(object parameter)
         {
             if (parameter is HkTreeItem item)
@@ -726,34 +695,83 @@ namespace iEngr.Hookup.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                ExecuteDeleteRecursive(SelectedItem);
+                ExecuteDelete(SelectedItem, true);
             }
         }
-
-        // 实际的删除执行方法
-        private void ExecuteDeleteRecursive(HkTreeItem itemToDelete)
+        public bool CanDeleteSingle
         {
-            var parent = itemToDelete.Parent;
+            get
+            {
+                if (SelectedItem == null) return false;
+
+                // 必须有父节点才能删除
+                if (SelectedItem.Parent == null)
+                {
+                    return false;
+                }
+                
+                // 非属性节点不能被单点删除
+                if (!SelectedItem.NodeItem.IsPropNode )
+                {
+                    return false;
+                }
+                return true; 
+            }
+        }
+        private void DeleteSingleWithConfirmation(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                SelectedItem = item;
+            }
+
+            if (!CanDelete) return;
+
+            // 显示确认对话框（在实际项目中需要实现对话框服务）
+            var message = $"删除节点 '{SelectedItem.Name}', 所有子节点将移动至父节点，是否确定？";
+            var caption = "确认删除";
+
+            // 这里使用MessageBox作为示例，实际项目中建议使用DialogService
+            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                ExecuteDelete(SelectedItem, false);
+            }
+        }        // 实际的删除执行方法
+        private void ExecuteDelete(HkTreeItem itemToDelete, bool isRecursive = true)
+        {
+            var parent = itemToDelete.Parent ?? TreeItems[0];
             var siblingToSelect = FindSiblingToSelect(itemToDelete);
 
             // 从父节点中移除
             parent.Children.Remove(itemToDelete);
-
-            // 选择兄弟节点或父节点
-            if (siblingToSelect != null)
+            SelectedItem.Parent.IsExpanded = true;
+            parent.Children.ToList().ForEach(x =>
             {
-                SelectedItem = siblingToSelect;
-            }
-            else if (parent != null)
+                x.IsDuplicatedName = true;
+            });
+            
+            if (!isRecursive)
             {
                 SelectedItem = parent;
+                parent.IsExpanded = true;
+                itemToDelete.Children.ToList().ForEach(x =>
+                {
+                    x.ParentID = parent.ID;
+                    x.Parent = parent;
+                    parent.Children.Add(x);
+                });
+                HK_General.NodeDelete(itemToDelete);
+
             }
             else
             {
-                SelectedItem = null;
+                SelectedItem = siblingToSelect ?? parent;
+                int testCount = 0;
+                StatusMessages["DeletedNodeCount"] = HK_General.NodeDelete(itemToDelete, ref testCount).ToString() + "个节点被删除";
             }
-            int testCount = 0;
-             PasteStatusMessage= HK_General.NodeDelete(itemToDelete, ref testCount, true).ToString();
+
 
             // 清空相关剪贴板内容
             if (_clipboardContent == itemToDelete)
@@ -786,7 +804,84 @@ namespace iEngr.Hookup.ViewModels
             return null;
         }
 
-        #endregion 
+        #endregion
+
+        #region 属性标签
+        //编辑节点属性
+        public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
+        private void EditProperties(HkTreeItem item)
+        {
+            var dialog = new PropertyEditorDialog(item);
+            if (dialog.ShowDialog() == true)
+            {
+                //item.RefreshDisplayProperties();
+                //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
+                item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
+                HK_General.UpdateNode(item);
+            }
+        }
+        #endregion
+
+        #region 图形和BOM分配
+        public RelayCommand<HkTreeItem> PictureSetCommand { get; set; }
+        public ICommand PictureDelCommand { get; set; }
+        public RelayCommand<HkTreeItem> DiagramSetCommand { get; set; }
+        public RelayCommand<HkTreeItem> DiagramNewCommand { get; set; }
+        public ICommand DiagramDelCommand { get; set; }
+        //设置节点安装图图片
+        private bool CanSetPicture(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                return IsNodeValided &&
+                       SelectedItem != null &&
+                       SelectedItem.NodeItem.IsPropNode;
+            }
+            return false;
+        }
+        private void SetPicture(HkTreeItem item)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "图片文件 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
+                Title = "选择图片文件"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                item.PicturePath = dialog.FileName;
+                HK_General.UpdateNode(item);
+            }
+        }
+        private void PictureDel(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                item.PicturePath = null;
+                HK_General.UpdateNode(item);
+            }
+        }
+
+        private void DiagramSet(HkTreeItem item)
+        {
+
+            item.DiagID = "TBA";
+            HK_General.UpdateNode(item);
+        }
+        private void DiagramNew(HkTreeItem item)
+        {
+            item.DiagID = "TBA";
+            HK_General.UpdateNode(item);
+        }
+        private void DiagramDel(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
+                item.DiagID = null;
+                HK_General.UpdateNode(item);
+            }
+        }        
+        #endregion
+
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

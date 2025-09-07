@@ -107,6 +107,7 @@
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\HKLibTreeNode.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
+    <Compile Include="Models\ObservableDictionary.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Models\PropertyDefinition.cs" />
@@ -245,6 +246,9 @@
   <ItemGroup>
     <Resource Include="Resources\CopyIcon.png" />
     <Resource Include="Resources\CutIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\PictureInheritIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

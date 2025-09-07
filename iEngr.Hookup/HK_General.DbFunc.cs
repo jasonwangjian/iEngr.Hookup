@@ -792,29 +792,32 @@ namespace iEngr.Hookup
             }
 
         }
-        internal static int NodeDelete(HkTreeItem item, ref int count, bool IsRecursive = false)
+        internal static int NodeDelete(HkTreeItem item)
         {
-            if (item == null) return count;
-            if (IsRecursive)
-            {
-                foreach (var childItem in item.Children)
-                {
-                    NodeDelete(childItem, ref count, IsRecursive);
-                }
-            }
-            else
-            {
+            if (item == null) return 0;
                 foreach (var childItem in item.Children)
                 {
                     childItem.Parent = item.Parent;
                     UpdateNode(childItem);
                 }
-
+            // 构建 SQL 查询语句
+            if (int.TryParse(item.ID, out int id))
+            {
+                return NodeDelete("HK_TreeNode",id);
+            }
+            return 0;
+        }
+        internal static int NodeDelete(HkTreeItem item, ref int count)
+        {
+            if (item == null) return count;
+            foreach (var childItem in item.Children)
+            {
+                NodeDelete(childItem, ref count);
             }
             // 构建 SQL 查询语句
             if (int.TryParse(item.ID, out int id))
             {
-                count += NodeDelete("HK_TreeNode",id);
+                count += NodeDelete("HK_TreeNode", id);
             }
             return count;
 
