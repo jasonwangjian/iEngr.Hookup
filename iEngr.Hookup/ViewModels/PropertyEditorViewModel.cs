@@ -234,6 +234,7 @@ namespace iEngr.Hookup.ViewModels
                 _treeItem.SetProperty(prop.Key, prop.Type == PropertyType.EnumItems ? prop.SelectedItems :
                                                 prop.Type == PropertyType.EnumItem ? prop.SelectedItem : prop.Value);
             }
+            HK_General.UpdateNode(_treeItem);
         }
 
         private void Cancel()

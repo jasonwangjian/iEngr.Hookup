@@ -128,6 +128,9 @@
             <MenuItem Header="设置标签" 
                       Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
+            <MenuItem Header="刷新节点" 
+                      Command="{Binding PlacementTarget.Tag.NodeReloadCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
         </ContextMenu>
 
         <!-- TreeViewItem样式 -->
@@ -184,7 +187,7 @@
                 <TextBlock Text="{Binding DisplayProperties}" 
                    Margin="5,2,0,0"
                    TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding DisplayProperties}" 
+                <TextBlock Text="{Binding DisplayInheritProperties}" 
                    FontStyle="Italic"
                    Margin="5,2,0,0"
                    TextWrapping="Wrap"/>

@@ -681,7 +681,7 @@ namespace iEngr.Hookup
                 {
                     string query = $"INSERT INTO {tableName} (ID, NodeName, NodeValue, Name, " +
                                             $"DiagID, PicturePath, Properties, IsExpanded, " +
-                                            $"ParentID, Status, LastBy, LastOn) VALUES (" +
+                                            $"ParentID, Status, IndexOf, LastBy, LastOn) VALUES (" +
                                             $"{newID}," +
                                             $"'{item.NodeName}'," +
                                             $"'{item.NodeValue}'," +
@@ -692,6 +692,7 @@ namespace iEngr.Hookup
                                             $"'{item.IsExpanded}'," +
                                             $"'{item.Parent.ID}'," +
                                             $"1," +
+                                            $"{item.Parent.Children.IndexOf(item)}," +
                                             $"'{UserName}'," +
                                             $"'{DateTime.Now.ToString()}'" +
                                             $")";
@@ -718,7 +719,7 @@ namespace iEngr.Hookup
         }
         internal static int UpdateNode(HkTreeItem item, int count=0, bool IsRecursive = false)
         {
-            if (item == null || item.Parent == null) return 0;
+            if (item == null) return 0;
             if (!int.TryParse(item.ID, out int id))
             {
                 return NewNodeAdd(item,count);
@@ -732,6 +733,7 @@ namespace iEngr.Hookup
             using (OdbcConnection conn = GetConnection())
             {
                 string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
+                string parentID = int.TryParse(item.Parent?.ID, out int parent_id) ? parent_id.ToString() : "Null";
                 try
                 {
                     string query = $"UPDATE {tableName} SET " +
@@ -742,8 +744,9 @@ namespace iEngr.Hookup
                                                $"PicturePath = '{item.PicturePath}'," +
                                                $"Properties = '{item.PropertiesString}'," +
                                                $"IsExpanded = '{item.IsExpanded}'," +
-                                               $"ParentID = '{item.Parent.ID}'," +
+                                               $"ParentID = {parentID}," +
                                                $"Status = 1," +
+                                               $"IndexOf = {(item.Parent == null? 0: item.Parent.Children.IndexOf(item))}," +
                                                $"LastBy='{UserName}'," +
                                                $"LastOn = '{DateTime.Now.ToString()}' " +
                                                $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
@@ -766,6 +769,38 @@ namespace iEngr.Hookup
                 foreach (var subItem in item.Children)
                 {
                     UpdateNode(subItem, count, true);
+                }
+            }
+            return count;
+        }
+        internal static int UpdateIndexOf(HkTreeItem item)
+        {
+            if ((item == null || item.Parent == null)) return 0;
+            int count = 0;
+            string tableName = "HK_TreeNode";
+            foreach (var subItem in item.Parent.Children)
+            {
+                if (int.TryParse(subItem.ID, out int id))
+                {
+                    using (OdbcConnection conn = GetConnection())
+                    {
+                        try
+                        {
+                            string query = $"UPDATE {tableName} SET " +
+                                           $"IndexOf = {subItem.Parent.Children.IndexOf(subItem)} " +
+                                           $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
+                            using (OdbcCommand command = new OdbcCommand(query, conn))
+                            {
+                                // 执行查询，获取记录数
+                                count += command.ExecuteNonQuery();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // 处理异常
+                            Debug.WriteLine($"___HK_General.UpdateIndexOf(HkTreeItem item), Error: {ex.Message}");
+                        }
+                    }
                 }
             }
             return count;
@@ -828,7 +863,8 @@ namespace iEngr.Hookup
             List<HkTreeItem> result = new List<HkTreeItem>();
             string query = $"select * " +
                 $"from HK_TreeNode " +
-                $"where Status >=0";
+                $"where Status >=0 " +
+                $"order by IndexOf";
             using (OdbcConnection conn = GetConnection())
             {
                 try

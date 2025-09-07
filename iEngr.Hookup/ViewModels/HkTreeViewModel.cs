@@ -38,6 +38,7 @@ namespace iEngr.Hookup.ViewModels
             get => _selectedItem;
             set
             {
+                //var test = value.InheritProperties;
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
@@ -84,6 +85,7 @@ namespace iEngr.Hookup.ViewModels
         public HkTreeViewModel()
         {
             TreeItems = new ObservableCollection<HkTreeItem>();
+
             MoveUpCommand = new RelayCommand<object>(MoveUp, _ => CanMoveUp);
             MoveDownCommand = new RelayCommand<object>(MoveDown, _ => CanMoveDown);
             ExpandAllCommand = new RelayCommand<object>(ExpandAll);
@@ -106,6 +108,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramSetCommand = new RelayCommand<HkTreeItem>(DiagramSet, CanSetPicture);
             DiagramNewCommand = new RelayCommand<HkTreeItem>(DiagramNew, CanSetPicture);
             DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => !string.IsNullOrEmpty(SelectedItem.DiagID));
+            NodeReloadCommand = new RelayCommand<HkTreeItem>(LoadTreeNode, _ => SelectedItem != null);
             // 从XML文件加载数据
             LoadTreeNode();
             //LoadTreeDataFromXml();
@@ -155,6 +158,7 @@ namespace iEngr.Hookup.ViewModels
                 OnPropertyChanged(nameof(CanMoveUp));
                 OnPropertyChanged(nameof(CanMoveDown));
             }
+            HK_General.UpdateIndexOf(SelectedItem);
         }
 
         private void MoveDown(object parameter)
@@ -177,6 +181,7 @@ namespace iEngr.Hookup.ViewModels
                 OnPropertyChanged(nameof(CanMoveUp));
                 OnPropertyChanged(nameof(CanMoveDown));
             }
+            HK_General.UpdateIndexOf(SelectedItem);
         }
         #endregion
 
@@ -188,6 +193,7 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is HkTreeItem selectedItem)
             {
+                HK_General.UpdateNode(selectedItem, 0, true); //存储整棵树，调试用
                 // 从选中的节点开始展开
                 ExpandAllRecursive(selectedItem);
             }
@@ -389,7 +395,7 @@ namespace iEngr.Hookup.ViewModels
 
             // 更新数据库
             HK_General.UpdateNode(itemToMove);
-
+            HK_General.UpdateIndexOf(itemToMove);
             // 展开目标节点并选中移动的节点
             SelectedItem.IsExpanded = true;
             SelectedItem = itemToMove;
@@ -414,6 +420,7 @@ namespace iEngr.Hookup.ViewModels
 
             // 更新数据库
             HK_General.UpdateNode(newItem, 0, true);
+            HK_General.UpdateIndexOf(newItem);
 
             // 展开目标节点并选中新节点
             SelectedItem.IsExpanded = true;
@@ -460,6 +467,24 @@ namespace iEngr.Hookup.ViewModels
                 // 加载失败
                 MessageBox.Show("Hookup Diagram 节点树加载失败，请联系管理员！");
             }
+        }
+        public RelayCommand<HkTreeItem> NodeReloadCommand { get; set; }
+        private void LoadTreeNode(HkTreeItem item)
+        {
+            allItems = HK_General.GetAllTreeNodeItems();
+            AllParsedCount = 0;
+            //ObservableCollection<HkTreeItem> itemCol = TreeItems;
+            //if (item.Parent != null)
+            //    itemCol = item.Parent.Children;
+            //itemCol.Remove(item);
+            item.Children.Clear();
+            allItems.Where(x => x.ParentID == item.ID).ToList().ForEach(x =>
+            {
+                ParseTreeNode(x);
+                x.Parent = item;
+                item.Children.Add(x);
+            });
+            item.IsExpanded = true;
         }
         private void ParseTreeNode(HkTreeItem item, int count = 0)
         {
@@ -817,6 +842,7 @@ namespace iEngr.Hookup.ViewModels
                 //item.RefreshDisplayProperties();
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
                 item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
+                item.DisplayInheritProperties = "Trigger"; // 触发OnPropertyChanged
                 HK_General.UpdateNode(item);
             }
         }
