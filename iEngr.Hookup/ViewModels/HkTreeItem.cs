@@ -343,7 +343,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     string value = prop.Value?.ToString();
                     if (prop.Value is ObservableCollection<GeneralItem> items)
-                        value = string.Join(",", items.Select(x => x.Code).ToList());
+                        value = string.Join("|", items.Select(x => x.Code).ToList());
                     else if (prop.Value is GeneralItem item)
                         value = item?.Code;
                     keyValues.Add(prop.Key + ":" + value);

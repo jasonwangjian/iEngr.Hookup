@@ -510,7 +510,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     if (propDef.Type == PropertyType.EnumItems)
                     {
-                        item.Properties.Add(prop.Key, new ObservableCollection<GeneralItem>(propDef.Items.Where(x => prop.Value.Split(',').Contains(x.Code)).ToList()));
+                        item.Properties.Add(prop.Key, new ObservableCollection<GeneralItem>(propDef.Items.Where(x => prop.Value.Split('|').Contains(x.Code)).ToList()));
                     }
                     else if (propDef.Type == PropertyType.EnumItem)
                     {
