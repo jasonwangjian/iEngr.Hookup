@@ -19,7 +19,7 @@
         <!--<mv:UcMatMain/>-->
         <!--<mv:UcMatMain/>-->
         <!--<mv:UcBomMgr/>-->
-        <mv:UcTreeTest/>
-        <mv:UcHkTree Grid.Column="1"/>
+        <mv:UcHkPicture x:Name="ucHP"/>
+        <mv:UcHkTree x:Name="ucHT" Grid.Column="1"/>
     </Grid>
 </Window>

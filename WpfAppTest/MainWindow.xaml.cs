@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup;
+using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,13 @@ namespace WpfAppTest
         public MainWindow()
         {
             InitializeComponent();
-            
+            // 获取子控件的 ViewModel
+            (ucHT.DataContext as HkTreeViewModel).PicturePathChanged += OnPicturePathChanged;
         }
-        
+        private void OnPicturePathChanged(object sender, string value)
+        {
+            (ucHP.DataContext as HkPictureViewModel).PicturePath = value;
+
+        }
     }
 }

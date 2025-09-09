@@ -30,6 +30,7 @@ namespace iEngr.Hookup.ViewModels
 {
     public class HkTreeViewModel : INotifyPropertyChanged
     {
+        public event EventHandler<string> PicturePathChanged;
         private HkTreeItem _editingItem;
         public ObservableCollection<HkTreeItem> TreeItems { get; set; }
         private HkTreeItem _selectedItem;
@@ -47,6 +48,7 @@ namespace iEngr.Hookup.ViewModels
                         _lastSelectedItem = _selectedItem;
                     }
                     OnPropertyChanged();
+                    PicturePathChanged?.Invoke(this, value.ActivePicturePath);
                     StatusMessages.Remove("DeletedNodeCount");
                     UpdateCommandStates();
                 }

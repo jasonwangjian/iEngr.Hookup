@@ -159,6 +159,13 @@ namespace iEngr.Hookup.ViewModels
                 return string.IsNullOrEmpty(PicturePath) && !string.IsNullOrEmpty(InheritPicturePath);
             }
         }
+        public string ActivePicturePath
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(PicturePath)? PicturePath: InheritPicturePath;
+            }
+        }
 
         private string _editNodeName;
         public string EditNodeName
