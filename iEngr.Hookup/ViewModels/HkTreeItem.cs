@@ -120,7 +120,7 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeName;
             set { if(SetField(ref _nodeName, value) && value != null)
                 {
-                    NodeItem = HK_General.dicTreeNode.TryGetValue(value, out HKLibTreeNode nodeItem) ? nodeItem : new HKLibTreeNode();
+                    NodeItem = HK_General.dicTreeNode.TryGetValue(value, out HKLibTreeNode nodeItem) ? nodeItem : HK_General.dicTreeNode["TagNode"]; // new HKLibTreeNode();
                 }
             }
 
@@ -182,7 +182,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (SetField(ref _editName, value))
                 {
-                    if (NodeName == "SpecNode")
+                    if (NodeName == "TagNode")
                     {
                         if (string.IsNullOrEmpty(value)) ValidationErrors = "不能为空;";
                         else if (Siblings.Any(x => x.Name == value)) ValidationErrors = $"重名：{value};";
@@ -476,8 +476,8 @@ namespace iEngr.Hookup.ViewModels
 
         public HkTreeItem Clone()
         {
-            // 根据DiagID创建新的BOM，并生成新的DiagID
-            string newDiagID = "TBA";
+            // DiagID可以重复分配到不同的节点
+            //string newDiagID = "TBA";
             var clone = new HkTreeItem
             {
                 IsExpanded = IsExpanded,
@@ -485,7 +485,7 @@ namespace iEngr.Hookup.ViewModels
                 NodeValue = NodeValue,
                 Name = Name,
                 PicturePath = PicturePath, // 保留原来的图形
-                DiagID = newDiagID,
+                DiagID = DiagID,
                 Properties = new Dictionary<string, object>(Properties)
             };
 

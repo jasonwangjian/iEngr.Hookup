@@ -550,10 +550,6 @@ namespace xlsLibHookup
                                 $"RemarksCn='{(result as HKLibTreeNode).RemarksCn}'," +
                                 $"RemarksEn='{(result as HKLibTreeNode).RemarksEn}'," +
                                 $"NodeType='{(result as HKLibTreeNode).NodeType}'," +
-                                $"IdentType='{(result as HKLibTreeNode).IdentType}'," +
-                                $"FullName='{(result as HKLibTreeNode).FullName}'," +
-                                $"NestedName='{(result as HKLibTreeNode).NestedName}'," +
-                                $"SpecValue='{(result as HKLibTreeNode).SpecValue}'," +
                                 $"Status={(result as HKLibTreeNode).Status}," +
                                 $"IconName='{(result as HKLibTreeNode).IconName}'," +
                                 $"IsPropNode='{(result as HKLibTreeNode).IsPropNode}'," +
@@ -563,7 +559,8 @@ namespace xlsLibHookup
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibTreeNode (ID, Parent, NameCn, NameEn, RemarksCn, RemarksEn, NodeType, IdentType, FullName, NestedName, SpecValue, Status, SortNum) VALUES (" +
+                            sqlString = $"INSERT INTO HK_LibTreeNode (ID, Parent, NameCn, NameEn, RemarksCn, RemarksEn, NodeType, " +
+                                $"Status, IconName, IsPropNode, IsPropHolder, SortNum) VALUES (" +
                                 $"'{(result as HKLibTreeNode).ID}'," +
                                 $"'{(result as HKLibTreeNode).Parent}'," +
                                 $"'{(result as HKLibTreeNode).NameCn}'," +
@@ -571,10 +568,6 @@ namespace xlsLibHookup
                                 $"'{(result as HKLibTreeNode).RemarksCn}'," +
                                 $"'{(result as HKLibTreeNode).RemarksEn}'," +
                                 $"'{(result as HKLibTreeNode).NodeType}'," +
-                                $"'{(result as HKLibTreeNode).IdentType}'," +
-                                $"'{(result as HKLibTreeNode).FullName}'," +
-                                $"'{(result as HKLibTreeNode).NestedName}'," +
-                                $"'{(result as HKLibTreeNode).SpecValue}'," +
                                 $"{(result as HKLibTreeNode).Status}," +
                                 $"'{(result as HKLibTreeNode).IconName}'," +
                                 $"'{(result as HKLibTreeNode).IsPropNode}'," +
@@ -1247,10 +1240,6 @@ namespace xlsLibHookup
                         RemarksCn = Convert.ToString(reader["RemarksCn"]),
                         RemarksEn = Convert.ToString(reader["RemarksEn"]),
                         NodeType = Convert.ToString(reader["NodeType"]),
-                        IdentType = Convert.ToString(reader["IdentType"]),
-                        FullName = Convert.ToString(reader["FullName"]),
-                        NestedName = Convert.ToString(reader["NestedName"]),
-                        SpecValue = Convert.ToString(reader["SpecValue"]),
                         Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
                         IconName = Convert.ToString(reader["IconName"]),
                         IsPropNode = Convert.ToBoolean(reader["IsPropNode"]),

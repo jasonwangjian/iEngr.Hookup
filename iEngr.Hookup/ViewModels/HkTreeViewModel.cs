@@ -99,7 +99,7 @@ namespace iEngr.Hookup.ViewModels
             DeleteSingleCommand = new RelayCommand<object>(DeleteSingleWithConfirmation, _ => CanDeleteSingle);
             EditPropertiesCommand = new RelayCommand<HkTreeItem>(
                 execute: EditProperties,
-                canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "SpecNode"
+                canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "TagNode"
             );
             PictureSetCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
             StartEditNewCommand = new RelayCommand<object>(StartEditNew, CanEditNew);
@@ -569,7 +569,7 @@ namespace iEngr.Hookup.ViewModels
                         newItem.NodeName = newItem.NodeItems.FirstOrDefault()?.Code;
                     else if (item.NodeItem.NodeType == "TextBox")
                     {
-                        newItem.NodeName = "SpecNode";
+                        newItem.NodeName = "TagNode";
                         newItem.Name = string.Empty;
                     }
                 }
