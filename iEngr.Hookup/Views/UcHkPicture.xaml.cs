@@ -27,11 +27,21 @@ namespace iEngr.Hookup.Views
             InitializeComponent();
             _viewModel = new HkPictureViewModel();
             DataContext = _viewModel;
+
+            // 监听图像大小变化
+            contentImage.SizeChanged += ContentImage_SizeChanged;
+        }
+        private void ContentImage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // 图像大小发生变化时居中
+            if (e.NewSize.Width > 0 && e.NewSize.Height > 0)
+            {
+                CenterImageAfterLoad();
+            }
         }
 
-
-            // 原有图像查看字段
-            private Point? _lastDragPoint;
+        // 原有图像查看字段
+        private Point? _lastDragPoint;
             private bool _isDragging = false;
             private double _currentScale = 1.0;
             private bool _autoFitToWindow = true;
@@ -255,9 +265,8 @@ namespace iEngr.Hookup.Views
 
             #endregion
 
-            #region 原有的图像查看功能（完全保留）
+            #region 图像查看功能（鼠标动作）
 
-            // 以下都是您原有的图像查看功能，完全不需要修改
             private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
             {
                 if (contentImage.Source == null) return;
@@ -282,7 +291,7 @@ namespace iEngr.Hookup.Views
                 imageTranslate.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
                 imageTranslate.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
 
-                UpdateZoomUI();
+                //UpdateZoomUI();
                 e.Handled = true;
             }
 
@@ -326,25 +335,25 @@ namespace iEngr.Hookup.Views
                 }
             }
 
-            private void UpdateZoomUI()
-            {
-                ZoomSlider.Value = _currentScale * 100;
-                ZoomText.Text = $"{_currentScale * 100:F0}%";
-            }
+            //private void UpdateZoomUI()
+            //{
+            //    ZoomSlider.Value = _currentScale * 100;
+            //    ZoomText.Text = $"{_currentScale * 100:F0}%";
+            //}
 
-            private void ZoomIn_Click(object sender, RoutedEventArgs e)
-            {
-                if (contentImage.Source == null) return;
-                _autoFitToWindow = false;
-                ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), 1.2);
-            }
+            //private void ZoomIn_Click(object sender, RoutedEventArgs e)
+            //{
+            //    if (contentImage.Source == null) return;
+            //    _autoFitToWindow = false;
+            //    ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), 1.2);
+            //}
 
-            private void ZoomOut_Click(object sender, RoutedEventArgs e)
-            {
-                if (contentImage.Source == null) return;
-                _autoFitToWindow = false;
-                ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), 0.8);
-            }
+            //private void ZoomOut_Click(object sender, RoutedEventArgs e)
+            //{
+            //    if (contentImage.Source == null) return;
+            //    _autoFitToWindow = false;
+            //    ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), 0.8);
+            //}
 
             private void ZoomAroundPoint(Point zoomCenter, double zoomFactor)
             {
@@ -363,7 +372,7 @@ namespace iEngr.Hookup.Views
                 imageTranslate.X = oldTranslateX + (1 - scaleChange) * (zoomCenter.X - oldTranslateX);
                 imageTranslate.Y = oldTranslateY + (1 - scaleChange) * (zoomCenter.Y - oldTranslateY);
 
-                UpdateZoomUI();
+                //UpdateZoomUI();
             }
 
             private void Reset_Click(object sender, RoutedEventArgs e)
@@ -382,11 +391,11 @@ namespace iEngr.Hookup.Views
                 }
             }
 
-            private void FitToWindow_Click(object sender, RoutedEventArgs e)
-            {
-                _autoFitToWindow = false;
-                FitToWindow();
-            }
+            //private void FitToWindow_Click(object sender, RoutedEventArgs e)
+            //{
+            //    _autoFitToWindow = false;
+            //    FitToWindow();
+            //}
 
             private void FitToWindow(bool isAutoFit = false)
             {
@@ -400,7 +409,7 @@ namespace iEngr.Hookup.Views
                     imageScale.ScaleY = _currentScale;
 
                     CenterImage();
-                    UpdateZoomUI();
+                    //UpdateZoomUI();
 
                     if (!isAutoFit)
                     {
@@ -415,7 +424,7 @@ namespace iEngr.Hookup.Views
                 imageScale.ScaleX = 1.0;
                 imageScale.ScaleY = 1.0;
                 CenterImage();
-                UpdateZoomUI();
+                ///*UpdateZoomUI*/();
             }
 
             private void CenterImage()
@@ -443,20 +452,75 @@ namespace iEngr.Hookup.Views
                 return imageWidth > canvasWidth || imageHeight > canvasHeight;
             }
 
-            private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-            {
-                if (IsLoaded && contentImage.Source != null)
-                {
-                    _autoFitToWindow = false;
-                    double newScale = ZoomSlider.Value / 100.0;
-                    ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), newScale / _currentScale);
-                }
-            }
+            //private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+            //{
+            //    if (IsLoaded && contentImage.Source != null)
+            //    {
+            //        _autoFitToWindow = false;
+            //        double newScale = ZoomSlider.Value / 100.0;
+            //        ZoomAroundPoint(new Point(zoomCanvas.ActualWidth / 2, zoomCanvas.ActualHeight / 2), newScale / _currentScale);
+            //    }
+            //}
 
         #endregion
+
+        //private void ContentImage_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    // 确保图像已经加载完成
+        //    if (contentImage.Source is BitmapSource bitmap && bitmap.IsDownloading)
+        //    {
+        //        // 如果图像还在下载，等待下载完成
+        //        bitmap.DownloadCompleted += Bitmap_DownloadCompleted;
+        //        bitmap.DownloadFailed += Bitmap_DownloadFailed;
+        //    }
+        //    else
+        //    {
+        //        // 图像已经加载完成，直接居中
+        //        CenterImageAfterLoad();
+        //    }
+        //}
+        //private void Bitmap_DownloadCompleted(object sender, EventArgs e)
+        //{
+        //    // 下载完成后居中
+        //    Dispatcher.Invoke(() =>
+        //    {
+        //        CenterImageAfterLoad();
+        //    });
+        //}
+        private void CenterImageAfterLoad()
+        {
+            // 确保在UI线程执行
+            Dispatcher.Invoke(() =>
+            {
+                if (contentImage.Source is BitmapSource bitmap)
+                {
+                    // 检查图像是否有效
+                    if (bitmap.PixelWidth > 0 && bitmap.PixelHeight > 0)
+                    {
+                        _autoFitToWindow = true;
+
+                        if (IsImageLargerThanWindow())
+                        {
+                            FitToWindow(true);
+                        }
+                        else
+                        {
+                            ResetToCenter();
+                        }
+
+                        Console.WriteLine($"图像加载完成: {bitmap.PixelWidth}x{bitmap.PixelHeight}, 缩放: {_currentScale}");
+                    }
+                }
+            });
+        }
+        //private void Bitmap_DownloadFailed(object sender, ExceptionEventArgs e)
+        //{
+        //    // 处理下载失败
+        //    Console.WriteLine($"图像加载失败: {e.ErrorException.Message}");
+        //}
     }
 
-public class PDFWrapper
+    public class PDFWrapper
     {
         // 获取 PDF 页数
         public static int GetPageCount(string filePath)

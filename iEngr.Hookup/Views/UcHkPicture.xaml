@@ -8,6 +8,21 @@
              d:DesignHeight="450" d:DesignWidth="800"
              Loaded="Window_Loaded"
              >
+    <UserControl.Resources>
+        <!-- 上下文菜单 -->
+        <ContextMenu x:Key="ImageViewContextMenu">
+            <MenuItem Header="上一页" 
+                      Command="{Binding PlacementTarget.Tag.PreviousPageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="下一页" 
+                      Command="{Binding PlacementTarget.Tag.NextPageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+      </ContextMenu>
+        <Style x:Key="ImageViewStyle" TargetType="{x:Type Image}">
+            <Setter Property="ContextMenu" Value="{StaticResource ImageViewContextMenu}"/>
+        </Style>    
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -25,14 +40,14 @@
 
             <!-- 缩放控件 -->
             <Separator x:Name="zoomSeparator" Margin="10,0" Visibility="Visible"/>
-            <Button Content="放大" Click="ZoomIn_Click" Margin="5" Padding="10,5"/>
+            <!--<Button Content="放大" Click="ZoomIn_Click" Margin="5" Padding="10,5"/>
             <Button Content="缩小" Click="ZoomOut_Click" Margin="5" Padding="10,5"/>
             <Button Content="重置" Click="Reset_Click" Margin="5" Padding="10,5"/>
             <Button Content="适应窗口" Click="FitToWindow_Click" Margin="5" Padding="10,5"/>
             <TextBlock Text="缩放:" VerticalAlignment="Center" Margin="10,0,5,0"/>
             <Slider x:Name="ZoomSlider" Minimum="10" Maximum="400" Value="100" 
                     Width="100" ValueChanged="ZoomSlider_ValueChanged"/>
-            <TextBlock x:Name="ZoomText" Text="100%" Width="40" VerticalAlignment="Center" Margin="5,0"/>
+            <TextBlock x:Name="ZoomText" Text="100%" Width="40" VerticalAlignment="Center" Margin="5,0"/>-->
         </StackPanel>
         <!-- Canvas 容器 -->
         <Canvas x:Name="zoomCanvas" Grid.Row="1" Background="LightGray"
@@ -42,8 +57,9 @@
             MouseMove="Canvas_MouseMove"
             ClipToBounds="True">
 
-            <Image x:Name="contentImage" Source="{Binding PicturePath}" Stretch="None"
+            <Image x:Name="contentImage" Source="{Binding ImageSource}" Stretch="None"
                RenderOptions.BitmapScalingMode="HighQuality">
+
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform x:Name="imageScale" ScaleX="1" ScaleY="1"/>
