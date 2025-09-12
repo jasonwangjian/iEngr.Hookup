@@ -34,6 +34,7 @@
 
         <BitmapImage x:Key="ConfigIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/ConfigIcon.ico"/>
         <BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico"/>
+        <BitmapImage x:Key="UnknownIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/UnknownIcon.png"/>
         <BitmapImage x:Key="PictureIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/PictureIcon.png"/>
         <BitmapImage x:Key="BomIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/BomIcon.png"/>
         <BitmapImage x:Key="PictureInheritIcon" UriSource="pack://application:,,,/iEngr.Hookup;component/Resources/PictureInheritIcon.png"/>
@@ -49,7 +50,6 @@
         <cv:TextNodeToVisibilityConverter  x:Key="TextNodeToVisibilityConverter"/>
         <cv:NodeNameToValueConverter  x:Key="NodeNameToValueConverter"/>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <cv:StringToIconResourceConverter x:Key="StringToIconResourceConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
         <cv:BoolToRedConverter x:Key="BoolToRedConverter"/>
 
@@ -214,8 +214,8 @@
                 <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" 
                       Visibility="{Binding  Converter={StaticResource TextNodeToVisibilityConverter}}"
                       Width="100" Margin="0,0,5,0"/>
-                <TextBlock Text="{Binding ErrMsgName}" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
-                           Visibility="{Binding ErrMsgName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>
+                <!--<TextBlock Text="{Binding ErrMsgName}" Foreground="Red" FontSize="9" VerticalAlignment="Center" Margin="0,0,5,0"
+                           Visibility="{Binding ErrMsgName, Converter={StaticResource NoEmptyToVisibilityConverter}}"/>-->
 
                 <!-- 确认按钮 -->
                 <Button Content="✓" Width="20" Height="20" Margin="2,0"

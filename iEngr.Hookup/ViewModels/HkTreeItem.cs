@@ -120,7 +120,16 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeName;
             set { if(SetField(ref _nodeName, value) && value != null)
                 {
-                    NodeItem = HK_General.dicTreeNode.TryGetValue(value, out HKLibTreeNode nodeItem) ? nodeItem : HK_General.dicTreeNode["TagNode"]; // new HKLibTreeNode();
+                    if (HK_General.dicTreeNode.TryGetValue(value, out HKLibTreeNode nodeItem))
+                    {
+                        NodeItem = nodeItem;
+                    }
+                    else
+                    {
+                        NodeItem = new HKLibTreeNode(); //HK_General.dicTreeNode["TagNode"]
+                        Name = value + "_" + Name;
+                        _nodeName = "TagNode";
+                    }
                 }
             }
 

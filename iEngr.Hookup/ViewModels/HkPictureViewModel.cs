@@ -10,6 +10,10 @@ namespace iEngr.Hookup.ViewModels
 {
     public class HkPictureViewModel : INotifyPropertyChanged
     {
+        public HkPictureViewModel()
+        {
+            _picturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico";
+        }
         private string _picturePath;
         public string PicturePath
         {
