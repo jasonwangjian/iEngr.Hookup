@@ -4,25 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Loaded="Window_Loaded"
              >
     <UserControl.Resources>
-        <!-- 上下文菜单 -->
-        <ContextMenu x:Key="ImageViewContextMenu">
-            <MenuItem Header="上一页" 
-                      Command="{Binding PlacementTarget.Tag.PreviousPageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-            <MenuItem Header="下一页" 
-                      Command="{Binding PlacementTarget.Tag.NextPageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-      </ContextMenu>
-        <Style x:Key="ImageViewStyle" TargetType="{x:Type Image}">
-            <Setter Property="ContextMenu" Value="{StaticResource ImageViewContextMenu}"/>
-        </Style>    
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -57,9 +46,24 @@
             MouseMove="Canvas_MouseMove"
             ClipToBounds="True">
 
+
             <Image x:Name="contentImage" Source="{Binding ImageSource}" Stretch="None"
                RenderOptions.BitmapScalingMode="HighQuality">
 
+                <!-- 添加右键菜单 -->
+                <Image.ContextMenu>
+                    <ContextMenu x:Name="imageContextMenu">
+                        <MenuItem Header="上一页" Command="{Binding PreviousPageCommand}" 
+                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <MenuItem Header="下一页" Command="{Binding NextPageCommand}" 
+                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Separator Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <!--<MenuItem Header="放大" Click="ZoomIn_MenuItem_Click"/>
+                        <MenuItem Header="缩小" Click="ZoomOut_MenuItem_Click"/>
+                        <MenuItem Header="重置" Click="Reset_MenuItem_Click"/>
+                        <MenuItem Header="适应窗口" Click="FitToWindow_MenuItem_Click"/>-->
+                    </ContextMenu>
+                </Image.ContextMenu>
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform x:Name="imageScale" ScaleX="1" ScaleY="1"/>

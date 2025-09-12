@@ -21,6 +21,14 @@ namespace iEngr.Hookup.ViewModels
         public HkPictureViewModel()
         {
             PdfPages = new ObservableCollection<BitmapImage>();
+            PreviousPageCommand = new RelayCommand<object>(
+                _ => CurrentPageIndex--,
+                _ => IsPdfFile && CurrentPageIndex > 0);
+
+            NextPageCommand = new RelayCommand<object>(
+                _ => CurrentPageIndex++,
+                _ => IsPdfFile && CurrentPageIndex < TotalPages - 1);
+            
             _emptyPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico";
             SetImageSource(_emptyPicturePath);
         }
