@@ -29,13 +29,15 @@ namespace iEngr.Hookup.ViewModels
                 _ => CurrentPageIndex++,
                 _ => IsPdfFile && CurrentPageIndex < TotalPages - 1);
             
-            _emptyPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/DefaultIcon.ico";
+            _emptyPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/EmptyPicture.png";
+            _unfoundPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/UnfoundPicture.Png";
             SetImageSource(_emptyPicturePath);
         }
         public ICommand PreviousPageCommand { get; }
         public ICommand NextPageCommand { get; }
 
         string _emptyPicturePath;
+        string _unfoundPicturePath;
         private bool _isPdfFile;
         public bool IsPdfFile
         {
@@ -46,8 +48,6 @@ namespace iEngr.Hookup.ViewModels
                 OnPropertyChanged();
             }
         }
-        private string _currentFilePath;
-
         private string _picturePath;
         public string PicturePath
         {
@@ -59,8 +59,8 @@ namespace iEngr.Hookup.ViewModels
                     {
                         SetImageSource(_emptyPicturePath);
                     }
-                    OpenFile(PicturePath);
-                    //SetImageSource(value);
+                    else
+                        OpenFile(PicturePath);
                 }
             }
         }
@@ -88,7 +88,8 @@ namespace iEngr.Hookup.ViewModels
             }
             catch (Exception ex)
             {
-                 Debug.WriteLine($"___HkPictureViewModel.OpenImageFile(string filePath), Error: 无法加载PDF文件: {ex.Message}");
+                SetImageSource(_unfoundPicturePath);
+                Debug.WriteLine($"___HkPictureViewModel.OpenImageFile(string filePath), Error: 无法加载PDF文件: {ex.Message}");
             }
             finally
             {
@@ -115,6 +116,7 @@ namespace iEngr.Hookup.ViewModels
             }
             catch (Exception ex)
             {
+                SetImageSource(_unfoundPicturePath);
                 Debug.WriteLine($"___HkPictureViewModel.OpenImageFile(string filePath), Error: 无法加载图像: {ex.Message}");
             }
         }

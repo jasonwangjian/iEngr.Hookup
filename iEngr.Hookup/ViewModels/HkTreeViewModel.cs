@@ -871,12 +871,13 @@ namespace iEngr.Hookup.ViewModels
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "图片文件 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
+                Filter = "所有支持的文件|*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.gif;*.pdf|图像文件|*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.gif|PDF文件|*.pdf|所有文件|*.*",
                 Title = "选择图片文件"
             };
             if (dialog.ShowDialog() == true)
             {
                 item.PicturePath = dialog.FileName;
+                PicturePathChanged?.Invoke(this, item.ActivePicturePath);
                 HK_General.UpdateNode(item);
             }
         }

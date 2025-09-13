@@ -277,22 +277,11 @@
   <ItemGroup>
     <Resource Include="Resources\UnKnownIcon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\EmptyPicture.png" />
+    <Resource Include="Resources\UnfoundPicture.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\bblanchon.PDFium.Linux.139.0.7215\build\net461\bblanchon.PDFium.Linux.targets" Condition="Exists('..\packages\bblanchon.PDFium.Linux.139.0.7215\build\net461\bblanchon.PDFium.Linux.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\bblanchon.PDFium.Linux.139.0.7215\build\net461\bblanchon.PDFium.Linux.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\bblanchon.PDFium.Linux.139.0.7215\build\net461\bblanchon.PDFium.Linux.targets'))" />
-    <Error Condition="!Exists('..\packages\bblanchon.PDFium.macOS.139.0.7215\build\net461\bblanchon.PDFium.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\bblanchon.PDFium.macOS.139.0.7215\build\net461\bblanchon.PDFium.macOS.targets'))" />
-    <Error Condition="!Exists('..\packages\bblanchon.PDFium.Win32.139.0.7215\build\net461\bblanchon.PDFium.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\bblanchon.PDFium.Win32.139.0.7215\build\net461\bblanchon.PDFium.Win32.targets'))" />
-    <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Linux.NoDependencies.3.119.0\build\net462\SkiaSharp.NativeAssets.Linux.NoDependencies.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Linux.NoDependencies.3.119.0\build\net462\SkiaSharp.NativeAssets.Linux.NoDependencies.targets'))" />
-    <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.macOS.3.119.0\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.macOS.3.119.0\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
-    <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.3.119.0\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.3.119.0\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
-    <Error Condition="!Exists('..\packages\PdfiumViewer.Native.x86_64.v8-xfa.2018.4.8.256\build\PdfiumViewer.Native.x86_64.v8-xfa.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PdfiumViewer.Native.x86_64.v8-xfa.2018.4.8.256\build\PdfiumViewer.Native.x86_64.v8-xfa.props'))" />
-    <Error Condition="!Exists('..\packages\PdfiumViewer.Native.x86.v8-xfa.2018.4.8.256\build\PdfiumViewer.Native.x86.v8-xfa.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PdfiumViewer.Native.x86.v8-xfa.2018.4.8.256\build\PdfiumViewer.Native.x86.v8-xfa.props'))" />
-  </Target>
-  <Import Project="..\packages\bblanchon.PDFium.macOS.139.0.7215\build\net461\bblanchon.PDFium.macOS.targets" Condition="Exists('..\packages\bblanchon.PDFium.macOS.139.0.7215\build\net461\bblanchon.PDFium.macOS.targets')" />
   <Import Project="..\packages\bblanchon.PDFium.Win32.139.0.7215\build\net461\bblanchon.PDFium.Win32.targets" Condition="Exists('..\packages\bblanchon.PDFium.Win32.139.0.7215\build\net461\bblanchon.PDFium.Win32.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.Linux.NoDependencies.3.119.0\build\net462\SkiaSharp.NativeAssets.Linux.NoDependencies.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Linux.NoDependencies.3.119.0\build\net462\SkiaSharp.NativeAssets.Linux.NoDependencies.targets')" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.3.119.0\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.3.119.0\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
