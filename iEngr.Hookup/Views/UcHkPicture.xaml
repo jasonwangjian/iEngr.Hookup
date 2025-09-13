@@ -18,11 +18,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Margin="0" Background="LightGray">
+        <StackPanel Orientation="Horizontal" Margin="0">
             <TextBlock Text="{Binding PicturePath}" Margin="2"/>
                     </StackPanel>
         <!-- Canvas 容器 -->
-        <Canvas x:Name="zoomCanvas" Grid.Row="1" Background="LightGray"
+        <Canvas x:Name="zoomCanvas" Grid.Row="1"
             MouseWheel="Canvas_MouseWheel"
             MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
             MouseLeftButtonUp="Canvas_MouseLeftButtonUp"

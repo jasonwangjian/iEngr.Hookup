@@ -284,7 +284,7 @@
             </StatusBar>
 
             <!-- TreeView -->
-            <TreeView x:Name="tvHk" ItemsSource="{Binding TreeItems}"
+            <TreeView x:Name="tvHk" ItemsSource="{Binding TreeItems}" BorderThickness="0"
                       SelectedItemChanged="TreeView_SelectedItemChanged"
                       PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
                       KeyDown="TreeView_KeyDown">
