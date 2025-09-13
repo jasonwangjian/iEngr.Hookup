@@ -158,6 +158,9 @@
     <Compile Include="Views\UcBomMgr.xaml.cs">
       <DependentUpon>UcBomMgr.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UcDiagMgr.xaml.cs">
+      <DependentUpon>UcDiagMgr.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UcHkPicture.xaml.cs">
       <DependentUpon>UcHkPicture.xaml</DependentUpon>
     </Compile>
@@ -229,6 +232,10 @@
     <Page Include="Views\UcBomMgr.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcDiagMgr.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UcHkPicture.xaml">
       <SubType>Designer</SubType>
