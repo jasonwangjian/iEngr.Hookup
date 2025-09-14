@@ -9,7 +9,7 @@ namespace iEngr.Hookup.Services
         public static ObservableCollection<PropertyDefinition> AllProperties { get; } = new ObservableCollection<PropertyDefinition>
         {
             // Specifications
-            new PropertyDefinition { Key = "ConnType", DisplayName = "连接方式", Type = PropertyType.EnumItem, Category = "Spec",
+            new PropertyDefinition { Key = "ConnType", DisplayNameCn = "连接方式", Type = PropertyType.EnumItem, Category = "Spec",
                           Items= new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x=>x.Value).Select(x=> new GeneralItem
                           {
                               Code = x.ID,
@@ -18,7 +18,7 @@ namespace iEngr.Hookup.Services
 
                           }).ToList())},
 
-             new PropertyDefinition { Key = "ConnTypes", DisplayName = "各种连接方式", Type = PropertyType.EnumItems, Category = "Spec",
+             new PropertyDefinition { Key = "ConnTypes", DisplayNameCn = "各种连接方式", Type = PropertyType.EnumItems, Category = "Spec",
                           Items= new ObservableCollection<GeneralItem>(HK_General.dicPortType.Select(x=>x.Value).Select(x=> new GeneralItem
                           {
                               Code = x.ID,
@@ -29,38 +29,38 @@ namespace iEngr.Hookup.Services
 
             // 基础信息
            // 基础信息
-            new PropertyDefinition { Key = "Description", DisplayName = "描述", Type = PropertyType.String, Category = "基本信息" },
-            new PropertyDefinition { Key = "Code", DisplayName = "代码", Type = PropertyType.String, Category = "基本信息" },
+            new PropertyDefinition { Key = "Description", DisplayNameCn = "描述", Type = PropertyType.String, Category = "基本信息" },
+            new PropertyDefinition { Key = "Code", DisplayNameCn = "代码", Type = PropertyType.String, Category = "基本信息" },
             
             // 地理信息
-            new PropertyDefinition { Key = "Country", DisplayName = "国家", Type = PropertyType.String, Category = "地理信息" },
-            new PropertyDefinition { Key = "City", DisplayName = "城市", Type = PropertyType.String, Category = "地理信息" },
-            new PropertyDefinition { Key = "Address", DisplayName = "地址", Type = PropertyType.String, Category = "地理信息" },
-            new PropertyDefinition { Key = "Latitude", DisplayName = "纬度", Type = PropertyType.Double, Category = "地理信息" },
-            new PropertyDefinition { Key = "Longitude", DisplayName = "经度", Type = PropertyType.Double, Category = "地理信息" },
+            new PropertyDefinition { Key = "Country", DisplayNameCn = "国家", Type = PropertyType.String, Category = "地理信息" },
+            new PropertyDefinition { Key = "City", DisplayNameCn = "城市", Type = PropertyType.String, Category = "地理信息" },
+            new PropertyDefinition { Key = "Address", DisplayNameCn = "地址", Type = PropertyType.String, Category = "地理信息" },
+            new PropertyDefinition { Key = "Latitude", DisplayNameCn = "纬度", Type = PropertyType.Double, Category = "地理信息" },
+            new PropertyDefinition { Key = "Longitude", DisplayNameCn = "经度", Type = PropertyType.Double, Category = "地理信息" },
             
             // 数字信息
-            new PropertyDefinition { Key = "Population", DisplayName = "人口", Type = PropertyType.Integer, Category = "统计信息" },
-            new PropertyDefinition { Key = "Area", DisplayName = "面积", Type = PropertyType.Double, Category = "统计信息" },
-            new PropertyDefinition { Key = "Elevation", DisplayName = "海拔", Type = PropertyType.Integer, Category = "统计信息" },
-            new PropertyDefinition { Key = "Density", DisplayName = "密度", Type = PropertyType.Double, Category = "统计信息" },
+            new PropertyDefinition { Key = "Population", DisplayNameCn = "人口", Type = PropertyType.Integer, Category = "统计信息" },
+            new PropertyDefinition { Key = "Area", DisplayNameCn = "面积", Type = PropertyType.Double, Category = "统计信息" },
+            new PropertyDefinition { Key = "Elevation", DisplayNameCn = "海拔", Type = PropertyType.Integer, Category = "统计信息" },
+            new PropertyDefinition { Key = "Density", DisplayNameCn = "密度", Type = PropertyType.Double, Category = "统计信息" },
             
             // 状态信息
-            new PropertyDefinition { Key = "Status", DisplayName = "状态", Type = PropertyType.Enum, Category = "状态信息",
+            new PropertyDefinition { Key = "Status", DisplayNameCn = "状态", Type = PropertyType.Enum, Category = "状态信息",
                 Options = new ObservableCollection<object> { "Active", "Inactive", "Pending", "Completed" } },
-            new PropertyDefinition { Key = "Priority", DisplayName = "优先级", Type = PropertyType.Enum, Category = "状态信息",
+            new PropertyDefinition { Key = "Priority", DisplayNameCn = "优先级", Type = PropertyType.Enum, Category = "状态信息",
                 Options = new ObservableCollection<object> { "High", "Medium", "Low" } },
-            new PropertyDefinition { Key = "IsEnabled", DisplayName = "是否启用", Type = PropertyType.Boolean, Category = "状态信息", DefaultValue = true },
+            new PropertyDefinition { Key = "IsEnabled", DisplayNameCn = "是否启用", Type = PropertyType.Boolean, Category = "状态信息", DefaultValue = true },
             
             // 时间信息
-            new PropertyDefinition { Key = "CreatedDate", DisplayName = "创建时间", Type = PropertyType.DateTime, Category = "时间信息" },
-            new PropertyDefinition { Key = "ModifiedDate", DisplayName = "修改时间", Type = PropertyType.DateTime, Category = "时间信息" },
-            new PropertyDefinition { Key = "ExpiryDate", DisplayName = "过期时间", Type = PropertyType.DateTime, Category = "时间信息" },
+            new PropertyDefinition { Key = "CreatedDate", DisplayNameCn = "创建时间", Type = PropertyType.DateTime, Category = "时间信息" },
+            new PropertyDefinition { Key = "ModifiedDate", DisplayNameCn = "修改时间", Type = PropertyType.DateTime, Category = "时间信息" },
+            new PropertyDefinition { Key = "ExpiryDate", DisplayNameCn = "过期时间", Type = PropertyType.DateTime, Category = "时间信息" },
             
             // 联系信息
-            new PropertyDefinition { Key = "Phone", DisplayName = "电话", Type = PropertyType.String, Category = "联系信息" },
-            new PropertyDefinition { Key = "Email", DisplayName = "邮箱", Type = PropertyType.String, Category = "联系信息" },
-            new PropertyDefinition { Key = "Website", DisplayName = "网站", Type = PropertyType.String, Category = "联系信息" },
+            new PropertyDefinition { Key = "Phone", DisplayNameCn = "电话", Type = PropertyType.String, Category = "联系信息" },
+            new PropertyDefinition { Key = "Email", DisplayNameCn = "邮箱", Type = PropertyType.String, Category = "联系信息" },
+            new PropertyDefinition { Key = "Website", DisplayNameCn = "网站", Type = PropertyType.String, Category = "联系信息" },
             
             // 可以继续添加更多属性...
         };

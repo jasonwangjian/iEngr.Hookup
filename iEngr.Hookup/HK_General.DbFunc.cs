@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Services;
 using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections;
@@ -58,7 +59,7 @@ namespace iEngr.Hookup
                     Debug.WriteLine($"___HK_General.GetNewID(string tableName), Error: {ex.Message}");
                 }
             }
-            return 0;
+            return 1;
         }
         internal static bool IsIDExisting(string tableName, int id)
         {
@@ -901,7 +902,124 @@ namespace iEngr.Hookup
                 return result;
             }
         }
-    #endregion
+        #endregion
+        #region Hk_Diagram
+        internal static int NewDiagAdd(HkTreeItem item)
+        {
+            if (item == null || item.Parent == null) return 0;
+            string tableName = "HK_Diagram";
+            int newID = GetNewID(tableName);
+            using (OdbcConnection conn = GetConnection())
+            {
+                ObservableCollection<LabelDisplay> propLabelItems = HK_General.GetPropLabelItems(item);
+                string desc = string.Join(",", propLabelItems.Select(x => x.DisplayName + ":" + x.DisplayValue));
+                string name = item.DisPlayName;
+                try
+                {
+
+
+                    string query = $"INSERT INTO {tableName} (ID, NameCn, NameEn, DescCn, " +
+                                            $"DescEn, PicturePath, RemarksCn, RemarksEn, " +
+                                            $"Status, LastBy, LastOn) VALUES (" +
+                                            $"{newID}," +
+                                            $"'{name}'," +
+                                            $"'{name}'," +
+                                            $"'{desc}'," +
+                                            $"'{desc}'," +
+                                            $"'{item.ActivePicturePath}'," +
+                                            $"Null," +
+                                            $"Null," +
+                                            $"1," +
+                                            $"'{UserName}'," +
+                                            $"'{DateTime.Now.ToString()}'" +
+                                            $")";
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.NewDiagAdd(HkTreeItem item), Error: {ex.Message}");
+                    return 0;
+                    //MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            return newID;
+        }
+        internal static ObservableCollection<DiagramItem> GetDiagramItems(string idsString, bool isOwned)
+        {
+            ObservableCollection<DiagramItem> diagramItems = new ObservableCollection<DiagramItem>();
+            string query = $"select diag.* " +
+               $"from HK_Diagram diag " +
+               $"inner join STRING_SPLIT('{idsString}', ',') s  ON diag.ID = TRY_CAST(s.value AS INT) " +
+               $"where Status >=0";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            DiagramItem item = new DiagramItem
+                            {
+                                ID = Convert.ToInt32(reader["ID"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameEn"]),
+                                DescCn = Convert.ToString(reader["DescCn"]),
+                                DescEn = Convert.ToString(reader["DescEn"]),
+                                PicturePath = Convert.ToString(reader["PicturePath"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                Status = Convert.ToByte(reader["Status"]),
+                                LastOn = Convert.ToDateTime(reader["LastOn"]),
+                                LastBy = Convert.ToString(reader["PicturePath"]),
+                                IsOwned=isOwned,
+                            };
+                            diagramItems.Add(item);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.GetDiagramItems(string idsString), Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            return diagramItems;
+        }
+        internal static int UpdateDiagram(int id, string fieldName, object value)
+        {
+            int count = 0;
+            string tableName = "HK_Diagram";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    string query = $"UPDATE {tableName} SET " +
+                                   $"{fieldName} = '{value}' " +
+                                   $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.UpdateDiagram(int id, string fieldName, object value), Error: {ex.Message}");
+                }
+            }
+            return count;
+        }
+        #endregion
     }
 
 

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZoomAndPanExample", "ZoomAn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjDiagMgr", "ProjDiagMgr\ProjDiagMgr.csproj", "{F93EBF23-C7CA-4D3F-8985-ECF1424F3036}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiagLibMgr", "DiagLibMgr\DiagLibMgr.csproj", "{5F2792A2-47BA-4A86-B3F9-A3ADD7D5307F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{F93EBF23-C7CA-4D3F-8985-ECF1424F3036}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F93EBF23-C7CA-4D3F-8985-ECF1424F3036}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F93EBF23-C7CA-4D3F-8985-ECF1424F3036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F2792A2-47BA-4A86-B3F9-A3ADD7D5307F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F2792A2-47BA-4A86-B3F9-A3ADD7D5307F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F2792A2-47BA-4A86-B3F9-A3ADD7D5307F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F2792A2-47BA-4A86-B3F9-A3ADD7D5307F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

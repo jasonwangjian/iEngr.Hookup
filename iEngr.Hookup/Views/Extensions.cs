@@ -1,5 +1,7 @@
-﻿using System;
+﻿using iEngr.Hookup.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,9 +10,6 @@ using System.Windows.Controls;
 
 namespace iEngr.Hookup.Views
 {
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Data;
 
     public static class Extensions
     {

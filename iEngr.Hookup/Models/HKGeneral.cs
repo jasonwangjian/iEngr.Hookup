@@ -11,6 +11,10 @@ namespace iEngr.Hookup.Models
     {
         string ID { get; }
     }
+    public interface IIntIdentifiable
+    {
+        int ID { get; }
+    }
     public class MatDataCmbItem : IIdentifiable
     {
         public string ID { get; set; }

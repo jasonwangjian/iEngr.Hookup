@@ -115,13 +115,10 @@
             <MenuItem Header="删除图形" 
                       Command="{Binding PlacementTarget.Tag.PictureDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <MenuItem Header="新建BOM" 
-                      Command="{Binding PlacementTarget.Tag.DiagramSetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
-            <MenuItem Header="分配BOM" 
+            <MenuItem Header="新建安装图" 
                       Command="{Binding PlacementTarget.Tag.DiagramNewCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <MenuItem Header="删除BOM" 
+            <MenuItem Header="删除安装图" 
                       Command="{Binding PlacementTarget.Tag.DiagramDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
             <Separator/>

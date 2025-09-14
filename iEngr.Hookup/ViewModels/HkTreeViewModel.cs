@@ -31,6 +31,8 @@ namespace iEngr.Hookup.ViewModels
     public class HkTreeViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> PicturePathChanged;
+        public event EventHandler<HkTreeItem> PropLabelItemsChanged;
+        public event EventHandler<HkTreeItem> TreeItemChanged;
         private HkTreeItem _editingItem;
         public ObservableCollection<HkTreeItem> TreeItems { get; set; }
         private HkTreeItem _selectedItem;
@@ -49,7 +51,8 @@ namespace iEngr.Hookup.ViewModels
                     }
                     OnPropertyChanged();
                     PicturePathChanged?.Invoke(this, value.ActivePicturePath);
-                    StatusMessages.Remove("DeletedNodeCount");
+                    PropLabelItemsChanged?.Invoke(this, value);
+                    TreeItemChanged?.Invoke(this, value);
                     UpdateCommandStates();
                 }
             }
@@ -107,7 +110,6 @@ namespace iEngr.Hookup.ViewModels
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
             PictureDelCommand = new RelayCommand<object>(PictureDel, _=> !string.IsNullOrEmpty(SelectedItem.PicturePath));
-            DiagramSetCommand = new RelayCommand<HkTreeItem>(DiagramSet, CanSetPicture);
             DiagramNewCommand = new RelayCommand<HkTreeItem>(DiagramNew, CanSetPicture);
             DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => !string.IsNullOrEmpty(SelectedItem.DiagID));
             NodeReloadCommand = new RelayCommand<HkTreeItem>(LoadTreeNode, _ => SelectedItem != null);
@@ -845,6 +847,7 @@ namespace iEngr.Hookup.ViewModels
                 //item.OnPropertyChanged(nameof(HkTreeItem.DisplayProperties));
                 item.DisplayProperties = "Trigger"; // 触发OnPropertyChanged
                 item.DisplayInheritProperties = "Trigger"; // 触发OnPropertyChanged
+                PropLabelItemsChanged?.Invoke(this, SelectedItem);
                 HK_General.UpdateNode(item);
             }
         }
@@ -853,7 +856,6 @@ namespace iEngr.Hookup.ViewModels
         #region 图形和BOM分配
         public RelayCommand<HkTreeItem> PictureSetCommand { get; set; }
         public ICommand PictureDelCommand { get; set; }
-        public RelayCommand<HkTreeItem> DiagramSetCommand { get; set; }
         public RelayCommand<HkTreeItem> DiagramNewCommand { get; set; }
         public ICommand DiagramDelCommand { get; set; }
         //设置节点安装图图片
@@ -890,15 +892,11 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        private void DiagramSet(HkTreeItem item)
-        {
-
-            item.DiagID = "TBA";
-            HK_General.UpdateNode(item);
-        }
         private void DiagramNew(HkTreeItem item)
         {
-            item.DiagID = "TBA";
+            int newID = HK_General.NewDiagAdd(item);
+            if (newID == 0) return;
+            item.DiagID = newID.ToString();
             HK_General.UpdateNode(item);
         }
         private void DiagramDel(object parameter)

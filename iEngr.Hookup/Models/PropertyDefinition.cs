@@ -11,7 +11,13 @@ namespace iEngr.Hookup.Models
             SelectedItems = new ObservableCollection<GeneralItem>();
         }
         public string Key { get; set; }
-        public string DisplayName { get; set; }
+        public string DisplayNameCn { get; set; }
+        public string DisplayNameEn { get; set; }
+        public string DisplayName
+        {
+            get => (HK_General.ProjLanguage == 2) ? DisplayNameEn : DisplayNameCn;
+        }
+
         public PropertyType Type { get; set; }
         public string Category { get; set; }
         public object DefaultValue { get; set; }

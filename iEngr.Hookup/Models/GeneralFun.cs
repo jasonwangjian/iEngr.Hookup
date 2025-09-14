@@ -14,6 +14,15 @@ namespace iEngr.Hookup.Models
 
     public static class ObservableCollectionExtensions
     {
+        //合并去重
+        public static void AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items) where T : class, IIntIdentifiable
+        {
+            foreach (var item in items)
+            {
+                if (!(collection.Select(x => x.ID).Contains(item.ID)))
+                    collection.Add(item);
+            }
+        }
         // 上移一位
         public static bool MoveUp<T>(this ObservableCollection<T> collection, T item)
         {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit;
 
@@ -133,6 +134,16 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
 
+        }
+        public string DisPlayName
+        {
+            get
+            {
+                if (NodeItem?.IsPropNode == true)
+                    return $"{Parent.DisPlayName}-{Name}";
+                else
+                    return NodeName;
+            }
         }
         private string _nodeValue;
         public string NodeValue

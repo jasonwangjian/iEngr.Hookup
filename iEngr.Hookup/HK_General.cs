@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Services;
 using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections;
@@ -31,6 +32,56 @@ namespace iEngr.Hookup
 
         public static string ErrMsgOmMatData {  get; set; }
 
+        public static ObservableCollection<LabelDisplay> GetPropLabelItems(HkTreeItem item)
+        {
+            ObservableCollection<LabelDisplay> propLabelItems = new ObservableCollection<LabelDisplay>();
+            foreach (var prop in item.Properties)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    string displayValue = prop.Value?.ToString();
+                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                    {
+                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                    }
+                    else if (prop.Value is GeneralItem gItem)
+                    {
+                        displayValue = gItem.Name;
+                    }
+                    propLabelItems.Add(new LabelDisplay
+                    {
+                        DisplayName = propDef.DisplayName,
+                        DisplayValue = displayValue,
+                        IsInherit = false
+                    });
+                }
+            }
+            foreach (var prop in item.InheritProperties)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    string displayValue = prop.Value?.ToString();
+                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                    {
+                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                    }
+                    else if (prop.Value is GeneralItem gItem)
+                    {
+                        displayValue = gItem.Name;
+                    }
+                    propLabelItems.Add(new LabelDisplay
+                    {
+                        DisplayName = propDef.DisplayName,
+                        DisplayValue = displayValue,
+                        IsInherit = true
+                    });
+                }
+            }
+            return propLabelItems;
+        }
+
     }
     public static class DictionaryExtensions
     {
@@ -48,6 +99,7 @@ namespace iEngr.Hookup
                 pair => (TValue)pair.Value.Clone()
             );
         }
+
     }
 
 }

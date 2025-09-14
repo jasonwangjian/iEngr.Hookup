@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace iEngr.Hookup.Views
+namespace DiagLibMgr
 {
     /// <summary>
-    /// UcDiagMgr.xaml 的交互逻辑
+    /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class UcDiagMgr : UserControl
+    public partial class MainWindow : Window
     {
-        public UcDiagMgr()
+        public MainWindow()
         {
             InitializeComponent();
         }
