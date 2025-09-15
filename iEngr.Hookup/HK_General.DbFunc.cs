@@ -903,6 +903,7 @@ namespace iEngr.Hookup
             }
         }
         #endregion
+
         #region Hk_Diagram
         internal static int NewDiagAdd(HkTreeItem item)
         {
@@ -950,6 +951,47 @@ namespace iEngr.Hookup
                 }
             }
             return newID;
+        }
+        internal static ObservableCollection<DiagramItem> GetDiagramItems()
+        {
+            ObservableCollection<DiagramItem> diagramItems = new ObservableCollection<DiagramItem>();
+            string query = $"select diag.* " +
+               $"from HK_Diagram diag " +
+               $"where Status >=0";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            DiagramItem item = new DiagramItem
+                            {
+                                ID = Convert.ToInt32(reader["ID"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameEn"]),
+                                DescCn = Convert.ToString(reader["DescCn"]),
+                                DescEn = Convert.ToString(reader["DescEn"]),
+                                PicturePath = Convert.ToString(reader["PicturePath"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                Status = Convert.ToByte(reader["Status"]),
+                                LastOn = Convert.ToDateTime(reader["LastOn"]),
+                                LastBy = Convert.ToString(reader["PicturePath"]),
+                            };
+                            diagramItems.Add(item);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.GetDiagramItems(string idsString), Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            return diagramItems;
         }
         internal static ObservableCollection<DiagramItem> GetDiagramItems(string idsString, bool isOwned)
         {

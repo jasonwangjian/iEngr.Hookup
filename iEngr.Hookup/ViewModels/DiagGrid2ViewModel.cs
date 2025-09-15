@@ -16,16 +16,17 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class DiagGridViewModel : INotifyPropertyChanged
+    public class DiagGrid2ViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> PicturePathChanged;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
 
-        public DiagGridViewModel()
+        public DiagGrid2ViewModel()
         {
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             PictureSetCommand = new RelayCommand<DiagramItem>(SetPicture, CanSetPicture);
+            DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddPicture);
             LangInChinese = true;
         }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
@@ -69,8 +70,8 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is DiagramItem item)
             {
-                return item != null &&
-                       item.IsOwned;
+                return item != null && 
+                       FocusedNode.NodeItem?.IsPropNode == true;
             }
             return false;
         }
@@ -88,6 +89,21 @@ namespace iEngr.Hookup.ViewModels
                 HK_General.UpdateDiagram(item.ID, "PicturePath", item.PicturePath);
             }
         }
+        private bool CanAddDiagram(object parameter)
+        {
+            if (parameter is DiagramItem item)
+            {
+                return item != null &&
+                       FocusedNode.NodeItem?.IsPropNode == true &&
+                       item.IsOwned == false;
+            }
+            return false;
+        }
+        private void AddDiagram(DiagramItem item)
+        {
+
+        }
+
         private bool _langInChinese;
         public bool LangInChinese
         {
@@ -100,24 +116,51 @@ namespace iEngr.Hookup.ViewModels
             get => _langInEnglish;
             set => SetField(ref _langInEnglish, value);
         }
-        private ObservableCollection<DiagramItem> _diagramItems = new ObservableCollection<DiagramItem>();
-        public ObservableCollection<DiagramItem> DiagramItems
+        private HkTreeItem _focusedNode;
+        public HkTreeItem FocusedNode
         {
-            get => _diagramItems;
-            set => SetField(ref _diagramItems, value);
-        }
-        private DiagramItem _selectedItem;
-        public DiagramItem SelectedItem
-        {
-            get => _selectedItem;
+            get => _focusedNode;
             set
             {
-                SetField(ref _selectedItem, value);
-                if (value != null)
+                if (SetField(ref _focusedNode, value))
+                {
+                    //LibSelectedItem.FocusedNode = value;
+                    //NodeSelectedItem.FocusedNode = value;
+                }
+            }
+        }
+        private ObservableCollection<DiagramItem> _nodeDiagramItems = new ObservableCollection<DiagramItem>();
+        public ObservableCollection<DiagramItem> NodeDiagramItems
+        {
+            get => _nodeDiagramItems;
+            set => SetField(ref _nodeDiagramItems, value);
+        }
+        private DiagramItem _nodeSelectedItem;
+        public DiagramItem NodeSelectedItem
+        {
+            get => _nodeSelectedItem;
+            set
+            {
+                if(SetField(ref _nodeSelectedItem, value) && value != null)
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
             }
         }
-
+        private ObservableCollection<DiagramItem> _libDiagramItems = new ObservableCollection<DiagramItem>();
+        public ObservableCollection<DiagramItem> LibDiagramItems
+        {
+            get => _libDiagramItems;
+            set => SetField(ref _libDiagramItems, value);
+        }
+        private DiagramItem _libSelectedItem;
+        public DiagramItem LibSelectedItem
+        {
+            get => _libSelectedItem;
+            set
+            {
+                if (SetField(ref _libSelectedItem, value) && value != null) ;
+                PicturePathChanged?.Invoke(this, value?.PicturePath);
+            }
+        }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
