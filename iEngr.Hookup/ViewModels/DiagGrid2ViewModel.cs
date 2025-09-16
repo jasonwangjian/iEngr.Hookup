@@ -21,12 +21,15 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<string> PicturePathChanged;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
+        public ICommand DiagramAddCommand { get; }
+        public ICommand DiagramRemoveCommand { get; }
 
         public DiagGrid2ViewModel()
         {
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             PictureSetCommand = new RelayCommand<DiagramItem>(SetPicture, CanSetPicture);
-            DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddPicture);
+            DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddDiagram);
+            DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             LangInChinese = true;
         }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
@@ -71,7 +74,7 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is DiagramItem item)
             {
                 return item != null && 
-                       FocusedNode.NodeItem?.IsPropNode == true;
+                       FocusedNode?.NodeItem?.IsPropNode == true;
             }
             return false;
         }
@@ -101,9 +104,44 @@ namespace iEngr.Hookup.ViewModels
         }
         private void AddDiagram(DiagramItem item)
         {
-
+            //FocusedNode.DiagID = string.IsNullOrEmpty(FocusedNode.DiagID)? item.ID.ToString(): FocusedNode.DiagID +"," + item.ID.ToString();
+            FocusedNode.DiagID = string.Join(",", (FocusedNode.DiagID + "," + item.ID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
+            
+            string diagIDs = FocusedNode.DiagID;
+            NodeDiagramItems = HK_General.GetDiagramItems(diagIDs, true, false);
+            HK_General.UpdateLibData("HK_TreeNOde",int.Parse(FocusedNode.ID), "DiagID", diagIDs);
+            if (string.IsNullOrEmpty(diagIDs)) return;
+            List<string> ids = diagIDs.Split(',').ToList();
+            foreach (var itemLib in LibDiagramItems)
+            {
+                itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+            }
         }
-
+        private bool CanRemoveDiagram(object parameter)
+        {
+            if (parameter is DiagramItem item)
+            {
+                return item != null &&
+                       item.IsOwned == true &&
+                       item.IsInherit == false;
+            }
+            return false;
+        }
+        private void RemoveDiagram(DiagramItem item)
+        {
+            List<string> ids = FocusedNode.DiagID.Split(',').ToList();
+            if (ids.Remove(item.ID.ToString()))
+            {
+                FocusedNode.DiagID = string.Join(",", ids);
+                NodeDiagramItems = HK_General.GetDiagramItems(FocusedNode.DiagID, true, false);
+                HK_General.UpdateLibData("HK_TreeNOde", int.Parse(FocusedNode.ID), "DiagID", FocusedNode.DiagID);
+                if (string.IsNullOrEmpty(FocusedNode.DiagID)) return;
+                foreach (var itemLib in LibDiagramItems)
+                {
+                    itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+                }
+            }
+        }
         private bool _langInChinese;
         public bool LangInChinese
         {

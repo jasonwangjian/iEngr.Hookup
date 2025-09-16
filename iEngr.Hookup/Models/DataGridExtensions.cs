@@ -12,6 +12,156 @@ using System.Windows.Media;
 
 namespace iEngr.Hookup.Models
 {
+    public static class ScrollSyncBehavior
+    {
+        // 同步组名称属性
+        public static readonly DependencyProperty SyncGroupProperty =
+            DependencyProperty.RegisterAttached("SyncGroup", typeof(string), typeof(ScrollSyncBehavior),
+                new PropertyMetadata(null, OnSyncGroupChanged));
+
+        // 是否启用同步属性
+        public static readonly DependencyProperty IsEnabledProperty =
+            DependencyProperty.RegisterAttached("IsEnabled", typeof(bool), typeof(ScrollSyncBehavior),
+                new PropertyMetadata(false, OnIsEnabledChanged));
+
+        private static readonly Dictionary<string, List<DataGrid>> _syncGroups = new Dictionary<string, List<DataGrid>>();
+
+        public static string GetSyncGroup(DependencyObject obj) => (string)obj.GetValue(SyncGroupProperty);
+        public static void SetSyncGroup(DependencyObject obj, string value) => obj.SetValue(SyncGroupProperty, value);
+
+        public static bool GetIsEnabled(DependencyObject obj) => (bool)obj.GetValue(IsEnabledProperty);
+        public static void SetIsEnabled(DependencyObject obj, bool value) => obj.SetValue(IsEnabledProperty, value);
+
+        private static void OnSyncGroupChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid)
+            {
+                // 从旧组中移除
+                if (e.OldValue is string oldGroup && _syncGroups.ContainsKey(oldGroup))
+                {
+                    _syncGroups[oldGroup].Remove(dataGrid);
+                    dataGrid.Loaded -= DataGrid_Loaded;
+                }
+
+                // 添加到新组
+                if (e.NewValue is string newGroup && !string.IsNullOrEmpty(newGroup))
+                {
+                    if (!_syncGroups.ContainsKey(newGroup))
+                    {
+                        _syncGroups[newGroup] = new List<DataGrid>();
+                    }
+
+                    if (!_syncGroups[newGroup].Contains(dataGrid))
+                    {
+                        _syncGroups[newGroup].Add(dataGrid);
+                        dataGrid.Loaded += DataGrid_Loaded;
+
+                        // 如果已经加载，立即设置监听
+                        if (dataGrid.IsLoaded)
+                        {
+                            SetupScrollSyncForDataGrid(dataGrid);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid)
+            {
+                if ((bool)e.NewValue)
+                {
+                    dataGrid.Loaded += DataGrid_Loaded;
+                    if (dataGrid.IsLoaded)
+                    {
+                        SetupScrollSyncForDataGrid(dataGrid);
+                    }
+                }
+                else
+                {
+                    dataGrid.Loaded -= DataGrid_Loaded;
+                    // 从所有组中移除
+                    foreach (var group in _syncGroups.Values)
+                    {
+                        group.Remove(dataGrid);
+                    }
+                }
+            }
+        }
+
+        private static void DataGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is DataGrid dataGrid)
+            {
+                SetupScrollSyncForDataGrid(dataGrid);
+            }
+        }
+
+        private static void SetupScrollSyncForDataGrid(DataGrid dataGrid)
+        {
+            var scrollViewer = FindVisualChild<ScrollViewer>(dataGrid);
+            if (scrollViewer != null)
+            {
+                // 移除旧的事件处理程序
+                scrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+                scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+            }
+        }
+
+        private static void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (sender is ScrollViewer sourceScrollViewer)
+            {
+                var sourceDataGrid = FindParentDataGrid(sourceScrollViewer);
+                if (sourceDataGrid == null) return;
+
+                var groupName = GetSyncGroup(sourceDataGrid);
+                if (string.IsNullOrEmpty(groupName) || !_syncGroups.ContainsKey(groupName)) return;
+
+                foreach (var targetDataGrid in _syncGroups[groupName].Where(dg => dg != sourceDataGrid))
+                {
+                    var targetScrollViewer = FindVisualChild<ScrollViewer>(targetDataGrid);
+                    if (targetScrollViewer != null)
+                    {
+                        targetScrollViewer.ScrollToHorizontalOffset(sourceScrollViewer.HorizontalOffset);
+                        targetScrollViewer.ScrollToVerticalOffset(sourceScrollViewer.VerticalOffset);
+                    }
+                }
+            }
+        }
+
+        private static DataGrid FindParentDataGrid(DependencyObject child)
+        {
+            var parent = VisualTreeHelper.GetParent(child);
+            while (parent != null)
+            {
+                if (parent is DataGrid dataGrid)
+                    return dataGrid;
+
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return null;
+        }
+
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is T result)
+                    return result;
+
+                var descendant = FindVisualChild<T>(child);
+                if (descendant != null)
+                    return descendant;
+            }
+            return null;
+        }
+    }
     public static class DataGridColumnSyncBehavior
     {
         private static readonly Dictionary<DataGrid, List<DataGrid>> _syncGroups = new Dictionary<DataGrid, List<DataGrid>>();

@@ -1,4 +1,5 @@
-﻿using iEngr.Hookup.ViewModels;
+﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,5 +47,6 @@ namespace iEngr.Hookup.Views
                 e.Cancel = true;
             }
         }
+
     }
 }

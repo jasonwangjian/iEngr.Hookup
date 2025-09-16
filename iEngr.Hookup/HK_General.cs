@@ -35,7 +35,7 @@ namespace iEngr.Hookup
         public static ObservableCollection<LabelDisplay> GetPropLabelItems(HkTreeItem item)
         {
             ObservableCollection<LabelDisplay> propLabelItems = new ObservableCollection<LabelDisplay>();
-            foreach (var prop in item.Properties)
+            foreach (var prop in item?.Properties)
             {
                 var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
                 if (propDef != null)
@@ -57,7 +57,7 @@ namespace iEngr.Hookup
                     });
                 }
             }
-            foreach (var prop in item.InheritProperties)
+            foreach (var prop in item?.InheritProperties)
             {
                 var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
                 if (propDef != null)

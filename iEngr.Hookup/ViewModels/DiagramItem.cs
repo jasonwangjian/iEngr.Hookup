@@ -19,6 +19,12 @@ namespace iEngr.Hookup.ViewModels
             get => _isOwned;
             set=> SetField(ref _isOwned, value);
         }
+        public bool _isInherit;
+        public bool IsInherit
+        {
+            get => _isInherit;
+            set => SetField(ref _isInherit, value);
+        }
         public byte Status { get; set; }
         public DateTime LastOn { get; set; }
         public string LastBy { get; set; }

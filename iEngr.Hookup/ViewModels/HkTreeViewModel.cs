@@ -32,6 +32,8 @@ namespace iEngr.Hookup.ViewModels
     {
         public event EventHandler<string> PicturePathChanged;
         public event EventHandler<HkTreeItem> PropLabelItemsChanged;
+        public event EventHandler<HkTreeItem> DiagramIDsChanged;
+        public event EventHandler<HkTreeItem> DiagramIDAdded;
         public event EventHandler<HkTreeItem> TreeItemChanged;
         private HkTreeItem _editingItem;
         public ObservableCollection<HkTreeItem> TreeItems { get; set; }
@@ -50,8 +52,6 @@ namespace iEngr.Hookup.ViewModels
                         _lastSelectedItem = _selectedItem;
                     }
                     OnPropertyChanged();
-                    PicturePathChanged?.Invoke(this, value.ActivePicturePath);
-                    PropLabelItemsChanged?.Invoke(this, value);
                     TreeItemChanged?.Invoke(this, value);
                     UpdateCommandStates();
                 }
@@ -880,7 +880,8 @@ namespace iEngr.Hookup.ViewModels
             {
                 item.PicturePath = dialog.FileName;
                 PicturePathChanged?.Invoke(this, item.ActivePicturePath);
-                HK_General.UpdateNode(item);
+                //HK_General.UpdateNode(item);
+                HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "PicturePath", item.PicturePath);
             }
         }
         private void PictureDel(object parameter)
@@ -888,23 +889,28 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is HkTreeItem item)
             {
                 item.PicturePath = null;
-                HK_General.UpdateNode(item);
+                //HK_General.UpdateNode(item);
+                HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "PicturePath", item.PicturePath);
             }
         }
 
         private void DiagramNew(HkTreeItem item)
         {
+            if (item == null) return;   
             int newID = HK_General.NewDiagAdd(item);
             if (newID == 0) return;
-            item.DiagID = newID.ToString();
-            HK_General.UpdateNode(item);
+            item.DiagID = string.Join(",", (item.DiagID + "," + newID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
+            HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
+            DiagramIDAdded?.Invoke(this, item);
         }
         private void DiagramDel(object parameter)
         {
             if (parameter is HkTreeItem item)
             {
                 item.DiagID = null;
-                HK_General.UpdateNode(item);
+                //HK_General.UpdateNode(item);
+                HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
+                DiagramIDsChanged?.Invoke(this, item);
             }
         }        
         #endregion

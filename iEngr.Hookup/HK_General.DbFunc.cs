@@ -83,6 +83,30 @@ namespace iEngr.Hookup
                 }
             }
         }
+        internal static int UpdateLibData(string tableName, int id, string fieldName, object value)
+        {
+            int count = 0;
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    string query = $"UPDATE {tableName} SET " +
+                                   $"{fieldName} = '{value}' " +
+                                   $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.UpdateLibData(string tableName, int id, string fieldName, object value)), Error: {ex.Message}");
+                }
+            }
+            return count;
+        }
 
         #region MatGenLib
         internal static ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
@@ -733,7 +757,7 @@ namespace iEngr.Hookup
             }
             using (OdbcConnection conn = GetConnection())
             {
-                string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
+                //string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
                 string parentID = int.TryParse(item.Parent?.ID, out int parent_id) ? parent_id.ToString() : "Null";
                 try
                 {
@@ -741,7 +765,7 @@ namespace iEngr.Hookup
                                                $"NodeName = '{item.NodeName}'," +
                                                $"NodeValue = '{item.NodeValue}'," +
                                                $"Name = '{item.Name}'," +
-                                               $"DiagID = {diagramID}," +
+                                               $"DiagID = '{item.DiagID}'," +
                                                $"PicturePath = '{item.PicturePath}'," +
                                                $"Properties = '{item.PropertiesString}'," +
                                                $"IsExpanded = '{item.IsExpanded}'," +
@@ -993,9 +1017,10 @@ namespace iEngr.Hookup
             }
             return diagramItems;
         }
-        internal static ObservableCollection<DiagramItem> GetDiagramItems(string idsString, bool isOwned)
+        internal static ObservableCollection<DiagramItem> GetDiagramItems(string idsString, bool isOwned, bool isInherit = false)
         {
             ObservableCollection<DiagramItem> diagramItems = new ObservableCollection<DiagramItem>();
+            if (string.IsNullOrEmpty(idsString)) return diagramItems;
             string query = $"select diag.* " +
                $"from HK_Diagram diag " +
                $"inner join STRING_SPLIT('{idsString}', ',') s  ON diag.ID = TRY_CAST(s.value AS INT) " +
@@ -1023,6 +1048,7 @@ namespace iEngr.Hookup
                                 LastOn = Convert.ToDateTime(reader["LastOn"]),
                                 LastBy = Convert.ToString(reader["PicturePath"]),
                                 IsOwned=isOwned,
+                                IsInherit = isInherit,
                             };
                             diagramItems.Add(item);
                         }

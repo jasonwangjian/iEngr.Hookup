@@ -30,39 +30,62 @@ namespace iEngr.Hookup.Views
 
             (ucTree.DataContext as HkTreeViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucTree.DataContext as HkTreeViewModel).PropLabelItemsChanged += OnPropLabelItemsChanged;
+            (ucTree.DataContext as HkTreeViewModel).DiagramIDsChanged += OnDiagramIDsChanged;
+            (ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
             (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
         }
+        //更新UcHkPicture
         private void OnPicturePathChanged(object sender, string value)
         {
             (ucPic.DataContext as HkPictureViewModel).PicturePath = value;
-
         }
+        //更新UcPropLabel
         private void OnPropLabelItemsChanged(object sender, HkTreeItem value)
         {
-            if (value != null)
+            (ucProp.DataContext as PropLabelViewModel).PropLabelItems = HK_General.GetPropLabelItems(value);
+        }
+        //更新UcDiagGrid2
+        private void OnDiagramIDsChanged(object sender, HkTreeItem value)
+        {
+            //刷新NodeDiagramItems
+            ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
+            if (!(diagramItems.Count > 0)) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
+            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            //修正LibDiagramItems.IsOwned
+            string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
+            if (string.IsNullOrEmpty(diagIDs)) return;
+            List<string> ids = diagIDs.Split(',').ToList();
+            foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
             {
-                (ucProp.DataContext as PropLabelViewModel).PropLabelItems = HK_General.GetPropLabelItems(value);
+                item.IsOwned = ids.Contains(item.ID.ToString());
+            }
+        }
+        private void OnDiagramIDAdded(object sender, HkTreeItem value)
+        {
+            //刷新NodeDiagramItems
+            ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
+            if (!(diagramItems.Count > 0)) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
+            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            //刷新LibDiagramItems
+            (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
+            string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
+            if (string.IsNullOrEmpty(diagIDs)) return;
+            List<string> ids = diagIDs.Split(',').ToList();
+            foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
+            {
+                item.IsOwned = ids.Contains(item.ID.ToString());
             }
         }
         private void OnTreeItemChanged(object sender, HkTreeItem value)
         {
             (ucDiag.DataContext as DiagGrid2ViewModel).FocusedNode = value;
-            if (value != null)
-            {
-                string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
-                if (string.IsNullOrEmpty(diagIDs)) return;
-                ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(diagIDs, true);
-                (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
-                List<string> ids = diagIDs.Split(',').ToList();
-                foreach( var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
-                {
-                    item.IsOwned = ids.Contains(item.ID.ToString());
-                }
-
-            }
+            OnPicturePathChanged(sender, value?.PicturePath);
+            OnPropLabelItemsChanged(sender, value);
+            OnDiagramIDsChanged(sender, value);
         }
+
         //private void OnTreeItemChanged(object sender, HkTreeItem value)
         //{
         //    if (value != null)
