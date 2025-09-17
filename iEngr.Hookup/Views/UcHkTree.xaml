@@ -115,11 +115,15 @@
             <MenuItem Header="删除图形" 
                       Command="{Binding PlacementTarget.Tag.PictureDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
+            <Separator/>
             <MenuItem Header="新增Diag" 
                       Command="{Binding PlacementTarget.Tag.DiagramNewCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
             <MenuItem Header="清空Diag" 
                       Command="{Binding PlacementTarget.Tag.DiagramDelCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="继承Diag" 
+                      Command="{Binding PlacementTarget.Tag.DiagramNullCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
             <Separator/>
             <MenuItem Header="设置标签" 
@@ -231,12 +235,12 @@
             </StackPanel>
         </DataTemplate>
 
-        
-        
+
         <!-- 主要的HierarchicalDataTemplate -->
         <HierarchicalDataTemplate DataType="{x:Type vm:HkTreeItem}" 
                               ItemsSource="{Binding Children}">
-            <ContentPresenter x:Name="contentPresenter" Content="{Binding}">
+            <Border x:Name="templateBorder">
+                <ContentPresenter x:Name="contentPresenter" Content="{Binding}">
                 <ContentPresenter.Style>
                     <Style TargetType="ContentPresenter">
                         <Setter Property="ContentTemplate" Value="{StaticResource DisplayTemplate}"/>
@@ -244,12 +248,19 @@
                             <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                 <Setter Property="ContentTemplate" Value="{StaticResource EditTemplate}"/>
                             </DataTrigger>
+
                         </Style.Triggers>
                     </Style>
                 </ContentPresenter.Style>
             </ContentPresenter>
+            </Border>
+            <HierarchicalDataTemplate.Triggers>
+                <!-- 添加IsHighlighted的触发器 -->
+                <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                    <Setter TargetName="templateBorder" Property="Background" Value="Yellow"/>
+                </DataTrigger>
+            </HierarchicalDataTemplate.Triggers>
         </HierarchicalDataTemplate>
-
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -287,6 +298,7 @@
                       KeyDown="TreeView_KeyDown">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
+                        <Setter Property="Background" Value="{Binding }"/>
                         <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
                     </Style>
                 </TreeView.ItemContainerStyle>

@@ -20,7 +20,8 @@ namespace iEngr.Hookup.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string nodeName = (value as HkTreeItem).Parent?.NodeName;
+
+            string nodeName = (value as HkTreeItem)?.Parent?.NodeName;
             if (string.IsNullOrEmpty(nodeName)) return Visibility.Visible;
             string nodeType = HK_General.dicTreeNode.TryGetValue(nodeName, out HKLibTreeNode node) ? node.NodeType : null;
             return nodeType == "ComboBox" ? Visibility.Visible : Visibility.Collapsed;
@@ -35,7 +36,7 @@ namespace iEngr.Hookup.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string nodeName = (value as HkTreeItem).Parent?.NodeName;
+            string nodeName = (value as HkTreeItem)?.Parent?.NodeName;
             if (string.IsNullOrEmpty(nodeName)) return Visibility.Collapsed;
             if (!HK_General.dicTreeNode.ContainsKey((value as HkTreeItem).NodeName)) return Visibility.Collapsed;
             if (nodeName == "TagNode") return Visibility.Visible;

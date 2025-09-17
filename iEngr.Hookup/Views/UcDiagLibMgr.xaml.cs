@@ -34,6 +34,9 @@ namespace iEngr.Hookup.Views
             (ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
             (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
+            (ucDiag.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
+            (ucNode.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
+
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
         }
         //更新UcHkPicture
@@ -51,33 +54,119 @@ namespace iEngr.Hookup.Views
         {
             //刷新NodeDiagramItems
             ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
-            if (!(diagramItems.Count > 0)) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
+            if (value.DiagID == null) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
             (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
             //修正LibDiagramItems.IsOwned
-            string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
-            if (string.IsNullOrEmpty(diagIDs)) return;
-            List<string> ids = diagIDs.Split(',').ToList();
+             List<int> ids = diagramItems.Select(x=> x.ID).ToList();
             foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
             {
-                item.IsOwned = ids.Contains(item.ID.ToString());
+                item.IsOwned = ids.Contains(item.ID);
             }
         }
         private void OnDiagramIDAdded(object sender, HkTreeItem value)
         {
             //刷新NodeDiagramItems
             ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
-            if (!(diagramItems.Count > 0)) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
             (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
             //刷新LibDiagramItems
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
-            string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
-            if (string.IsNullOrEmpty(diagIDs)) return;
-            List<string> ids = diagIDs.Split(',').ToList();
+            List<int> ids = diagramItems.Select(x => x.ID).ToList();
             foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
             {
-                item.IsOwned = ids.Contains(item.ID.ToString());
+                item.IsOwned = ids.Contains(item.ID);
             }
         }
+        //更新UcNodeApplied
+        private void OnDiagramIDChanged(object sender, string value)
+        {
+            ObservableCollection<NodeItem> nodeItems = new ObservableCollection<NodeItem>();
+            if (!(string.IsNullOrEmpty(value)))
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    GetNoteItemsRecursive(item,value,nodeItems);
+                }
+            }
+            (ucNode.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
+        }
+        private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
+        {
+            if (item == null) return nodeItems;
+            if (!string.IsNullOrEmpty(item.DiagID))
+            {
+                if (item.DiagID.Split(',').Contains(diagID))
+                {
+                    nodeItems.Add(new NodeItem
+                    {
+                        NodeID = item.ID,
+                        DisPlayName = item.DisPlayName,
+                        IsInherit = false
+                    });
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(item.InheritDiagID) && item.InheritDiagID.Split(',').Contains(diagID))
+                {
+                    nodeItems.Add(new NodeItem
+                    {
+                        NodeID = item.ID,
+                        DisPlayName = item.DisPlayName,
+                        IsInherit = true
+                    });
+                }
+            }
+            foreach (var child in item.Children)
+            {
+                GetNoteItemsRecursive(child, diagID, nodeItems);
+            }
+            return nodeItems;
+        }
+        private void OnNodeIDHighlighted(object sender, NodeItem value)
+        {
+            
+            if (!string.IsNullOrEmpty(value?.NodeID))
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    HighlightNodeRecursive(item, value?.NodeID);
+                }
+            }
+            else
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    HighlightNodeClearRecursive(item);
+                }
+            }
+        }
+        private void HighlightNodeRecursive(HkTreeItem item, string nodeId)
+        {
+            if (item == null || string.IsNullOrEmpty(nodeId)) return;
+            if (item.ID == nodeId)
+            {
+                item.IsHighlighted = true;
+                if (item.Parent != null)
+                    item.Parent.IsExpanded = true;
+            }
+            else
+                item.IsHighlighted = false;
+
+           foreach (var child in item.Children)
+            {
+                HighlightNodeRecursive(child, nodeId);
+            }
+        }
+        private void HighlightNodeClearRecursive(HkTreeItem item)
+        {
+            if (item == null) return;
+           item.IsHighlighted = false;
+            foreach (var child in item.Children)
+            {
+                HighlightNodeClearRecursive(child);
+            }
+        }
+
         private void OnTreeItemChanged(object sender, HkTreeItem value)
         {
             (ucDiag.DataContext as DiagGrid2ViewModel).FocusedNode = value;

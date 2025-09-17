@@ -81,7 +81,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <local:UcHkPicture Grid.Row="1" Grid.Column="1" />
+            <local:UcNodeApplied x:Name="ucNode" Grid.Row="1" Grid.Column="1" />
         </Grid>
     </Grid>
 </UserControl>

@@ -19,6 +19,7 @@ namespace iEngr.Hookup.ViewModels
     public class DiagGrid2ViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> PicturePathChanged;
+        public event EventHandler<string> DiagramIDChanged;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
         public ICommand DiagramAddCommand { get; }
@@ -180,7 +181,10 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 if(SetField(ref _nodeSelectedItem, value) && value != null)
+                {
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
+                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                }
             }
         }
         private ObservableCollection<DiagramItem> _libDiagramItems = new ObservableCollection<DiagramItem>();
@@ -195,8 +199,11 @@ namespace iEngr.Hookup.ViewModels
             get => _libSelectedItem;
             set
             {
-                if (SetField(ref _libSelectedItem, value) && value != null) ;
-                PicturePathChanged?.Invoke(this, value?.PicturePath);
+                if (SetField(ref _libSelectedItem, value) && value != null)
+                {
+                    PicturePathChanged?.Invoke(this, value?.PicturePath);
+                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                }
             }
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

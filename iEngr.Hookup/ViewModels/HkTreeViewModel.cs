@@ -111,7 +111,8 @@ namespace iEngr.Hookup.ViewModels
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
             PictureDelCommand = new RelayCommand<object>(PictureDel, _=> !string.IsNullOrEmpty(SelectedItem.PicturePath));
             DiagramNewCommand = new RelayCommand<HkTreeItem>(DiagramNew, CanSetPicture);
-            DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => !string.IsNullOrEmpty(SelectedItem.DiagID));
+            DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => (SelectedItem.DiagID != string.Empty));
+            DiagramNullCommand = new RelayCommand<object>(DiagramNull, _ => (SelectedItem.DiagID != null));
             NodeReloadCommand = new RelayCommand<HkTreeItem>(LoadTreeNode, _ => SelectedItem != null);
             // 从XML文件加载数据
             LoadTreeNode();
@@ -197,7 +198,7 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is HkTreeItem selectedItem)
             {
-                HK_General.UpdateNode(selectedItem, 0, true); //存储整棵树，调试用
+                // HK_General.UpdateNode(selectedItem, 0, true); //存储整棵树，调试用
                 // 从选中的节点开始展开
                 ExpandAllRecursive(selectedItem);
             }
@@ -853,11 +854,12 @@ namespace iEngr.Hookup.ViewModels
         }
         #endregion
 
-        #region 图形和BOM分配
+        #region 图形和Diagram分配
         public RelayCommand<HkTreeItem> PictureSetCommand { get; set; }
         public ICommand PictureDelCommand { get; set; }
         public RelayCommand<HkTreeItem> DiagramNewCommand { get; set; }
         public ICommand DiagramDelCommand { get; set; }
+        public ICommand DiagramNullCommand { get; set; }
         //设置节点安装图图片
         private bool CanSetPicture(object parameter)
         {
@@ -901,18 +903,31 @@ namespace iEngr.Hookup.ViewModels
             if (newID == 0) return;
             item.DiagID = string.Join(",", (item.DiagID + "," + newID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
             HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
+            item.IsInheritDiagIDActive = true;
             DiagramIDAdded?.Invoke(this, item);
         }
         private void DiagramDel(object parameter)
         {
             if (parameter is HkTreeItem item)
             {
+                item.DiagID = string.Empty;
+                //HK_General.UpdateNode(item);
+                HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
+                item.IsInheritDiagIDActive = true;
+                DiagramIDsChanged?.Invoke(this, item);
+            }
+        }
+        private void DiagramNull(object parameter)
+        {
+            if (parameter is HkTreeItem item)
+            {
                 item.DiagID = null;
                 //HK_General.UpdateNode(item);
                 HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
+                item.IsInheritDiagIDActive = true;
                 DiagramIDsChanged?.Invoke(this, item);
             }
-        }        
+        }
         #endregion
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

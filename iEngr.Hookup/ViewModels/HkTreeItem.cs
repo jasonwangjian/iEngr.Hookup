@@ -25,7 +25,17 @@ namespace iEngr.Hookup.ViewModels
         public bool IsExpanded
         {
             get => _isExpanded;
-            set => SetField(ref _isExpanded, value);
+            set {
+                SetField(ref _isExpanded, value);
+                if (value == true && Parent != null)
+                    Parent.IsExpanded = true;
+            }
+        }
+        private bool _isHighlighted;
+        public bool IsHighlighted
+        {
+            get => _isHighlighted;
+            set => SetField(ref _isHighlighted, value);
         }
         private bool _isEditing;
         public bool IsEditing
@@ -97,8 +107,9 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                if (Parent?.NodeItem?.IsPropNode == true)
-                    return !string.IsNullOrEmpty(Parent.DiagID)? Parent.DiagID:Parent.InheritDiagID;
+                if (DiagID == null && Parent?.NodeItem?.IsPropNode == true)
+                    return Parent?.DiagID != null ? Parent.DiagID : Parent.InheritDiagID;
+                    //return !string.IsNullOrEmpty(Parent.DiagID)? Parent.DiagID:Parent.InheritDiagID;
                 return null;
             }
         }
@@ -106,8 +117,9 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                return string.IsNullOrEmpty(DiagID) && !string.IsNullOrEmpty(InheritDiagID);
+                return DiagID == null && !string.IsNullOrEmpty(InheritDiagID);
             }
+            set => OnPropertyChanged();
         }
         private string _name;
         public string Name

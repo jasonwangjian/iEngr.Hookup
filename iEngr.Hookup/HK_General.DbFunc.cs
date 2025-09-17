@@ -90,7 +90,11 @@ namespace iEngr.Hookup
             {
                 try
                 {
-                    string query = $"UPDATE {tableName} SET " +
+                    string query = value == null?
+                                   $"UPDATE {tableName} SET " +
+                                   $"{fieldName} = Null " +
+                                   $"WHERE ID = {id}":
+                                   $"UPDATE {tableName} SET " +
                                    $"{fieldName} = '{value}' " +
                                    $"WHERE ID = {id}";                    // 创建并配置 OdbcCommand 对象
                     using (OdbcCommand command = new OdbcCommand(query, conn))
@@ -692,6 +696,7 @@ namespace iEngr.Hookup
                 return string.Empty;
         }
         #endregion
+
         #region TreeNode
         internal static int NewNodeAdd(HkTreeItem item, int count =0)
         {
@@ -759,13 +764,14 @@ namespace iEngr.Hookup
             {
                 //string diagramID = int.TryParse(item.DiagID, out int diagID) ? diagID.ToString() : "Null";
                 string parentID = int.TryParse(item.Parent?.ID, out int parent_id) ? parent_id.ToString() : "Null";
+                string diagID = item.DiagID == null ? "Null": "'"+item.DiagID+"'";
                 try
                 {
                     string query = $"UPDATE {tableName} SET " +
                                                $"NodeName = '{item.NodeName}'," +
                                                $"NodeValue = '{item.NodeValue}'," +
                                                $"Name = '{item.Name}'," +
-                                               $"DiagID = '{item.DiagID}'," +
+                                               $"DiagID = {diagID}," +
                                                $"PicturePath = '{item.PicturePath}'," +
                                                $"Properties = '{item.PropertiesString}'," +
                                                $"IsExpanded = '{item.IsExpanded}'," +
@@ -882,7 +888,6 @@ namespace iEngr.Hookup
             return count;
 
         }
-
         internal static List<HkTreeItem> GetAllTreeNodeItems()
         {
             List<HkTreeItem> result = new List<HkTreeItem>();
@@ -905,7 +910,7 @@ namespace iEngr.Hookup
                                 NodeName = Convert.ToString(reader["NodeName"]),
                                 NodeValue = Convert.ToString(reader["NodeValue"]),
                                 Name = Convert.ToString(reader["Name"]),
-                                DiagID = Convert.ToString(reader["DiagID"]),
+                                DiagID = Convert.IsDBNull(reader["DiagID"])? null: Convert.ToString(reader["DiagID"]),
                                 PicturePath = Convert.ToString(reader["PicturePath"]),
                                 PropertiesString = Convert.ToString(reader["Properties"]),
                                 IsExpanded = Convert.ToBoolean(reader["IsExpanded"]),

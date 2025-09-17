@@ -145,6 +145,7 @@
     <Compile Include="ViewModels\HkPictureViewModel.cs" />
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
+    <Compile Include="ViewModels\NodeAppliedViewModel.cs" />
     <Compile Include="ViewModels\PropLabelViewModel.cs" />
     <Compile Include="ViewModels\PropertyEditorViewModel.cs" />
     <Compile Include="ViewModels\TestMainViewModel.cs" />
@@ -170,6 +171,9 @@
     </Compile>
     <Compile Include="Views\UcDiagGrid.xaml.cs">
       <DependentUpon>UcDiagGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcNodeApplied.xaml.cs">
+      <DependentUpon>UcNodeApplied.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcPropLabel.xaml.cs">
       <DependentUpon>UcPropLabel.xaml</DependentUpon>
@@ -260,6 +264,10 @@
     <Page Include="Views\UcDiagGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcNodeApplied.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UcPropLabel.xaml">
       <SubType>Designer</SubType>
