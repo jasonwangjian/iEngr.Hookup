@@ -43,6 +43,12 @@
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="Transparent"/>
+                    <Style.Resources>
+                        <!-- 选中且有焦点时的颜色 -->
+                        <!--<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Blue"/>-->
+                        <!-- 选中但失去焦点时的颜色 -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGray"/>
+                    </Style.Resources>
                     <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsOwned}" Value="True">
@@ -102,6 +108,9 @@
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="Transparent"/>
+                    <Style.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGray"/>
+                    </Style.Resources>
                     <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsOwned}" Value="True">

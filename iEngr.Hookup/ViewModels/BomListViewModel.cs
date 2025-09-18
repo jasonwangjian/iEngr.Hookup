@@ -37,10 +37,10 @@ namespace iEngr.Hookup.ViewModels
             MoveDownCommand = new RelayCommand<object>(_ => MoveDown(), _ => CanMoveDown());
             MoveToFirstCommand = new RelayCommand<object>(_ => MoveToFirst(), _ => CanMoveUp());
             MoveToLastCommand = new RelayCommand<object>(_ => MoveToLast(), _ => CanMoveDown());
-            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => SelectedMatListItem != null && CurrentObject != null);
+            NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => SelectedMatListItem != null && (CurrentObject != null || SelectedDiagramItem != null));
             UpdateCommand = new RelayCommand<object>(_ => Update(), _ => !string.IsNullOrEmpty(SelectedItem?.ID));
-            AlterCommand = new RelayCommand<object>(_ => Alter(), _ => SelectedItem != null && SelectedMatListItem !=null);
-            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count>0);
+            AlterCommand = new RelayCommand<object>(_ => Alter(), _ => SelectedItem != null && SelectedMatListItem != null);
+            DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count > 0);
             AutoComosUpdate = HK_General.IsAutoComosUpdate;
             LangInChinese = true;
         }
@@ -221,6 +221,7 @@ namespace iEngr.Hookup.ViewModels
         public ObservableCollection<BomListItem> SelectedItems { get; set; }
 
         public MatListItem SelectedMatListItem { get; set; }
+        public DiagramItem SelectedDiagramItem { get; set; }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
@@ -262,23 +263,33 @@ namespace iEngr.Hookup.ViewModels
         }
         private void NewAdd()
         {
-            if (SelectedMatListItem == null || CurrentObject == null || DataSource == null) { return; }
+            if (SelectedMatListItem == null || CurrentObject == null && SelectedDiagramItem == null || DataSource == null) { return; }
             int index = 0;
-            string newNo = "0";
+            string newNo = null;
             if (SelectedItem != null)
             {
                 newNo = SelectedItem.No;
                 index = DataSource.IndexOf(SelectedItem);
             }
-            newNo = newNo ?? (DataSource.LastOrDefault()?.No ?? "0");
+            newNo =string.IsNullOrEmpty(newNo)? DataSource.LastOrDefault()?.No ?? "0": newNo;
             newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
-            IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
-            IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
-            BomListItem newBomItem = new BomListItem() { ObjMatBomItem = newMat, No = newNo, ObjMatListItem = SelectedMatListItem };
-            newBomItem.SetBomListItemFromMatListItem();
-            newBomItem.SetComosObjectFromData();
-            //newBomItem.SetDataFromComosObject();
-            DataSource.Insert(index, newBomItem);
+            if (CurrentObject != null)
+            {
+                IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
+                IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
+                BomListItem newBomItem = new BomListItem() { ObjMatBomItem = newMat, No = newNo, ObjMatListItem = SelectedMatListItem };
+                newBomItem.SetBomListItemFromMatListItem();
+                newBomItem.SetComosObjectFromData();
+                //newBomItem.SetDataFromComosObject();
+                DataSource.Insert(index, newBomItem);
+            }
+            else if (SelectedDiagramItem != null)
+            {
+                BomListItem newBomItem = new BomListItem() { ObjMatBomItem = null, No = newNo, ObjMatListItem = SelectedMatListItem };
+                newBomItem.SetBomListItemFromMatListItem();
+                HK_General.NewDiagBomAdd(SelectedDiagramItem.ID, newNo, SelectedMatListItem);
+                DataSource.Insert(index, newBomItem);
+            }
         }
 
         private void Alter()

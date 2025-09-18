@@ -45,7 +45,7 @@
             <CheckBox  IsChecked="{Binding AutoComosUpdate}">自动更新至COMOS</CheckBox>
         </WrapPanel>
 
-        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
                   ItemsSource="{Binding DataSource}" 
@@ -106,7 +106,7 @@
             <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
             <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
         </WrapPanel>
-        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Center" Margin="0,0,0,5">
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,5">
             <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
             <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
             <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>

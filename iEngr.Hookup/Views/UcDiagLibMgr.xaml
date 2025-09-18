@@ -64,10 +64,10 @@
                 </Grid.ColumnDefinitions>
                 <local:UcDiagGrid2 x:Name="ucDiag" Grid.Column="1"  />
                 <GridSplitter Grid.Column="2"  Width="2" VerticalAlignment="Stretch"/>
-                <local:UcHkPicture Grid.Column="3"  />
+                <local:UcBomList x:Name="ucBomLib" Grid.Column="3"  />
             </Grid>
             <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
-            <local:UcMatMain Grid.Row="3"  />
+            <local:UcMatMain x:Name="ucMatLib" Grid.Row="3"  />
         </Grid>
         <GridSplitter Grid.Row="1" Grid.Column="4" Width="2" HorizontalAlignment="Stretch"/>
         <Grid Grid.Row="1" Grid.Column="5">

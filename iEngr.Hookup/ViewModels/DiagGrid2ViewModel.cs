@@ -180,7 +180,7 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeSelectedItem;
             set
             {
-                if(SetField(ref _nodeSelectedItem, value) && value != null)
+                if(SetField(ref _nodeSelectedItem, value))// && value != null)
                 {
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
@@ -199,7 +199,7 @@ namespace iEngr.Hookup.ViewModels
             get => _libSelectedItem;
             set
             {
-                if (SetField(ref _libSelectedItem, value) && value != null)
+                if (SetField(ref _libSelectedItem, value))// && value != null)
                 {
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());

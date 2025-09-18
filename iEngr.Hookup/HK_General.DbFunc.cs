@@ -1022,6 +1022,50 @@ namespace iEngr.Hookup
             }
             return diagramItems;
         }
+        internal static DiagramItem GetDiagramItem(string id)
+        {
+            DiagramItem item = null;
+            if (int.TryParse(id, out int intID))
+            {
+                string query = $"select diag.* " +
+                   $"from HK_Diagram diag " +
+                   $"where Id = {intID}";
+                using (OdbcConnection conn = GetConnection())
+                {
+                    try
+                    {
+                        using (OdbcCommand command = new OdbcCommand(query, conn))
+                        using (OdbcDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                item = new DiagramItem
+                                {
+                                    ID = Convert.ToInt32(reader["ID"]),
+                                    NameCn = Convert.ToString(reader["NameCn"]),
+                                    NameEn = Convert.ToString(reader["NameEn"]),
+                                    DescCn = Convert.ToString(reader["DescCn"]),
+                                    DescEn = Convert.ToString(reader["DescEn"]),
+                                    PicturePath = Convert.ToString(reader["PicturePath"]),
+                                    RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                    RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                    Status = Convert.ToByte(reader["Status"]),
+                                    LastOn = Convert.ToDateTime(reader["LastOn"]),
+                                    LastBy = Convert.ToString(reader["PicturePath"]),
+                                };
+                                return item;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"___HK_General.GetDiagramItems(string id), Error: {ex.Message}");
+                        // 可以选择返回空列表或者其他适当的处理
+                    }
+                }
+            }
+            return item;
+        }
         internal static ObservableCollection<DiagramItem> GetDiagramItems(string idsString, bool isOwned, bool isInherit = false)
         {
             ObservableCollection<DiagramItem> diagramItems = new ObservableCollection<DiagramItem>();
@@ -1091,6 +1135,146 @@ namespace iEngr.Hookup
                 }
             }
             return count;
+        }
+        #endregion
+
+        #region HK_DiagBom
+        internal static ObservableCollection<BomListItem> GetDiagBomItems(string id)
+        {
+            ObservableCollection<BomListItem> diagBomItems = new ObservableCollection<BomListItem>();
+            if (int.TryParse(id, out int diagID))
+            {
+                string query = $"select bom.*, mn.SpecCn as NameCn, mn.SpecEn as NameEn, " +
+                               $"mgl.TechSpecMain as TechSpecMain, mgl.TechSpecAux as TechSpecAux, " +
+                               $"mgl.TypeP1 as TypeP1, mgl.TypeP2 as TypeP2, " +
+                               $"mgl.SizeP1 as SizeP1, mgl.SizeP2 as SizeP2, " +
+                               $"mgl.MatMatID as MatMatID, mgl.CatID as CatID, mgl.NameID as NameID, " +
+                               $"mgl.MoreSpecCn as LibMoreSpecCn, mgl.MoreSpecEn as LibMoreSpecEn, " +
+                               $"mgl.RemarksCn as LibRemarksCn , mgl.Remarksen as LibRemarksEn, " +
+                               $"mgl.PClass as PClass, mgl.Status as Status," +
+                               $"mgl.Comments as Comments, pn.SpecCn as SpecPN " +
+                               $"from HK_DiagBom bom " +
+                               $"inner join HK_MatGenLib mgl on bom.MatLibID = mgl.ID " +
+                               $"left join HK_LibMatName mn on mn.ID = mgl.NameID " +
+                               $"left join HK_LibPN pn on mgl.PClass = pn.ID " +
+                               $"where DiagID = {diagID}";
+                using (OdbcConnection conn = GetConnection())
+                {
+                    try
+                    {
+                        using (OdbcCommand command = new OdbcCommand(query, conn))
+                        using (OdbcDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                BomListItem item = new BomListItem
+                                {
+                                    MatLibItem = new HKMatGenLib()
+                                    {
+                                        ID = Convert.ToInt32(reader["MatLibID"]),
+                                        CatID = Convert.ToString(reader["CatID"]),
+                                        NameID = Convert.ToString(reader["NameID"]),
+                                        TechSpecMain = Convert.ToString(reader["TechSpecMain"]),
+                                        TechSpecAux = Convert.ToString(reader["TechSpecAux"]),
+                                        TypeP1 = Convert.ToString(reader["TypeP1"]),
+                                        TypeP2 = Convert.ToString(reader["TypeP2"]),
+                                        SizeP1 = Convert.ToString(reader["SizeP1"]),
+                                        SizeP2 = Convert.ToString(reader["SizeP2"]),
+                                        PClass = Convert.ToString(reader["PClass"]),
+                                        MatMatID = Convert.ToString(reader["MatMatID"]),
+                                        MoreSpecCn = Convert.ToString(reader["LibMoreSpecCn"]),
+                                        MoreSpecEn = Convert.ToString(reader["LibMoreSpecEn"]),
+                                        RemarksCn = Convert.ToString(reader["LibRemarksCn"]),
+                                        RemarksEn = Convert.ToString(reader["LibRemarksEn"]),
+                                        Status = Convert.ToByte(reader["Status"]),
+                                        Comments = Convert.ToString(reader["Comments"]),
+                                    },
+                                    No = Convert.ToString(reader["No"]),
+                                    NameCn = Convert.ToString(reader["NameCn"]),
+                                    NameEn = Convert.ToString(reader["NameEn"]),
+                                    RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                    RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                    SpecMoreCn = Convert.ToString(reader["MoreSpecCn"]),
+                                    SpecMoreEn = Convert.ToString(reader["MoreSpecEn"]),
+                                    MatMatCode = Convert.ToString(reader["MatMatID"]),
+                                    SpecPClass = Convert.ToString(reader["SpecPN"]),
+                                    Qty = Convert.ToString(reader["Qty"]),
+                                    Unit = Convert.ToString(reader["Unit"]),
+                                    SupplyDiscipline = Convert.ToString(reader["SupDisc"]),
+                                    SupplyResponsible = Convert.ToString(reader["SupResp"]),
+                                    ErectionDiscipline = Convert.ToString(reader["ErecDisc"]),
+                                    ErectionResponsible = Convert.ToString(reader["ErecResp"]),
+                                    ID = Convert.ToInt32(reader["MatLibID"]).ToString("D4"),
+                                };
+                                item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
+                                item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);
+                                item.SpecPortCn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode, 4);
+                                item.SpecMainEn = getSpecMainAux(item.MatLibItem.TechSpecMain, 2);
+                                item.SpecAuxEn = getSpecMainAux(item.MatLibItem.TechSpecAux, 2);
+                                item.SpecPortEn = getSpecPort(item.MatLibItem.TypeP1, item.MatLibItem.SizeP1, item.MatLibItem.TypeP2, item.MatLibItem.SizeP2, item.AlterCode, 2);
+                                item.SpecAllCn = (item as MatListItem).SpecAllCn;
+                                item.SpecAllEn = (item as MatListItem).SpecAllCn;
+                                diagBomItems.Add(item);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"___HK_General. GetDiagBomItems(string id), Error: {ex.Message}");
+                    }
+                }
+            }
+            return diagBomItems;
+        }
+        internal static int NewDiagBomAdd(int diagId, string itemNO, MatListItem item)
+        {
+            if (item == null) return 0;
+            string tableName = "HK_DiagBom";
+            int newID = GetNewID(tableName);
+            if (!(int.TryParse(itemNO, out int itemNo))) return 0; //int.TryParse(diagID, out int diagId) && 
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    string query = $"INSERT INTO {tableName} (ID, DiagID, No, MatLibID, " +
+                                            $"Qty, Unit, SupDisc, SupResp, ErecDisc, ErecResp, " +
+                                            $"MoreSpecCn, MoreSpecEn, RemarksCn, RemarksEn, " +
+                                            $"Status, LastBy, LastOn) VALUES (" +
+                                            $"{newID}," +
+                                            $"{diagId}," +
+                                            $"{itemNo}," +
+                                            $"{item.ID}," +
+                                            $"'{item.Qty}'," +
+                                            $"'{item.Unit}'," +
+                                            $"'{item.SupplyDiscipline}'," +
+                                            $"'{item.SupplyResponsible}'," +
+                                            $"'{item.ErectionDiscipline}'," +
+                                            $"'{item.ErectionResponsible}'," +
+                                            $"'{item.SpecMoreCn}'," +
+                                            $"'{item.SpecMoreEn}'," +
+                                            $"'{item.RemarksCn}'," +
+                                            $"'{item.RemarksEn}'," +
+                                            $"1," +
+                                            $"'{UserName}'," +
+                                            $"'{DateTime.Now.ToString()}'" +
+                                            $")";
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.NewDiagBomAdd(string diagID, int itemNo, MatListItem item), Error: {ex.Message}");
+                    return 0;
+                    //MessageBox.Show($"数据未记录！{Environment.NewLine}HK_General.NewDataAdd{Environment.NewLine}Error: {ex.Message}");
+                    // 可以选择返回空列表或者其他适当的处理
+                }
+            }
+            return newID;
         }
         #endregion
     }

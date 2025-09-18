@@ -54,6 +54,7 @@ namespace iEngr.Hookup.ViewModels
                     OnPropertyChanged();
                     TreeItemChanged?.Invoke(this, value);
                     UpdateCommandStates();
+                    StatusMessages.Remove("DeletedNodeCount");
                 }
             }
         }
@@ -378,11 +379,6 @@ namespace iEngr.Hookup.ViewModels
         {
             var itemToMove = _clipboardContent;
 
-            // 查找同名节点
-            SelectedItem.Children
-                .Where(x => x.Name == itemToMove.Name)
-                .ToList()
-                .ForEach(si => { si.IsDuplicatedName = true;});
 
             // 如果是从剪贴板剪切过来的同一个节点，直接移动到新位置
             if (itemToMove.Parent != null)
@@ -398,6 +394,11 @@ namespace iEngr.Hookup.ViewModels
             SelectedItem.Children.Add(itemToMove);
             itemToMove.Parent = SelectedItem;
 
+            // 查找同名节点
+            SelectedItem.Children
+                .Where(x => x.Name == itemToMove.Name)
+                .ToList()
+                .ForEach(si => { si.IsDuplicatedName = true;});
             // 更新数据库
             HK_General.UpdateNode(itemToMove);
             HK_General.UpdateIndexOf(itemToMove);
@@ -414,15 +415,15 @@ namespace iEngr.Hookup.ViewModels
         {
             // 创建新实例
             var newItem = _clipboardContent.Clone();
+
+            // 添加到新位置
+            SelectedItem.Children.Add(newItem);
+            newItem.Parent = SelectedItem;
             // 查找同名节点
             SelectedItem.Children
                 .Where(x => x.Name == newItem.Name)
                 .ToList()
                 .ForEach(si => si.IsDuplicatedName = true);
-            // 添加到新位置
-            SelectedItem.Children.Add(newItem);
-            newItem.Parent = SelectedItem;
-
             // 更新数据库
             HK_General.UpdateNode(newItem, 0, true);
             HK_General.UpdateIndexOf(newItem);
@@ -777,6 +778,7 @@ namespace iEngr.Hookup.ViewModels
             // 从父节点中移除
             parent.Children.Remove(itemToDelete);
             SelectedItem.Parent.IsExpanded = true;
+            // 重新判断重复项
             parent.Children.ToList().ForEach(x =>
             {
                 x.IsDuplicatedName = true;

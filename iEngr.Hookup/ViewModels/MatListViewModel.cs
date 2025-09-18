@@ -15,8 +15,11 @@ using System.Windows.Interop;
 
 namespace iEngr.Hookup.ViewModels
 {
+
     public class MatListViewModel : MatListItem, INotifyPropertyChanged
     {
+        public event EventHandler<MatListItem> MatListItemChanged;
+
         public MatListViewModel()
         {
             DataSource = new ObservableCollection<MatListItem>();
@@ -117,7 +120,11 @@ namespace iEngr.Hookup.ViewModels
         public MatListItem SelectedItem
         {
             get => _selectedMat;
-            set => SetField(ref _selectedMat, value);
+            set
+            {
+                if (SetField(ref _selectedMat, value))
+                    MatListItemChanged?.Invoke(this, SelectedItem);
+            }
         }
 
         private string _matDataFromQuery;

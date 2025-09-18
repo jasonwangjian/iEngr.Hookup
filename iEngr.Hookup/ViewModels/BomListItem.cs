@@ -39,6 +39,7 @@ namespace iEngr.Hookup.Models
         }
         public void SetComosObjectFromData()
         {
+            if (ObjMatBomItem == null) return;
             ObjMatBomItem.Label = No;
             ObjMatBomItem.spec("Z00T00003.ID").value = ID;
             ObjMatBomItem.spec("Z00T00003.Qty").value = Qty;
@@ -128,7 +129,7 @@ namespace iEngr.Hookup.Models
             get => _no;
             set// => SetField(ref _no, value);
             {
-                if (SetField(ref _no, value) && AutoComosUpdate)
+                if (SetField(ref _no, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.Label = value;
             }
         }
@@ -138,7 +139,7 @@ namespace iEngr.Hookup.Models
             get => _id;
             set
             {
-                if (SetField(ref _id, value) && AutoComosUpdate)
+                if (SetField(ref _id, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.ID").value = value;
             }
         }
@@ -148,7 +149,7 @@ namespace iEngr.Hookup.Models
             get => _qty;
             set
             {
-                if (SetField(ref _qty, value) && AutoComosUpdate)
+                if (SetField(ref _qty, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.Qty").value = value;
             }
         }
@@ -158,7 +159,7 @@ namespace iEngr.Hookup.Models
             get => _unit;
             set
             {
-                if (SetField(ref _unit, value) && AutoComosUpdate)
+                if (SetField(ref _unit, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.Unit").value = value;
             }
         }
@@ -168,7 +169,7 @@ namespace iEngr.Hookup.Models
             get => _supplyDiscipline;
             set
             {
-                if (SetField(ref _supplyDiscipline, value) && AutoComosUpdate)
+                if (SetField(ref _supplyDiscipline, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.SD").value = value;
             }
         }
@@ -178,7 +179,7 @@ namespace iEngr.Hookup.Models
             get => _supplyResponsible;
             set
             {
-                if (SetField(ref _supplyResponsible, value) && AutoComosUpdate)
+                if (SetField(ref _supplyResponsible, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.SR").value = value;
             }
         }
@@ -188,7 +189,7 @@ namespace iEngr.Hookup.Models
             get => _erectionDiscipline;
             set
             {
-                if (SetField(ref _erectionDiscipline, value) && AutoComosUpdate)
+                if (SetField(ref _erectionDiscipline, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.ED").value = value;
             }
         }
@@ -198,7 +199,7 @@ namespace iEngr.Hookup.Models
             get => _erectionResponsible;
             set
             {
-                if (SetField(ref _erectionResponsible, value) && AutoComosUpdate)
+                if (SetField(ref _erectionResponsible, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.ER").value = value;
             }
         }
@@ -208,7 +209,7 @@ namespace iEngr.Hookup.Models
             get => _remarksCn;
             set
             {
-                if (SetField(ref _remarksCn, value) && AutoComosUpdate)
+                if (SetField(ref _remarksCn, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, value);
             }
         }
@@ -218,7 +219,7 @@ namespace iEngr.Hookup.Models
             get => _remarksEn;
             set
             {
-                if (SetField(ref _remarksEn, value) && AutoComosUpdate)
+                if (SetField(ref _remarksEn, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, value);
             }
         }
@@ -228,7 +229,7 @@ namespace iEngr.Hookup.Models
             get => _specAllCn;
             set
             {
-                if (SetField(ref _specAllCn, value) && AutoComosUpdate)
+                if (SetField(ref _specAllCn, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(4, value);
             }
         }
@@ -238,16 +239,16 @@ namespace iEngr.Hookup.Models
             get => _specAllEn;
             set
             {
-                if (SetField(ref _specAllEn, value) && AutoComosUpdate)
+                if (SetField(ref _specAllEn, value) && ObjMatBomItem != null && AutoComosUpdate)
                     ObjMatBomItem.spec("Z00T00003.SpecAll").SetInternationalValue(2, value);
             }
         }
 
-        IComosBaseObject _objMat;
+        IComosBaseObject _objMatBomItem;
         public IComosBaseObject ObjMatBomItem
         {
-            get => _objMat;
-            set => SetField(ref _objMat, value);
+            get => _objMatBomItem;
+            set => SetField(ref _objMatBomItem, value);
         }
         MatListItem _objMatListItem;
         public MatListItem ObjMatListItem

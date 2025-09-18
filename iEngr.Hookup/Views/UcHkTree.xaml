@@ -295,10 +295,10 @@
             <TreeView x:Name="tvHk" ItemsSource="{Binding TreeItems}" BorderThickness="0"
                       SelectedItemChanged="TreeView_SelectedItemChanged"
                       PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
-                      KeyDown="TreeView_KeyDown">
+                      KeyDown="TreeView_KeyDown"
+                      >
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
-                        <Setter Property="Background" Value="{Binding }"/>
                         <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
                     </Style>
                 </TreeView.ItemContainerStyle>

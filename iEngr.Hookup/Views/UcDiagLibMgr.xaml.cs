@@ -36,7 +36,7 @@ namespace iEngr.Hookup.Views
             (ucDiag.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
             (ucNode.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
-
+            (ucMatLib.DataContext as MatMainViewModel).VmMatList.MatListItemChanged += OmMatListItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
         }
         //更新UcHkPicture
@@ -56,6 +56,7 @@ namespace iEngr.Hookup.Views
             ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
             if (value.DiagID == null) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
             (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            if (diagramItems.Count > 0) { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = diagramItems.FirstOrDefault(); }
             //修正LibDiagramItems.IsOwned
              List<int> ids = diagramItems.Select(x=> x.ID).ToList();
             foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
@@ -88,6 +89,8 @@ namespace iEngr.Hookup.Views
                 }
             }
             (ucNode.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
+            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
+            (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
         }
         private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
         {
@@ -173,6 +176,11 @@ namespace iEngr.Hookup.Views
             OnPicturePathChanged(sender, value?.PicturePath);
             OnPropLabelItemsChanged(sender, value);
             OnDiagramIDsChanged(sender, value);
+        }
+        //更新UcBomList
+        private void OmMatListItemChanged(object sender, MatListItem value)
+        {
+            (ucBomLib.DataContext as BomListViewModel).SelectedMatListItem = value;
         }
 
         //private void OnTreeItemChanged(object sender, HkTreeItem value)

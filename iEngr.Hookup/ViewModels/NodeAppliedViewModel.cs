@@ -29,8 +29,7 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 SetField(ref _selectedItem, value);
-                //if (value != null)
-                    NodeIDHighlighted?.Invoke(this, value);
+                NodeIDHighlighted?.Invoke(this, value);
             }
         }
 
