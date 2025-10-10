@@ -30,16 +30,30 @@
             <RowDefinition Height="5*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <WrapPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
+            <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
+            <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
+        </WrapPanel>
         <DataGrid x:Name="dgDiagNode" Margin="2,2,2,0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   HeadersVisibility="None"
+                  HorizontalGridLinesBrush="DarkGray"
+                  VerticalGridLinesBrush="DarkGray"
                   BeginningEdit="DataGrid_BeginningEdit"
                   ItemsSource="{Binding NodeDiagramItems}" 
 		          SelectedItem="{Binding NodeSelectedItem}"
-                  VerticalAlignment="Bottom"
+                  VerticalAlignment="Top"
                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
                   ex:DataGridColumnSyncBehavior.SyncWith="{Binding ElementName=dgDiagLib}">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="gray"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="Transparent"/>
@@ -47,7 +61,7 @@
                         <!-- 选中且有焦点时的颜色 -->
                         <!--<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Blue"/>-->
                         <!-- 选中但失去焦点时的颜色 -->
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGray"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
                     </Style.Resources>
                     <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
                     <Style.Triggers>
@@ -82,9 +96,10 @@
             </i:Interaction.Triggers>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
-                <DataGridTextColumn Header="名称" Binding="{Binding Path=NameCn}"
+                <DataGridTextColumn Header="BomQty" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}" 
+                <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
@@ -96,20 +111,30 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <GridSplitter Grid.Row="2" Grid.Column="1" Height="2" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"/>
         <DataGrid x:Name="dgDiagLib" Margin="2,0,2,2" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  HorizontalGridLinesBrush="DarkGray"
+                  VerticalGridLinesBrush="DarkGray"
                   HeadersVisibility="Column"
                   BeginningEdit="DataGrid_BeginningEdit"
                   ItemsSource="{Binding LibDiagramItems}" 
 		          SelectedItem="{Binding LibSelectedItem}"
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
                   >
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="gray"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="Transparent"/>
                     <Style.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGray"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
                     </Style.Resources>
                     <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
                     <Style.Triggers>
@@ -141,9 +166,10 @@
             </i:Interaction.Triggers>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
-                <DataGridTextColumn Header="名称" Binding="{Binding Path=NameCn}"
+                <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}" 
+                <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>

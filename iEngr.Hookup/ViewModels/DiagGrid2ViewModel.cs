@@ -184,6 +184,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                    SelectedItem = value;
                 }
             }
         }
@@ -203,9 +204,12 @@ namespace iEngr.Hookup.ViewModels
                 {
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                    SelectedItem = value;
                 }
             }
         }
+        public DiagramItem SelectedItem { set; get; }
+
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

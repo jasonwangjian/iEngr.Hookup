@@ -856,7 +856,6 @@ namespace iEngr.Hookup
                     return 0;
                 }
             }
-
         }
         internal static int NodeDelete(HkTreeItem item)
         {
@@ -984,9 +983,10 @@ namespace iEngr.Hookup
         internal static ObservableCollection<DiagramItem> GetDiagramItems()
         {
             ObservableCollection<DiagramItem> diagramItems = new ObservableCollection<DiagramItem>();
-            string query = $"select diag.* " +
-               $"from HK_Diagram diag " +
-               $"where Status >=0";
+            string query = $"select diag.* , " +
+                $"(SELECT COUNT(*) FROM HK_DiagBom bom WHERE bom.DiagID = diag.ID) as BomCount " +
+                $"from HK_Diagram diag " +
+                $"where Status >=0";
             using (OdbcConnection conn = GetConnection())
             {
                 try
@@ -1009,6 +1009,7 @@ namespace iEngr.Hookup
                                 Status = Convert.ToByte(reader["Status"]),
                                 LastOn = Convert.ToDateTime(reader["LastOn"]),
                                 LastBy = Convert.ToString(reader["PicturePath"]),
+                                BomQty = Convert.ToInt32(reader["BomCount"]),
                             };
                             diagramItems.Add(item);
                         }
@@ -1189,6 +1190,7 @@ namespace iEngr.Hookup
                                         Status = Convert.ToByte(reader["Status"]),
                                         Comments = Convert.ToString(reader["Comments"]),
                                     },
+                                    BomID = Convert.ToInt32(reader["ID"]),
                                     No = Convert.ToString(reader["No"]),
                                     NameCn = Convert.ToString(reader["NameCn"]),
                                     NameEn = Convert.ToString(reader["NameEn"]),
@@ -1275,6 +1277,48 @@ namespace iEngr.Hookup
                 }
             }
             return newID;
+        }
+        internal static int GetDiagBomCount(int diagId)
+        {
+            string query = $"Select Count(*) From HK_DiagBom where DiagID = {diagId}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteScalar();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.GetDiagBomCount(string id), Error: {ex.Message}");
+                    return -1;
+                }
+            }
+        }
+        internal static int DiagBomDelete(int id)
+        {
+            string query = $"DELETE FROM HK_DiagBom WHERE ID = {id}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.DiagBomDelete(int id), Error: {ex.Message}");
+                    return 0;
+                }
+            }
         }
         #endregion
     }

@@ -19,6 +19,12 @@ namespace iEngr.Hookup.ViewModels
             get => _isOwned;
             set=> SetField(ref _isOwned, value);
         }
+        public int _bomQty;
+        public int BomQty
+        {
+            get => _bomQty;
+            set => SetField(ref _bomQty, value);
+        }
         public bool _isInherit;
         public bool IsInherit
         {

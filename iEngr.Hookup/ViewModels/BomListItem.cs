@@ -123,6 +123,13 @@ namespace iEngr.Hookup.Models
             ErectionResponsible = ObjMatListItem.ErectionResponsible;
         }
         public bool AutoComosUpdate { get; set; }
+        public int BomID { get; set; }
+        //private int _bomID;
+        //public int BomID
+        //{
+        //    get => _bomID;
+        //    set => SetField(ref _bomID, value);
+        //}
         private string _no;
         public new string No
         {

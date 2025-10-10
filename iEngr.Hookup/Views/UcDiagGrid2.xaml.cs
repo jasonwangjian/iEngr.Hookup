@@ -42,7 +42,7 @@ namespace iEngr.Hookup.Views
         private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             var dataItem = e.Row.Item as DiagramItem;
-            if (dataItem != null && !dataItem.IsOwned)
+            if (dataItem != null && (!dataItem.IsOwned || dataItem.IsInherit))
             {
                 e.Cancel = true;
             }

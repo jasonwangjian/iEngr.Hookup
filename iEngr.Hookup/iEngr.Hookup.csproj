@@ -157,6 +157,9 @@
     <Compile Include="Views\PropertyEditorDialog.xaml.cs">
       <DependentUpon>PropertyEditorDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UcDiagBom.xaml.cs">
+      <DependentUpon>UcDiagBom.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UcBomList.xaml.cs">
       <DependentUpon>UcBomList.xaml</DependentUpon>
     </Compile>
@@ -244,6 +247,10 @@
     <Page Include="Views\PropertyEditorDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UcDiagBom.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UcBomList.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -89,7 +89,8 @@ namespace iEngr.Hookup.Views
                 }
             }
             (ucNode.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
-            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
+            //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
+            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = (ucDiag.DataContext as DiagGrid2ViewModel).SelectedItem;
             (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
         }
         private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)

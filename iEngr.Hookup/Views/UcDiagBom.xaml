@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcDiagBom"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900">
+    <UserControl.DataContext>
+        <vm:BomListViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- 创建转换器 -->
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <WrapPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
+            <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
+            <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
+        </WrapPanel>
+
+        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  PreviewKeyDown="dgBOM_PreviewKeyDown"
+                  ItemsSource="{Binding DataSource}" 
+		          SelectedItem="{Binding SelectedItem}"
+                 >
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
+                    <Separator/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="CellEditEnding">
+                    <i:InvokeCommandAction 
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="No." Binding="{Binding Path=No}" IsReadOnly="False"/>
+                <DataGridTextColumn Header="名称" Binding="{Binding Path=NameCn}" IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=NameEn}" IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="技术规格" Binding="{Binding Path=SpecAllCn}"   IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Technical Specification" Binding="{Binding Path=SpecAllEn}"   IsReadOnly="True"
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridComboBoxColumn x:Name="dcMatCode" Header="Mat.Code" DisplayMemberPath="Name" SelectedValuePath="ID"
+                                        SelectedValueBinding="{Binding Path=MatMatCode}" IsReadOnly="True"/>
+                <DataGridTextColumn x:Name="dcQty" Header="数量" Binding="{Binding Path=Qty}"/>
+                <DataGridComboBoxColumn x:Name="dcUnit" Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=Unit}" />
+                <DataGridComboBoxColumn x:Name="dcSR" Header="供货" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyResponsible}" />
+                <DataGridComboBoxColumn x:Name="dcSD" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
+                <DataGridComboBoxColumn x:Name="dcER" Header="安装" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionResponsible}" />
+                <DataGridComboBoxColumn x:Name="dcED" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
+                <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="⇞" Command="{Binding MoveToFirstCommand}"  Margin="5" Width="24"/>
+            <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="5" Width="24"/>
+            <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
+            <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
+        </WrapPanel>
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
+            <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
+            <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>
+            <Button Content="删除" Command="{Binding DeleteCommand}"  Margin="5" Width="80"/>
+        </WrapPanel>
+    </Grid>
+</UserControl>
+

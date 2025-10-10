@@ -271,6 +271,8 @@ namespace iEngr.Hookup.ViewModels
                 newNo = SelectedItem.No;
                 index = DataSource.IndexOf(SelectedItem);
             }
+            else
+                index = DataSource.Count-1;
             newNo =string.IsNullOrEmpty(newNo)? DataSource.LastOrDefault()?.No ?? "0": newNo;
             newNo = ((int.TryParse(newNo, out int result) ? result : 998) + 1).ToString();
             if (CurrentObject != null)
@@ -288,7 +290,8 @@ namespace iEngr.Hookup.ViewModels
                 BomListItem newBomItem = new BomListItem() { ObjMatBomItem = null, No = newNo, ObjMatListItem = SelectedMatListItem };
                 newBomItem.SetBomListItemFromMatListItem();
                 HK_General.NewDiagBomAdd(SelectedDiagramItem.ID, newNo, SelectedMatListItem);
-                DataSource.Insert(index, newBomItem);
+                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID);
+                DataSource.Insert(index+1, newBomItem);
             }
         }
 
@@ -303,8 +306,17 @@ namespace iEngr.Hookup.ViewModels
         {
             foreach (var item in SelectedItems)
             {
-                item.ObjMatBomItem.DeleteAll();
+                if (CurrentObject != null)
+                    item.ObjMatBomItem.DeleteAll();
+                else if (SelectedDiagramItem != null)
+                {
+                    HK_General.DiagBomDelete(item.BomID);
+                }
                 DataSource.Remove(item);
+            }
+            if (SelectedDiagramItem != null)
+            {
+                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID);
             }
         }
         public ICommand CellEditEndingCommand { get; }
