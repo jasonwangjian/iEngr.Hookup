@@ -111,6 +111,28 @@ namespace iEngr.Hookup
             }
             return count;
         }
+        internal static int DeleteByID(string tableName, int id)
+        {
+            string query = $"DELETE FROM {tableName} WHERE ID = {id}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.DeleteByID(string tableName, int id), Error: {ex.Message}");
+                    return 0;
+                }
+            }
+        }
+
 
         #region MatGenLib
         internal static ObservableCollection<MatListItem> UpdateQueryResult(string conditions = null, bool isForced=false)
@@ -928,6 +950,28 @@ namespace iEngr.Hookup
                     // 可以选择返回空列表或者其他适当的处理
                 }
                 return result;
+            }
+        }
+        internal static bool IsIDAssigned(int id)
+        {
+            string query = $"SELECT CASE WHEN EXISTS(SELECT 1 FROM HK_TreeNode WHERE ',' + DiagID + ',' LIKE '%,{id},%')" +
+                           $" THEN  1 ELSE 0 END AS result";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return ((int)command.ExecuteScalar() == 1);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.IsIDAssigned(int id), Error: {ex.Message}");
+                    return false;
+                }
             }
         }
         #endregion

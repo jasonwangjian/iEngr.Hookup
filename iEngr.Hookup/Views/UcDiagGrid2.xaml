@@ -155,6 +155,9 @@
                     <Separator/>
                     <MenuItem Header="添加Diag" Command="{Binding DiagramAddCommand}"                      
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <Separator/>
+                    <MenuItem Header="删除Diag" Command="{Binding DiagramDeleteCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
 
                 </ContextMenu>
             </DataGrid.ContextMenu>
