@@ -38,6 +38,7 @@ namespace iEngr.Hookup.Views
             (ucNode.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
             (ucMatLib.DataContext as MatMainViewModel).VmMatList.MatListItemChanged += OmMatListItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
+            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
         }
         //更新UcHkPicture
         private void OnPicturePathChanged(object sender, string value)
@@ -53,28 +54,68 @@ namespace iEngr.Hookup.Views
         private void OnDiagramIDsChanged(object sender, HkTreeItem value)
         {
             //刷新NodeDiagramItems
-            ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
-            if (value.DiagID == null) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
-            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
-            if (diagramItems.Count > 0) { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = diagramItems.FirstOrDefault(); }
+            //ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
+            //if (value.DiagID == null) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
+            //(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            //if (diagramItems.Count > 0) { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = diagramItems.FirstOrDefault(); }
+            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
+            bool isInherit = false;
+            string diagIds = value.DiagID;
+            if (string.IsNullOrEmpty(diagIds))
+            {
+                diagIds = value.InheritDiagID;
+                isInherit = true;
+            }
+            List<int> ids = diagIds?.Split(',')
+                                   .Select(s => s.Trim())  // 去除空格
+                                   .Where(s => int.TryParse(s, out _))
+                                   .Select(int.Parse)
+                                   .ToList();
             //修正LibDiagramItems.IsOwned
-             List<int> ids = diagramItems.Select(x=> x.ID).ToList();
+            //List<int> ids = diagramItems.Select(x=> x.ID).ToList();
             foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
             {
-                item.IsOwned = ids.Contains(item.ID);
+                if (ids != null && ids.Contains(item.ID))
+                {
+                    item.IsOwned = true;
+                    item.IsInherit = isInherit;
+                    (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
+                }
+                else
+                {
+                    item.IsOwned = false;
+                }
             }
+            if ((ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0) 
+            { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
         }
         private void OnDiagramIDAdded(object sender, HkTreeItem value)
         {
             //刷新NodeDiagramItems
-            ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
-            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            //ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
+            //(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
+            List<int> ids = value.DiagID?.Split(',')
+                       .Select(s => s.Trim())  // 去除空格
+                       .Where(s => int.TryParse(s, out _))
+                       .Select(int.Parse)
+                       .ToList();
+
             //刷新LibDiagramItems
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
-            List<int> ids = diagramItems.Select(x => x.ID).ToList();
+            //List<int> ids = diagramItems.Select(x => x.ID).ToList();
             foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
             {
-                item.IsOwned = ids.Contains(item.ID);
+                if (ids != null && ids.Contains(item.ID))
+                {
+                    item.IsOwned = true;
+                    item.IsInherit = false;
+                    (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
+                }
+                else
+                {
+                    item.IsOwned = false;
+                }
             }
         }
         //更新UcNodeApplied

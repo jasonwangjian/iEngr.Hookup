@@ -109,13 +109,29 @@ namespace iEngr.Hookup.ViewModels
             FocusedNode.DiagID = string.Join(",", (FocusedNode.DiagID + "," + item.ID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
             
             string diagIDs = FocusedNode.DiagID;
-            NodeDiagramItems = HK_General.GetDiagramItems(diagIDs, true, false);
+            //NodeDiagramItems = HK_General.GetDiagramItems(diagIDs, true, false);
             HK_General.UpdateLibData("HK_TreeNOde",int.Parse(FocusedNode.ID), "DiagID", diagIDs);
-            if (string.IsNullOrEmpty(diagIDs)) return;
-            List<string> ids = diagIDs.Split(',').ToList();
+            //if (string.IsNullOrEmpty(diagIDs)) return;
+            //List<string> ids = diagIDs.Split(',').ToList();
+            NodeDiagramItems.Clear();
+            List<int> ids = diagIDs?.Split(',')
+                                        .Select(s => s.Trim())  // 去除空格
+                                        .Where(s => int.TryParse(s, out _))
+                                        .Select(int.Parse)
+                                        .ToList();
             foreach (var itemLib in LibDiagramItems)
             {
-                itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+                //itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+                if (ids != null && ids.Contains(itemLib.ID))
+                {
+                    itemLib.IsOwned = true;
+                    itemLib.IsInherit = false;
+                    NodeDiagramItems.Add(itemLib);
+                }
+                else
+                {
+                    itemLib.IsOwned = false;
+                }
             }
         }
         private bool CanRemoveDiagram(object parameter)
@@ -130,16 +146,40 @@ namespace iEngr.Hookup.ViewModels
         }
         private void RemoveDiagram(DiagramItem item)
         {
-            List<string> ids = FocusedNode.DiagID.Split(',').ToList();
-            if (ids.Remove(item.ID.ToString()))
+            //List<string> ids = FocusedNode.DiagID.Split(',').ToList();
+            //if (ids.Remove(item.ID.ToString()))
+            //{
+            //    FocusedNode.DiagID = string.Join(",", ids);
+            //    NodeDiagramItems = HK_General.GetDiagramItems(FocusedNode.DiagID, true, false);
+            //    HK_General.UpdateLibData("HK_TreeNOde", int.Parse(FocusedNode.ID), "DiagID", FocusedNode.DiagID);
+            //    if (string.IsNullOrEmpty(FocusedNode.DiagID)) return;
+            //    foreach (var itemLib in LibDiagramItems)
+            //    {
+            //        itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+            //    }
+            //}
+            List<int> ids = FocusedNode.DiagID.Split(',')
+                                        .Select(s => s.Trim())  // 去除空格
+                                        .Where(s => int.TryParse(s, out _))
+                                        .Select(int.Parse)
+                                        .ToList(); 
+            if (ids.Remove(item.ID))
             {
                 FocusedNode.DiagID = string.Join(",", ids);
-                NodeDiagramItems = HK_General.GetDiagramItems(FocusedNode.DiagID, true, false);
                 HK_General.UpdateLibData("HK_TreeNOde", int.Parse(FocusedNode.ID), "DiagID", FocusedNode.DiagID);
-                if (string.IsNullOrEmpty(FocusedNode.DiagID)) return;
+                NodeDiagramItems.Clear();
                 foreach (var itemLib in LibDiagramItems)
                 {
-                    itemLib.IsOwned = ids.Contains(itemLib.ID.ToString());
+                    if (ids != null && ids.Contains(itemLib.ID))
+                    {
+                        itemLib.IsOwned = true;
+                        itemLib.IsInherit = false;
+                        NodeDiagramItems.Add(itemLib);
+                    }
+                    else
+                    {
+                        itemLib.IsOwned = false;
+                    }
                 }
             }
         }
@@ -180,11 +220,11 @@ namespace iEngr.Hookup.ViewModels
             get => _nodeSelectedItem;
             set
             {
-                if(SetField(ref _nodeSelectedItem, value))// && value != null)
+                SelectedItem = value;
+                PicturePathChanged?.Invoke(this, value?.PicturePath);
+                DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                if (SetField(ref _nodeSelectedItem, value))// && value != null)
                 {
-                    PicturePathChanged?.Invoke(this, value?.PicturePath);
-                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
-                    SelectedItem = value;
                 }
             }
         }
@@ -200,11 +240,11 @@ namespace iEngr.Hookup.ViewModels
             get => _libSelectedItem;
             set
             {
+                SelectedItem = value;
+                PicturePathChanged?.Invoke(this, value?.PicturePath);
+                DiagramIDChanged?.Invoke(this, value?.ID.ToString());
                 if (SetField(ref _libSelectedItem, value))// && value != null)
                 {
-                    PicturePathChanged?.Invoke(this, value?.PicturePath);
-                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
-                    SelectedItem = value;
                 }
             }
         }

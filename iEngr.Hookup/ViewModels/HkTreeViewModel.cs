@@ -905,7 +905,7 @@ namespace iEngr.Hookup.ViewModels
             if (newID == 0) return;
             item.DiagID = string.Join(",", (item.DiagID + "," + newID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
             HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
-            item.IsInheritDiagIDActive = true;
+            item.IsInheritDiagIDActive = true; //强制刷新
             DiagramIDAdded?.Invoke(this, item);
         }
         private void DiagramDel(object parameter)
@@ -915,7 +915,7 @@ namespace iEngr.Hookup.ViewModels
                 item.DiagID = string.Empty;
                 //HK_General.UpdateNode(item);
                 HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
-                item.IsInheritDiagIDActive = true;
+                item.IsInheritDiagIDActive = true; //强制刷新
                 DiagramIDsChanged?.Invoke(this, item);
             }
         }
@@ -926,7 +926,7 @@ namespace iEngr.Hookup.ViewModels
                 item.DiagID = null;
                 //HK_General.UpdateNode(item);
                 HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
-                item.IsInheritDiagIDActive = true;
+                item.IsInheritDiagIDActive = true; //强制刷新
                 DiagramIDsChanged?.Invoke(this, item);
             }
         }

@@ -48,5 +48,16 @@ namespace iEngr.Hookup.Views
             }
         }
 
+        private void dgDiagNode_GotFocus(object sender, RoutedEventArgs e)
+        {
+            //通过赋值触发事件
+            dgDiagNode.SelectedItem = dgDiagNode.SelectedItem;
+        }
+
+        private void dgDiagLib_GotFocus(object sender, RoutedEventArgs e)
+        {
+            //通过赋值触发事件
+            dgDiagLib.SelectedItem = dgDiagLib.SelectedItem;
+        }
     }
 }
