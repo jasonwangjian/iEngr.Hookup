@@ -105,12 +105,12 @@ namespace iEngr.Hookup.ViewModels
                 execute: EditProperties,
                 canExecute: item => item != null && IsNodeValided && SelectedItem.NodeName == "TagNode"
             );
-            PictureSetCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
+            //PictureSetCommand = new RelayCommand<HkTreeItem>(SetPicture, CanSetPicture);
             StartEditNewCommand = new RelayCommand<object>(StartEditNew, CanEditNew);
             StartEditCommand = new RelayCommand<object>(StartEdit, _ => SelectedItem != null && IsNodeValided && SelectedItem.NodeName != "HookupConfig");
             ConfirmEditCommand = new RelayCommand<object>(ConfirmEdit, CanExecuteConfirmEdit);
             CancelEditCommand = new RelayCommand<object>(CancelEdit);
-            PictureDelCommand = new RelayCommand<object>(PictureDel, _=> !string.IsNullOrEmpty(SelectedItem.PicturePath));
+            //PictureDelCommand = new RelayCommand<object>(PictureDel, _=> !string.IsNullOrEmpty(SelectedItem.PicturePath));
             DiagramNewCommand = new RelayCommand<HkTreeItem>(DiagramNew, CanSetPicture);
             DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => (SelectedItem.DiagID != string.Empty));
             DiagramNullCommand = new RelayCommand<object>(DiagramNull, _ => (SelectedItem.DiagID != null));

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
              xmlns:ex="clr-namespace:iEngr.Hookup.Models"
              xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
              mc:Ignorable="d" 
@@ -16,6 +17,7 @@
         <!-- 创建转换器 -->
         <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <cv:EmptyToBoolConverter  x:Key="EmptyToBoolConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -71,6 +73,9 @@
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsInherit}" Value="True">
                             <Setter Property="FontStyle" Value="Italic"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -142,6 +147,9 @@
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsOwned}" Value="True">
                             <Setter Property="Background" Value="LightBlue"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

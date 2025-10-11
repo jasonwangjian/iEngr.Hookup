@@ -198,6 +198,7 @@ namespace iEngr.Hookup.ViewModels
         }
         private void DeleteDiagram(DiagramItem item)
         {
+            LibDiagramItems.Remove(item);
             HK_General.DeleteByID("HK_Diagram", item.ID);
         }
         private bool _langInChinese;
