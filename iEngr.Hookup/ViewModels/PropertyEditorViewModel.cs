@@ -2,11 +2,13 @@
 using iEngr.Hookup.Services;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
@@ -77,6 +79,10 @@ namespace iEngr.Hookup.ViewModels
                     ((RelayCommand<object>)AddSelectedPropertiesCommand).RaiseCanExecuteChanged();
                 }
             };
+
+            IsDevLabel = true;
+            IsPropLabel = true;
+
         }
 
         private ObservableCollection<PropertyDefinition> _selectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
@@ -126,7 +132,28 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        public bool CanAddMoreProperties => SelectedProperties.Count < 5 && SelectedAvailableProperties.Any();
+        private bool _isDevLabel;
+        public bool IsDevLabel
+        {
+            get => _isDevLabel;
+            set
+            {
+                _isDevLabel = value;
+                OnPropertyChanged();
+                _filteredPropertiesSource.View.Refresh();
+            }
+        }
+        private bool _isPropLabel;
+        public bool IsPropLabel
+        {
+            get => _isPropLabel;
+            set
+            {
+                _isPropLabel = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool CanAddMoreProperties => SelectedProperties.Count < 10 && SelectedAvailableProperties.Any();
 
         public RelayCommand<object> AddSelectedPropertiesCommand { get; }
         public RelayCommand<string> RemovePropertyCommand { get; }
@@ -137,23 +164,29 @@ namespace iEngr.Hookup.ViewModels
 
         private void FilterProperties(object sender, FilterEventArgs e)
         {
+            var prop = (PropertyDefinition)e.Item;
+            List<string> cats = new List<string>();
+            if (IsDevLabel) cats.Add("CDevice");
+            if (IsPropLabel) cats.Add("Spec");
+
             if (string.IsNullOrEmpty(FilterText))
             {
-                e.Accepted = true;
+                e.Accepted = cats.Contains(prop.Category);
                 return;
             }
 
-            var prop = (PropertyDefinition)e.Item;
-            e.Accepted = prop.DisplayName.Contains(FilterText) ||
-                         prop.Key.Contains(FilterText) ||
-                         prop.Category.Contains(FilterText);
+            e.Accepted = prop.DisplayName.Contains(FilterText) && 
+                         cats.Contains(prop.Category);
+            //e.Accepted = prop.DisplayName.Contains(FilterText) ||
+            //             prop.Key.Contains(FilterText) ||
+            //             prop.Category.Contains(FilterText);
         }
 
         private void AddSelectedProperties()
         {
             foreach (var prop in SelectedAvailableProperties.ToList())
             {
-                if (SelectedProperties.Count >= 5) break;
+                if (SelectedProperties.Count >= 10) break;
                 if (!SelectedProperties.Any(p => p.Key == prop.Key))
                 {
                     SelectedProperties.Add(prop);

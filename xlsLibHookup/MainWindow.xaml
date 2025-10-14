@@ -58,7 +58,7 @@
             <Button x:Name="btnHkMNode" Content="Hookup树节点类型"  Click="btnHkMNode_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
-            <Button x:Name="btnHkDevTag" Content="Device标签"  Click="btnHkDevTag_Click" 
+            <Button x:Name="btnHkDevLabel" Content="Device标签"  Click="btnHkDevLabel_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
             <Button x:Name="btnHkDevValue" Content="Device标签值"  Click="btnHkDevValue_Click" 

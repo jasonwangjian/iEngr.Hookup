@@ -3,7 +3,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
-        Title="🏷️属性标签管理" Height="500" Width="800"
+        Title="🏷️标签管理" Height="560" Width="900"
         WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -61,20 +61,27 @@
         </Grid.ColumnDefinitions>
 
         <!-- 可用属性 -->
-        <GroupBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Header="可用属性" Margin="5">
+        <GroupBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Header="可用标签" Margin="5">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+                <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+                    <CheckBox Margin="0,0,10,0" IsChecked="{Binding IsDevLabel}">设备标签</CheckBox>
+                    <CheckBox Margin="0,0,10,0"  IsChecked="{Binding IsPropLabel}">属性标签</CheckBox>
+                    <StackPanel Orientation="Horizontal">
                     <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <TextBox Text="{Binding FilterText}" Width="200"/>
-                </StackPanel>
+                    <TextBox Text="{Binding FilterText, 
+                                    UpdateSourceTrigger=PropertyChanged, 
+                                    Mode=TwoWay,
+                                    Delay=200}" MinWidth="210"/></StackPanel>
+                </WrapPanel>
                 <ListBox ItemsSource="{Binding FilteredProperties}" 
                          SelectionMode="Multiple"
                          SelectionChanged="AvailablePropertiesListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Width="120"/>
-                                <TextBlock Text="{Binding Category}" Foreground="Gray" FontSize="10"/>
+                                <TextBlock Text="{Binding DisplayName}" MinWidth="160"/>
+                                <TextBlock Text="{Binding Category}" Foreground="Gray"  MinWidth="80"/>
+                                <TextBlock Text="{Binding Remarks}" Foreground="Gray"  />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -83,14 +90,14 @@
         </GroupBox>
 
         <!-- 已选属性编辑器 -->
-        <GroupBox Grid.Row="0" Grid.Column="1" Header="已选属性（最多5个）" Margin="5">
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="已选标签（最多10个）" Margin="5">
             <ItemsControl ItemsSource="{Binding SelectedProperties}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
@@ -119,10 +126,10 @@
         <!-- 统计信息 -->
         <GroupBox Grid.Row="1" Grid.Column="1" Header="统计信息" Margin="5">
             <StackPanel>
-                <TextBlock Text="{Binding SelectedProperties.Count, StringFormat='已选择: {0}/5 个属性'}" Margin="5"/>
-                <ProgressBar Value="{Binding SelectedProperties.Count, Mode=OneWay}" Maximum="5" Height="10" Margin="5"/>
+                <TextBlock Text="{Binding SelectedProperties.Count, StringFormat='已选择: {0}/10 个标签'}" Margin="5"/>
+                <ProgressBar Value="{Binding SelectedProperties.Count, Mode=OneWay}" Maximum="10" Height="10" Margin="5"/>
                 <Button Command="{Binding AddSelectedPropertiesCommand}" 
-                        Content="添加选中属性"/>
+                        Content="添加选中标签"/>
             </StackPanel>
         </GroupBox>
 

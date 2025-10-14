@@ -577,29 +577,29 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
-                    case "HKLibDevTag":
-                        if (isDataExisting("HK_LibDevTag", (result as HKLibDevTag).ID))
+                    case "HKLibDevLabel":
+                        if (isDataExisting("HK_LibDevLabel", (result as HKLibDevLabel).ID))
                         {
-                            sqlString = $"UPDATE HK_LibDevTag SET " +
-                                $"NameCn=N'{(result as HKLibDevTag).NameCn}'," +
-                                $"NameEn=N'{(result as HKLibDevTag).NameEn}'," +
-                                $"RemarksCn=N'{(result as HKLibDevTag).RemarksCn}'," +
-                                $"RemarksEn=N'{(result as HKLibDevTag).RemarksEn}'," +
-                                $"Status={(result as HKLibDevTag).Status}," +
-                                $"SortNum={(result as HKLibDevTag).SortNum} " +
-                                $"WHERE ID='{(result as HKLibDevTag).ID}'";
+                            sqlString = $"UPDATE HK_LibDevLabel SET " +
+                                $"NameCn=N'{(result as HKLibDevLabel).NameCn}'," +
+                                $"NameEn=N'{(result as HKLibDevLabel).NameEn}'," +
+                                $"RemarksCn=N'{(result as HKLibDevLabel).RemarksCn}'," +
+                                $"RemarksEn=N'{(result as HKLibDevLabel).RemarksEn}'," +
+                                $"Status={(result as HKLibDevLabel).Status}," +
+                                $"SortNum={(result as HKLibDevLabel).SortNum} " +
+                                $"WHERE ID='{(result as HKLibDevLabel).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibDevTag (ID, NameCn, NameEn, RemarksCn, RemarksEn, " +
+                            sqlString = $"INSERT INTO HK_LibDevLabel (ID, NameCn, NameEn, RemarksCn, RemarksEn, " +
                                 $"Status, SortNum) VALUES (" +
-                                $"N'{(result as HKLibDevTag).ID}'," +
-                                $"N'{(result as HKLibDevTag).NameCn}'," +
-                                $"N'{(result as HKLibDevTag).NameEn}'," +
-                                $"N'{(result as HKLibDevTag).RemarksCn}'," +
-                                $"N'{(result as HKLibDevTag).RemarksEn}'," +
-                                $"{(result as HKLibDevTag).Status}," +
-                                $"{(result as HKLibDevTag).SortNum}" +
+                                $"N'{(result as HKLibDevLabel).ID}'," +
+                                $"N'{(result as HKLibDevLabel).NameCn}'," +
+                                $"N'{(result as HKLibDevLabel).NameEn}'," +
+                                $"N'{(result as HKLibDevLabel).RemarksCn}'," +
+                                $"N'{(result as HKLibDevLabel).RemarksEn}'," +
+                                $"{(result as HKLibDevLabel).Status}," +
+                                $"{(result as HKLibDevLabel).SortNum}" +
                                 $")";
                         }
                         count = count + updateData(sqlString);
@@ -622,7 +622,7 @@ namespace xlsLibHookup
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibDevValue (ID, DevTag, TagType, FullNmae, DevName, " +
+                            sqlString = $"INSERT INTO HK_LibDevValue (ID, DevTag, TagType, FullName, DevName, " +
                                 $"NameCn, NameEn, RemarksCn, RemarksEn, Status, SortNum) VALUES (" +
                                 $"N'{(result as HKLibDevValue).ID}'," +
                                 $"N'{(result as HKLibDevValue).DevTag}'," +
@@ -634,7 +634,7 @@ namespace xlsLibHookup
                                 $"N'{(result as HKLibDevValue).RemarksCn}'," +
                                 $"N'{(result as HKLibDevValue).RemarksEn}'," +
                                 $"{(result as HKLibDevValue).Status}," +
-                                $"{(result as HKLibDevTag).SortNum}" +
+                                $"{(result as HKLibDevValue).SortNum}" +
                                 $")";
                         }
                         count = count + updateData(sqlString);
@@ -1321,12 +1321,12 @@ namespace xlsLibHookup
             }
             return data;
         }
-        private ObservableCollection<HKLibDevTag> GetXlsHKDevTagLib(string id = null)
+        private ObservableCollection<HKLibDevLabel> GetXlsHKDevLabelLib(string id = null)
         {
-            ObservableCollection<HKLibDevTag> data = new ObservableCollection<HKLibDevTag>();
+            ObservableCollection<HKLibDevLabel> data = new ObservableCollection<HKLibDevLabel>();
             // 构建 SQL 查询语句
-            string query = (id == null) ? "select * from [LibDevTag$]"
-                                      : $"select * from [LibDevTag$] where ID = '{id}'";
+            string query = (id == null) ? "select * from [LibDevLabel$]"
+                                      : $"select * from [LibDevLabel$] where ID = '{id}'";
             try
             {
                 if (xlsConn == null || xlsConn.State != ConnectionState.Open)
@@ -1337,7 +1337,7 @@ namespace xlsLibHookup
                 {
                     if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
                         break;
-                    HKLibDevTag item = new HKLibDevTag
+                    HKLibDevLabel item = new HKLibDevLabel
                     {
                         ID = Convert.ToString(reader["ID"]),
                         NameCn = Convert.ToString(reader["NameCn"]),
@@ -1460,9 +1460,9 @@ namespace xlsLibHookup
         {
             dgResult.ItemsSource = GetXlsHKNodeLib();
         }
-        private void btnHkDevTag_Click(object sender, RoutedEventArgs e)
+        private void btnHkDevLabel_Click(object sender, RoutedEventArgs e)
         {
-            dgResult.ItemsSource = GetXlsHKDevTagLib();
+            dgResult.ItemsSource = GetXlsHKDevLabelLib();
         }
         private void btnHkDevValue_Click(object sender, RoutedEventArgs e)
         {

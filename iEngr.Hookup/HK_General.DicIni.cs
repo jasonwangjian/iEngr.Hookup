@@ -44,6 +44,9 @@ namespace iEngr.Hookup
         internal static Dictionary<string, HKLibMatMat> dicMatMat = dicMatMatIni();
         internal static Dictionary<string, HKLibTreeNode> dicTreeNode = dicTreeNodeIni();
         //internal static Dictionary<string, ObservableCollection<HKLibTreeNode>> dicParentTreeNode = dicParentTreeNodeIni();
+
+        internal static Dictionary<string, HKLibDevLabel> dicDevLabel = dicDevLabelIni();
+        internal static Dictionary<string, HKLibDevValue> dicDevValue = dicDevValueIni();
         private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
             Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
@@ -581,10 +584,80 @@ namespace iEngr.Hookup
                 catch (Exception ex)
                 {
                     // 处理异常
-                    Debug.WriteLine($"___HK_General.dicMatMatIni, Error: {ex.Message}");
+                    Debug.WriteLine($"___HK_General.dicParentTreeNodeIni(), Error: {ex.Message}");
                 }
             }
             return dicParentTreeNode;
+        }
+        private static Dictionary<string, HKLibDevLabel> dicDevLabelIni()
+        {
+            Dictionary<string, HKLibDevLabel> dicDevLabel = new Dictionary<string, HKLibDevLabel>();
+            string query = "select * from HK_LibDevLabel Where Status>0 order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicDevLabel.Add(Convert.ToString(reader["ID"]), new HKLibDevLabel
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicDevLabelIni(), Error: {ex.Message}");
+                }
+            }
+            return dicDevLabel;
+        }
+        private static Dictionary<string, HKLibDevValue> dicDevValueIni()
+        {
+            Dictionary<string, HKLibDevValue> dicDevValue = new Dictionary<string, HKLibDevValue>();
+            string query = "select * from HK_LibDevValue Where Status>0 order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicDevValue.Add(Convert.ToString(reader["ID"]), new HKLibDevValue
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                DevTag = Convert.ToString(reader["DevTag"]),
+                                TagType = Convert.ToString(reader["TagType"]),
+                                FullName = Convert.ToString(reader["FullName"]),
+                                DevName = Convert.ToString(reader["DevName"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicLabelDevValueIni(), Error: {ex.Message}");
+                }
+            }
+            return dicDevValue;
         }
     }
 }

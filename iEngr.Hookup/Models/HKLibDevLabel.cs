@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace iEngr.Hookup.Models
 {
-    public class HKLibDevTag : IIdentifiable
+    public class HKLibDevLabel : IIdentifiable
     {
         public string ID { get; set; }
         public string NameCn { get; set; }

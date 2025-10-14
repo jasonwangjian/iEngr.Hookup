@@ -852,6 +852,7 @@ namespace iEngr.Hookup.ViewModels
                 item.DisplayInheritProperties = "Trigger"; // 触发OnPropertyChanged
                 PropLabelItemsChanged?.Invoke(this, SelectedItem);
                 HK_General.UpdateNode(item);
+                LoadTreeNode(item);
             }
         }
         #endregion

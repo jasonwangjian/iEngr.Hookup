@@ -17,6 +17,12 @@ namespace iEngr.Hookup.Models
         {
             get => (HK_General.ProjLanguage == 2) ? DisplayNameEn : DisplayNameCn;
         }
+        public string RemarksCn { get; set; }
+        public string RemarksEn { get; set; }
+        public string Remarks
+        {
+            get => (HK_General.ProjLanguage == 2) ? RemarksEn : RemarksCn;
+        }
 
         public PropertyType Type { get; set; }
         public string Category { get; set; }
