@@ -577,6 +577,68 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibDevTag":
+                        if (isDataExisting("HK_LibDevTag", (result as HKLibDevTag).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibDevTag SET " +
+                                $"NameCn=N'{(result as HKLibDevTag).NameCn}'," +
+                                $"NameEn=N'{(result as HKLibDevTag).NameEn}'," +
+                                $"RemarksCn=N'{(result as HKLibDevTag).RemarksCn}'," +
+                                $"RemarksEn=N'{(result as HKLibDevTag).RemarksEn}'," +
+                                $"Status={(result as HKLibDevTag).Status}," +
+                                $"SortNum={(result as HKLibDevTag).SortNum} " +
+                                $"WHERE ID='{(result as HKLibDevTag).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibDevTag (ID, NameCn, NameEn, RemarksCn, RemarksEn, " +
+                                $"Status, SortNum) VALUES (" +
+                                $"N'{(result as HKLibDevTag).ID}'," +
+                                $"N'{(result as HKLibDevTag).NameCn}'," +
+                                $"N'{(result as HKLibDevTag).NameEn}'," +
+                                $"N'{(result as HKLibDevTag).RemarksCn}'," +
+                                $"N'{(result as HKLibDevTag).RemarksEn}'," +
+                                $"{(result as HKLibDevTag).Status}," +
+                                $"{(result as HKLibDevTag).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
+                    case "HKLibDevValue":
+                        if (isDataExisting("HK_LibDevValue", (result as HKLibDevValue).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibDevValue SET " +
+                                $"DevTag=N'{(result as HKLibDevValue).DevTag}'," +
+                                $"TagType=N'{(result as HKLibDevValue).TagType}'," +
+                                $"FullName=N'{(result as HKLibDevValue).FullName}'," +
+                                $"DevName=N'{(result as HKLibDevValue).DevName}'," +
+                                $"NameCn=N'{(result as HKLibDevValue).NameCn}'," +
+                                $"NameEn=N'{(result as HKLibDevValue).NameEn}'," +
+                                $"RemarksCn=N'{(result as HKLibDevValue).RemarksCn}'," +
+                                $"RemarksEn=N'{(result as HKLibDevValue).RemarksEn}'," +
+                                $"Status={(result as HKLibDevValue).Status}," +
+                                $"SortNum={(result as HKLibDevValue).SortNum} " +
+                                $"WHERE ID='{(result as HKLibDevValue).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibDevValue (ID, DevTag, TagType, FullNmae, DevName, " +
+                                $"NameCn, NameEn, RemarksCn, RemarksEn, Status, SortNum) VALUES (" +
+                                $"N'{(result as HKLibDevValue).ID}'," +
+                                $"N'{(result as HKLibDevValue).DevTag}'," +
+                                $"N'{(result as HKLibDevValue).TagType}'," +
+                                $"N'{(result as HKLibDevValue).FullName}'," +
+                                $"N'{(result as HKLibDevValue).DevName}'," +
+                                $"N'{(result as HKLibDevValue).NameCn}'," +
+                                $"N'{(result as HKLibDevValue).NameEn}'," +
+                                $"N'{(result as HKLibDevValue).RemarksCn}'," +
+                                $"N'{(result as HKLibDevValue).RemarksEn}'," +
+                                $"{(result as HKLibDevValue).Status}," +
+                                $"{(result as HKLibDevTag).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -1259,6 +1321,88 @@ namespace xlsLibHookup
             }
             return data;
         }
+        private ObservableCollection<HKLibDevTag> GetXlsHKDevTagLib(string id = null)
+        {
+            ObservableCollection<HKLibDevTag> data = new ObservableCollection<HKLibDevTag>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibDevTag$]"
+                                      : $"select * from [LibDevTag$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibDevTag item = new HKLibDevTag
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
+        private ObservableCollection<HKLibDevValue> GetXlsHKDevValueLib(string id = null)
+        {
+            ObservableCollection<HKLibDevValue> data = new ObservableCollection<HKLibDevValue>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibDevValue$]"
+                                      : $"select * from [LibDevValue$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibDevValue item = new HKLibDevValue
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        DevTag = Convert.ToString(reader["DevTag"]),
+                        TagType = Convert.ToString(reader["TagType"]),
+                        FullName = Convert.ToString(reader["FullName"]),
+                        DevName = Convert.ToString(reader["DevName"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibMatCat();
@@ -1315,6 +1459,14 @@ namespace xlsLibHookup
         private void btnHkMNode_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsHKNodeLib();
+        }
+        private void btnHkDevTag_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKDevTagLib();
+        }
+        private void btnHkDevValue_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKDevValueLib();
         }
     }
 }

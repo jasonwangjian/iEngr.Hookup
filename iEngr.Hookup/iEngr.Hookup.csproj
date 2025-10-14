@@ -129,6 +129,8 @@
     <Compile Include="HK_General.DbFunc.cs" />
     <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\DataGridExtensions.cs" />
+    <Compile Include="Models\HKLibDevValue.cs" />
+    <Compile Include="Models\HKLibDevTag.cs" />
     <Compile Include="Models\HKLibTreeNode.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\ObservableDictionary.cs" />

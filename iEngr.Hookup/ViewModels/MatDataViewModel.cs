@@ -890,8 +890,8 @@ namespace iEngr.Hookup.ViewModels
                             standardValue = GeneralFun.GetStandardNumberString(value, 2, titleItem.Link);
                             if (standardValue == null)
                             {
-                                Debug.WriteLine($"错误格式: {value}");
-                                StatusText = $"错误格式: {value}";
+                                //Debug.WriteLine($"错误格式: {value}");
+                                StatusText = $"错误格式: {value}。";
                                 return;
                             }
                             StatusText = string.Empty;
@@ -1337,8 +1337,8 @@ namespace iEngr.Hookup.ViewModels
             return dic.Select(x => x.Value).OrderBy(x => x.SortNum).Select(x => new MatDataCmbItem
             {
                 ID = x.ID,
-                NameCn =  $"{x.SpecCn}mm D.D.",
-                NameEn = $"{x.SpecEn}mm D.D.",
+                NameCn =  $"{x.SpecCn} O.D.",
+                NameEn = $"{x.SpecEn} O.D.",
                 Comp = comp == "Class" ? x.Class
                                              : comp == "SpecCn" ? x.SpecCn
                                              : comp == "SpecEn" ? x.SpecEn
