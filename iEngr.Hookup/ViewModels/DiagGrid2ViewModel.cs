@@ -33,6 +33,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddDiagram);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
+            SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             LangInChinese = true;
         }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
@@ -187,6 +188,22 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
+        public ObservableCollection<DiagramItem> SelectedItems { get; set; }
+        public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
+        private void HandleSelectionChanged(SelectionChangedEventArgs e)
+        {
+            var selectedItems = (e.Source as DataGrid)?.SelectedItems;
+            if (selectedItems != null)
+            {
+                ObservableCollection<DiagramItem> _selectedItems = new ObservableCollection<DiagramItem>();
+                foreach (var item in selectedItems)
+                {
+                    _selectedItems.Add(item as DiagramItem);
+                }
+                SelectedItems = _selectedItems;
+            }
+        }
+
         private bool CanDeleteDiagram(object parameter)
         {
             if (parameter is DiagramItem item)
@@ -198,8 +215,14 @@ namespace iEngr.Hookup.ViewModels
         }
         private void DeleteDiagram(DiagramItem item)
         {
-            LibDiagramItems.Remove(item);
-            HK_General.DeleteByID("HK_Diagram", item.ID);
+            foreach(var itemS in SelectedItems)
+            {
+                if (!HK_General.IsIDAssigned(itemS.ID))
+                {
+                    LibDiagramItems.Remove(itemS);
+                    HK_General.DeleteByID("HK_Diagram", itemS.ID);
+                }
+            }
         }
         private bool _langInChinese;
         public bool LangInChinese

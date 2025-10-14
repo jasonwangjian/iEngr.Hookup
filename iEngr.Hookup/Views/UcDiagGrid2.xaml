@@ -39,6 +39,7 @@
         <DataGrid x:Name="dgDiagNode" Margin="2,2,2,0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   GotFocus="dgDiagNode_GotFocus"
+                  SelectionMode="Single"
                   HeadersVisibility="None"
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
@@ -175,6 +176,11 @@
                     <i:InvokeCommandAction 
                                 Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                 PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>

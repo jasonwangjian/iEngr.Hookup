@@ -49,6 +49,7 @@
         <cv:CmbNodeToVisibilityConverter  x:Key="CmbNodeToVisibilityConverter"/>
         <cv:TextNodeToVisibilityConverter  x:Key="TextNodeToVisibilityConverter"/>
         <cv:NodeNameToValueConverter  x:Key="NodeNameToValueConverter"/>
+        <cv:DiagIDToCountConverter  x:Key="DiagIDToCountConverter"/>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:NegativeNumberToVisibilityConverter x:Key="NegativeNumberToVisibilityConverter"/>
         <cv:BoolToRedConverter x:Key="BoolToRedConverter"/>
@@ -155,7 +156,7 @@
                    Source="{StaticResource CutIcon}"
                    Visibility="{Binding IsCutOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
                 </Image>
-                <Image Width="16" Height="16" Margin="2,0,2,0"
+               <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource CopyIcon}"
                    Visibility="{Binding IsCopyOperation,  Converter={StaticResource BoolToVisibilityConverter}}">
                 </Image>
@@ -167,10 +168,18 @@
                    Source="{StaticResource PictureInheritIcon}"
                    Visibility="{Binding IsInheritPictureActive,  Converter={StaticResource BoolToVisibilityConverter}}">
                 </Image>-->
+                <TextBlock Text="{Binding DiagID, Converter={StaticResource DiagIDToCountConverter}}" 
+                           FontWeight="Bold" Foreground="Blue"
+                           Visibility="{Binding DiagID, Converter={StaticResource NoEmptyToVisibilityConverter}}"
+                           VerticalAlignment="Center"/>
                 <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource BomIcon}"
                    Visibility="{Binding DiagID, Converter={StaticResource NoEmptyToVisibilityConverter}}">
                 </Image>
+                <TextBlock Text="{Binding InheritDiagID, Converter={StaticResource DiagIDToCountConverter}}" 
+                           FontWeight="Bold" Foreground="Blue"
+                           Visibility="{Binding IsInheritDiagIDActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                           VerticalAlignment="Center"/>
                 <Image Width="16" Height="16" Margin="2,0,2,0"
                    Source="{StaticResource BomInheritIcon}"
                    Visibility="{Binding IsInheritDiagIDActive,  Converter={StaticResource BoolToVisibilityConverter}}">

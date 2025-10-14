@@ -10,6 +10,20 @@ using System.Windows.Data;
 
 namespace iEngr.Hookup.Converters
 {
+    public class DiagIDToCountConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string str = (string)value;
+            if (string.IsNullOrEmpty(str)) return null;
+            int count = str.Split(',').Count();
+            if (count >1) return $"({count})";
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
     public class EmptyToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
