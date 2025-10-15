@@ -26,6 +26,7 @@ namespace iEngr.Hookup.ViewModels
         {
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             PictureSetCommand = new RelayCommand<DiagramItem>(SetPicture, CanSetPicture);
+            IsLangCtrlShown = true;
             LangInChinese = true;
         }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
@@ -87,6 +88,12 @@ namespace iEngr.Hookup.ViewModels
                 PicturePathChanged?.Invoke(this, item.PicturePath);
                 HK_General.UpdateDiagram(item.ID, "PicturePath", item.PicturePath);
             }
+        }
+        private bool _isLangCtrlShown;
+        public bool IsLangCtrlShown
+        {
+            get => _isLangCtrlShown;
+            set => SetField(ref _isLangCtrlShown, value);
         }
         private bool _langInChinese;
         public bool LangInChinese

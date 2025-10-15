@@ -36,8 +36,9 @@
                   ItemsSource="{Binding DiagramItems}" 
 		          SelectedItem="{Binding SelectedItem}"
                  >-->
-        <DataGrid x:Name="dgDiagComos" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+        <DataGrid x:Name="dgDiagComos" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  HeadersVisibility="Column"
                   BeginningEdit="DataGrid_BeginningEdit"
                   ItemsSource="{Binding DiagramItems}" 
 	              SelectedItem="{Binding SelectedItem}"
@@ -46,6 +47,14 @@
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
                   ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
                   ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="gray"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="Transparent"/>

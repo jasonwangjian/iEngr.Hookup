@@ -138,6 +138,7 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Models\PropertyDefinition.cs" />
     <Compile Include="Models\PropertyLibrary.cs" />
+    <Compile Include="Models\UserComos.cs" />
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
     <Compile Include="ViewModels\NodeAppliedViewModel.cs" />
+    <Compile Include="ViewModels\ProjDiagMgrViewModel.cs" />
     <Compile Include="ViewModels\PropLabelViewModel.cs" />
     <Compile Include="ViewModels\PropertyEditorViewModel.cs" />
     <Compile Include="ViewModels\TestMainViewModel.cs" />

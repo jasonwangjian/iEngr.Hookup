@@ -28,7 +28,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ListView ItemsSource="{Binding PropLabelItems}" Margin="2" SelectionMode="Single" Grid.Row="1" Grid.Column="1"
+        <ListView ItemsSource="{Binding PropLabelItems}" Margin="0" SelectionMode="Single" Grid.Row="1" Grid.Column="1"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <!-- 定义 ListView 的视图（GridView） -->

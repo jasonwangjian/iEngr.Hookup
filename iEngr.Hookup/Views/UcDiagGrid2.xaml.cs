@@ -41,6 +41,11 @@ namespace iEngr.Hookup.Views
         }
         private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
+            if ((HK_General.UserComos.Roles & 128) == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
             var dataItem = e.Row.Item as DiagramItem;
             if (dataItem != null && (!dataItem.IsOwned || dataItem.IsInherit))
             {

@@ -25,10 +25,11 @@ namespace iEngr.Hookup
     {
         public static int ProjLanguage = 4; // 4: 中文； 2为英文
         public static bool IsAutoComosUpdate = true;
-        public static string UserName = "Anonymous";
         public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         public static readonly string[] portNA = { "NA", "IS" };
 
+        public static UserComos UserComos = new UserComos(null) { RealName = "Anonymous",Roles = 255 };
+        public static string UserName = UserComos.RealName;  //"Anonymous";
 
         public static string ErrMsgOmMatData {  get; set; }
 

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
              xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
@@ -14,7 +15,8 @@
     <UserControl.Resources>
         <!-- 创建转换器 -->
         <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <cv:EmptyToBoolConverter  x:Key="EmptyToBoolConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -28,12 +30,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <WrapPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
+        <WrapPanel Visibility="{Binding IsLangCtrlShown, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
             <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
             <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
         </WrapPanel>
 
-        <DataGrid x:Name="dgBOM" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
+        <DataGrid x:Name="dgBOM" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
                   ItemsSource="{Binding DataSource}" 
@@ -88,13 +91,15 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <WrapPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0,0,0,5">
+        <WrapPanel  Visibility="{Binding IsButtonShown, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0,0,0,5">
             <Button Content="⇞" Command="{Binding MoveToFirstCommand}"  Margin="5" Width="24"/>
             <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="5" Width="24"/>
             <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
             <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
         </WrapPanel>
-        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,5">
+        <WrapPanel  Visibility="{Binding IsButtonShown, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,5">
             <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
             <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
             <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>

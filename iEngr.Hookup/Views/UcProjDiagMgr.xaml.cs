@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace iEngr.Hookup.Views
 {
@@ -27,10 +28,36 @@ namespace iEngr.Hookup.Views
             InitializeComponent();
             (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
             (ucTree.DataContext as HkTreeViewModel).DiagramIDsChanged += OnDiagramIDsChanged;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).IsLangCtrlShown = false;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
             (ucDiagLib.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
             (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
             (ucDiagComos.DataContext as DiagGridViewModel).DiagramItems = HK_General.GetDiagramItems();
+            (ucNodes.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).IsLangCtrlShown = false;
+            (ucBomLib.DataContext as BomListViewModel).IsLangCtrlShown = false;
+            (ucBomLib.DataContext as BomListViewModel).IsButtonShown = false;
+            (ucDiagComos.DataContext as DiagGridViewModel).IsLangCtrlShown = false;
+            (ucBomComos.DataContext as BomListViewModel).IsLangCtrlShown = false;
+            (ucBomComos.DataContext as BomListViewModel).IsButtonShown = false;
+
+            ProjDiagMgrViewModel vmProjDiagMgr = new ProjDiagMgrViewModel();
+            DataContext = vmProjDiagMgr;
+            vmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
+            vmProjDiagMgr.LangInEnglishChanged += OnLangInEnglishChanged;
+        }
+        private void OnLangInChineseChanged(object sender, bool value)
+        {
+            (ucDiagComos.DataContext as DiagGridViewModel).LangInChinese = value;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).LangInChinese = value;
+            (ucBomComos.DataContext as BomListViewModel).LangInChinese = value;
+            (ucBomLib.DataContext as BomListViewModel).LangInChinese = value;
+        }
+        private void OnLangInEnglishChanged(object sender, bool value)
+        {
+            (ucDiagComos.DataContext as DiagGridViewModel).LangInEnglish = value;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).LangInEnglish = value;
+            (ucBomComos.DataContext as BomListViewModel).LangInEnglish = value;
+            (ucBomLib.DataContext as BomListViewModel).LangInEnglish = value;
         }
         //更新UcHkPicture
         private void OnPicturePathChanged(object sender, string value)
@@ -81,6 +108,105 @@ namespace iEngr.Hookup.Views
             }
             if ((ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0)
             { (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
+        }
+        //更新UcNodeApplied
+        private void OnDiagramIDChanged(object sender, string value)
+        {
+            ObservableCollection<NodeItem> nodeItems = new ObservableCollection<NodeItem>();
+            if (!(string.IsNullOrEmpty(value)))
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    GetNoteItemsRecursive(item, value, nodeItems);
+                }
+            }
+            (ucNodes.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
+            //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
+            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).SelectedItem;
+            (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
+        }
+        private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
+        {
+            if (item == null) return nodeItems;
+            if (!string.IsNullOrEmpty(item.DiagID))
+            {
+                if (item.DiagID.Split(',').Contains(diagID))
+                {
+                    nodeItems.Add(new NodeItem
+                    {
+                        NodeID = item.ID,
+                        DisPlayName = item.DisPlayName,
+                        IsInherit = false
+                    });
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(item.InheritDiagID) && item.InheritDiagID.Split(',').Contains(diagID))
+                {
+                    nodeItems.Add(new NodeItem
+                    {
+                        NodeID = item.ID,
+                        DisPlayName = item.DisPlayName,
+                        IsInherit = true
+                    });
+                }
+            }
+            foreach (var child in item.Children)
+            {
+                GetNoteItemsRecursive(child, diagID, nodeItems);
+            }
+            return nodeItems;
+        }
+        //在Tree上标记
+        private void OnNodeIDHighlighted(object sender, NodeItem value)
+        {
+
+            if (!string.IsNullOrEmpty(value?.NodeID))
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    (ucTree.DataContext as HkTreeViewModel).SelectedItem = HighlightNodeRecursive(item, value?.NodeID);
+                }
+            }
+            else
+            {
+                foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+                {
+                    HighlightNodeClearRecursive(item);
+                }
+            }
+        }
+        private HkTreeItem HighlightNodeRecursive(HkTreeItem item, string nodeId)
+        {
+            HkTreeItem highlightedNode = null;
+            if (item == null || string.IsNullOrEmpty(nodeId)) return null;
+            if (item.ID == nodeId)
+            {
+                item.IsHighlighted = true;
+                highlightedNode = item;
+                if (item.Parent != null)
+                    item.Parent.IsExpanded = true;
+            }
+            else
+                item.IsHighlighted = false;
+
+            foreach (var child in item.Children)
+            {
+                if (highlightedNode == null)
+                    highlightedNode = HighlightNodeRecursive(child, nodeId);
+                HighlightNodeRecursive(child, nodeId);
+            }
+            return highlightedNode;
+        }
+        private void HighlightNodeClearRecursive(HkTreeItem item)
+        {
+            if (item == null) return;
+            item.IsHighlighted = false;
+            foreach (var child in item.Children)
+            {
+                HighlightNodeClearRecursive(child);
+            }
         }
     }
 }

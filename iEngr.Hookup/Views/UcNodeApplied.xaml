@@ -28,7 +28,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ListView ItemsSource="{Binding AppliedNodeItems}" Margin="2" SelectionMode="Single" Grid.Row="1" Grid.Column="1"
+        <ListView ItemsSource="{Binding AppliedNodeItems}" Margin="0" SelectionMode="Single" Grid.Row="1" Grid.Column="1"
                   SelectedItem="{Binding SelectedItem}"
                   HorizontalAlignment ="Stretch"
                   Loaded="ListView_Loaded"

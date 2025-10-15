@@ -42,6 +42,8 @@ namespace iEngr.Hookup.ViewModels
             AlterCommand = new RelayCommand<object>(_ => Alter(), _ => SelectedItem != null && SelectedMatListItem != null);
             DeleteCommand = new RelayCommand<object>(_ => Delete(), _ => SelectedItems?.Count > 0);
             AutoComosUpdate = HK_General.IsAutoComosUpdate;
+            IsLangCtrlShown = true;
+            IsButtonShown = true;
             LangInChinese = true;
         }
         public List<GeneralItem> Disciplines { get; set; }
@@ -188,6 +190,18 @@ namespace iEngr.Hookup.ViewModels
                     DataSource[i].AutoComosUpdate = value;
                 }
             }
+        }
+        private bool _isLangCtrlShown;
+        public bool IsLangCtrlShown
+        {
+            get => _isLangCtrlShown;
+            set => SetField(ref _isLangCtrlShown, value);
+        }
+        private bool _isButtonShown;
+        public bool IsButtonShown
+        {
+            get => _isButtonShown;
+            set => SetField(ref _isButtonShown, value);
         }
         private bool _langInChinese;
         public bool LangInChinese
