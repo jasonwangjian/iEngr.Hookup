@@ -34,6 +34,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
+            IsLangCtrlShown = true;
             LangInChinese = true;
         }
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
@@ -223,6 +224,12 @@ namespace iEngr.Hookup.ViewModels
                     HK_General.DeleteByID("HK_Diagram", itemS.ID);
                 }
             }
+        }
+        private bool _isLangCtrlShown;
+        public bool IsLangCtrlShown
+        {
+            get => _isLangCtrlShown;
+            set => SetField(ref _isLangCtrlShown, value);
         }
         private bool _langInChinese;
         public bool LangInChinese

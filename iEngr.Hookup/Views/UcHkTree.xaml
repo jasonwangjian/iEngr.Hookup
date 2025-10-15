@@ -177,7 +177,7 @@
                    Visibility="{Binding DiagID, Converter={StaticResource NoEmptyToVisibilityConverter}}">
                 </Image>
                 <TextBlock Text="{Binding InheritDiagID, Converter={StaticResource DiagIDToCountConverter}}" 
-                           FontWeight="Bold" Foreground="Blue"
+                           FontWeight="Bold" Foreground="LightSkyBlue"
                            Visibility="{Binding IsInheritDiagIDActive, Converter={StaticResource BoolToVisibilityConverter}}"
                            VerticalAlignment="Center"/>
                 <Image Width="16" Height="16" Margin="2,0,2,0"

@@ -36,7 +36,7 @@ namespace iEngr.Hookup.Views
 
         private void AdjustColumnWidth(ListView listView)
         {
-            if (listView?.View is GridView gridView && gridView.Columns.Count > 0)
+            if (listView?.View is GridView gridView && gridView.Columns.Count > 0 && listView.ActualWidth >10)
             {
                 // 设置列宽为自动（根据内容）或固定值
                 gridView.Columns[0].Width = listView.ActualWidth - 10; // 减去边距

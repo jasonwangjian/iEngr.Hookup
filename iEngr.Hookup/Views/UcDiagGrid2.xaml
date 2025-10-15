@@ -16,7 +16,7 @@
     <UserControl.Resources>
         <!-- 创建转换器 -->
         <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <cv:EmptyToBoolConverter  x:Key="EmptyToBoolConverter"/>
     </UserControl.Resources>
     <Grid>
@@ -32,7 +32,8 @@
             <RowDefinition Height="5*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <WrapPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
+        <WrapPanel Visibility="{Binding IsLangCtrlShown, Converter={StaticResource BoolToVisibilityConverter}}"
+            Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
             <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
             <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
         </WrapPanel>
@@ -40,7 +41,7 @@
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   GotFocus="dgDiagNode_GotFocus"
                   SelectionMode="Single"
-                  HeadersVisibility="None"
+                  HeadersVisibility="Column"
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
                   BeginningEdit="DataGrid_BeginningEdit"
@@ -49,7 +50,8 @@
                   VerticalAlignment="Top"
                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
-                  ex:DataGridColumnSyncBehavior.SyncWith="{Binding ElementName=dgDiagLib}">
+                  ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
+                  ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="gray"/>
@@ -129,7 +131,8 @@
                   ItemsSource="{Binding LibDiagramItems}" 
 		          SelectedItem="{Binding LibSelectedItem}"
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
-                  >
+                  ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
+                  ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="gray"/>

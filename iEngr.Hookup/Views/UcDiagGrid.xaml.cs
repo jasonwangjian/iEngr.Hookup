@@ -27,11 +27,11 @@ namespace iEngr.Hookup.Views
         }
         private void ClearAllSorting_click(object sender, RoutedEventArgs e)
         {
-            foreach (var column in dgDiag.Columns)
+            foreach (var column in dgDiagComos.Columns)
             {
                 column.SortDirection = null;
             }
-            dgDiag.Items.SortDescriptions.Clear();
+            dgDiagComos.Items.SortDescriptions.Clear();
         }
         private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
