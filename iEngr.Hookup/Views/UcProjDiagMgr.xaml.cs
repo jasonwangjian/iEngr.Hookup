@@ -1,4 +1,5 @@
-﻿using iEngr.Hookup.ViewModels;
+﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,9 +29,12 @@ namespace iEngr.Hookup.Views
             InitializeComponent();
             (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
             (ucTree.DataContext as HkTreeViewModel).DiagramIDsChanged += OnDiagramIDsChanged;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnLibDiagramIDChanged;
+            (ucDiagLib.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucDiagLib.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
             (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
+            (ucDiagComos.DataContext as DiagGridViewModel).DiagramIDChanged += OnComosDiagramIDChanged;
+            (ucDiagComos.DataContext as DiagGridViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucDiagComos.DataContext as DiagGridViewModel).DiagramItems = HK_General.GetDiagramItems();
             (ucNodes.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
             (ucDiagLib.DataContext as DiagGrid2ViewModel).IsLangCtrlShown = false;
@@ -39,7 +43,6 @@ namespace iEngr.Hookup.Views
             (ucDiagComos.DataContext as DiagGridViewModel).IsLangCtrlShown = false;
             (ucBomComos.DataContext as BomListViewModel).IsLangCtrlShown = false;
             (ucBomComos.DataContext as BomListViewModel).IsButtonShown = false;
-
             ProjDiagMgrViewModel vmProjDiagMgr = new ProjDiagMgrViewModel();
             DataContext = vmProjDiagMgr;
             vmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
@@ -109,8 +112,12 @@ namespace iEngr.Hookup.Views
             if ((ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0)
             { (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
         }
+        private void OnComosDiagramIDChanged(object sender, string value)
+        {
+            (ucBomComos.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
+        }
         //更新UcNodeApplied
-        private void OnDiagramIDChanged(object sender, string value)
+        private void OnLibDiagramIDChanged(object sender, string value)
         {
             ObservableCollection<NodeItem> nodeItems = new ObservableCollection<NodeItem>();
             if (!(string.IsNullOrEmpty(value)))
@@ -161,12 +168,12 @@ namespace iEngr.Hookup.Views
         //在Tree上标记
         private void OnNodeIDHighlighted(object sender, NodeItem value)
         {
-
+            HkTreeItem highlightedNode = null;
             if (!string.IsNullOrEmpty(value?.NodeID))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
                 {
-                    (ucTree.DataContext as HkTreeViewModel).SelectedItem = HighlightNodeRecursive(item, value?.NodeID);
+                    highlightedNode = HighlightNodeRecursive(item, value?.NodeID);
                 }
             }
             else
@@ -176,6 +183,7 @@ namespace iEngr.Hookup.Views
                     HighlightNodeClearRecursive(item);
                 }
             }
+            if (highlightedNode != null) { ucTree.tvHk.BringItemIntoView(highlightedNode); }
         }
         private HkTreeItem HighlightNodeRecursive(HkTreeItem item, string nodeId)
         {

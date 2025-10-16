@@ -1,17 +1,545 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 
 namespace iEngr.Hookup.Models
 {
+    public static class DataGridComparisonHelper
+    {
+        #region ComparisonTarget 附加属性 - 使用x:Reference
+        public static readonly DependencyProperty ComparisonTargetProperty =
+            DependencyProperty.RegisterAttached(
+                "ComparisonTarget",
+                typeof(DataGrid),
+                typeof(DataGridComparisonHelper),
+                new PropertyMetadata(null, OnComparisonTargetChanged));
+
+        public static DataGrid GetComparisonTarget(DependencyObject obj)
+        {
+            return (DataGrid)obj.GetValue(ComparisonTargetProperty);
+        }
+
+        public static void SetComparisonTarget(DependencyObject obj, DataGrid value)
+        {
+            obj.SetValue(ComparisonTargetProperty, value);
+        }
+        #endregion
+
+        #region ComparisonSourceName 附加属性 - 通过名称查找
+        public static readonly DependencyProperty ComparisonSourceNameProperty =
+            DependencyProperty.RegisterAttached(
+                "ComparisonSourceName",
+                typeof(string),
+                typeof(DataGridComparisonHelper),
+                new PropertyMetadata(null, OnComparisonSourceNameChanged));
+
+        public static string GetComparisonSourceName(DependencyObject obj)
+        {
+            return (string)obj.GetValue(ComparisonSourceNameProperty);
+        }
+
+        public static void SetComparisonSourceName(DependencyObject obj, string value)
+        {
+            obj.SetValue(ComparisonSourceNameProperty, value);
+        }
+        #endregion
+
+        #region IsComparisonEnabled 附加属性
+        public static readonly DependencyProperty IsComparisonEnabledProperty =
+            DependencyProperty.RegisterAttached(
+                "IsComparisonEnabled",
+                typeof(bool),
+                typeof(DataGridComparisonHelper),
+                new PropertyMetadata(false, OnIsComparisonEnabledChanged));
+
+        public static bool GetIsComparisonEnabled(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(IsComparisonEnabledProperty);
+        }
+
+        public static void SetIsComparisonEnabled(DependencyObject obj, bool value)
+        {
+            obj.SetValue(IsComparisonEnabledProperty, value);
+        }
+        #endregion
+
+        #region IsComparisonById 附加属性
+        public static readonly DependencyProperty IsComparisonByIdProperty =
+            DependencyProperty.RegisterAttached(
+                "IsComparisonById",
+                typeof(bool),
+                typeof(DataGridComparisonHelper),
+                new PropertyMetadata(false, OnIsComparisonByIdChanged));
+
+        public static bool GetIsComparisonById(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(IsComparisonByIdProperty);
+        }
+
+        public static void SetIsComparisonById(DependencyObject obj, bool value)
+        {
+            obj.SetValue(IsComparisonByIdProperty, value);
+        }
+        #endregion
+        #region HighlightBrush 附加属性
+        public static readonly DependencyProperty HighlightBrushProperty =
+            DependencyProperty.RegisterAttached(
+                "HighlightBrush",
+                typeof(Brush),
+                typeof(DataGridComparisonHelper),
+                new PropertyMetadata(Brushes.Red));
+
+        public static Brush GetHighlightBrush(DependencyObject obj)
+        {
+            return (Brush)obj.GetValue(HighlightBrushProperty);
+        }
+
+        public static void SetHighlightBrush(DependencyObject obj, Brush value)
+        {
+            obj.SetValue(HighlightBrushProperty, value);
+        }
+        #endregion
+
+        private static readonly Dictionary<DataGrid, string> _dataGridNames = new Dictionary<DataGrid, string>();
+
+        // 注册DataGrid名称的方法
+        public static void RegisterDataGridName(DataGrid dataGrid, string name)
+        {
+            if (dataGrid != null && !string.IsNullOrEmpty(name))
+            {
+                _dataGridNames[dataGrid] = name;
+            }
+        }
+
+        // 注销DataGrid名称的方法
+        public static void UnregisterDataGridName(DataGrid dataGrid)
+        {
+            if (dataGrid != null)
+            {
+                _dataGridNames.Remove(dataGrid);
+            }
+        }
+
+        private static void OnComparisonTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid)
+            {
+                //UpdateComparison(dataGrid);
+            }
+        }
+
+        private static void OnComparisonSourceNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid)
+            {
+                FindAndSetComparisonTarget(dataGrid);
+            }
+        }
+
+        private static void OnIsComparisonEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid && dataGrid.Items.Count > 0)
+            {
+                if ((bool)e.NewValue)
+                {
+                    // 如果使用名称查找，先尝试查找目标
+                    if (GetComparisonTarget(dataGrid) == null)
+                    {
+                        FindAndSetComparisonTarget(dataGrid);
+                    }
+                    UpdateComparison(dataGrid);
+                }
+                else
+                {
+                    ClearHighlights(dataGrid);
+                }
+            }
+        }
+        private static void OnIsComparisonByIdChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DataGrid dataGrid && dataGrid.Items.Count > 0)
+            {
+                // 如果使用名称查找，先尝试查找目标
+                if (GetComparisonTarget(dataGrid) == null)
+                {
+                    FindAndSetComparisonTarget(dataGrid);
+                }
+                UpdateComparison(dataGrid);
+            }
+        }
+
+        private static void FindAndSetComparisonTarget(DataGrid sourceDataGrid)
+        {
+            string targetName = GetComparisonSourceName(sourceDataGrid);
+            if (string.IsNullOrEmpty(targetName)) return;
+
+            // 方法1: 从注册的字典中查找
+            var targetDataGrid = _dataGridNames.FirstOrDefault(x => x.Value == targetName).Key;
+            if (targetDataGrid != null)
+            {
+                SetComparisonTarget(sourceDataGrid, targetDataGrid);
+                return;
+            }
+
+            // 方法2: 在应用程序范围内查找
+            targetDataGrid = FindDataGridInApplication(targetName);
+            if (targetDataGrid != null)
+            {
+                SetComparisonTarget(sourceDataGrid, targetDataGrid);
+                return;
+            }
+
+            // 方法3: 延迟查找（当目标DataGrid尚未加载时）
+            if (Application.Current != null && Application.Current.MainWindow != null)
+            {
+                Application.Current.MainWindow.Dispatcher.BeginInvoke(new System.Action(() =>
+                {
+                    var delayedTarget = FindDataGridInApplication(targetName);
+                    if (delayedTarget != null)
+                    {
+                        SetComparisonTarget(sourceDataGrid, delayedTarget);
+                        UpdateComparison(sourceDataGrid);
+                    }
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+        }
+
+        private static DataGrid FindDataGridInApplication(string dataGridName)
+        {
+            if (Application.Current == null) return null;
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                var dataGrid = FindVisualChild<DataGrid>(window, dataGridName);
+                if (dataGrid != null) return dataGrid;
+            }
+
+            return null;
+        }
+
+        private static T FindVisualChild<T>(DependencyObject parent, string name) where T : FrameworkElement
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result && result.Name == name)
+                    return result;
+
+                var descendant = FindVisualChild<T>(child, name);
+                if (descendant != null)
+                    return descendant;
+            }
+
+            return null;
+        }
+
+        private static void UpdateComparison(DataGrid sourceDataGrid)
+        {
+            if (!GetIsComparisonEnabled(sourceDataGrid)) return;
+
+            var targetDataGrid = GetComparisonTarget(sourceDataGrid);
+            if (targetDataGrid == null) return;
+
+            // 清除之前的高亮
+            ClearHighlights(sourceDataGrid);
+            ClearHighlights(targetDataGrid);
+
+            // 执行比较
+            if (GetIsComparisonById(sourceDataGrid))
+                CompareDataGridsById(sourceDataGrid, targetDataGrid);
+            else
+                CompareDataGrids(sourceDataGrid, targetDataGrid);
+        }
+
+        // 比较逻辑（与之前相同，但为了完整性保留核心部分）
+        private static void CompareDataGrids(DataGrid dataGrid1, DataGrid dataGrid2)
+        {
+            var items1 = dataGrid1.ItemsSource as IEnumerable;
+            var items2 = dataGrid2.ItemsSource as IEnumerable;
+
+            if (items1 == null || items2 == null) return;
+
+            var list1 = items1.Cast<object>().ToList();
+            var list2 = items2.Cast<object>().ToList();
+
+            int minRowCount = System.Math.Min(list1.Count, list2.Count);
+            var highlightBrush = GetHighlightBrush(dataGrid1);
+
+            for (int rowIndex = 0; rowIndex < minRowCount; rowIndex++)
+            {
+                var item1 = list1[rowIndex];
+                var item2 = list2[rowIndex];
+
+                foreach (DataGridColumn column in dataGrid1.Columns)
+                {
+                    if (column.Visibility != Visibility.Visible) continue;
+
+                    var correspondingColumn = FindCorrespondingColumn(dataGrid2, column);
+                    if (correspondingColumn == null) continue;
+
+                    string value1 = GetCellValue(item1, column);
+                    string value2 = GetCellValue(item2, correspondingColumn);
+
+                    if (!string.Equals(value1, value2))
+                    {
+                        HighlightCell(dataGrid1, rowIndex, column, highlightBrush);
+                        HighlightCell(dataGrid2, rowIndex, correspondingColumn, highlightBrush);
+                    }
+                }
+            }
+            // 处理行数不同的情况
+            if (list1.Count != list2.Count)
+            {
+                HighlightExtraRows(dataGrid1, list1.Count, list2.Count, highlightBrush);
+                HighlightExtraRows(dataGrid2, list2.Count, list1.Count, highlightBrush);
+            }
+        }
+        private static void CompareDataGridsById(DataGrid dataGrid1, DataGrid dataGrid2)
+        {
+            var items1 = dataGrid1.ItemsSource as IEnumerable;
+            var items2 = dataGrid2.ItemsSource as IEnumerable;
+
+            if (items1 == null || items2 == null) return;
+
+            var list1 = items1.Cast<object>().ToList();
+            var list2 = items2.Cast<object>().ToList();
+
+            //首列必须是ID
+            if (dataGrid1.Columns[0].Header.ToString().ToUpper() != "ID") return;
+            if (dataGrid2.Columns[0].Header.ToString().ToUpper() != "ID") return;
+            //if (list1.Any() && list1.First().GetType().GetProperty("ID") != null) return;
+            //if (list2.Any() && list2.First().GetType().GetProperty("ID") != null) return;
+
+            Dictionary<string, object> dic1 = new Dictionary<string, object>();
+            for (int rowIndex = 0; rowIndex < list1.Count; rowIndex++)
+            {
+                var item1 = list1[rowIndex];
+                string id = GetCellValue(item1, dataGrid1.Columns[0]);
+                if (!string.IsNullOrEmpty(id) && !dic1.ContainsKey(id))
+                    dic1.Add(id, list1[rowIndex]);
+                else
+                    HighlightExtraRow(dataGrid1, rowIndex, Brushes.Red);
+            }
+            Dictionary<string, object> dic2 = new Dictionary<string, object>();
+            for (int rowIndex = 0; rowIndex < list2.Count; rowIndex++)
+            {
+                var item2 = list2[rowIndex];
+                string id = GetCellValue(item2, dataGrid2.Columns[0]);
+                if (!string.IsNullOrEmpty(id) && !dic2.ContainsKey(id))
+                    dic2.Add(id, list2[rowIndex]);
+                else
+                    HighlightExtraRow(dataGrid2, rowIndex, Brushes.Red);
+            }
+
+            var highlightBrush = GetHighlightBrush(dataGrid1);
+
+            for (int rowIndex = 0; rowIndex < list1.Count; rowIndex++)
+            {
+                var item1 = list1[rowIndex];
+                string id = GetCellValue(item1, dataGrid1.Columns[0]);
+                var item2 = dic2.TryGetValue(id, out var value) ? value : null;
+                if (item2 == null)
+                {
+                    HighlightExtraRow(dataGrid1, rowIndex, highlightBrush);
+                    continue;
+                }
+                foreach (DataGridColumn column in dataGrid1.Columns)
+                {
+                    if (column.Visibility != Visibility.Visible) continue;
+
+                    var correspondingColumn = FindCorrespondingColumn(dataGrid2, column);
+                    if (correspondingColumn == null) continue;
+
+                    string value1 = GetCellValue(item1, column);
+                    string value2 = GetCellValue(item2, correspondingColumn);
+
+                    if (!string.Equals(value1, value2))
+                    {
+                        HighlightCell(dataGrid1, rowIndex, column, highlightBrush);
+                        HighlightCell(dataGrid2, rowIndex, correspondingColumn, highlightBrush);
+                    }
+                }
+                dic2.Remove(id);
+            }
+            // 处理DataGrid2中DataGrid1中没有的内容
+            for (int rowIndex = 0; rowIndex < list2.Count; rowIndex++)
+            {
+                var item2 = list2[rowIndex];
+                string id = GetCellValue(item2, dataGrid2.Columns[0]);
+                if (!string.IsNullOrEmpty(id) && dic2.ContainsKey(id))
+                    HighlightExtraRow(dataGrid2, rowIndex, Brushes.Red);
+            }
+        }
+        private static void HighlightExtraRows(DataGrid dataGrid, int actualCount, int expectedCount, Brush highlightBrush)
+        {
+            if (actualCount <= expectedCount) return;
+
+            for (int i = expectedCount; i < actualCount; i++)
+            {
+                var row = dataGrid.ItemContainerGenerator.ContainerFromIndex(i) as DataGridRow;
+                if (row != null)
+                {
+                    row.Background = highlightBrush;
+                }
+            }
+        }
+
+        private static void HighlightExtraRow(DataGrid dataGrid, int rowIndex, Brush highlightBrush)
+        {
+            var row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
+            if (row != null)
+            {
+                row.Background = highlightBrush;
+            }
+        }
+
+        private static DataGridColumn FindCorrespondingColumn(DataGrid dataGrid, DataGridColumn sourceColumn)
+        {
+            if (sourceColumn.Header is string headerText)
+            {
+                return dataGrid.Columns.FirstOrDefault(col =>
+                    col.Header is string colHeader && colHeader == headerText && col.Visibility == Visibility.Visible);
+            }
+
+            if (sourceColumn is DataGridBoundColumn sourceBoundColumn)
+            {
+                var sourceBinding = (sourceBoundColumn.Binding as System.Windows.Data.Binding)?.Path.Path;
+                if (sourceBinding != null)
+                {
+                    return dataGrid.Columns.OfType<DataGridBoundColumn>()
+                        .FirstOrDefault(col =>
+                        {
+                            var binding = (col.Binding as System.Windows.Data.Binding)?.Path.Path;
+                            return binding == sourceBinding && col.Visibility == Visibility.Visible;
+                        });
+                }
+            }
+
+            return null;
+        }
+
+        private static string GetCellValue(object item, DataGridColumn column)
+        {
+            if (column is DataGridBoundColumn boundColumn)
+            {
+                var binding = boundColumn.Binding as System.Windows.Data.Binding;
+                if (binding?.Path != null)
+                {
+                    string propertyPath = binding.Path.Path;
+                    return GetPropertyValue(item, propertyPath)?.ToString() ?? string.Empty;
+                }
+            }
+            return string.Empty;
+        }
+
+        private static object GetPropertyValue(object obj, string propertyPath)
+        {
+            if (obj == null || string.IsNullOrEmpty(propertyPath)) return null;
+
+            var properties = propertyPath.Split('.');
+            object current = obj;
+
+            foreach (var property in properties)
+            {
+                if (current == null) return null;
+
+                var propInfo = current.GetType().GetProperty(property,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                if (propInfo == null) return null;
+
+                current = propInfo.GetValue(current);
+            }
+
+            return current;
+        }
+
+
+        private static void HighlightCell(DataGrid dataGrid, int rowIndex, DataGridColumn column, Brush highlightBrush)
+        {
+            // 实现与之前相同
+            if (rowIndex < 0 || rowIndex >= dataGrid.Items.Count) return;
+
+            var item = dataGrid.Items[rowIndex];
+            var row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
+
+            if (row != null)
+            {
+                var cell = GetCell(dataGrid, row, column);
+                if (cell != null)
+                {
+                    cell.Background = highlightBrush;
+                }
+            }
+        }
+
+        private static DataGridCell GetCell(DataGrid dataGrid, DataGridRow row, DataGridColumn column)
+        {
+            if (row == null || column == null) return null;
+
+            var presenter = FindVisualChild<DataGridCellsPresenter>(row);
+            if (presenter == null) return null;
+
+            var cell = (DataGridCell)presenter.ItemContainerGenerator.ContainerFromIndex(column.DisplayIndex);
+            return cell;
+        }
+
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+
+                var descendant = FindVisualChild<T>(child);
+                if (descendant != null)
+                    return descendant;
+            }
+
+            return null;
+        }
+
+        private static void ClearHighlights(DataGrid dataGrid)
+        {
+            foreach (var item in dataGrid.Items)
+            {
+                var row = dataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
+                if (row != null)
+                {
+                    foreach (DataGridColumn column in dataGrid.Columns)
+                    {
+                        var cell = GetCell(dataGrid, row, column);
+                        if (cell != null)
+                        {
+                            cell.ClearValue(DataGridCell.BackgroundProperty);
+                        }
+                    }
+                    row.ClearValue(DataGridCell.BackgroundProperty);
+                }
+            }
+        }
+
+        public static void RefreshComparison(DataGrid dataGrid)
+        {
+            UpdateComparison(dataGrid);
+        }
+    }
     public static class DataGridColumnSyncBehavior
     {
         private static readonly Dictionary<string, SyncGroup> _syncGroups = new Dictionary<string, SyncGroup>();

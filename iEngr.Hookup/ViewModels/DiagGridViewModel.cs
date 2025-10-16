@@ -19,6 +19,7 @@ namespace iEngr.Hookup.ViewModels
     public class DiagGridViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> PicturePathChanged;
+        public event EventHandler<string> DiagramIDChanged;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
 
@@ -122,6 +123,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _selectedItem, value);
                 if (value != null)
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
+                DiagramIDChanged?.Invoke(this, value?.ID.ToString());
             }
         }
 

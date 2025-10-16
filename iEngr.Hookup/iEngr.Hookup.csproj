@@ -138,6 +138,7 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Models\PropertyDefinition.cs" />
     <Compile Include="Models\PropertyLibrary.cs" />
+    <Compile Include="Models\TreeViewExtensions.cs" />
     <Compile Include="Models\UserComos.cs" />
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />

@@ -41,6 +41,8 @@
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
                   ItemsSource="{Binding DataSource}" 
 		          SelectedItem="{Binding SelectedItem}"
+                  HorizontalGridLinesBrush="DarkGray"
+                  VerticalGridLinesBrush="DarkGray"
                  >
             <DataGrid.ContextMenu>
                 <ContextMenu>
