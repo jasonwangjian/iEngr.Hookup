@@ -93,7 +93,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=RefID}"/>
                 <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="名称" Binding="{Binding Path=NameCn}"
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>

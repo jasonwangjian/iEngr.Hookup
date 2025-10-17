@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:iEngr.Hookup.Views"
              xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
              xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             xmlns:ex="clr-namespace:iEngr.Hookup.Models"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.DataContext>
@@ -43,6 +44,9 @@
 		          SelectedItem="{Binding SelectedItem}"
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
+                  ex:DataGridComparisonHelper.IsComparisonById="{Binding IsComparisonById}"
+                  ex:DataGridComparisonHelper.IsComparisonEnabled="{Binding IsComparisonEnabled}"
+                  ex:DataGridComparisonHelper.HighlightBrush="LightCoral"
                  >
             <DataGrid.ContextMenu>
                 <ContextMenu>

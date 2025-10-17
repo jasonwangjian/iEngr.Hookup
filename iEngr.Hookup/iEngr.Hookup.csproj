@@ -120,6 +120,12 @@
     <Compile Include="Comos\UcComosBomMgr.xaml.cs">
       <DependentUpon>UcComosBomMgr.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Comos\UcComosDiagMgr.xaml.cs">
+      <DependentUpon>UcComosDiagMgr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Comos\UcGenLibDiagMgr.xaml.cs">
+      <DependentUpon>UcGenLibDiagMgr.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\IconConverters.cs" />
     <Compile Include="Converters\ColorConverter .cs" />
     <Compile Include="Converters\PropertyTypeToEditorTemplateConverter.cs" />
@@ -159,6 +165,9 @@
     <Compile Include="ViewModels\MatListViewModel.cs" />
     <Compile Include="ViewModels\MatMainViewModel.cs" />
     <Compile Include="Views\Extensions.cs" />
+    <Compile Include="Views\GenLibDiagMgrDialog.xaml.cs">
+      <DependentUpon>GenLibDiagMgrDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PropertyEditorDialog.xaml.cs">
       <DependentUpon>PropertyEditorDialog.xaml</DependentUpon>
     </Compile>
@@ -246,6 +255,18 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Comos\UcComosBomMgr.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Comos\UcComosDiagMgr.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Comos\UcGenLibDiagMgr.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GenLibDiagMgrDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

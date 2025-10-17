@@ -1,9 +1,15 @@
-﻿using iEngr.Hookup.Models;
+﻿using ComosQueryInterface;
+using ComosQueryXObj;
+using iEngr.Hookup.Models;
 using iEngr.Hookup.ViewModels;
+using Plt;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,31 +28,49 @@ namespace iEngr.Hookup.Views
     /// <summary>
     /// UcDiagMgr.xaml 的交互逻辑
     /// </summary>
-    public partial class UcProjDiagMgr : UserControl
+    public partial class UcProjDiagMgr : UserControl, INotifyPropertyChanged
     {
+        HkTreeViewModel VmTree;
+        DiagGrid2ViewModel VmDiagLib;
+        DiagGridViewModel VmDiagComos;
+        NodeAppliedViewModel VmNode;
+        BomListViewModel VmBomComos;
+        BomListViewModel VmBomLib;
+
         public UcProjDiagMgr()
         {
             InitializeComponent();
-            (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
-            (ucTree.DataContext as HkTreeViewModel).DiagramIDsChanged += OnDiagramIDsChanged;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnLibDiagramIDChanged;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
-            (ucDiagComos.DataContext as DiagGridViewModel).DiagramIDChanged += OnComosDiagramIDChanged;
-            (ucDiagComos.DataContext as DiagGridViewModel).PicturePathChanged += OnPicturePathChanged;
-            (ucDiagComos.DataContext as DiagGridViewModel).DiagramItems = HK_General.GetDiagramItems();
-            (ucNodes.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).IsLangCtrlShown = false;
-            (ucBomLib.DataContext as BomListViewModel).IsLangCtrlShown = false;
-            (ucBomLib.DataContext as BomListViewModel).IsButtonShown = false;
-            (ucDiagComos.DataContext as DiagGridViewModel).IsLangCtrlShown = false;
-            (ucBomComos.DataContext as BomListViewModel).IsLangCtrlShown = false;
-            (ucBomComos.DataContext as BomListViewModel).IsButtonShown = false;
-            ProjDiagMgrViewModel vmProjDiagMgr = new ProjDiagMgrViewModel();
-            DataContext = vmProjDiagMgr;
-            vmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
-            vmProjDiagMgr.LangInEnglishChanged += OnLangInEnglishChanged;
+            VmTree= (ucTree.DataContext as HkTreeViewModel);
+            VmTree.TreeItemChanged += OnTreeItemChanged;
+            VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
+            VmDiagLib= ucDiagLib.DataContext as DiagGrid2ViewModel;
+            VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
+            VmDiagLib.PicturePathChanged += OnPicturePathChanged;
+            VmDiagLib.LibDiagramItems = HK_General.GetDiagramItems();
+            VmDiagLib.NodeDiagramItems = new ObservableCollection<DiagramItem>();
+            VmDiagComos = ucDiagComos.DataContext as DiagGridViewModel;
+            VmDiagComos.PicturePathChanged += OnPicturePathChanged;
+            VmNode = ucNodes.DataContext as NodeAppliedViewModel;
+            VmNode.NodeIDHighlighted += OnNodeIDHighlighted;
+            VmBomComos = ucBomComos.DataContext as BomListViewModel;
+            VmBomLib = ucBomLib.DataContext as BomListViewModel;
+
+            VmDiagLib.IsLangCtrlShown = false;
+            VmDiagComos.IsLangCtrlShown = false;
+            VmBomComos.IsLangCtrlShown = false;
+            VmBomLib.IsLangCtrlShown=false;
+            VmBomComos.IsButtonShown = false;
+            VmBomLib.IsButtonShown = false;
+
+            //ProjDiagMgrViewModel VmProjDiagMgr = new ProjDiagMgrViewModel();
+            //DataContext = VmProjDiagMgr;
+            //VmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
+            //VmProjDiagMgr.LangInEnglishChanged += OnLangInEnglishChanged;
+            DataContext = this;
+
+            LibDiagMgrCommand = new RelayCommand<object>(LibDiagMgr, CanLibDiagMgr);
+            BomCompareCommand = new RelayCommand<object>(BomCompare, CanBomCompare);
+
         }
         private void OnLangInChineseChanged(object sender, bool value)
         {
@@ -111,10 +135,6 @@ namespace iEngr.Hookup.Views
             }
             if ((ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0)
             { (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
-        }
-        private void OnComosDiagramIDChanged(object sender, string value)
-        {
-            (ucBomComos.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
         }
         //更新UcNodeApplied
         private void OnLibDiagramIDChanged(object sender, string value)
@@ -216,5 +236,86 @@ namespace iEngr.Hookup.Views
                 HighlightNodeClearRecursive(child);
             }
         }
+        private bool _langInChinese;
+        public bool LangInChinese
+        {
+            get => _langInChinese;
+            set
+            {
+                SetField(ref _langInChinese, value);
+                VmDiagComos.LangInChinese = value;
+                VmDiagLib.LangInChinese = value;
+                VmBomComos.LangInChinese = value;
+                VmBomLib.LangInChinese = value;
+            }
+        }
+        private bool _langInEnglish;
+        public bool LangInEnglish
+        {
+            get => _langInEnglish;
+            set
+            {
+                SetField(ref _langInEnglish, value);
+                VmDiagComos.LangInEnglish = value;
+                VmDiagLib.LangInEnglish = value;
+                VmBomComos.LangInEnglish = value;
+                VmBomLib.LangInEnglish = value;
+            }
+        }
+        private bool _isComparisonEnabled;
+        public bool IsComparisonEnabled
+        {
+            get => _isComparisonEnabled;
+            set
+            {
+                SetField(ref _isComparisonEnabled, value);
+                VmBomComos.IsComparisonEnabled =value;
+                VmBomLib.IsComparisonEnabled=value;
+            }
+        }
+        private bool _isComparisonById;
+        public bool IsComparisonById
+        {
+            get => _isComparisonById;
+            set
+            {
+                SetField(ref _isComparisonById, value);
+                VmBomComos.IsComparisonById = value;
+                VmBomLib.IsComparisonById = value;
+            }
+        }
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+        // INotifyPropertyChanged 实现
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        #region Command
+        public RelayCommand<object> LibDiagMgrCommand { get; set; }
+        private bool CanLibDiagMgr(object parameter)
+        {
+            return true;
+        }
+        private void LibDiagMgr(object parameter)
+        {
+            var dialog = new GenLibDiagMgrDialog();
+            dialog.ShowDialog();
+        }
+        public RelayCommand<object> BomCompareCommand { get; set; }
+        private bool CanBomCompare(object parameter)
+        {
+            return true;
+        }
+        private void BomCompare(object parameter)
+        {
+            DataGridComparisonHelper.ExecComparison(ucBomComos.dgBOM, ucBomLib.dgBOM);
+        }
+        #endregion
     }
 }

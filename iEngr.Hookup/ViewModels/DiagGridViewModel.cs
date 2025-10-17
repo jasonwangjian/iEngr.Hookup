@@ -1,5 +1,6 @@
 ﻿using iEngr.Hookup.Models;
 using Microsoft.Win32;
+using Plt;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +20,7 @@ namespace iEngr.Hookup.ViewModels
     public class DiagGridViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> PicturePathChanged;
-        public event EventHandler<string> DiagramIDChanged;
+        public event EventHandler<IComosBaseObject> DiagramIDChanged;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
 
@@ -30,6 +31,8 @@ namespace iEngr.Hookup.ViewModels
             IsLangCtrlShown = true;
             LangInChinese = true;
         }
+        public IComosDProject Project { set; get; }
+
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
@@ -123,7 +126,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _selectedItem, value);
                 if (value != null)
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
-                DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                DiagramIDChanged?.Invoke(this, value?.ObjComosDiag);
             }
         }
 

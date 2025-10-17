@@ -81,7 +81,10 @@
                     <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
                     <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
                     <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>
-                    <Button Content="删除" Command="{Binding DeleteCommand}"  Margin="5" Width="80"/>
+                    <Button Content="比较" Command="{Binding BomCompareCommand}"  Margin="5" Width="80"/>
+                    <CheckBox IsChecked="{Binding IsComparisonEnabled}" Content="自动比较" Margin="5"/>
+                    <CheckBox IsChecked="{Binding IsComparisonById}" Content="基于ID" Margin="5"
+                      IsEnabled="{Binding IsComparisonEnabled}"/>
                 </WrapPanel>
 
             </Grid>
@@ -101,6 +104,8 @@
             <WrapPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
                 <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
                 <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
+                <Button Content="管理" 
+                        Command="{Binding LibDiagMgrCommand}"  Margin="5" Width="80"/>
             </WrapPanel>
         </Grid>
     </Grid>

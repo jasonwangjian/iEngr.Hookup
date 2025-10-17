@@ -145,6 +145,19 @@ namespace iEngr.Hookup.ViewModels
                 }
             };
         }
+        private bool _isComparisonEnabled;
+        public bool IsComparisonEnabled
+        {
+            get => _isComparisonEnabled;
+            set { _isComparisonEnabled = value; OnPropertyChanged(); }
+        }
+        private bool _isComparisonById;
+        public bool IsComparisonById
+        {
+            get => _isComparisonById;
+            set { _isComparisonById = value; OnPropertyChanged(); }
+        }
+
         public List<HKLibMatMat> MatMats { get; set; }
         private string _diagramNameCn;
         public string DiagramNameCn

@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using Plt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,25 @@ namespace iEngr.Hookup.ViewModels
     {
 
         public int ID { get; set; }
+        public string RefID { get; set; }
+        public string IdLabels { get; set; }
+        IComosBaseObject _objComosDiag;
+        public IComosBaseObject ObjComosDiag
+        {
+            get => _objComosDiag;
+            set 
+            {
+                if (SetField(ref _objComosDiag, value) && value != null)
+                {
+                    RefID = value.spec("Y00T00103.RefIdInLib").value;
+                    IdLabels = value.spec("Y00T00103.IdLabels").value;
+                    NameCn = value.GetInternationalDescription(4);
+                    NameEn = value.GetInternationalDescription(2);
+                    RemarksCn = value.spec("Y00T00103.Remarks").GetInternationalDisplayValue(4);
+                    RemarksEn = value.spec("Y00T00103.Remarks").GetInternationalDisplayValue(2);
+                }
+            }
+        }
         public bool _isOwned;
         public bool IsOwned
         {

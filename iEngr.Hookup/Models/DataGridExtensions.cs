@@ -135,7 +135,7 @@ namespace iEngr.Hookup.Models
         {
             if (d is DataGrid dataGrid)
             {
-                //UpdateComparison(dataGrid);
+                UpdateComparison(dataGrid);
             }
         }
 
@@ -178,7 +178,14 @@ namespace iEngr.Hookup.Models
                 UpdateComparison(dataGrid);
             }
         }
-
+        public static void ExecComparison(DataGrid sourceDataGrid, DataGrid targetDataGrid)
+        {
+            if (sourceDataGrid == null || targetDataGrid == null) return;
+            if (GetIsComparisonById(sourceDataGrid))
+                CompareDataGridsById(sourceDataGrid, targetDataGrid);
+            else
+                CompareDataGrids(sourceDataGrid, targetDataGrid);
+        }
         private static void FindAndSetComparisonTarget(DataGrid sourceDataGrid)
         {
             string targetName = GetComparisonSourceName(sourceDataGrid);
@@ -334,12 +341,16 @@ namespace iEngr.Hookup.Models
                     HighlightExtraRow(dataGrid1, rowIndex, Brushes.Red);
             }
             Dictionary<string, object> dic2 = new Dictionary<string, object>();
+            Dictionary<string, int> dic2Index = new Dictionary<string, int>();
             for (int rowIndex = 0; rowIndex < list2.Count; rowIndex++)
             {
                 var item2 = list2[rowIndex];
                 string id = GetCellValue(item2, dataGrid2.Columns[0]);
                 if (!string.IsNullOrEmpty(id) && !dic2.ContainsKey(id))
+                {
                     dic2.Add(id, list2[rowIndex]);
+                    dic2Index.Add(id, rowIndex); 
+                }
                 else
                     HighlightExtraRow(dataGrid2, rowIndex, Brushes.Red);
             }
@@ -350,10 +361,13 @@ namespace iEngr.Hookup.Models
             {
                 var item1 = list1[rowIndex];
                 string id = GetCellValue(item1, dataGrid1.Columns[0]);
-                var item2 = dic2.TryGetValue(id, out var value) ? value : null;
+                item1 = dic1.TryGetValue(id, out var value1) ? value1 : null;
+                if (item1 == null) continue;
+                var item2 = dic2.TryGetValue(id, out var value2) ? value2 : null;
                 if (item2 == null)
                 {
                     HighlightExtraRow(dataGrid1, rowIndex, highlightBrush);
+                    dic1.Remove(id);
                     continue;
                 }
                 foreach (DataGridColumn column in dataGrid1.Columns)
@@ -363,16 +377,17 @@ namespace iEngr.Hookup.Models
                     var correspondingColumn = FindCorrespondingColumn(dataGrid2, column);
                     if (correspondingColumn == null) continue;
 
-                    string value1 = GetCellValue(item1, column);
-                    string value2 = GetCellValue(item2, correspondingColumn);
+                    string cell1 = GetCellValue(item1, column);
+                    string cell2 = GetCellValue(item2, correspondingColumn);
 
-                    if (!string.Equals(value1, value2))
+                    if (!string.Equals(cell1, cell2))
                     {
                         HighlightCell(dataGrid1, rowIndex, column, highlightBrush);
-                        HighlightCell(dataGrid2, rowIndex, correspondingColumn, highlightBrush);
+                        HighlightCell(dataGrid2, dic2Index[id], correspondingColumn, highlightBrush);
                     }
                 }
                 dic2.Remove(id);
+                dic1.Remove(id);
             }
             // 处理DataGrid2中DataGrid1中没有的内容
             for (int rowIndex = 0; rowIndex < list2.Count; rowIndex++)
@@ -380,7 +395,7 @@ namespace iEngr.Hookup.Models
                 var item2 = list2[rowIndex];
                 string id = GetCellValue(item2, dataGrid2.Columns[0]);
                 if (!string.IsNullOrEmpty(id) && dic2.ContainsKey(id))
-                    HighlightExtraRow(dataGrid2, rowIndex, Brushes.Red);
+                    HighlightExtraRow(dataGrid2, rowIndex, highlightBrush);
             }
         }
         private static void HighlightExtraRows(DataGrid dataGrid, int actualCount, int expectedCount, Brush highlightBrush)
