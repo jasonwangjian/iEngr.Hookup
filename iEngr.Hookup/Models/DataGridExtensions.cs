@@ -92,6 +92,7 @@ namespace iEngr.Hookup.Models
             obj.SetValue(IsComparisonByIdProperty, value);
         }
         #endregion
+
         #region HighlightBrush 附加属性
         public static readonly DependencyProperty HighlightBrushProperty =
             DependencyProperty.RegisterAttached(
@@ -178,13 +179,19 @@ namespace iEngr.Hookup.Models
                 UpdateComparison(dataGrid);
             }
         }
-        public static void ExecComparison(DataGrid sourceDataGrid, DataGrid targetDataGrid)
+        public static void ExecComparisonMan(DataGrid sourceDataGrid, DataGrid targetDataGrid)
         {
+            ClearHighlights(sourceDataGrid);
+            ClearHighlights(targetDataGrid);
             if (sourceDataGrid == null || targetDataGrid == null) return;
             if (GetIsComparisonById(sourceDataGrid))
                 CompareDataGridsById(sourceDataGrid, targetDataGrid);
             else
                 CompareDataGrids(sourceDataGrid, targetDataGrid);
+        }
+        public static void ClearHighlightsMan(DataGrid dataGrid)
+        {
+            ClearHighlights(dataGrid);
         }
         private static void FindAndSetComparisonTarget(DataGrid sourceDataGrid)
         {

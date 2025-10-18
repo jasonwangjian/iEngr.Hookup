@@ -985,7 +985,7 @@ namespace iEngr.Hookup
             using (OdbcConnection conn = GetConnection())
             {
                 ObservableCollection<LabelDisplay> propLabelItems = HK_General.GetPropLabelItems(item);
-                string desc = string.Join(",", propLabelItems.Select(x => x.DisplayName + ":" + x.DisplayValue));
+                string desc = string.Join(",", propLabelItems.Select(x => x.DisplayName + ":" + x.DisplayValue1));
                 string name = item.DisPlayName;
                 try
                 {

@@ -52,8 +52,9 @@ namespace iEngr.Hookup
                     }
                     propLabelItems.Add(new LabelDisplay
                     {
+                        Key=prop.Key,
                         DisplayName = propDef.DisplayName,
-                        DisplayValue = displayValue,
+                        DisplayValue1 = displayValue,
                         IsInherit = false
                     });
                 }
@@ -74,8 +75,9 @@ namespace iEngr.Hookup
                     }
                     propLabelItems.Add(new LabelDisplay
                     {
+                        Key = prop.Key,
                         DisplayName = propDef.DisplayName,
-                        DisplayValue = displayValue,
+                        DisplayValue1 = displayValue,
                         IsInherit = true
                     });
                 }

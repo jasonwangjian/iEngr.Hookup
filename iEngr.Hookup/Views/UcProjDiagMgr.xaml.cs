@@ -28,7 +28,7 @@ namespace iEngr.Hookup.Views
     /// <summary>
     /// UcDiagMgr.xaml 的交互逻辑
     /// </summary>
-    public partial class UcProjDiagMgr : UserControl, INotifyPropertyChanged
+    public partial class UcProjDiagMgr :UserControl, INotifyPropertyChanged
     {
         HkTreeViewModel VmTree;
         DiagGrid2ViewModel VmDiagLib;
@@ -62,6 +62,7 @@ namespace iEngr.Hookup.Views
             VmBomComos.IsButtonShown = false;
             VmBomLib.IsButtonShown = false;
 
+            VmDiagComos.DiagramItems = HK_General.GetDiagramItems();
             //ProjDiagMgrViewModel VmProjDiagMgr = new ProjDiagMgrViewModel();
             //DataContext = VmProjDiagMgr;
             //VmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
@@ -94,6 +95,9 @@ namespace iEngr.Hookup.Views
         //更新UcPropLabel
         private void OnPropLabelItemsChanged(object sender, HkTreeItem value)
         {
+            var labels = (ucProp.DataContext as PropLabelViewModel).PropLabelItems;
+
+            var nodeLabels = HK_General.GetPropLabelItems(value);
             (ucProp.DataContext as PropLabelViewModel).PropLabelItems = HK_General.GetPropLabelItems(value);
         }
 
@@ -151,6 +155,8 @@ namespace iEngr.Hookup.Views
             //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
             (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).SelectedItem;
             (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
+            ucBomLib.dgBOM.UpdateLayout();
+            ExecComparision(IsComparisonEnabled);
         }
         private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
         {
@@ -269,8 +275,21 @@ namespace iEngr.Hookup.Views
             set
             {
                 SetField(ref _isComparisonEnabled, value);
-                VmBomComos.IsComparisonEnabled =value;
-                VmBomLib.IsComparisonEnabled=value;
+                //VmBomComos.IsComparisonEnabled =value;
+                //VmBomLib.IsComparisonEnabled=value;
+                ExecComparision(value);
+            }
+        }
+        private void ExecComparision(bool IsCompare)
+        {
+            if (IsCompare == true)
+            {
+                DataGridComparisonHelper.ExecComparisonMan(ucBomComos.dgBOM, ucBomLib.dgBOM);
+            }
+            else
+            {
+                DataGridComparisonHelper.ClearHighlightsMan(ucBomComos.dgBOM);
+                DataGridComparisonHelper.ClearHighlightsMan(ucBomLib.dgBOM);
             }
         }
         private bool _isComparisonById;
@@ -282,6 +301,7 @@ namespace iEngr.Hookup.Views
                 SetField(ref _isComparisonById, value);
                 VmBomComos.IsComparisonById = value;
                 VmBomLib.IsComparisonById = value;
+                ExecComparision(IsComparisonEnabled);
             }
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -314,7 +334,7 @@ namespace iEngr.Hookup.Views
         }
         private void BomCompare(object parameter)
         {
-            DataGridComparisonHelper.ExecComparison(ucBomComos.dgBOM, ucBomLib.dgBOM);
+            DataGridComparisonHelper.ExecComparisonMan(ucBomComos.dgBOM, ucBomLib.dgBOM);
         }
         #endregion
     }

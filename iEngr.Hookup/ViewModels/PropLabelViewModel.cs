@@ -43,9 +43,17 @@ namespace iEngr.Hookup.ViewModels
     }
     public class LabelDisplay
     {
-
+        public string Key { get; set; }
         public string DisplayName { get; set; }
-        public string DisplayValue { get; set; }
+        public string DisplayValue1 { get; set; }
+        public string DisplayValue2 { get; set; }
         public bool IsInherit {  get; set; }
+        public bool IsDiff
+        {
+            get
+            {
+                return DisplayValue1 == DisplayValue2;
+            }
+        }
     }
 }
