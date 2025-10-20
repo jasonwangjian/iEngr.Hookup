@@ -35,12 +35,12 @@ namespace iEngr.Hookup.Comos
         public UcComosDiagMgr()
         {
             InitializeComponent();
-            VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagGridViewModel;
+            VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagItemsViewModel;
             VmBomComos = ucPDM.ucBomComos.DataContext as BomListViewModel;
-            VmDiagComos.DiagramIDChanged += OnComosDiagramIDChanged;
+            VmDiagComos.ComosDiagChanged += OnComosDiagramIDChanged;
 
         }
-        public DiagGridViewModel VmDiagComos;
+        public DiagItemsViewModel VmDiagComos;
         public BomListViewModel VmBomComos;
 
         private IComosDGeneralCollection _objects;
@@ -63,7 +63,6 @@ namespace iEngr.Hookup.Comos
                 _workset = value;
                 Project = Workset.GetCurrentProject();
                 ProjectInitial();
-                VmDiagComos.Project = Project;
                 VmBomComos.Project = Project;
             }
         }
@@ -121,6 +120,7 @@ namespace iEngr.Hookup.Comos
                 IComosDCDevice qrydev = Project.GetCDeviceBySystemFullname("@20|A70|Z10|A20|QHkDiag", 1);
                 if (qrydev != null)
                 {
+                    VmDiagComos.AvailableDiagramItems.Clear();
                     ITopQuery tqry = ((QueryXObj)qrydev.XObj).TopQuery;
                     tqry.MainObject = objQueryStart;
                     tqry.Execute();
@@ -128,8 +128,8 @@ namespace iEngr.Hookup.Comos
                     for (int i = 1; i <= qry.RowCount; i++)
                     {
                         IComosBaseObject item = qry.RowObject[i];
-                        DiagramItem diagItem = new DiagramItem(){ObjComosDiag = item};
-                        VmDiagComos.DiagramItems.Add(diagItem);
+                        DiagramItem diagItem = new DiagramItem() { ObjComosDiag = item };
+                        VmDiagComos.AvailableDiagramItems.Add(diagItem);
                     }
                 }
             }

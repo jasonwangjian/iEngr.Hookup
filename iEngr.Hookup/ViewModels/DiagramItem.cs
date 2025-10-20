@@ -12,7 +12,8 @@ namespace iEngr.Hookup.ViewModels
 {
     public class DiagramItem : INotifyPropertyChanged, IIntIdentifiable
     {
-
+        public bool IsComosItem { get; set; }
+        public bool IsLibItem { get; set; }
         public int ID { get; set; }
         public string RefID { get; set; }
         public string IdLabels { get; set; }

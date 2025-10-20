@@ -149,6 +149,7 @@
     <Compile Include="ViewModels\BomListViewModel.cs" />
     <Compile Include="ViewModels\BomListItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
+    <Compile Include="ViewModels\DiagItemsViewModel.cs" />
     <Compile Include="ViewModels\DiagGrid2ViewModel.cs" />
     <Compile Include="ViewModels\DiagGridViewModel.cs" />
     <Compile Include="ViewModels\DiagramItem.cs" />
@@ -179,6 +180,9 @@
     </Compile>
     <Compile Include="Views\UcBomMgr.xaml.cs">
       <DependentUpon>UcBomMgr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcDiagItems.xaml.cs">
+      <DependentUpon>UcDiagItems.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcDiagGrid2.xaml.cs">
       <DependentUpon>UcDiagGrid2.xaml</DependentUpon>
@@ -283,6 +287,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UcBomMgr.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcDiagItems.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

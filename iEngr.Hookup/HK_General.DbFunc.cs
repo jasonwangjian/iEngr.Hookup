@@ -1042,6 +1042,7 @@ namespace iEngr.Hookup
                         {
                             DiagramItem item = new DiagramItem
                             {
+                                IsLibItem = true,
                                 ID = Convert.ToInt32(reader["ID"]),
                                 NameCn = Convert.ToString(reader["NameCn"]),
                                 NameEn = Convert.ToString(reader["NameEn"]),

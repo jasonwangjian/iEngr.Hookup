@@ -68,10 +68,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <local:UcDiagGrid x:Name="ucDiagComos" Grid.Column="1"  Grid.Row="1" />
+                <local:UcDiagItems x:Name="ucDiagComos" Grid.Column="1"  Grid.Row="1" />
                 <local:UcDiagBom x:Name="ucBomComos" Grid.Column="3"   Grid.Row="1"/>
                 <local:UcNodeApplied x:Name="ucComosDevs" Grid.Column="5" Grid.Row="1" />
-                <local:UcDiagGrid2 x:Name="ucDiagLib" Grid.Column="1" Grid.Row="3" Margin="0,0,0,2"/>
+                <local:UcDiagItems x:Name="ucDiagLib" Grid.Column="1" Grid.Row="3" Margin="0,0,0,2"/>
                 <local:UcDiagBom x:Name="ucBomLib" Grid.Column="3" Grid.Row="3"  Margin="0,0,0,2" />
                 <local:UcNodeApplied x:Name="ucNodes" Grid.Column="5" Grid.Row="3"  Margin="0,0,0,2"/>
                 <GridSplitter Grid.Row="2" Grid.ColumnSpan="7" Height="30" HorizontalAlignment="Stretch"/>

@@ -31,8 +31,8 @@ namespace iEngr.Hookup.Views
     public partial class UcProjDiagMgr :UserControl, INotifyPropertyChanged
     {
         HkTreeViewModel VmTree;
-        DiagGrid2ViewModel VmDiagLib;
-        DiagGridViewModel VmDiagComos;
+        DiagItemsViewModel VmDiagLib;
+        DiagItemsViewModel VmDiagComos;
         NodeAppliedViewModel VmNode;
         BomListViewModel VmBomComos;
         BomListViewModel VmBomLib;
@@ -43,12 +43,12 @@ namespace iEngr.Hookup.Views
             VmTree= (ucTree.DataContext as HkTreeViewModel);
             VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
-            VmDiagLib= ucDiagLib.DataContext as DiagGrid2ViewModel;
+            VmDiagLib= ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
-            VmDiagLib.LibDiagramItems = HK_General.GetDiagramItems();
-            VmDiagLib.NodeDiagramItems = new ObservableCollection<DiagramItem>();
-            VmDiagComos = ucDiagComos.DataContext as DiagGridViewModel;
+            VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
+            VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
+            VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
             VmNode = ucNodes.DataContext as NodeAppliedViewModel;
             VmNode.NodeIDHighlighted += OnNodeIDHighlighted;
@@ -62,7 +62,8 @@ namespace iEngr.Hookup.Views
             VmBomComos.IsButtonShown = false;
             VmBomLib.IsButtonShown = false;
 
-            VmDiagComos.DiagramItems = HK_General.GetDiagramItems();
+            VmDiagComos.AvailableDiagramItems = HK_General.GetDiagramItems();
+            VmDiagComos.AssignedDiagramItems= new ObservableCollection<DiagramItem>();
             //ProjDiagMgrViewModel VmProjDiagMgr = new ProjDiagMgrViewModel();
             //DataContext = VmProjDiagMgr;
             //VmProjDiagMgr.LangInChineseChanged += OnLangInChineseChanged;
@@ -103,14 +104,14 @@ namespace iEngr.Hookup.Views
 
         private void OnTreeItemChanged(object sender, HkTreeItem value)
         {
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).FocusedNode = value;
+            VmDiagLib.FocusedNode = value;
             OnPicturePathChanged(sender, value?.PicturePath);
             OnPropLabelItemsChanged(sender, value);
             OnDiagramIDsChanged(sender, value);
         }
         private void OnDiagramIDsChanged(object sender, HkTreeItem value)
         {
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
+            VmDiagLib.AssignedDiagramItems.Clear();
             bool isInherit = false;
             string diagIds = value.DiagID;
             if (string.IsNullOrEmpty(diagIds))
@@ -124,21 +125,21 @@ namespace iEngr.Hookup.Views
                                    .Select(int.Parse)
                                    .ToList();
             //修正LibDiagramItems.IsOwned
-            foreach (var item in (ucDiagLib.DataContext as DiagGrid2ViewModel).LibDiagramItems)
+            foreach (var item in VmDiagLib.AvailableDiagramItems)
             {
                 if (ids != null && ids.Contains(item.ID))
                 {
                     item.IsOwned = true;
                     item.IsInherit = isInherit;
-                    (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
+                    VmDiagLib.AssignedDiagramItems.Add(item);
                 }
                 else
                 {
                     item.IsOwned = false;
                 }
             }
-            if ((ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0)
-            { (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
+            if (VmDiagLib.AssignedDiagramItems.Count > 0)
+            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.AssignedDiagramItems.FirstOrDefault(); }
         }
         //更新UcNodeApplied
         private void OnLibDiagramIDChanged(object sender, string value)
@@ -153,7 +154,7 @@ namespace iEngr.Hookup.Views
             }
             (ucNodes.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
             //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
-            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = (ucDiagLib.DataContext as DiagGrid2ViewModel).SelectedItem;
+            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = VmDiagLib.SelectedItem;
             (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
             ucBomLib.dgBOM.UpdateLayout();
             ExecComparision(IsComparisonEnabled);

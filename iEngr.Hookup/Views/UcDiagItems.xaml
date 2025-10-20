@@ -1,0 +1,210 @@
+﻿<UserControl x:Class="iEngr.Hookup.Views.UcDiagItems"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:iEngr.Hookup.Views"
+             xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
+             xmlns:ex="clr-namespace:iEngr.Hookup.Models"
+             xmlns:vm="clr-namespace:iEngr.Hookup.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:DiagItemsViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- 创建转换器 -->
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+        <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <cv:EmptyToBoolConverter  x:Key="EmptyToBoolConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <WrapPanel Visibility="{Binding IsLangCtrlShown, Converter={StaticResource BoolToVisibilityConverter}}"
+            Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,5,5,0" >
+            <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
+            <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
+        </WrapPanel>
+        <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  FrozenColumnCount="2"
+                  GotFocus="dgDiagAssigned_GotFocus"
+                  SelectionMode="Single"
+                  HeadersVisibility="None"
+                  HorizontalGridLinesBrush="DarkGray"
+                  VerticalGridLinesBrush="DarkGray"
+                  BeginningEdit="DataGrid_BeginningEdit"
+                  ItemsSource="{Binding AssignedDiagramItems}" 
+		          SelectedItem="{Binding AssignedDiagramsSelectedItem}"
+                  VerticalAlignment="Top"
+                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                  ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
+                  ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
+                  ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="gray"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Resources>
+                        <!-- 选中且有焦点时的颜色 -->
+                        <!--<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Blue"/>-->
+                        <!-- 选中但失去焦点时的颜色 -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                    </Style.Resources>
+                    <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOwned}" Value="True">
+                            <Setter Property="Background" Value="LightBlue"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsInherit}" Value="True">
+                            <Setter Property="FontStyle" Value="Italic"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <!--<MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
+                    <Separator/>
+                    <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <Separator/>-->
+                    <MenuItem Header="移除Diag" Command="{Binding DiagramRemoveCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="CellEditEnding">
+                    <i:InvokeCommandAction 
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Path=DescEn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"/>
+        <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  FrozenColumnCount="2"
+                  GotFocus="dgDiagAvailable_GotFocus"
+                  HorizontalGridLinesBrush="DarkGray"
+                  VerticalGridLinesBrush="DarkGray"
+                  HeadersVisibility="Column"
+                  BeginningEdit="DataGrid_BeginningEdit"
+                  ItemsSource="{Binding AvailableDiagramItems}" 
+		          SelectedItem="{Binding AvailableDiagramsSelectedItem}"
+                  ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
+                  ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
+                  ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional"
+                  >
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="gray"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                    </Style.Resources>
+                    <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOwned}" Value="True">
+                            <Setter Property="Background" Value="LightBlue"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
+                    <Separator/>
+                    <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <Separator/>
+                    <MenuItem Header="添加Diag" Command="{Binding DiagramAddCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <Separator/>
+                    <MenuItem Header="删除Diag" Command="{Binding DiagramDeleteCommand}"                      
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="CellEditEnding">
+                    <i:InvokeCommandAction 
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Path=DescEn}" 
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
+                <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
