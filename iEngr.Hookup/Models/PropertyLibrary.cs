@@ -78,6 +78,7 @@ namespace iEngr.Hookup.Services
                 allProperties.Add(new PropertyDefinition()
                 {
                     Key = devLabel.ID,
+                    SortNum=devLabel.SortNum,
                     DisplayNameCn = devLabel.NameCn,
                     DisplayNameEn = devLabel.NameEn,
                     RemarksCn = devLabel.RemarksCn,

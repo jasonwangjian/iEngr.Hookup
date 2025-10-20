@@ -11,6 +11,7 @@ namespace iEngr.Hookup.Models
             SelectedItems = new ObservableCollection<GeneralItem>();
         }
         public string Key { get; set; }
+        public int SortNum { get; set; }
         public string DisplayNameCn { get; set; }
         public string DisplayNameEn { get; set; }
         public string DisplayName

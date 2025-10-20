@@ -62,8 +62,10 @@ namespace iEngr.Hookup
                     propLabelItems.Add(new LabelDisplay
                     {
                         Key=prop.Key,
+                        SortNum = propDef.SortNum,
                         DisplayName = propDef.DisplayName,
                         DisplayValue1 = displayValue,
+                        IsNodeLabel = true,
                         IsInherit = false
                     });
                 }
@@ -85,15 +87,17 @@ namespace iEngr.Hookup
                     propLabelItems.Add(new LabelDisplay
                     {
                         Key = prop.Key,
+                        SortNum = propDef.SortNum,
                         DisplayName = propDef.DisplayName,
                         DisplayValue1 = displayValue,
+                        IsNodeLabel = true,
                         IsInherit = true
                     });
                 }
             }
-            return propLabelItems;
+            // 排序后返回新的 ObservableCollection
+            return new ObservableCollection<LabelDisplay>(propLabelItems.OrderBy(x => x.SortNum));
         }
-
     }
     public static class DictionaryExtensions
     {

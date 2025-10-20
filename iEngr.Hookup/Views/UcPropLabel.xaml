@@ -10,13 +10,6 @@
     <UserControl.DataContext>
         <vm:PropLabelViewModel />
     </UserControl.DataContext>
-    <Control.Resources>
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="10,0,0,2"/>
-        </Style>
-    </Control.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -28,57 +21,48 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <DataGrid ItemsSource="{Binding PropLabelItems}" 
-                  Margin="0" 
-                  SelectionMode="Single" 
-                  Grid.Row="1" 
-                  Grid.Column="1"
-                  AutoGenerateColumns="False"
+        <DataGrid x:Name="dgLabel" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="True" 
+                  CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  CanUserSortColumns="False"
+                  CanUserReorderColumns="False"
+                  ItemsSource="{Binding PropLabelItems}" 
+		          SelectedItem="{Binding SelectedItem}"
                   HeadersVisibility="Column"
                   GridLinesVisibility="None"
-                  BorderThickness="0"
-                  CanUserAddRows="False"
-                  IsReadOnly="True"
-                  FrozenColumnCount="1">
+                  FrozenColumnCount="1"
+                 >
+            <!-- 行悬停样式 -->
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="LightSkyBlue"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Padding="5,2,2,2" Background="{TemplateBinding Background}">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="ToolTip" Value="{Binding Path=DisplayName}"/>
 
+                </Style>
+            </DataGrid.CellStyle>
             <DataGrid.Columns>
-                <!-- 标签名称列 -->
-                <DataGridTextColumn Header="Key" >
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="Key"/>
-                    </DataGridTextColumn.Binding>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="标签名称" >
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="DisplayName"/>
-                    </DataGridTextColumn.Binding>
+                <DataGridTextColumn Header="Key" Binding="{Binding Path=Key}"/>
+                <!--<DataGridTextColumn Header="标签名称" Binding="{Binding Path=DisplayName}"/>-->
+                <DataGridTextColumn Header="节点标签值" Binding="{Binding Path=DisplayValue1}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                            <!-- 可以在这里为这一列设置特定的字体样式 -->
-                            <!--<Style.Triggers>
-                                <DataTrigger Binding="{Binding IsInherit}" Value="True">
-                                    <Setter Property="FontStyle" Value="Italic"/>
-                                    <Setter Property="Foreground" Value="Gray"/>
-                                </DataTrigger>
-                            </Style.Triggers>-->
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
-                </DataGridTextColumn>
-
-                <DataGridTextColumn Header="节点标签值">
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="DisplayValue1"/>
-                    </DataGridTextColumn.Binding>
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                            <!-- 可以为这一列设置不同的字体样式 -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsInherit}" Value="True">
                                     <Setter Property="FontStyle" Value="Italic"/>
@@ -92,20 +76,10 @@
                             </Style.Triggers>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="项目模板标签值">
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="DisplayValue2"/>
-                    </DataGridTextColumn.Binding>
+                <DataGridTextColumn Header="项目模板标签值" Binding="{Binding Path=DisplayValue2}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                            <!-- 可以为这一列设置不同的字体样式 -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDiff}" Value="True">
                                     <Setter Property="Background" Value="Yellow"/>
@@ -113,43 +87,8 @@
                             </Style.Triggers>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox">
-                            <Setter Property="Padding" Value="10,2,0,2"/>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
-
-        
-            <!-- DataGrid的行样式 -->
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Padding" Value="0"/>
-                    <!-- 增加上下内边距来增大行距 -->
-                    <Setter Property="Margin" Value="0"/>
-                    <!-- 增加行间距 -->
-                    <!--<Setter Property="MinHeight" Value="35"/>-->
-                    <!-- 最小行高 -->
-                </Style>
-            </DataGrid.RowStyle>
-
-            <!-- DataGrid的单元格样式 -->
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="Margin" Value="0"/>
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                    <!-- 移除选中时的蓝色背景 -->
-                    <!--<Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                        </Trigger>
-                    </Style.Triggers>-->
-                </Style>
-            </DataGrid.CellStyle>
         </DataGrid>
     </Grid>
 </UserControl>

@@ -44,6 +44,7 @@ namespace iEngr.Hookup.ViewModels
     public class LabelDisplay
     {
         public string Key { get; set; }
+        public int SortNum { get; set; }
         public string DisplayName { get; set; }
         public string DisplayValue1 { get; set; }
         public string DisplayValue2 { get; set; }
@@ -55,5 +56,7 @@ namespace iEngr.Hookup.ViewModels
                 return DisplayValue1 == DisplayValue2;
             }
         }
+        public bool IsComosLabel { get; set; }
+        public bool IsNodeLabel { get; set; }
     }
 }

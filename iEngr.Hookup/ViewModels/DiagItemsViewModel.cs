@@ -279,11 +279,11 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _assignedDiagramsSelectedItem, value);
                 PicturePathChanged?.Invoke(this, value?.PicturePath);
                 SelectedItem = value;
-                if (SelectedItem.IsLibItem == true)
+                if (SelectedItem?.IsLibItem == true)
                 {
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
                 }
-                if (SelectedItem.IsComosItem == true)
+                if (SelectedItem?.IsComosItem == true)
                 {
                     ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiag) ;
                 }

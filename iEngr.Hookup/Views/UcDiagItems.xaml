@@ -39,6 +39,7 @@
         </WrapPanel>
         <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  CanUserReorderColumns="False"
                   FrozenColumnCount="2"
                   GotFocus="dgDiagAssigned_GotFocus"
                   SelectionMode="Single"
@@ -63,7 +64,7 @@
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="Background" Value="Transparent"/>
+                    <!--<Setter Property="Background" Value="Transparent"/>-->
                     <Style.Resources>
                         <!-- 选中且有焦点时的颜色 -->
                         <!--<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Blue"/>-->
@@ -125,6 +126,7 @@
         <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   FrozenColumnCount="2"
+                  CanUserReorderColumns="False"
                   GotFocus="dgDiagAvailable_GotFocus"
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
@@ -136,17 +138,17 @@
                   ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
                   ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional"
                   >
-            <DataGrid.ColumnHeaderStyle>
+            <!--<DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="gray"/>
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="FontWeight" Value="Bold"/>
                     <Setter Property="Padding" Value="2"/>
                 </Style>
-            </DataGrid.ColumnHeaderStyle>
+            </DataGrid.ColumnHeaderStyle>-->
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="Background" Value="Transparent"/>
+                    <!--<Setter Property="Background" Value="Transparent"/>-->
                     <Style.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
                     </Style.Resources>
