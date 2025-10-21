@@ -8,6 +8,7 @@ using iEngr.Hookup.Views;
 using Plt;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -75,7 +76,8 @@ namespace iEngr.Hookup.Comos
                 if (_objects != null)
                 {
                     CurrentObject = _objects.get_Item(1);
-                    SetDiagComosDataSource(CurrentObject);
+                    SetDiagComosAvailable(CurrentObject);
+                    SetDiagComosAssigned(CurrentObject);
                 }
             }
         }
@@ -103,21 +105,44 @@ namespace iEngr.Hookup.Comos
         public void OnCanExecute(CanExecuteRoutedEventArgs e) { }
         public void OnPreviewExecuted(ExecutedRoutedEventArgs e) { }
         public void OnExecuted(ExecutedRoutedEventArgs e) { }
+        public bool IsComosProjectIniOK { get; set; }
+        public IComosBaseObject DefaultPrjDiagHolder { get; set; }
+        public IComosBaseObject ProjectCfgCI { get; set; }
         private void ProjectInitial()
         {
+            IsComosProjectIniOK = false;
             HK_General.ProjLanguage = int.TryParse(Project.CurrentLanguage.FullName(), out int projLanguange) ? projLanguange : 4;
             //VmBomList.LangInChinese = (HK_General.ProjLanguage == 4);
             //VmBomList.LangInEnglish = (HK_General.ProjLanguage == 2);
             //VmMatList.LangInChinese = (HK_General.ProjLanguage == 4);
             //VmMatList.LangInEnglish = (HK_General.ProjLanguage == 2);
             HK_General.UserName = string.IsNullOrEmpty(Workset.Globals()?.IniRealName) ? Workset.GetCurrentUser().FullName() : Workset.Globals()?.IniRealName;
+            ProjectCfgCI = Project.GetObjectByPathFullName("08U@ProjectManagement\\~08UC&I");
+            if (ProjectCfgCI == null) return;
+            IComosDCDevice prjDiagHolder = Project.GetCDeviceBySystemFullname("@20|A10|A20|M41|A60", 1);
+            if (prjDiagHolder == null) return;
+            var col = ProjectCfgCI.ScanDevicesWithCObject("", prjDiagHolder);
+            if (col == null || col.Count()==0)
+            {
+                DefaultPrjDiagHolder = Project.Workset().CreateDeviceObject(ProjectCfgCI, prjDiagHolder);
+            }
+            else
+            {
+                DefaultPrjDiagHolder = col.Item(1);
+            }
+            IsComosProjectIniOK = true;
         }
-        private void SetDiagComosDataSource(IComosBaseObject objQueryStart)
+        private void SetDiagComosAvailable(IComosBaseObject objQueryStart)
         {
             try
             {
-                if (objQueryStart is null) return;
-                IComosDCDevice qrydev = Project.GetCDeviceBySystemFullname("@20|A70|Z10|A20|QHkDiag", 1);
+                //if (objQueryStart is null) return;
+                IComosDCDevice devHkFolder = Project.GetCDeviceBySystemFullname("@20|A10|A10|M41|Z10", 1);
+                if ((objQueryStart as dynamic).CDevice()?.IsInheritSuccessorFrom(devHkFolder) == true)
+                {
+                    objQueryStart = DefaultPrjDiagHolder;
+                }
+                IComosDCDevice qrydev = Project.GetCDeviceBySystemFullname("@20|A70|Z10|A20|QHkDiagMod", 1);
                 if (qrydev != null)
                 {
                     VmDiagComos.AvailableDiagramItems.Clear();
@@ -135,7 +160,67 @@ namespace iEngr.Hookup.Comos
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($" ___UcComosDiagMgr.SetDiagComosDataSource(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
+                Debug.WriteLine($" ___UcComosDiagMgr.SetDiagComosAvailable(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
+            }
+        }
+        private void SetDiagComosAssigned(IComosBaseObject objQueryStart)
+        {
+            try
+            {
+                VmDiagComos.AssignedDiagramItems.Clear();
+                ObservableCollection<DiagramItem> diagramItems = GetDiagComosItems(objQueryStart);
+                var objComosDiags = diagramItems.Select(x => x.ObjComosDiag);
+                foreach(DiagramItem item in VmDiagComos.AvailableDiagramItems)
+                {
+                    if (objComosDiags.Contains(item.ObjComosDiag))
+                    {
+                        VmDiagComos.AssignedDiagramItems.Add(item);
+                    }
+                }
+                var nullDiagramItems = diagramItems.Where(x => x.ObjComosDiag == null);
+                foreach( DiagramItem item in nullDiagramItems ) 
+                {
+                    VmDiagComos.AssignedDiagramItems.Add(item);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($" ___UcComosDiagMgr.SetDiagComosAssigned(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
+            }
+        }
+        private ObservableCollection<DiagramItem> GetDiagComosItems(IComosBaseObject objQueryStart)
+        {
+            ObservableCollection<DiagramItem> diagrams = new ObservableCollection<DiagramItem>();
+            try
+            {
+                IComosDCDevice qrydev = Project.GetCDeviceBySystemFullname("@20|A70|Z10|A20|QHkDiagObj", 1);
+                if (qrydev == null) return diagrams;
+                IComosDCDevice devHkFolder = Project.GetCDeviceBySystemFullname("@20|A10|A10|M41|Z10", 1);
+                if ((objQueryStart as dynamic).CDevice()?.IsInheritSuccessorFrom(devHkFolder) != true) return diagrams;
+                ITopQuery tqry = ((QueryXObj)qrydev.XObj).TopQuery;
+                tqry.MainObject = objQueryStart;
+                tqry.Execute();
+                IQuery qry = tqry.Query;
+                for (int i = 1; i <= qry.RowCount; i++)
+                {
+                    IComosBaseObject item = qry.RowObject[i];
+                    IComosBaseObject itenLinkObj = item.spec("Y00T00103.Y00A00641")?.LinkObject;
+                    DiagramItem diagItem = new DiagramItem() { ObjComosDiag = itenLinkObj, IsOwned=true};
+                    if (itenLinkObj == null)
+                    {
+                        diagItem.RefID = item.Name;
+                        diagItem.NameCn = item.GetInternationalDescription(4);
+                        diagItem.NameEn = item.GetInternationalDescription(2);
+                    }
+                    diagrams.Add(diagItem);
+                }
+                return diagrams;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($" ___UcComosDiagMgr.GetDiagComosItems(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
+                return diagrams;
             }
         }
         private void OnComosDiagramIDChanged(object sender, IComosBaseObject value)
