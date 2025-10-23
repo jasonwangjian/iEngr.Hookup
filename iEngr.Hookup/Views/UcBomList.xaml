@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.DataContext>
-        <vm:BomListViewModel />
+        <vm:BomItemsViewModel />
     </UserControl.DataContext>
     <UserControl.Resources>
         <!-- 创建转换器 -->

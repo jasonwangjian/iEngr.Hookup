@@ -1185,9 +1185,9 @@ namespace iEngr.Hookup
         #endregion
 
         #region HK_DiagBom
-        internal static ObservableCollection<BomListItem> GetDiagBomItems(string id)
+        internal static ObservableCollection<BomItem> GetDiagBomItems(string id)
         {
-            ObservableCollection<BomListItem> diagBomItems = new ObservableCollection<BomListItem>();
+            ObservableCollection<BomItem> diagBomItems = new ObservableCollection<BomItem>();
             if (int.TryParse(id, out int diagID))
             {
                 string query = $"select bom.*, mn.SpecCn as NameCn, mn.SpecEn as NameEn, " +
@@ -1213,7 +1213,7 @@ namespace iEngr.Hookup
                         {
                             while (reader.Read())
                             {
-                                BomListItem item = new BomListItem
+                                BomItem item = new BomItem
                                 {
                                     MatLibItem = new HKMatGenLib()
                                     {

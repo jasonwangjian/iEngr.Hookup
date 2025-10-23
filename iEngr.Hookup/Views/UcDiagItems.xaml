@@ -27,7 +27,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="5*"/>
             <RowDefinition Height="Auto"/>
@@ -39,6 +39,7 @@
         </WrapPanel>
         <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  Visibility="{Binding IsAssignedDiagramItemsShown, Converter={StaticResource BoolToVisibilityConverter}}"
                   CanUserReorderColumns="False"
                   FrozenColumnCount="2"
                   GotFocus="dgDiagAssigned_GotFocus"
@@ -92,7 +93,11 @@
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"                      
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>-->
+                    <MenuItem Header="应用Diag" Command="{Binding DiagramAppCommand}"
+                              Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="移除Diag" Command="{Binding DiagramRemoveCommand}"                      
+                              Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
 
                 </ContextMenu>
@@ -106,7 +111,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=DisplayID}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
@@ -122,7 +127,9 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <GridSplitter Grid.Row="2" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"
+                      Visibility="{Binding IsAssignedDiagramItemsShown, Converter={StaticResource BoolToVisibilityConverter}}"
+                      />
         <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   FrozenColumnCount="2"
@@ -171,6 +178,7 @@
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>
                     <MenuItem Header="添加Diag" Command="{Binding DiagramAddCommand}"                      
+                              Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>
                     <MenuItem Header="删除Diag" Command="{Binding DiagramDeleteCommand}"                      
@@ -192,7 +200,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}"  IsReadOnly="True"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=DisplayID}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="BQ" Binding="{Binding Path=BomQty}"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="安装图名称" Binding="{Binding Path=NameCn}"
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>

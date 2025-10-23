@@ -35,7 +35,7 @@ namespace iEngr.Hookup.Views
             (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
-            (ucNode.DataContext as NodeAppliedViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
+            (ucNode.DataContext as AppliedNodeViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
             (ucMatLib.DataContext as MatMainViewModel).VmMatList.MatListItemChanged += OmMatListItemChanged;
             (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
             (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
@@ -121,7 +121,7 @@ namespace iEngr.Hookup.Views
         //更新UcNodeApplied
         private void OnDiagramIDChanged(object sender, string value)
         {
-            ObservableCollection<NodeItem> nodeItems = new ObservableCollection<NodeItem>();
+            ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
             if (!(string.IsNullOrEmpty(value)))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
@@ -129,22 +129,22 @@ namespace iEngr.Hookup.Views
                     GetNoteItemsRecursive(item,value,nodeItems);
                 }
             }
-            (ucNode.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
+            (ucNode.DataContext as AppliedNodeViewModel).AppliedItems = nodeItems;
             //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
-            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = (ucDiag.DataContext as DiagGrid2ViewModel).SelectedItem;
-            (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
+            (ucBomLib.DataContext as BomItemsViewModel).SelectedDiagramItem = (ucDiag.DataContext as DiagGrid2ViewModel).SelectedItem;
+            (ucBomLib.DataContext as BomItemsViewModel).DataSource = HK_General.GetDiagBomItems(value);
         }
-        private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
+        private ObservableCollection<AppliedNodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<AppliedNodeItem> nodeItems)
         {
             if (item == null) return nodeItems;
             if (!string.IsNullOrEmpty(item.DiagID))
             {
                 if (item.DiagID.Split(',').Contains(diagID))
                 {
-                    nodeItems.Add(new NodeItem
+                    nodeItems.Add(new AppliedNodeItem
                     {
                         NodeID = item.ID,
-                        DisPlayName = item.DisPlayName,
+                        DisplayName = item.DisPlayName,
                         IsInherit = false
                     });
                 }
@@ -153,10 +153,10 @@ namespace iEngr.Hookup.Views
             {
                 if (!string.IsNullOrEmpty(item.InheritDiagID) && item.InheritDiagID.Split(',').Contains(diagID))
                 {
-                    nodeItems.Add(new NodeItem
+                    nodeItems.Add(new AppliedNodeItem
                     {
                         NodeID = item.ID,
-                        DisPlayName = item.DisPlayName,
+                        DisplayName = item.DisPlayName,
                         IsInherit = true
                     });
                 }
@@ -167,7 +167,7 @@ namespace iEngr.Hookup.Views
             }
             return nodeItems;
         }
-        private void OnNodeIDHighlighted(object sender, NodeItem value)
+        private void OnNodeIDHighlighted(object sender, AppliedNodeItem value)
         {
             
             if (!string.IsNullOrEmpty(value?.NodeID))
@@ -222,7 +222,7 @@ namespace iEngr.Hookup.Views
         //更新UcBomList
         private void OmMatListItemChanged(object sender, MatListItem value)
         {
-            (ucBomLib.DataContext as BomListViewModel).SelectedMatListItem = value;
+            (ucBomLib.DataContext as BomItemsViewModel).SelectedMatListItem = value;
         }
 
         //private void OnTreeItemChanged(object sender, HkTreeItem value)

@@ -16,6 +16,14 @@ namespace iEngr.Hookup.ViewModels
         public bool IsLibItem { get; set; }
         public int ID { get; set; }
         public string RefID { get; set; }
+        public string DisplayID
+        {
+            get
+            {
+                if (IsComosItem) return RefID;
+                return ID.ToString() ;
+            }
+        }
         public string IdLabels { get; set; }
         IComosBaseObject _objComosDiag;
         public IComosBaseObject ObjComosDiag
@@ -25,6 +33,8 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (SetField(ref _objComosDiag, value) && value != null)
                 {
+                    IsComosItem = true;
+                    PicturePath = value.spec("Y00T00103.PicturePath").value;
                     RefID = value.spec("Y00T00103.RefIdInLib").value;
                     IdLabels = value.spec("Y00T00103.IdLabels").value;
                     NameCn = value.GetInternationalDescription(4);
@@ -34,19 +44,19 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public bool _isOwned;
+        public bool _isOwned; //是否属于某一节点或Comos设备
         public bool IsOwned
         {
             get => _isOwned;
             set=> SetField(ref _isOwned, value);
         }
-        public int _bomQty;
+        public int _bomQty; 
         public int BomQty
         {
             get => _bomQty;
             set => SetField(ref _bomQty, value);
         }
-        public bool _isInherit;
+        public bool _isInherit; 
         public bool IsInherit
         {
             get => _isInherit;

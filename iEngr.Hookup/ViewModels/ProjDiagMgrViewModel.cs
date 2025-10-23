@@ -33,6 +33,15 @@ namespace iEngr.Hookup.ViewModels
         }
 
 
+        private bool _isAutoNavigate;
+        public bool IsAutoNavigate
+        {
+            get => _isAutoNavigate;
+            set
+            {
+                SetField(ref _isAutoNavigate, value);
+            }
+        }
 
         private bool _langInChinese;
         public bool LangInChinese

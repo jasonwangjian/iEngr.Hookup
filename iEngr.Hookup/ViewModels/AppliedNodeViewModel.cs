@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -12,24 +13,26 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class NodeAppliedViewModel : INotifyPropertyChanged
+    public class AppliedNodeViewModel : INotifyPropertyChanged
     {
-        public event EventHandler<NodeItem> NodeIDHighlighted;
+        public event EventHandler<AppliedNodeItem> NodeIDHighlighted;
 
-        private ObservableCollection<NodeItem> _appliedNodeItems = new ObservableCollection<NodeItem>();
-        public ObservableCollection<NodeItem> AppliedNodeItems
+        private ObservableCollection<AppliedNodeItem> _appliedItems = new ObservableCollection<AppliedNodeItem>();
+        public ObservableCollection<AppliedNodeItem> AppliedItems
         {
-            get => _appliedNodeItems;
-            set => SetField(ref _appliedNodeItems, value);
+            get => _appliedItems;
+            set => SetField(ref _appliedItems, value);
         }
-        private NodeItem _selectedItem;
-        public NodeItem SelectedItem
+        private AppliedNodeItem _selectedItem;
+        public AppliedNodeItem SelectedItem
         {
             get => _selectedItem;
             set
             {
-                SetField(ref _selectedItem, value);
-                NodeIDHighlighted?.Invoke(this, value);
+                if (SetField(ref _selectedItem, value) && value != null)
+                {
+                    NodeIDHighlighted?.Invoke(this, value);
+                }
             }
         }
 
@@ -45,19 +48,19 @@ namespace iEngr.Hookup.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    public class NodeItem : INotifyPropertyChanged
+    public class AppliedNodeItem : INotifyPropertyChanged
     {
         private string _nodeID;
         public string NodeID
         {
-            get=> _nodeID;  
-            set=>SetField(ref _nodeID, value);
+            get => _nodeID;
+            set => SetField(ref _nodeID, value);
         }
-        private string _disPlayName;
-        public string DisPlayName
+        private string _displayName;
+        public string DisplayName
         {
-            get => _disPlayName;
-            set => SetField(ref _disPlayName, value);
+            get => _displayName;
+            set => SetField(ref _displayName, value);
         }
         private bool _isInherit;
         public bool IsInherit

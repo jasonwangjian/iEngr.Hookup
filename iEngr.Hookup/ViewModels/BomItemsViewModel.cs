@@ -22,11 +22,11 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class BomListViewModel : INotifyPropertyChanged
+    public class BomItemsViewModel : INotifyPropertyChanged
     {
-        public BomListViewModel()
+        public BomItemsViewModel()
         {
-            DataSource = new ObservableCollection<BomListItem>();
+            DataSource = new ObservableCollection<BomItem>();
             SetDisciplineSource();
             SetResponsibleSource();
             SetUnitSource();
@@ -228,14 +228,14 @@ namespace iEngr.Hookup.ViewModels
             get => _langInEnglish;
             set => SetField(ref _langInEnglish, value);
         }
-        ObservableCollection<BomListItem> _dataSource;
-        public ObservableCollection<BomListItem> DataSource
+        ObservableCollection<BomItem> _dataSource;
+        public ObservableCollection<BomItem> DataSource
         {
             get => _dataSource;
             set => SetField(ref _dataSource, value);
         }
-        private BomListItem _selectedItem;
-        public BomListItem SelectedItem
+        private BomItem _selectedItem;
+        public BomItem SelectedItem
         {
             get => _selectedItem;
             set
@@ -245,7 +245,7 @@ namespace iEngr.Hookup.ViewModels
 
             }
         }
-        public ObservableCollection<BomListItem> SelectedItems { get; set; }
+        public ObservableCollection<BomItem> SelectedItems { get; set; }
 
         public MatListItem SelectedMatListItem { get; set; }
         public DiagramItem SelectedDiagramItem { get; set; }
@@ -283,8 +283,8 @@ namespace iEngr.Hookup.ViewModels
             if (SelectedItem != null && int.TryParse(SelectedItem.ID, out int id))
             {
                 MatListItem objSelected = HK_General.UpdateQueryResult(id);
-                SelectedItem.ObjMatListItem = objSelected;
-                SelectedItem.SetBomListItemFromMatListItem();
+                SelectedItem.LibBomItem = objSelected;
+                //SelectedItem.SetBomListItemFromMatListItem();
                 SelectedItem.SetComosObjectFromData();
             }
         }
@@ -306,16 +306,16 @@ namespace iEngr.Hookup.ViewModels
             {
                 IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
                 IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
-                BomListItem newBomItem = new BomListItem() { ObjMatBomItem = newMat, No = newNo, ObjMatListItem = SelectedMatListItem };
-                newBomItem.SetBomListItemFromMatListItem();
+                BomItem newBomItem = new BomItem() { ObjComosBomItem = newMat, No = newNo, LibBomItem = SelectedMatListItem };
+                //newBomItem.SetBomListItemFromMatListItem();
                 newBomItem.SetComosObjectFromData();
                 //newBomItem.SetDataFromComosObject();
                 DataSource.Insert(index, newBomItem);
             }
             else if (SelectedDiagramItem != null)
             {
-                BomListItem newBomItem = new BomListItem() { ObjMatBomItem = null, No = newNo, ObjMatListItem = SelectedMatListItem };
-                newBomItem.SetBomListItemFromMatListItem();
+                BomItem newBomItem = new BomItem() { ObjComosBomItem = null, No = newNo, LibBomItem = SelectedMatListItem };
+                //newBomItem.SetBomListItemFromMatListItem();
                 HK_General.NewDiagBomAdd(SelectedDiagramItem.ID, newNo, SelectedMatListItem);
                 SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID);
                 DataSource.Insert(index+1, newBomItem);
@@ -325,8 +325,8 @@ namespace iEngr.Hookup.ViewModels
         private void Alter()
         {
             if (SelectedMatListItem == null || SelectedItem == null) { return; }
-            SelectedItem.ObjMatListItem = SelectedMatListItem;
-            SelectedItem.SetBomListItemFromMatListItem();
+            SelectedItem.LibBomItem = SelectedMatListItem;
+            //SelectedItem.SetBomListItemFromMatListItem();
             SelectedItem.SetComosObjectFromData();
         }
         private void Delete()
@@ -334,7 +334,7 @@ namespace iEngr.Hookup.ViewModels
             foreach (var item in SelectedItems)
             {
                 if (CurrentObject != null)
-                    item.ObjMatBomItem.DeleteAll();
+                    item.ObjComosBomItem.DeleteAll();
                 else if (SelectedDiagramItem != null)
                 {
                     HK_General.DiagBomDelete(item.BomID);
@@ -386,10 +386,10 @@ namespace iEngr.Hookup.ViewModels
             var selectedItems = (e.Source as DataGrid)?.SelectedItems;
             if (selectedItems != null)
             {
-                ObservableCollection<BomListItem> _selectedItems = new ObservableCollection<BomListItem>();
+                ObservableCollection<BomItem> _selectedItems = new ObservableCollection<BomItem>();
                 foreach (var item in selectedItems)
                 {
-                    _selectedItems.Add(item as BomListItem);
+                    _selectedItems.Add(item as BomItem);
                 }
                 SelectedItems = _selectedItems;
             }
