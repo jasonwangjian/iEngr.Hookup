@@ -126,7 +126,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _selectedItem, value);
                 if (value != null)
                     PicturePathChanged?.Invoke(this, value?.PicturePath);
-                DiagramIDChanged?.Invoke(this, value?.ObjComosDiag);
+                DiagramIDChanged?.Invoke(this, value?.ObjComosDiagMod);
             }
         }
 

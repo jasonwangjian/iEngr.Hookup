@@ -39,7 +39,7 @@ namespace iEngr.Hookup.Views
             DataContext = VmBomMgr;
             // 获取子控件的 ViewModel
             VmBomMgr.VmMatList = ucMM.ucML.DataContext as MatListViewModel;
-            VmBomMgr.VmBomList = ucBL.DataContext as BomListViewModel;
+            VmBomMgr.VmBomList = ucBL.DataContext as BomItemsViewModel;
         }
     }
 }

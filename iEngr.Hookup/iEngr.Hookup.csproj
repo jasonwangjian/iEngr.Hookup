@@ -42,9 +42,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Comos\DLL\Comos.Controls.dll</HintPath>
     </Reference>
+    <Reference Include="Comos.CtxMenu, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Comos\DLL\Comos.CtxMenu.dll</HintPath>
+    </Reference>
     <Reference Include="Comos.UIF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Comos\DLL\Comos.UIF.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Chemserv, Version=1.15.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>D:\Comos\DLL\Interop.Chemserv.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.ComosPPGeneral, Version=1.47.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>D:\Comos\DLL\Interop.ComosPPGeneral.dll</HintPath>
     </Reference>
     <Reference Include="Interop.ComosQueryInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -146,8 +160,10 @@
     <Compile Include="Models\PropertyLibrary.cs" />
     <Compile Include="Models\TreeViewExtensions.cs" />
     <Compile Include="Models\UserComos.cs" />
-    <Compile Include="ViewModels\BomListViewModel.cs" />
-    <Compile Include="ViewModels\BomListItem.cs" />
+    <Compile Include="ViewModels\AppliedComosViewModel.cs" />
+    <Compile Include="ViewModels\BomItem1.cs" />
+    <Compile Include="ViewModels\BomItemsViewModel.cs" />
+    <Compile Include="ViewModels\BomItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
     <Compile Include="ViewModels\DiagItemsViewModel.cs" />
     <Compile Include="ViewModels\DiagGrid2ViewModel.cs" />
@@ -156,7 +172,7 @@
     <Compile Include="ViewModels\HkPictureViewModel.cs" />
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
-    <Compile Include="ViewModels\NodeAppliedViewModel.cs" />
+    <Compile Include="ViewModels\AppliedNodeViewModel.cs" />
     <Compile Include="ViewModels\ProjDiagMgrViewModel.cs" />
     <Compile Include="ViewModels\PropLabelViewModel.cs" />
     <Compile Include="ViewModels\PropertyEditorViewModel.cs" />
@@ -193,8 +209,11 @@
     <Compile Include="Views\UcDiagGrid.xaml.cs">
       <DependentUpon>UcDiagGrid.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UcNodeApplied.xaml.cs">
-      <DependentUpon>UcNodeApplied.xaml</DependentUpon>
+    <Compile Include="Views\UcAppliedComos.xaml.cs">
+      <DependentUpon>UcAppliedComos.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcAppliedNode.xaml.cs">
+      <DependentUpon>UcAppliedNode.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcPropLabel.xaml.cs">
       <DependentUpon>UcPropLabel.xaml</DependentUpon>
@@ -306,7 +325,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UcNodeApplied.xaml">
+    <Page Include="Views\UcAppliedComos.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcAppliedNode.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

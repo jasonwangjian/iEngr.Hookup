@@ -18,9 +18,9 @@ namespace iEngr.Hookup.Views
     /// <summary>
     /// UcLabelList.xaml 的交互逻辑
     /// </summary>
-    public partial class UcNodeApplied : UserControl
+    public partial class UcAppliedNode : UserControl
     {
-        public UcNodeApplied()
+        public UcAppliedNode()
         {
             InitializeComponent();
         }
@@ -42,5 +42,6 @@ namespace iEngr.Hookup.Views
                 gridView.Columns[0].Width = listView.ActualWidth - 10; // 减去边距
             }
         }
+
     }
 }

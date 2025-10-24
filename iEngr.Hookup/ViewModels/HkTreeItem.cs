@@ -391,6 +391,22 @@ namespace iEngr.Hookup.ViewModels
             }
             set => _propertiesString = value;
         }
+        public string GetPropertiesStrings()
+        {
+            var allProperties = Properties.Union(InheritProperties)
+                                          .Where(x => !Properties.ContainsKey(x.Key));
+            List<string> keyValues = new List<string>();
+            foreach (var prop in allProperties)
+            {
+                string value = prop.Value?.ToString();
+                if (prop.Value is ObservableCollection<GeneralItem> items)
+                    value = string.Join("|", items.Select(x => x.Code).ToList());
+                else if (prop.Value is GeneralItem item)
+                    value = item?.Code;
+                keyValues.Add(prop.Key + ":" + value);
+            }
+            return string.Join(",", keyValues);
+        }
         // 用户选择的属性键（最多5个）
         //private ObservableCollection<string> _selectedPropertyKeys = new ObservableCollection<string>();
         //public ObservableCollection<string> SelectedPropertyKeys

@@ -11,7 +11,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.DataContext>
-        <vm:BomListViewModel />
+        <vm:BomItemsViewModel />
     </UserControl.DataContext>
     <UserControl.Resources>
         <!-- 创建转换器 -->
@@ -44,10 +44,27 @@
 		          SelectedItem="{Binding SelectedItem}"
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
+                  ex:ScrollSyncBehavior.SyncGroup="BomGroup"
+                  ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagBom"
+                  ex:DataGridColumnSyncBehavior.SyncDirection="Bidirectional"
                   ex:DataGridComparisonHelper.IsComparisonById="{Binding IsComparisonById}"
                   ex:DataGridComparisonHelper.IsComparisonEnabled="{Binding IsComparisonEnabled}"
                   ex:DataGridComparisonHelper.HighlightBrush="LightCoral"
                  >
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <!--<Setter Property="Background" Value="Transparent"/>-->
+                    <Style.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightSteelBlue"/>
+                    </Style.Resources>
+                    <!--<Setter Property="IsEnabled" Value="{Binding IsOwned}" />-->
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="LightSkyBlue"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>

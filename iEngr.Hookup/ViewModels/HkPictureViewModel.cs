@@ -16,6 +16,13 @@ using System.Windows.Media.Imaging;
 
 namespace iEngr.Hookup.ViewModels
 {
+    public enum AttachTo
+    {
+        ComosAssigned,
+        ComosAvailable,
+        LibAssigned,
+        LibAvailable
+    }
     public class HkPictureViewModel : INotifyPropertyChanged
     {
         public HkPictureViewModel()
@@ -28,7 +35,7 @@ namespace iEngr.Hookup.ViewModels
             NextPageCommand = new RelayCommand<object>(
                 _ => CurrentPageIndex++,
                 _ => IsPdfFile && CurrentPageIndex < TotalPages - 1);
-            
+
             _emptyPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/EmptyPicture.png";
             _unfoundPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/UnfoundPicture.Png";
             SetImageSource(_emptyPicturePath);
@@ -38,6 +45,30 @@ namespace iEngr.Hookup.ViewModels
 
         string _emptyPicturePath;
         string _unfoundPicturePath;
+
+        private AttachTo _attachTo;
+        public AttachTo AttachTo
+        {
+            get => _attachTo;
+            set
+            {
+                if (SetField(ref _attachTo, value))
+                    OnPropertyChanged(nameof(AllowDrop));
+            }
+        }
+
+        public bool AllowDrop
+        {
+            get
+            {
+                if (AttachTo == AttachTo.ComosAssigned || AttachTo == AttachTo.ComosAvailable)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
         private bool _isPdfFile;
         public bool IsPdfFile
         {
@@ -52,8 +83,9 @@ namespace iEngr.Hookup.ViewModels
         public string PicturePath
         {
             get => _picturePath;
-            set { 
-                if(SetField(ref _picturePath, value))
+            set
+            {
+                if (SetField(ref _picturePath, value))
                 {
                     if (string.IsNullOrEmpty(PicturePath))
                     {

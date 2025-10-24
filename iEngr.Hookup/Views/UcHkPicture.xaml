@@ -32,7 +32,10 @@
 
 
             <Image x:Name="contentImage" Source="{Binding ImageSource}" Stretch="None"
-               RenderOptions.BitmapScalingMode="HighQuality">
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   AllowDrop="{Binding AllowDrop}"
+                   Drop="contentImage_Drop"
+                   >
 
                 <!-- 添加右键菜单 -->
                 <Image.ContextMenu>

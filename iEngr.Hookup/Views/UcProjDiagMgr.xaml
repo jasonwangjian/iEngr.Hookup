@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="iEngr.Hookup.Views.UcProjDiagMgr"
+             x:Name="UcDM"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -70,10 +71,10 @@
 
                 <local:UcDiagItems x:Name="ucDiagComos" Grid.Column="1"  Grid.Row="1" />
                 <local:UcDiagBom x:Name="ucBomComos" Grid.Column="3"   Grid.Row="1"/>
-                <local:UcNodeApplied x:Name="ucComosDevs" Grid.Column="5" Grid.Row="1" />
+                <local:UcAppliedComos x:Name="ucComosDevs" Grid.Column="5" Grid.Row="1" />
                 <local:UcDiagItems x:Name="ucDiagLib" Grid.Column="1" Grid.Row="3" Margin="0,0,0,2"/>
                 <local:UcDiagBom x:Name="ucBomLib" Grid.Column="3" Grid.Row="3"  Margin="0,0,0,2" />
-                <local:UcNodeApplied x:Name="ucNodes" Grid.Column="5" Grid.Row="3"  Margin="0,0,0,2"/>
+                <local:UcAppliedNode x:Name="ucNodes" Grid.Column="5" Grid.Row="3"  Margin="0,0,0,2"/>
                 <GridSplitter Grid.Row="2" Grid.ColumnSpan="7" Height="30" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="2" Grid.RowSpan="5" Width="1" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="4" Grid.RowSpan="5" Width="1" HorizontalAlignment="Stretch"/>
@@ -85,6 +86,7 @@
                     <CheckBox IsChecked="{Binding IsComparisonEnabled}" Content="自动比较" Margin="5"/>
                     <CheckBox IsChecked="{Binding IsComparisonById}" Content="基于ID" Margin="5"
                       IsEnabled="{Binding IsComparisonEnabled}"/>
+                    <TextBox Text="测试" AllowDrop="True"/>
                 </WrapPanel>
 
             </Grid>

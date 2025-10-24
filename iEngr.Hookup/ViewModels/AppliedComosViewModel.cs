@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Plt;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -12,27 +14,38 @@ using System.Windows.Input;
 
 namespace iEngr.Hookup.ViewModels
 {
-    public class NodeAppliedViewModel : INotifyPropertyChanged
+    public class AppliedComosViewModel : INotifyPropertyChanged
     {
-        public event EventHandler<NodeItem> NodeIDHighlighted;
-
-        private ObservableCollection<NodeItem> _appliedNodeItems = new ObservableCollection<NodeItem>();
-        public ObservableCollection<NodeItem> AppliedNodeItems
+        public event EventHandler<AppliedComosItem> ComosItemSelected;
+        public ICommand RemoveCommand { get; }
+        public AppliedComosViewModel() 
         {
-            get => _appliedNodeItems;
-            set => SetField(ref _appliedNodeItems, value);
+            RemoveCommand = new RelayCommand<AppliedComosItem>(DeleteDiagObj, _=>true);
         }
-        private NodeItem _selectedItem;
-        public NodeItem SelectedItem
+        private ObservableCollection<AppliedComosItem> _appliedItems = new ObservableCollection<AppliedComosItem>();
+        public ObservableCollection<AppliedComosItem> AppliedItems
+        {
+            get => _appliedItems;
+            set => SetField(ref _appliedItems, value);
+        }
+        private AppliedComosItem _selectedItem;
+        public AppliedComosItem SelectedItem
         {
             get => _selectedItem;
             set
             {
-                SetField(ref _selectedItem, value);
-                NodeIDHighlighted?.Invoke(this, value);
+                if (SetField(ref _selectedItem, value) && value != null)
+                {
+
+                    ComosItemSelected?.Invoke(this, value);
+                }
             }
         }
 
+        private void DeleteDiagObj(AppliedComosItem item)
+        {
+
+        }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -45,25 +58,20 @@ namespace iEngr.Hookup.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    public class NodeItem : INotifyPropertyChanged
+    public class AppliedComosItem : INotifyPropertyChanged
     {
-        private string _nodeID;
-        public string NodeID
+        public IComosBaseObject ComosObj { get; set; }
+        private string _comosUID;
+        public string ComosUID
         {
-            get=> _nodeID;  
-            set=>SetField(ref _nodeID, value);
+            get => _comosUID;
+            set => SetField(ref _comosUID, value);
         }
-        private string _disPlayName;
-        public string DisPlayName
+        private string _displayName;
+        public string DisplayName
         {
-            get => _disPlayName;
-            set => SetField(ref _disPlayName, value);
-        }
-        private bool _isInherit;
-        public bool IsInherit
-        {
-            get => _isInherit;
-            set => SetField(ref _isInherit, value);
+            get => _displayName;
+            set => SetField(ref _displayName, value);
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

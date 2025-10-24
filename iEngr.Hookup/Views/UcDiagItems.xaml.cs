@@ -22,6 +22,8 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcDiagItems : UserControl
     {
+        public event EventHandler<ActiveArea> ActiveAreaChange;
+
         public UcDiagItems()
         {
             InitializeComponent();
@@ -42,7 +44,7 @@ namespace iEngr.Hookup.Views
         private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             var dataItem = e.Row.Item as DiagramItem;
-            if (dataItem == null) {e.Cancel = true;return; }
+            if (dataItem == null) { e.Cancel = true; return; }
             if (dataItem.IsComosItem && ((HK_General.RoleRE + HK_General.RoleDL + HK_General.RoleAdmin) & HK_General.UserComos.Roles) == 0)
             {
                 e.Cancel = true;
@@ -61,12 +63,14 @@ namespace iEngr.Hookup.Views
 
         private void dgDiagAssigned_GotFocus(object sender, RoutedEventArgs e)
         {
+            ActiveAreaChange?.Invoke(this, ActiveArea.Assigned);
             //通过赋值触发事件
             dgDiagAssigned.SelectedItem = dgDiagAssigned.SelectedItem;
         }
 
         private void dgDiagAvailable_GotFocus(object sender, RoutedEventArgs e)
         {
+            ActiveAreaChange?.Invoke(this, ActiveArea.Available);
             //通过赋值触发事件
             dgDiagAvailable.SelectedItem = dgDiagAvailable.SelectedItem;
         }

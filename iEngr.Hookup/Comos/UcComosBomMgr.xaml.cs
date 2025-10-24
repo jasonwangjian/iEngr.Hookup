@@ -36,10 +36,10 @@ namespace iEngr.Hookup.Comos
         public UcComosBomMgr()
         {
             InitializeComponent();
-            VmBomList = ucBM.ucBL.DataContext as BomListViewModel;
+            VmBomList = ucBM.ucBL.DataContext as BomItemsViewModel;
             VmMatList = (ucBM.ucMM.DataContext as MatMainViewModel).VmMatList;
         }
-        public BomListViewModel VmBomList;
+        public BomItemsViewModel VmBomList;
         public MatListViewModel VmMatList;
 
         private IComosDGeneralCollection _objects;
@@ -175,8 +175,8 @@ namespace iEngr.Hookup.Comos
                     for (int i = 1; i <= qry.RowCount; i++)
                     {
                         IComosBaseObject item = qry.RowObject[i];
-                        BomListItem bomItem = new BomListItem() { ObjMatBomItem = item };
-                        bomItem.SetDataFromComosObject();
+                        BomItem bomItem = new BomItem() { ObjComosBomItem = item };
+                        //bomItem.SetDataFromComosObject();
                         VmBomList.DataSource.Add(bomItem);
                     }
                 }

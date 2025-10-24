@@ -11,7 +11,7 @@ namespace iEngr.Hookup.ViewModels
 {
     public class BomMgrViewModel : INotifyPropertyChanged
     {
-        public BomListViewModel VmBomList { get; set; }
+        public BomItemsViewModel VmBomList { get; set; }
         private MatListViewModel _vmMatList;
         public MatListViewModel VmMatList
         {

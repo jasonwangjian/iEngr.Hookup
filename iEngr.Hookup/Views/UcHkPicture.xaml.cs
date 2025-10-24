@@ -12,7 +12,7 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using Point = System.Windows.Point;
 using PdfiumViewer;
-
+using Plt;
 
 namespace iEngr.Hookup.Views
 {
@@ -21,6 +21,8 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcHkPicture : UserControl
     {
+        public event EventHandler<string> ComosUIDToDiagModGet;
+
         private HkPictureViewModel _viewModel;
         public UcHkPicture()
         {
@@ -30,7 +32,9 @@ namespace iEngr.Hookup.Views
 
             // 监听图像大小变化
             contentImage.SizeChanged += ContentImage_SizeChanged;
-        }
+         }
+
+
         private void ContentImage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             // 图像大小发生变化时居中
@@ -222,6 +226,18 @@ namespace iEngr.Hookup.Views
             });
         }
 
+
+
+        private void contentImage_Drop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                string comosUID = e.Data.GetData("Text").ToString().Split(',')[1];
+                if (!string.IsNullOrEmpty(comosUID))
+                    ComosUIDToDiagModGet?.Invoke(this, comosUID);
+            }
+            catch { }   
+        }
 
     }
 

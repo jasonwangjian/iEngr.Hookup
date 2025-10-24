@@ -3,6 +3,7 @@ using ComosQueryXObj;
 using iEngr.Hookup.Models;
 using iEngr.Hookup.ViewModels;
 using Plt;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,35 +26,46 @@ using System.Xml.Linq;
 
 namespace iEngr.Hookup.Views
 {
+    public enum ActiveArea
+    {
+        Assigned,
+        Available
+    }
     /// <summary>
     /// UcDiagMgr.xaml 的交互逻辑
     /// </summary>
     public partial class UcProjDiagMgr :UserControl, INotifyPropertyChanged
     {
+        public ActiveArea ActiveArea { get; set; }  
         HkTreeViewModel VmTree;
+        HkPictureViewModel VmPicture;
         DiagItemsViewModel VmDiagLib;
         DiagItemsViewModel VmDiagComos;
-        NodeAppliedViewModel VmNode;
-        BomListViewModel VmBomComos;
-        BomListViewModel VmBomLib;
+        AppliedNodeViewModel VmAppliedLib;
+        BomItemsViewModel VmBomComos;
+        BomItemsViewModel VmBomLib;
 
         public UcProjDiagMgr()
         {
             InitializeComponent();
-            VmTree= (ucTree.DataContext as HkTreeViewModel);
+            VmTree= ucTree.DataContext as HkTreeViewModel;
             VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
-            VmDiagLib= ucDiagLib.DataContext as DiagItemsViewModel;
+            VmPicture = ucPic.DataContext as HkPictureViewModel;
+            VmDiagLib = ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
             VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
             VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
-            VmNode = ucNodes.DataContext as NodeAppliedViewModel;
-            VmNode.NodeIDHighlighted += OnNodeIDHighlighted;
-            VmBomComos = ucBomComos.DataContext as BomListViewModel;
-            VmBomLib = ucBomLib.DataContext as BomListViewModel;
+            VmAppliedLib = ucNodes.DataContext as AppliedNodeViewModel;
+            VmAppliedLib.NodeIDHighlighted += OnNodeIDHighlighted;
+            VmBomComos = ucBomComos.DataContext as BomItemsViewModel;
+            VmBomLib = ucBomLib.DataContext as BomItemsViewModel;
+
+            ucDiagLib.ActiveAreaChange += OnActiveAreaChange;
+            ucDiagComos.ActiveAreaChange += OnActiveAreaChange;
 
             VmDiagLib.IsLangCtrlShown = false;
             VmDiagComos.IsLangCtrlShown = false;
@@ -61,6 +73,9 @@ namespace iEngr.Hookup.Views
             VmBomLib.IsLangCtrlShown=false;
             VmBomComos.IsButtonShown = false;
             VmBomLib.IsButtonShown = false;
+
+            VmDiagComos.IsAssignedDiagramItemsShown = false;
+            VmDiagLib.IsAssignedDiagramItemsShown = true;
 
             VmDiagComos.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagComos.AssignedDiagramItems= new ObservableCollection<DiagramItem>();
@@ -74,24 +89,30 @@ namespace iEngr.Hookup.Views
             BomCompareCommand = new RelayCommand<object>(BomCompare, CanBomCompare);
 
         }
-        private void OnLangInChineseChanged(object sender, bool value)
+
+        private void OnActiveAreaChange(object sender, ActiveArea value)
         {
-            (ucDiagComos.DataContext as DiagGridViewModel).LangInChinese = value;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).LangInChinese = value;
-            (ucBomComos.DataContext as BomListViewModel).LangInChinese = value;
-            (ucBomLib.DataContext as BomListViewModel).LangInChinese = value;
-        }
-        private void OnLangInEnglishChanged(object sender, bool value)
-        {
-            (ucDiagComos.DataContext as DiagGridViewModel).LangInEnglish = value;
-            (ucDiagLib.DataContext as DiagGrid2ViewModel).LangInEnglish = value;
-            (ucBomComos.DataContext as BomListViewModel).LangInEnglish = value;
-            (ucBomLib.DataContext as BomListViewModel).LangInEnglish = value;
+            ActiveArea = value;
         }
         //更新UcHkPicture
-        private void OnPicturePathChanged(object sender, string value)
+        private void OnPicturePathChanged(object sender, DiagramItem value)
         {
-            (ucPic.DataContext as HkPictureViewModel).PicturePath = value;
+            VmPicture.PicturePath = value?.PicturePath;
+            if (value == null) return;
+            if (value.IsLibItem)
+            {
+                if (ActiveArea == ActiveArea.Assigned)
+                    VmPicture.AttachTo = AttachTo.LibAssigned;
+                else if (ActiveArea == ActiveArea.Available)
+                    VmPicture.AttachTo = AttachTo.LibAvailable;
+            }
+            else if (value.IsComosItem)
+            {
+                if (ActiveArea == ActiveArea.Assigned)
+                    VmPicture.AttachTo = AttachTo.ComosAssigned;
+                else if (ActiveArea == ActiveArea.Available)
+                    VmPicture.AttachTo = AttachTo.ComosAvailable;
+            }
         }
         //更新UcPropLabel
         private void OnPropLabelItemsChanged(object sender, HkTreeItem value)
@@ -105,7 +126,7 @@ namespace iEngr.Hookup.Views
         private void OnTreeItemChanged(object sender, HkTreeItem value)
         {
             VmDiagLib.FocusedNode = value;
-            OnPicturePathChanged(sender, value?.PicturePath);
+            //OnPicturePathChanged(sender, value);
             OnPropLabelItemsChanged(sender, value);
             OnDiagramIDsChanged(sender, value);
         }
@@ -144,7 +165,7 @@ namespace iEngr.Hookup.Views
         //更新UcNodeApplied
         private void OnLibDiagramIDChanged(object sender, string value)
         {
-            ObservableCollection<NodeItem> nodeItems = new ObservableCollection<NodeItem>();
+            ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
             if (!(string.IsNullOrEmpty(value)))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
@@ -152,24 +173,24 @@ namespace iEngr.Hookup.Views
                     GetNoteItemsRecursive(item, value, nodeItems);
                 }
             }
-            (ucNodes.DataContext as NodeAppliedViewModel).AppliedNodeItems = nodeItems;
+            VmAppliedLib.AppliedItems = nodeItems;
             //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
-            (ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = VmDiagLib.SelectedItem;
-            (ucBomLib.DataContext as BomListViewModel).DataSource = HK_General.GetDiagBomItems(value);
+            if (VmBomLib.SelectedDiagramItem != VmDiagLib.SelectedItem) VmBomLib.SelectedDiagramItem = VmDiagLib.SelectedItem;
+            VmBomLib.DataSource = HK_General.GetDiagBomItems(value);
             ucBomLib.dgBOM.UpdateLayout();
             ExecComparision(IsComparisonEnabled);
         }
-        private ObservableCollection<NodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<NodeItem> nodeItems)
+        private ObservableCollection<AppliedNodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<AppliedNodeItem> nodeItems)
         {
             if (item == null) return nodeItems;
             if (!string.IsNullOrEmpty(item.DiagID))
             {
                 if (item.DiagID.Split(',').Contains(diagID))
                 {
-                    nodeItems.Add(new NodeItem
+                    nodeItems.Add(new AppliedNodeItem
                     {
                         NodeID = item.ID,
-                        DisPlayName = item.DisPlayName,
+                        DisplayName = item.DisPlayName,
                         IsInherit = false
                     });
                 }
@@ -178,10 +199,10 @@ namespace iEngr.Hookup.Views
             {
                 if (!string.IsNullOrEmpty(item.InheritDiagID) && item.InheritDiagID.Split(',').Contains(diagID))
                 {
-                    nodeItems.Add(new NodeItem
+                    nodeItems.Add(new AppliedNodeItem
                     {
                         NodeID = item.ID,
-                        DisPlayName = item.DisPlayName,
+                        DisplayName = item.DisPlayName,
                         IsInherit = true
                     });
                 }
@@ -193,7 +214,7 @@ namespace iEngr.Hookup.Views
             return nodeItems;
         }
         //在Tree上标记
-        private void OnNodeIDHighlighted(object sender, NodeItem value)
+        private void OnNodeIDHighlighted(object sender, AppliedNodeItem value)
         {
             HkTreeItem highlightedNode = null;
             if (!string.IsNullOrEmpty(value?.NodeID))
@@ -281,7 +302,7 @@ namespace iEngr.Hookup.Views
                 ExecComparision(value);
             }
         }
-        private void ExecComparision(bool IsCompare)
+        public void ExecComparision(bool IsCompare)
         {
             if (IsCompare == true)
             {
@@ -305,6 +326,16 @@ namespace iEngr.Hookup.Views
                 ExecComparision(IsComparisonEnabled);
             }
         }
+        private bool _isAutoNavigate;
+        public bool IsAutoNavigate
+        {
+            get => _isAutoNavigate;
+            set
+            {
+                SetField(ref _isAutoNavigate, value);
+            }
+        }
+
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -19,12 +20,18 @@ namespace iEngr.Hookup.ViewModels
 {
     public class DiagItemsViewModel : INotifyPropertyChanged
     {
-        public event EventHandler<string> PicturePathChanged;
+        public event EventHandler<DiagramItem> PicturePathChanged;
         public event EventHandler<string> DiagramIDChanged;
+        public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<IComosBaseObject> ComosDiagChanged;
+
+        public event EventHandler<DiagramItem> ComosDiagModAppCmd;
+        public event EventHandler<DiagramItem> ComosDiagObjDelCmd;
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
         public ICommand DiagramAddCommand { get; }
+        public ICommand DiagramAppCommand { get; }
+        public ICommand ComosDiagDelCommand { get; }
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
 
@@ -33,6 +40,8 @@ namespace iEngr.Hookup.ViewModels
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             PictureSetCommand = new RelayCommand<DiagramItem>(SetPicture, CanSetPicture);
             DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddDiagram);
+            DiagramAppCommand = new RelayCommand<DiagramItem>(AppDiagram, CanAppDiagram);
+            ComosDiagDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _=>true);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
@@ -82,8 +91,7 @@ namespace iEngr.Hookup.ViewModels
         {
             if (parameter is DiagramItem item)
             {
-                return item != null && 
-                       FocusedNode?.NodeItem?.IsPropNode == true;
+                return item != null;
             }
             return false;
         }
@@ -97,8 +105,11 @@ namespace iEngr.Hookup.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 item.PicturePath = dialog.FileName;
-                PicturePathChanged?.Invoke(this, item.PicturePath);
-                HK_General.UpdateDiagram(item.ID, "PicturePath", item.PicturePath);
+                PicturePathChanged?.Invoke(this, item);
+                if (item.IsLibItem)
+                    HK_General.UpdateDiagram(item.ID, "PicturePath", item.PicturePath);
+                else if (item.IsComosItem)
+                    ComosPicturePathSet?.Invoke(this, item);
             }
         }
         private bool CanAddDiagram(object parameter)
@@ -106,6 +117,7 @@ namespace iEngr.Hookup.ViewModels
             if (parameter is DiagramItem item)
             {
                 return item != null &&
+                       item.IsLibItem &&
                        FocusedNode != null &&
                        FocusedNode.NodeItem?.IsPropNode == true &&
                        item.IsOwned == false;
@@ -233,6 +245,12 @@ namespace iEngr.Hookup.ViewModels
 
         //public bool IsComosItem { get; set; }
         //public bool IsLibItem { get; set; }
+        public bool _isAssignedDiagramItemsShown;
+        public bool IsAssignedDiagramItemsShown
+        {
+            get => _isAssignedDiagramItemsShown;
+            set => SetField(ref _isAssignedDiagramItemsShown, value);
+        }
         private bool _isLangCtrlShown;
         public bool IsLangCtrlShown
         {
@@ -277,15 +295,15 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 SetField(ref _assignedDiagramsSelectedItem, value);
-                PicturePathChanged?.Invoke(this, value?.PicturePath);
                 SelectedItem = value;
+                PicturePathChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
                 {
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
                 }
                 if (SelectedItem?.IsComosItem == true)
                 {
-                    ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiag) ;
+                    ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiagMod) ;
                 }
             }
         }
@@ -301,16 +319,41 @@ namespace iEngr.Hookup.ViewModels
             get => _availableDiagramsSelectedItem;
             set
             {
+                SetField(ref _availableDiagramsSelectedItem, value);
                 SelectedItem = value;
-                PicturePathChanged?.Invoke(this, value?.PicturePath);
-                DiagramIDChanged?.Invoke(this, value?.ID.ToString());
-                if (SetField(ref _availableDiagramsSelectedItem, value))// && value != null)
+                PicturePathChanged?.Invoke(this, value);
+                if (SelectedItem?.IsLibItem == true)
                 {
+                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                }
+                if (SelectedItem?.IsComosItem == true)
+                {
+                    ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiagMod);
                 }
             }
         }
         public DiagramItem SelectedItem { set; get; }
         #endregion
+
+        #region CommandEvent
+        private bool CanAppDiagram(object parameter)
+        {
+            if (parameter is DiagramItem item)
+            {
+                return item != null &&
+                       item.IsLibItem;
+            }
+            return false;
+        }
+        private void AppDiagram(DiagramItem item)
+        {
+            ComosDiagModAppCmd?.Invoke(this, item);
+        }
+        private void ComosDiagObjDel(DiagramItem item)
+        {
+            ComosDiagObjDelCmd?.Invoke(this, item);
+        }
+        #endregion 
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
