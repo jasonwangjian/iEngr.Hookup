@@ -105,7 +105,6 @@
                     <MenuItem Header="删除Diag" Command="{Binding ComosDiagDelCommand}"         
                               ToolTip="从当前仪表的安装图中删除此项"
                               Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
-                              Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
 
                 </ContextMenu>

@@ -13,8 +13,18 @@ namespace iEngr.Hookup.ViewModels
     public class DiagramItem : INotifyPropertyChanged, IIntIdentifiable
     {
         public AttachTo AttachTo { set; get; }
-        public bool IsComosItem { get; set; }
-        public bool IsLibItem { get; set; }
+        private bool _isComosItem;
+        public bool IsComosItem
+        {
+            get => _isComosItem;
+            set => SetField(ref _isComosItem, value);
+        }
+        private bool _isLibItem;
+        public bool IsLibItem
+        {
+            get => _isLibItem;
+            set => SetField(ref _isLibItem, value);
+        }
         public int ID { get; set; }
         public string RefID { get; set; }
         public string DisplayID
@@ -32,9 +42,9 @@ namespace iEngr.Hookup.ViewModels
             get => _objComosDiagMod;
             set 
             {
+                IsComosItem = true;
                 if (SetField(ref _objComosDiagMod, value) && value != null)
                 {
-                    IsComosItem = true;
                     PicturePath = value.spec("Y00T00103.PicturePath").value;
                     RefID = value.spec("Y00T00103.RefIdInLib").value;
                     IdLabels = value.spec("Y00T00103.IdLabels").value;
