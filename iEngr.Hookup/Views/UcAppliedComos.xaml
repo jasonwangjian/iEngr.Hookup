@@ -38,7 +38,14 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   >
-            <ListView.ItemContainerStyle>
+            <ListView.ContextMenu>
+                <ContextMenu> 
+                    <MenuItem Header="删除" Command="{Binding RemoveCommand}"
+                              ToolTip="将此仪表设备从当前安装图模版中移除，删除对应的安装图对象"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+            <!--<ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="ContextMenu">
                         <Setter.Value>
@@ -50,7 +57,7 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
-            </ListView.ItemContainerStyle>
+            </ListView.ItemContainerStyle>-->
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="适用位号" 

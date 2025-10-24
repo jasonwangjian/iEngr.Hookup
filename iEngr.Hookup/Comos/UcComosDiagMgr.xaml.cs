@@ -57,6 +57,7 @@ namespace iEngr.Hookup.Comos
 
             VmAppliedComos = ucPDM.ucComosDevs.DataContext as AppliedComosViewModel;
             VmAppliedComos.ComosItemSelected += OnComosItemSelected;
+            VmAppliedComos.ComosDiagAppDelCmd += OnComosDiagAppDelCmdClick;
 
             ucPDM.ucPic.ComosUIDToDiagModGet += OnComosUIDToDiagModGet;
             ucPDM.ucComosDevs.ComosItemContext += OnComosItemRightClick;
@@ -209,6 +210,7 @@ namespace iEngr.Hookup.Comos
         {
             try
             {
+                //VmDiagComos.AssignedDiagramItems = GetDiagComosItems(objQueryStart);
                 VmDiagComos.AssignedDiagramItems.Clear();
                 ObservableCollection<DiagramItem> diagramItems = GetDiagComosItems(objQueryStart);
                 var objComosDiags = diagramItems.Select(x => x.ObjComosDiagMod);
@@ -268,13 +270,13 @@ namespace iEngr.Hookup.Comos
         private void OnComosDiagramIDChanged(object sender, IComosBaseObject value)
         {
             VmBomComos.DataSource.Clear();
+            VmAppliedComos.AppliedItems.Clear();
             if (value != null)
             {
                 SetBomListDataSource(value);
                 ucPDM.ucBomComos.dgBOM.UpdateLayout();
                 ucPDM.ExecComparision(ucPDM.IsComparisonEnabled);
                 VmBomComos.SelectedDiagramItem = VmDiagComos.SelectedItem;
-                VmAppliedComos.AppliedItems.Clear();
                 var appliedDevs = (value as dynamic).BackPointerDevicesWithImplementation;
                 for (int i = 1; i <= appliedDevs.Count(); i++)
                 {
@@ -450,7 +452,16 @@ namespace iEngr.Hookup.Comos
             value.ObjComosDiagObj.DeleteAll();
             SetDiagComosAssigned(CurrentObject);
         }
-
+        private void OnComosDiagAppDelCmdClick(object sender, AppliedComosItem value)
+        {
+            if (value == null || string.IsNullOrEmpty(value.ComosUID)) return;
+            IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
+            if (obj == null) return;    
+            obj.DeleteAll();
+            VmAppliedComos.AppliedItems.Remove(value);
+            if (ucPDM.UcDM.ActiveArea == ActiveArea.Assigned) 
+                SetDiagComosAssigned(CurrentObject);
+        }
         #endregion
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

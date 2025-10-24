@@ -17,6 +17,7 @@ namespace iEngr.Hookup.ViewModels
     public class AppliedComosViewModel : INotifyPropertyChanged
     {
         public event EventHandler<AppliedComosItem> ComosItemSelected;
+        public event EventHandler<AppliedComosItem> ComosDiagAppDelCmd;
         public ICommand RemoveCommand { get; }
         public AppliedComosViewModel() 
         {
@@ -44,7 +45,7 @@ namespace iEngr.Hookup.ViewModels
 
         private void DeleteDiagObj(AppliedComosItem item)
         {
-
+            ComosDiagAppDelCmd?.Invoke(this, item);
         }
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

@@ -207,7 +207,7 @@ namespace iEngr.Hookup.ViewModels
         }
         public ObservableCollection<DiagramItem> SelectedItems { get; set; }
         public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; }
-        private void HandleSelectionChanged(SelectionChangedEventArgs e)
+        private void HandleSelectionChanged(SelectionChangedEventArgs e) // 处理多选
         {
             var selectedItems = (e.Source as DataGrid)?.SelectedItems;
             if (selectedItems != null)
