@@ -315,6 +315,13 @@ namespace iEngr.Hookup.Comos
                 Debug.WriteLine($" ___UcComosDiagMgr.SetBomListDataSource(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
             }
         }
+        private void OnComosItemSelected(object sender, AppliedComosItem value)
+        {
+            if (value == null || !ucPDM.UcDM.IsAutoNavigate) return;
+            //IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
+            IComosBaseObject obj = value.ComosObj;
+            Project.Workset().Globals().Navigator.GetCurrentTree.DefaultAction(obj);
+        }
         private void OnComosPicturePathSet(object sender, DiagramItem value)
         {
             if (value != null && value.ObjComosDiagMod != null)
