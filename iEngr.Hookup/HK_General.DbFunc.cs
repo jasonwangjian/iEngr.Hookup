@@ -1054,7 +1054,7 @@ namespace iEngr.Hookup
                                 Status = Convert.ToByte(reader["Status"]),
                                 LastOn = Convert.ToDateTime(reader["LastOn"]),
                                 LastBy = Convert.ToString(reader["PicturePath"]),
-                                BomQty = Convert.ToInt32(reader["BomCount"]),
+                                BomQty = Convert.ToString(reader["BomCount"]),
                             };
                             diagramItems.Add(item);
                         }

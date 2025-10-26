@@ -8,7 +8,6 @@ using iEngr.Hookup.Models;
 using iEngr.Hookup.ViewModels;
 using iEngr.Hookup.Views;
 using Plt;
-using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,12 +46,12 @@ namespace iEngr.Hookup.Comos
 
             VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagItemsViewModel;
             VmBomComos = ucPDM.ucBomComos.DataContext as BomItemsViewModel;
-            VmDiagComos.ComosDiagChanged += OnComosDiagramIDChanged;
+            VmDiagComos.ComosDiagChanged += OnComosDiagramChanged;
             VmDiagComos.ComosPicturePathSet += OnComosPicturePathSet;
             VmDiagComos.ComosDiagObjDelCmd += OnComosDiagObjDelCmdClick;
 
             VmDiagLib = ucPDM.ucDiagLib.DataContext as DiagItemsViewModel;
-            VmDiagLib.ComosDiagModAppCmd += OnComosDiagAppCmdClick;
+            VmDiagLib.ComosDiagModAddCmd += OnComosDiagAppCmdClick;
             VmBomLib = ucPDM.ucBomLib.DataContext as BomItemsViewModel;
 
             VmAppliedComos = ucPDM.ucComosDevs.DataContext as AppliedComosViewModel;
@@ -250,7 +249,7 @@ namespace iEngr.Hookup.Comos
                 {
                     IComosBaseObject item = qry.RowObject[i];
                     IComosBaseObject itenLinkObj = item.spec("Y00T00103.Y00A00641")?.LinkObject;
-                    DiagramItem diagItem = new DiagramItem() { ObjComosDiagMod = itenLinkObj, ObjComosDiagObj = item, IsOwned = true };
+                    DiagramItem diagItem = new DiagramItem() { ObjComosDiagMod = itenLinkObj, ObjComosDiagObj = item, BomQty="?", IsOwned = true };
                     //if (itenLinkObj == null)
                     //{
                     //    diagItem.RefID = item.Name;
@@ -267,17 +266,39 @@ namespace iEngr.Hookup.Comos
                 return diagrams;
             }
         }
-        private void OnComosDiagramIDChanged(object sender, IComosBaseObject value)
+        private void OnComosDiagramChanged(object sender, DiagramItem value)
         {
             VmBomComos.DataSource.Clear();
             VmAppliedComos.AppliedItems.Clear();
-            if (value != null)
+            if (value != null && value.ObjComosDiagMod != null)
             {
-                SetBomListDataSource(value);
+                SetBomListDataSource(value.ObjComosDiagMod);
                 ucPDM.ucBomComos.dgBOM.UpdateLayout();
                 ucPDM.ExecComparision(ucPDM.IsComparisonEnabled);
+                value.BomQty = VmBomComos.DataSource.Count().ToString();
                 VmBomComos.SelectedDiagramItem = VmDiagComos.SelectedItem;
-                var appliedDevs = (value as dynamic).BackPointerDevicesWithImplementation;
+                //刷新IsSelectedGroup
+                string groupID = value.GroupID;
+                if (string.IsNullOrEmpty(groupID))
+                {
+                    foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                    {
+                        diagItem.IsSelectedGroup = false;
+                    }
+                    value.IsSelectedGroup = true;
+                }
+                else
+                {
+                    foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                    {
+                        if (diagItem.GroupID == groupID)
+                            diagItem.IsSelectedGroup = true;
+                        else
+                            diagItem.IsSelectedGroup=false ;
+                    }
+                }
+                //刷新VmAppliedComos.AppliedItems
+                var appliedDevs = (value.ObjComosDiagMod as dynamic).BackPointerDevicesWithImplementation;
                 for (int i = 1; i <= appliedDevs.Count(); i++)
                 {
                     IComosBaseObject dev = appliedDevs.Item(i);

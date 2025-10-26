@@ -11,10 +11,11 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -23,15 +24,19 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> PicturePathChanged;
         public event EventHandler<string> DiagramIDChanged;
         public event EventHandler<DiagramItem> ComosPicturePathSet;
-        public event EventHandler<IComosBaseObject> ComosDiagChanged;
+        public event EventHandler<DiagramItem> ComosDiagChanged;
 
-        public event EventHandler<DiagramItem> ComosDiagModAppCmd;
-        public event EventHandler<DiagramItem> ComosDiagObjDelCmd;
+        public event EventHandler<DiagramItem> ComosDiagModAddCmd; //创建安装图模板
+        public event EventHandler<DiagramItem> ComosDiagModClsCmd; //删除安装图模板所适用的说有安装图对象
+        public event EventHandler<DiagramItem> ComosDiagModDelCmd; //删除安装图模板
+        public event EventHandler<DiagramItem> ComosDiagObjDelCmd; //删除安装图对象
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
         public ICommand DiagramAddCommand { get; }
-        public ICommand DiagramAppCommand { get; }
-        public ICommand ComosDiagDelCommand { get; }
+        public ICommand ComosDiagModAddCommand { get; } //创建安装图模板
+        public ICommand ComosDiagModClsCommand { get; } //删除安装图模板所适用的说有安装图对象
+        public ICommand ComosDiagModDelCommand { get; } //删除安装图模板
+        public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
 
@@ -40,8 +45,10 @@ namespace iEngr.Hookup.ViewModels
             CellEditEndingCommand = new RelayCommand<DataGridCellEditEndingEventArgs>(HandleCellEditEnding);
             PictureSetCommand = new RelayCommand<DiagramItem>(SetPicture, CanSetPicture);
             DiagramAddCommand = new RelayCommand<DiagramItem>(AddDiagram, CanAddDiagram);
-            DiagramAppCommand = new RelayCommand<DiagramItem>(AppDiagram, CanAppDiagram);
-            ComosDiagDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _=>true);
+            ComosDiagModAddCommand = new RelayCommand<DiagramItem>(ComosDiagModAdd, CanComosDiagModAdd);
+            ComosDiagModClsCommand = new RelayCommand<DiagramItem>(ComosDiagModCls, _=>CanComosDiagModCls);
+            ComosDiagModDelCommand = new RelayCommand<DiagramItem>(ComosDiagModDel, _=>CanComosDiagModDel);
+            ComosDiagObjDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _ => true);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
@@ -128,10 +135,10 @@ namespace iEngr.Hookup.ViewModels
         {
             //FocusedNode.DiagID = string.IsNullOrEmpty(FocusedNode.DiagID)? item.ID.ToString(): FocusedNode.DiagID +"," + item.ID.ToString();
             FocusedNode.DiagID = string.Join(",", (FocusedNode.DiagID + "," + item.ID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
-            
+
             string diagIDs = FocusedNode.DiagID;
             //NodeDiagramItems = HK_General.GetDiagramItems(diagIDs, true, false);
-            HK_General.UpdateLibData("HK_TreeNOde",int.Parse(FocusedNode.ID), "DiagID", diagIDs);
+            HK_General.UpdateLibData("HK_TreeNOde", int.Parse(FocusedNode.ID), "DiagID", diagIDs);
             //if (string.IsNullOrEmpty(diagIDs)) return;
             //List<string> ids = diagIDs.Split(',').ToList();
             AssignedDiagramItems.Clear();
@@ -184,7 +191,7 @@ namespace iEngr.Hookup.ViewModels
                                         .Select(s => s.Trim())  // 去除空格
                                         .Where(s => int.TryParse(s, out _))
                                         .Select(int.Parse)
-                                        .ToList(); 
+                                        .ToList();
             if (ids.Remove(item.ID))
             {
                 FocusedNode.DiagID = string.Join(",", ids);
@@ -232,7 +239,18 @@ namespace iEngr.Hookup.ViewModels
         }
         private void DeleteDiagram(DiagramItem item)
         {
-            foreach(var itemS in SelectedItems)
+            var message = $"确定要删除企业库安装图？";
+            var caption = "确认删除";
+            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                ExecDeleteDiagram(item);
+            }
+        }
+        private void ExecDeleteDiagram(DiagramItem item)
+        {
+            foreach (var itemS in SelectedItems)
             {
                 if (!HK_General.IsIDAssigned(itemS.ID))
                 {
@@ -303,7 +321,7 @@ namespace iEngr.Hookup.ViewModels
                 }
                 if (SelectedItem?.IsComosItem == true)
                 {
-                    ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiagMod) ;
+                    ComosDiagChanged?.Invoke(this, SelectedItem);
                 }
             }
         }
@@ -328,7 +346,7 @@ namespace iEngr.Hookup.ViewModels
                 }
                 if (SelectedItem?.IsComosItem == true)
                 {
-                    ComosDiagChanged?.Invoke(this, SelectedItem.ObjComosDiagMod);
+                    ComosDiagChanged?.Invoke(this, SelectedItem);
                 }
             }
         }
@@ -336,7 +354,7 @@ namespace iEngr.Hookup.ViewModels
         #endregion
 
         #region CommandEvent
-        private bool CanAppDiagram(object parameter)
+        private bool CanComosDiagModAdd(object parameter)
         {
             if (parameter is DiagramItem item)
             {
@@ -345,13 +363,23 @@ namespace iEngr.Hookup.ViewModels
             }
             return false;
         }
-        private void AppDiagram(DiagramItem item)
+        private void ComosDiagModAdd(DiagramItem item)
         {
-            ComosDiagModAppCmd?.Invoke(this, item);
+            ComosDiagModAddCmd?.Invoke(this, item);
         }
         private void ComosDiagObjDel(DiagramItem item)
         {
             ComosDiagObjDelCmd?.Invoke(this, item);
+        }
+        private bool CanComosDiagModCls { get; set; }
+        private void ComosDiagModCls(DiagramItem item)
+        {
+            ComosDiagModClsCmd?.Invoke(this, item);
+        }
+        private bool CanComosDiagModDel { get; set; }
+        private void ComosDiagModDel(DiagramItem item)
+        {
+            ComosDiagModClsCmd?.Invoke(this, item);
         }
         #endregion 
 

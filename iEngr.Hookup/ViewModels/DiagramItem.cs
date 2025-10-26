@@ -23,10 +23,22 @@ namespace iEngr.Hookup.ViewModels
         public bool IsLibItem
         {
             get => _isLibItem;
-            set => SetField(ref _isLibItem, value);
+            set
+            {
+                if (SetField(ref _isLibItem, value))
+                { OnPropertyChanged(nameof(IsDiagramDeleteShow)); }
+            }
         }
+        public bool IsDiagramDeleteShow { get { return IsLibItem && (HK_General.UserComos.Roles & HK_General.RoleAdmin)> 0; } }
         public int ID { get; set; }
         public string RefID { get; set; }
+        public string GroupID { get; set; } //NodeID as default
+        private bool _isSelectedGroup;
+        public bool IsSelectedGroup //是否和选中的Diagram为同一Group
+        {
+            get => _isSelectedGroup;
+            set => SetField(ref _isSelectedGroup, value);
+        }
         public string DisplayID
         {
             get
@@ -47,6 +59,7 @@ namespace iEngr.Hookup.ViewModels
                 {
                     PicturePath = value.spec("Y00T00103.PicturePath").value;
                     RefID = value.spec("Y00T00103.RefIdInLib").value;
+                    GroupID = value.spec("Y00T00103.GroupID").value;
                     IdLabels = value.spec("Y00T00103.IdLabels").value;
                     NameCn = value.GetInternationalDescription(4);
                     NameEn = value.GetInternationalDescription(2);
@@ -62,8 +75,8 @@ namespace iEngr.Hookup.ViewModels
             get => _isOwned;
             set=> SetField(ref _isOwned, value);
         }
-        public int _bomQty; 
-        public int BomQty
+        public string _bomQty; 
+        public string BomQty
         {
             get => _bomQty;
             set => SetField(ref _bomQty, value);

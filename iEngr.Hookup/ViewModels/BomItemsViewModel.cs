@@ -317,7 +317,7 @@ namespace iEngr.Hookup.ViewModels
                 BomItem newBomItem = new BomItem() { ObjComosBomItem = null, No = newNo, LibBomItem = SelectedMatListItem };
                 //newBomItem.SetBomListItemFromMatListItem();
                 HK_General.NewDiagBomAdd(SelectedDiagramItem.ID, newNo, SelectedMatListItem);
-                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID);
+                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID).ToString();
                 DataSource.Insert(index+1, newBomItem);
             }
         }
@@ -343,7 +343,7 @@ namespace iEngr.Hookup.ViewModels
             }
             if (SelectedDiagramItem != null)
             {
-                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID);
+                SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID).ToString();
             }
         }
         public ICommand CellEditEndingCommand { get; }
