@@ -232,9 +232,8 @@ namespace iEngr.Hookup.Views
         {
             try
             {
-                string comosUID = e.Data.GetData("Text").ToString().Split(',')[1];
-                if (!string.IsNullOrEmpty(comosUID))
-                    ComosUIDToDiagModGet?.Invoke(this, comosUID);
+                string comosDataString = e.Data.GetData("Text").ToString();
+                ComosUIDToDiagModGet?.Invoke(this, comosDataString);
             }
             catch { }   
         }

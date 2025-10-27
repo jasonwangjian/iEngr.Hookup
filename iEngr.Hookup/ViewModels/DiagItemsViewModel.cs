@@ -371,15 +371,15 @@ namespace iEngr.Hookup.ViewModels
         {
             ComosDiagObjDelCmd?.Invoke(this, item);
         }
-        private bool CanComosDiagModCls { get; set; }
+        public bool CanComosDiagModCls { get; set; }
         private void ComosDiagModCls(DiagramItem item)
         {
             ComosDiagModClsCmd?.Invoke(this, item);
         }
-        private bool CanComosDiagModDel { get; set; }
+        public bool CanComosDiagModDel { get; set; }
         private void ComosDiagModDel(DiagramItem item)
         {
-            ComosDiagModClsCmd?.Invoke(this, item);
+            ComosDiagModDelCmd?.Invoke(this, item);
         }
         #endregion 
 

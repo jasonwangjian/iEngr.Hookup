@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -49,6 +50,8 @@ namespace iEngr.Hookup.Comos
             VmDiagComos.ComosDiagChanged += OnComosDiagramChanged;
             VmDiagComos.ComosPicturePathSet += OnComosPicturePathSet;
             VmDiagComos.ComosDiagObjDelCmd += OnComosDiagObjDelCmdClick;
+            VmDiagComos.ComosDiagModClsCmd += OnComosDiagModClsCmdClick;
+            VmDiagComos.ComosDiagModDelCmd += OnComosDiagModDelCmdClick;
 
             VmDiagLib = ucPDM.ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.ComosDiagModAddCmd += OnComosDiagAppCmdClick;
@@ -57,9 +60,10 @@ namespace iEngr.Hookup.Comos
             VmAppliedComos = ucPDM.ucComosDevs.DataContext as AppliedComosViewModel;
             VmAppliedComos.ComosItemSelected += OnComosItemSelected;
             VmAppliedComos.ComosDiagAppDelCmd += OnComosDiagAppDelCmdClick;
+            VmAppliedComos.ComosItemContextMenu += PopContextMenu;
 
             ucPDM.ucPic.ComosUIDToDiagModGet += OnComosUIDToDiagModGet;
-            ucPDM.ucComosDevs.ComosItemContext += OnComosItemRightClick;
+            //ucPDM.ucComosDevs.ComosItemContext += OnComosItemRightClick;
             ucPDM.ucComosDevs.ComosItemDoubleClick += OnComosItemDoubleClick;
         }
         public HkTreeViewModel VmTree;
@@ -302,13 +306,20 @@ namespace iEngr.Hookup.Comos
                 for (int i = 1; i <= appliedDevs.Count(); i++)
                 {
                     IComosBaseObject dev = appliedDevs.Item(i);
-                    VmAppliedComos.AppliedItems.Add(new AppliedComosItem()
-                    {
-                        ComosUID = dev.SystemUID(),
-                        ComosObj = dev.owner().owner(),
-                        DisplayName = dev.owner().owner().spec("Z00T00402.Y00A07320AA01").displayvalue
-                    });
+                    VmAppliedComos.AppliedItems.Add(GetAppliedComosItem(dev));
                 }
+                
+                if (VmAppliedComos.AppliedItems.Count()>0)
+                {
+                    VmDiagComos.CanComosDiagModCls = true;
+                    VmDiagComos.CanComosDiagModDel = false;
+                }
+                else
+                {
+                    VmDiagComos.CanComosDiagModCls = false;
+                    VmDiagComos.CanComosDiagModDel = true;
+                }
+
             }
         }
 
@@ -364,7 +375,7 @@ namespace iEngr.Hookup.Comos
             Chemserv.ComosClass mntc = new Chemserv.ComosClass();
             mntc.ShowComosObject(obj);
         }
-        private void OnComosItemRightClick(object sender, AppliedComosItem value)
+        private void PopContextMenu(object sender, AppliedComosItem value)
         {
             if (value == null || value.ComosObj == null) return;
             //IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
@@ -405,16 +416,60 @@ namespace iEngr.Hookup.Comos
 
         private void OnComosUIDToDiagModGet(object sender, string value)
         {
-            if (string.IsNullOrEmpty(value)) return;
+            if (value.Contains("WITHOUT_UID") || value.Contains("CDevice"))
             {
-                IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value);
-                string picturePath = VmPicture.PicturePath;
-                if (picturePath != VmDiagComos.SelectedItem.PicturePath) return;
-                if (VmAppliedComos.AppliedItems.Any(x => x.ComosObj == obj)) return;
-
-
+                //无效对象
+                return;
             }
-            //IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
+            string comosUID = value.Split(',')[1];
+            IComosBaseObject obj = Project.Workset().LoadObjectByType(8, comosUID);
+            var diagObj = ComosDiagObjCreate(obj, VmDiagComos.SelectedItem?.ObjComosDiagMod);
+            if (diagObj != null)
+            {
+                VmAppliedComos.AppliedItems.Add(GetAppliedComosItem(diagObj));
+            }
+        }
+        private AppliedComosItem GetAppliedComosItem(IComosBaseObject diagObj)
+        {
+            IComosBaseObject ciDev = diagObj.owner().owner();
+            return new AppliedComosItem()
+            {
+                ComosUID = diagObj.SystemUID(),
+                AssignMode = diagObj.spec("Y00T00103.AssignMode").value,
+                IsLocked = diagObj.spec("Y00T00103.IsLocked").value,
+                ComosObj = ciDev,
+                DisplayName = ciDev.spec("Z00T00402.Y00A07320AA01").DisplayValue()
+            };
+        }
+        private IComosBaseObject ComosDiagObjCreate(IComosBaseObject ciDevice, IComosBaseObject diagMod)
+        {
+            try
+            {
+                var hookups = (ciDevice as dynamic).Elements.Item("Hookups");
+                if (hookups == null)
+                {
+                    //无效对象
+                    return null;
+                }
+                if (VmAppliedComos.AppliedItems.Any(x => x.ComosObj == ciDevice))
+                {
+                    //重复对象
+                    return null;
+                }
+                IComosBaseObject diagObj = Project.Workset().CreateDeviceObject(hookups, CDevDiagObj);
+                if (diagObj != null)
+                {
+                    diagObj.spec("Y00T00103.Y00A00641").LinkObject = diagMod;
+                    diagObj.spec("Y00T00103.AssignMode").value = "M";
+                    //成功添加
+                }
+                return diagObj;
+            }
+            catch
+            {
+                //创建失败
+                return null;
+            }
         }
 
 
@@ -430,8 +485,8 @@ namespace iEngr.Hookup.Comos
                 diagMod.spec("Y00T00103.RefIdInLib").value = value.DisplayID;
                 diagMod.SetInternationalDescription(4, value.NameCn);
                 diagMod.SetInternationalDescription(2, value.NameEn);
-                diagMod.spec("Y00T00103.Remarks").SetInternationalDescription(4, value.RemarksCn);
-                diagMod.spec("Y00T00103.Remarks").SetInternationalDescription(2, value.RemarksEn);
+                diagMod.spec("Y00T00103.Remarks").SetInternationalValue(4, value.RemarksCn);
+                diagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, value.RemarksEn);
                 //IdLabels = value.spec("Y00T00103.IdLabels").value;
                 if (VmTree.SelectedItem != null)
                 {
@@ -473,6 +528,24 @@ namespace iEngr.Hookup.Comos
             value.ObjComosDiagObj.DeleteAll();
             SetDiagComosAssigned(CurrentObject);
         }
+        private void OnComosDiagModClsCmdClick(object sender, DiagramItem value)
+        {
+            if (value == null || value.ObjComosDiagMod == null) return;
+            var appliedDevs = (value.ObjComosDiagMod as dynamic).BackPointerDevicesWithImplementation;
+            for (int i = 1; i <= appliedDevs.Count(); i++)
+            {
+                IComosBaseObject dev = appliedDevs.Item(i);
+                dev.DeleteAll();
+            }
+            VmAppliedComos.AppliedItems.Clear();
+        }
+        private void OnComosDiagModDelCmdClick(object sender, DiagramItem value)
+        {
+            if (value == null || value.ObjComosDiagMod == null) return;
+            value.ObjComosDiagMod.DeleteAll();
+            VmDiagComos.AvailableDiagramItems.Remove(value);
+            SetDiagComosAssigned(CurrentObject);
+        }
         private void OnComosDiagAppDelCmdClick(object sender, AppliedComosItem value)
         {
             if (value == null || string.IsNullOrEmpty(value.ComosUID)) return;
@@ -483,6 +556,7 @@ namespace iEngr.Hookup.Comos
             if (ucPDM.UcDM.ActiveArea == ActiveArea.Assigned) 
                 SetDiagComosAssigned(CurrentObject);
         }
+
         #endregion
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
