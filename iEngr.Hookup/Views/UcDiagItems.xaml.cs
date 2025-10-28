@@ -27,6 +27,25 @@ namespace iEngr.Hookup.Views
         public UcDiagItems()
         {
             InitializeComponent();
+            dgDiagAvailable.LoadingRow += (s, e) => {
+                e.Row.MouseEnter += (sender, args) => {
+                    // 处理鼠标进入
+                    var viewModel = DataContext as DiagItemsViewModel;
+                    viewModel?.ItemMouseEnterCommand?.Execute(e.Row.DataContext);
+                };
+
+                e.Row.MouseLeave += (sender, args) => {
+                    // 处理鼠标离开
+                    var viewModel = DataContext as DiagItemsViewModel;
+                    viewModel?.ItemMouseLeaveCommand?.Execute(e.Row.DataContext);
+                };
+
+                e.Row.MouseUp += (sender, args) => {
+                    // 处理鼠标点击
+                    var viewModel = DataContext as DiagItemsViewModel;
+                    viewModel?.ItemMouseClickCommand?.Execute(e.Row.DataContext);
+                };
+            };
         }
         private void ClearAllSorting_click(object sender, RoutedEventArgs e)
         {

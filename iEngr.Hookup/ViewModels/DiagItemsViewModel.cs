@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,6 +31,9 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> ComosDiagModClsCmd; //删除安装图模板所适用的说有安装图对象
         public event EventHandler<DiagramItem> ComosDiagModDelCmd; //删除安装图模板
         public event EventHandler<DiagramItem> ComosDiagObjDelCmd; //删除安装图对象
+
+        public event EventHandler<IComosBaseObject> ComosItemContextMenu;
+
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
         public ICommand DiagramAddCommand { get; }
@@ -39,6 +43,12 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
+        public ICommand ItemMouseEnterCommand { get; }
+        public ICommand ItemMouseLeaveCommand { get; }
+        public ICommand ItemMouseClickCommand { get; }
+        private CancellationTokenSource _currentTokenSource;
+        private object _currentHoveredItem;
+
 
         public DiagItemsViewModel()
         {
@@ -54,6 +64,9 @@ namespace iEngr.Hookup.ViewModels
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             IsLangCtrlShown = true;
             LangInChinese = true;
+            ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
+            ItemMouseLeaveCommand = new RelayCommand<object>(OnItemMouseLeave);
+            ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
         }
 
 
@@ -381,6 +394,54 @@ namespace iEngr.Hookup.ViewModels
         {
             ComosDiagModDelCmd?.Invoke(this, item);
         }
+
+        private async void OnItemMouseEnter(object item)
+        {
+            // 如果已经在悬停其他项，先取消
+            if (_currentHoveredItem != null && _currentHoveredItem != item)
+            {
+                _currentTokenSource?.Cancel();
+            }
+
+            _currentHoveredItem = item;
+            _currentTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                // 等待1秒
+                await Task.Delay(800, _currentTokenSource.Token);
+
+                // 如果计时完成且仍然是当前悬停的项
+                if ((_currentTokenSource!=null) && !_currentTokenSource.Token.IsCancellationRequested && _currentHoveredItem == item)
+                {
+                    ComosItemContextMenu?.Invoke(this, (item as DiagramItem).ObjComosDiagMod);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // 计时被取消是正常情况
+            }
+        }
+        private void OnItemMouseLeave(object item)
+        {
+            // 只有当离开的是当前悬停项时才取消
+            if (_currentHoveredItem == item)
+            {
+                CancelCurrentHover();
+            }
+        }
+        private void OnItemMouseClick(object item)
+        {
+            // 任何鼠标点击都取消当前的悬停计时
+            CancelCurrentHover();
+        }
+        private void CancelCurrentHover()
+        {
+            _currentTokenSource?.Cancel();
+            _currentTokenSource = null;
+            _currentHoveredItem = null;
+        }
+
         #endregion 
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

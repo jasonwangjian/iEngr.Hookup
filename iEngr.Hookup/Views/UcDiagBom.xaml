@@ -40,6 +40,7 @@
         <DataGrid x:Name="dgBOM" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
+                  FrozenColumnCount="3"
                   ItemsSource="{Binding DataSource}" 
 		          SelectedItem="{Binding SelectedItem}"
                   HorizontalGridLinesBrush="DarkGray"
@@ -62,6 +63,9 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="LightSkyBlue"/>
                         </Trigger>
+                        <DataTrigger Binding="{Binding IsSameID}" Value="True">
+                            <Setter Property="Background" Value="Yellow"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
@@ -101,12 +105,26 @@
                 <DataGridComboBoxColumn x:Name="dcUnit" Header="单位" DisplayMemberPath="Name" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=Unit}" />
                 <DataGridComboBoxColumn x:Name="dcSR" Header="供货" DisplayMemberPath="NameCn" SelectedValuePath="Code"
-                                        SelectedValueBinding="{Binding Path=SupplyResponsible}" />
+                                        SelectedValueBinding="{Binding Path=SupplyResponsible}" >
+                    <!-- 列头靠右 -->
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
                 <DataGridComboBoxColumn x:Name="dcSD" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=SupplyDiscipline}" />
                 <DataGridComboBoxColumn x:Name="dcER" Header="安装" DisplayMemberPath="NameCn" SelectedValuePath="Code"
-                                        SelectedValueBinding="{Binding Path=ErectionResponsible}" />
-                <DataGridComboBoxColumn x:Name="dcED" Header="专业" DisplayMemberPath="NameCn" SelectedValuePath="Code"
+                                        SelectedValueBinding="{Binding Path=ErectionResponsible}"  >
+                    <!-- 列头靠右 -->
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                    </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn x:Name="dcED" Header="专业 " DisplayMemberPath="NameCn" SelectedValuePath="Code"
                                         SelectedValueBinding="{Binding Path=ErectionDiscipline}" />
                 <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>

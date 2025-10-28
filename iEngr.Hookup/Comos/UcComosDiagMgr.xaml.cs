@@ -43,19 +43,25 @@ namespace iEngr.Hookup.Comos
         {
             InitializeComponent();
             VmTree = ucPDM.ucTree.DataContext as HkTreeViewModel;
+            VmTree.TreeItemApplied += OnTreeItemApplied;
             VmPicture = ucPDM.ucPic.DataContext as HkPictureViewModel;
 
             VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagItemsViewModel;
-            VmBomComos = ucPDM.ucBomComos.DataContext as BomItemsViewModel;
             VmDiagComos.ComosDiagChanged += OnComosDiagramChanged;
             VmDiagComos.ComosPicturePathSet += OnComosPicturePathSet;
             VmDiagComos.ComosDiagObjDelCmd += OnComosDiagObjDelCmdClick;
             VmDiagComos.ComosDiagModClsCmd += OnComosDiagModClsCmdClick;
             VmDiagComos.ComosDiagModDelCmd += OnComosDiagModDelCmdClick;
+            VmDiagComos.ComosItemContextMenu += PopContextMenu;
+
+            VmBomComos = ucPDM.ucBomComos.DataContext as BomItemsViewModel;
+            VmBomComos.SelectedBomIDChanged += OnSelectedBomIDChanged;
 
             VmDiagLib = ucPDM.ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.ComosDiagModAddCmd += OnComosDiagAppCmdClick;
+
             VmBomLib = ucPDM.ucBomLib.DataContext as BomItemsViewModel;
+            VmBomLib.SelectedBomIDChanged += OnSelectedBomIDChanged;
 
             VmAppliedComos = ucPDM.ucComosDevs.DataContext as AppliedComosViewModel;
             VmAppliedComos.ComosItemSelected += OnComosItemSelected;
@@ -252,8 +258,8 @@ namespace iEngr.Hookup.Comos
                 for (int i = 1; i <= qry.RowCount; i++)
                 {
                     IComosBaseObject item = qry.RowObject[i];
-                    IComosBaseObject itenLinkObj = item.spec("Y00T00103.Y00A00641")?.LinkObject;
-                    DiagramItem diagItem = new DiagramItem() { ObjComosDiagMod = itenLinkObj, ObjComosDiagObj = item, BomQty="?", IsOwned = true };
+                    IComosBaseObject itemLinkObj = item.spec("Y00T00103.Y00A00641")?.LinkObject;
+                    DiagramItem diagItem = new DiagramItem() { ObjComosDiagMod = itemLinkObj, ObjComosDiagObj = item, BomQty="?", IsOwned = true };
                     //if (itenLinkObj == null)
                     //{
                     //    diagItem.RefID = item.Name;
@@ -368,18 +374,19 @@ namespace iEngr.Hookup.Comos
             if (value == null || string.IsNullOrEmpty(value.ComosUID)) return;
             IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
             if (obj == null) return;
-            //Project.Workset().Globals().Navigator.GetCurrentTree.DefaultAction(obj);
+            Project.Workset().Globals().Navigator.GetCurrentTree.DefaultAction(obj);
+
             //Set mntc = createobject("Chemserv.ComosClass")
             //mntc.ShowComosObject(c) '弹出浮窗
             //Set Mntc = Nothing
-            Chemserv.ComosClass mntc = new Chemserv.ComosClass();
-            mntc.ShowComosObject(obj);
+            //新弹窗
+            //Chemserv.ComosClass mntc = new Chemserv.ComosClass();
+            //mntc.ShowComosObject(obj);
         }
-        private void PopContextMenu(object sender, AppliedComosItem value)
+        private void PopContextMenu(object sender, IComosBaseObject comosObj)
         {
-            if (value == null || value.ComosObj == null) return;
-            //IComosBaseObject obj = Project.Workset().LoadObjectByType(8, value.ComosUID);
-            Comos_ContextMenuOpening(value.ComosObj);
+            if (comosObj == null) return;
+            Comos_ContextMenuOpening(comosObj);
         }
 
         private void Comos_ContextMenuOpening(IComosBaseObject obj)
@@ -422,11 +429,28 @@ namespace iEngr.Hookup.Comos
                 return;
             }
             string comosUID = value.Split(',')[1];
-            IComosBaseObject obj = Project.Workset().LoadObjectByType(8, comosUID);
-            var diagObj = ComosDiagObjCreate(obj, VmDiagComos.SelectedItem?.ObjComosDiagMod);
-            if (diagObj != null)
+            IComosBaseObject ciObj = Project.Workset().LoadObjectByType(8, comosUID);
+            //ciObj 被锁定检查 TBA
+            string groupId = VmDiagComos.SelectedItem?.GroupID;
+            if (string.IsNullOrEmpty(groupId))
             {
-                VmAppliedComos.AppliedItems.Add(GetAppliedComosItem(diagObj));
+                var diagObj = ComosDiagObjCreate(ciObj, VmDiagComos.SelectedItem?.ObjComosDiagMod);
+                if (diagObj != null)
+                {
+                    VmAppliedComos.AppliedItems.Add(GetAppliedComosItem(diagObj));
+                }
+            }
+            else //有分组
+            {
+                var diagItems = VmDiagComos.AvailableDiagramItems.Where(x => x.GroupID == groupId);
+                foreach (var diagItem in diagItems)
+                {
+                    var diagObj = ComosDiagObjCreate(ciObj, diagItem?.ObjComosDiagMod);
+                    if (VmDiagComos.SelectedItem == diagItem && diagObj != null)
+                    {
+                        VmAppliedComos.AppliedItems.Add(GetAppliedComosItem(diagObj));
+                    }
+                }
             }
         }
         private AppliedComosItem GetAppliedComosItem(IComosBaseObject diagObj)
@@ -436,7 +460,7 @@ namespace iEngr.Hookup.Comos
             {
                 ComosUID = diagObj.SystemUID(),
                 AssignMode = diagObj.spec("Y00T00103.AssignMode").value,
-                IsLocked = diagObj.spec("Y00T00103.IsLocked").value,
+                //IsLocked = ciDev.spec("XXXXXXXXX.IsLocked").value == "1" ? true : false,
                 ComosObj = ciDev,
                 DisplayName = ciDev.spec("Z00T00402.Y00A07320AA01").DisplayValue()
             };
@@ -475,52 +499,78 @@ namespace iEngr.Hookup.Comos
 
         #region Command for Event
         //创建Diagram模板
+        private  void OnTreeItemApplied(object sender, HkTreeItem value)
+        {
+            string groupID = value.ID;
+            if (VmDiagComos.AvailableDiagramItems.Any(x=>x.GroupID == groupID))
+            {
+                //有重名GroupID
+            }
+            foreach (var item in VmDiagLib.AssignedDiagramItems)
+            {
+                DiagramItem newAddedDiag = ComosDiagModCreate(DiagModFolder,
+                                                              item,
+                                                              value.GetPropertiesStrings(),
+                                                              groupID);
+                if (newAddedDiag != null)
+                {
+                    VmDiagComos.AvailableDiagramsSelectedItem = newAddedDiag;
+                }
+            }
+        }
         private void OnComosDiagAppCmdClick(object sender, DiagramItem value)
         {
-            if (value == null || DiagModFolder == null) return;
-            IComosBaseObject diagMod = Project.Workset().CreateDeviceObject(DiagModFolder, CDevDiagMod);
-            if (diagMod != null)
+            DiagramItem newAddedDiag = ComosDiagModCreate(DiagModFolder,
+                                                          value,
+                                                          VmTree.SelectedItem?.GetPropertiesStrings(),
+                                                          null);
+            if (newAddedDiag != null)
             {
-                diagMod.spec("Y00T00103.PicturePath").value = value.PicturePath;
-                diagMod.spec("Y00T00103.RefIdInLib").value = value.DisplayID;
-                diagMod.SetInternationalDescription(4, value.NameCn);
-                diagMod.SetInternationalDescription(2, value.NameEn);
-                diagMod.spec("Y00T00103.Remarks").SetInternationalValue(4, value.RemarksCn);
-                diagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, value.RemarksEn);
-                //IdLabels = value.spec("Y00T00103.IdLabels").value;
-                if (VmTree.SelectedItem != null)
-                {
-                    diagMod.spec("Y00T00103.IdLabels").value = VmTree.SelectedItem.GetPropertiesStrings();
-                }
-                DiagramItem newAddedDiag = new DiagramItem() { ObjComosDiagMod = diagMod };
-                VmDiagComos.AvailableDiagramItems.Add(newAddedDiag);
-                //添加BOM
-                foreach (var bomItem in VmBomLib.DataSource)
-                {
-                    IComosBaseObject bomItemObj = Project.Workset().CreateDeviceObject(diagMod, CDevDiagBom);
-                    if (bomItemObj != null)
-                    {
-                        bomItemObj.Label = bomItem.No;
-                        bomItemObj.spec("Z00T00003.ID").value = bomItem.ID;
-                        bomItemObj.spec("Z00T00003.Qty").value = bomItem.Qty;
-                        bomItemObj.spec("Z00T00003.Unit").value = bomItem.Unit;
-                        bomItemObj.spec("Z00T00003.SD").value = bomItem.SupplyDiscipline;
-                        bomItemObj.spec("Z00T00003.SR").value = bomItem.SupplyResponsible;
-                        bomItemObj.spec("Z00T00003.ED").value = bomItem.ErectionDiscipline;
-                        bomItemObj.spec("Z00T00003.ER").value = bomItem.ErectionResponsible;
-                        bomItemObj.spec("Z00T00003.Mat").value = bomItem.MatMatCode;
-                        bomItemObj.SetInternationalDescription(4, bomItem.NameCn);
-                        bomItemObj.SetInternationalDescription(2, bomItem.NameEn);
-                        bomItemObj.spec("Z00T00003.Name").SetInternationalValue(4, bomItem.NameCn);
-                        bomItemObj.spec("Z00T00003.Name").SetInternationalValue(2, bomItem.NameEn);
-                        bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(4, bomItem.SpecAllCn);
-                        bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(2, bomItem.SpecAllEn);
-                        bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(4, bomItem.RemarksCn);
-                        bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(2, bomItem.RemarksEn);
-                    }
-                }
                 VmDiagComos.AvailableDiagramsSelectedItem = newAddedDiag;
-            };
+            }
+        }
+        private DiagramItem ComosDiagModCreate(IComosBaseObject ModOwner,DiagramItem item, string lables, string groupId = null)
+        {
+            if (item == null || ModOwner == null) return null;
+            IComosBaseObject diagMod = Project.Workset().CreateDeviceObject(ModOwner, CDevDiagMod);
+            if (diagMod == null) return null;
+            diagMod.spec("Y00T00103.GroupID").value = groupId;
+            diagMod.spec("Y00T00103.PicturePath").value = item.PicturePath;
+            diagMod.spec("Y00T00103.RefIdInLib").value = item.DisplayID;
+            diagMod.SetInternationalDescription(4, item.NameCn);
+            diagMod.SetInternationalDescription(2, item.NameEn);
+            diagMod.spec("Y00T00103.Remarks").SetInternationalValue(4, item.RemarksCn);
+            diagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, item.RemarksEn);
+            diagMod.spec("Y00T00103.IdLabels").value = lables;
+            DiagramItem newAddedDiag = new DiagramItem() { ObjComosDiagMod = diagMod };
+            VmDiagComos.AvailableDiagramItems.Add(newAddedDiag);
+            //添加BOM
+            var bomItens = HK_General.GetDiagBomItems(item.ID.ToString());
+            foreach (var bomItem in bomItens)
+            {
+                IComosBaseObject bomItemObj = Project.Workset().CreateDeviceObject(diagMod, CDevDiagBom);
+                if (bomItemObj != null)
+                {
+                    bomItemObj.Label = bomItem.No;
+                    bomItemObj.spec("Z00T00003.ID").value = bomItem.ID;
+                    bomItemObj.spec("Z00T00003.Qty").value = bomItem.Qty;
+                    bomItemObj.spec("Z00T00003.Unit").value = bomItem.Unit;
+                    bomItemObj.spec("Z00T00003.SD").value = bomItem.SupplyDiscipline;
+                    bomItemObj.spec("Z00T00003.SR").value = bomItem.SupplyResponsible;
+                    bomItemObj.spec("Z00T00003.ED").value = bomItem.ErectionDiscipline;
+                    bomItemObj.spec("Z00T00003.ER").value = bomItem.ErectionResponsible;
+                    bomItemObj.spec("Z00T00003.Mat").value = bomItem.MatMatCode;
+                    bomItemObj.SetInternationalDescription(4, bomItem.NameCn);
+                    bomItemObj.SetInternationalDescription(2, bomItem.NameEn);
+                    bomItemObj.spec("Z00T00003.Name").SetInternationalValue(4, bomItem.NameCn);
+                    bomItemObj.spec("Z00T00003.Name").SetInternationalValue(2, bomItem.NameEn);
+                    bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(4, bomItem.SpecAllCn);
+                    bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(2, bomItem.SpecAllEn);
+                    bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(4, bomItem.RemarksCn);
+                    bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(2, bomItem.RemarksEn);
+                }
+            }
+            return newAddedDiag;
         }
         private void OnComosDiagObjDelCmdClick(object sender, DiagramItem value)
         {
@@ -555,6 +605,17 @@ namespace iEngr.Hookup.Comos
             VmAppliedComos.AppliedItems.Remove(value);
             if (ucPDM.UcDM.ActiveArea == ActiveArea.Assigned) 
                 SetDiagComosAssigned(CurrentObject);
+        }
+        private void OnSelectedBomIDChanged(object sender, string value)
+        {
+            foreach (var item in VmBomComos.DataSource)
+            {
+                item.IsSameID = (item.ID == value);
+            }
+            foreach (var item in VmBomLib.DataSource)
+            {
+                item.IsSameID = (item.ID == value);
+            }
         }
 
         #endregion

@@ -92,6 +92,12 @@ namespace iEngr.Hookup.Models
                     && LibBomItem != null;
             }
         }
+        public bool _isSameID; 
+        public bool IsSameID
+        {
+            get => _isSameID;
+            set => SetField(ref _isSameID, value);
+        }
         public bool AutoComosUpdate { get; set; }
         public int BomID { get; set; }
         private string _no;

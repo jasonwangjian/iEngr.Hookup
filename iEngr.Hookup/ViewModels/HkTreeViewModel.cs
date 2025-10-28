@@ -35,6 +35,8 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<HkTreeItem> DiagramIDsChanged;
         public event EventHandler<HkTreeItem> DiagramIDAdded;
         public event EventHandler<HkTreeItem> TreeItemChanged;
+
+        public event EventHandler<HkTreeItem> TreeItemApplied;
         private HkTreeItem _editingItem;
         public ObservableCollection<HkTreeItem> TreeItems { get; set; }
         private HkTreeItem _selectedItem;
@@ -115,6 +117,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => (SelectedItem.DiagID != string.Empty));
             DiagramNullCommand = new RelayCommand<object>(DiagramNull, _ => (SelectedItem.DiagID != null));
             NodeReloadCommand = new RelayCommand<HkTreeItem>(LoadTreeNode, _ => SelectedItem != null);
+            NodeAppCommand = new RelayCommand<HkTreeItem>(AppTreeNode);
             // 从XML文件加载数据
             LoadTreeNode();
             //LoadTreeDataFromXml();
@@ -932,7 +935,14 @@ namespace iEngr.Hookup.ViewModels
             }
         }
         #endregion
-
+        
+        #region Comos操作
+        public RelayCommand<HkTreeItem> NodeAppCommand { get; }
+        private void AppTreeNode(HkTreeItem item)
+        {
+            TreeItemApplied?.Invoke(this, item);
+        }
+        #endregion
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;

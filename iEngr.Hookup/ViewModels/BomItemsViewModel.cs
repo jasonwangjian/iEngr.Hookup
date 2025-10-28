@@ -24,6 +24,8 @@ namespace iEngr.Hookup.ViewModels
 {
     public class BomItemsViewModel : INotifyPropertyChanged
     {
+        public event EventHandler<string> SelectedBomIDChanged;
+
         public BomItemsViewModel()
         {
             DataSource = new ObservableCollection<BomItem>();
@@ -240,9 +242,10 @@ namespace iEngr.Hookup.ViewModels
             get => _selectedItem;
             set
             {
-                SetField(ref _selectedItem, value);
-                //value.ObjMat.Label = value.No;
-
+                if(SetField(ref _selectedItem, value) && value !=null)
+                {
+                    SelectedBomIDChanged?.Invoke(this, value.ID);
+                }
             }
         }
         public ObservableCollection<BomItem> SelectedItems { get; set; }

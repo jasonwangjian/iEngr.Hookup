@@ -19,8 +19,9 @@ namespace iEngr.Hookup.ViewModels
     {
         public event EventHandler<AppliedComosItem> ComosItemSelected;
         public event EventHandler<AppliedComosItem> ComosDiagAppDelCmd;
-        public event EventHandler<AppliedComosItem> ComosItemContextMenu;
+        public event EventHandler<IComosBaseObject> ComosItemContextMenu;
         public ICommand RemoveCommand { get; }
+        public ICommand LockCommand { get; }
         public ICommand ItemMouseEnterCommand { get; }
         public ICommand ItemMouseLeaveCommand { get; }
         public ICommand ItemMouseClickCommand { get; }
@@ -71,12 +72,12 @@ namespace iEngr.Hookup.ViewModels
             try
             {
                 // 等待1秒
-                await Task.Delay(500, _currentTokenSource.Token);
+                await Task.Delay(800, _currentTokenSource.Token);
 
                 // 如果计时完成且仍然是当前悬停的项
-                if (!_currentTokenSource.Token.IsCancellationRequested && _currentHoveredItem == item)
+                if ((_currentTokenSource != null) && !_currentTokenSource.Token.IsCancellationRequested && _currentHoveredItem == item)
                 {
-                    ComosItemContextMenu?.Invoke(this, item as AppliedComosItem);
+                    ComosItemContextMenu?.Invoke(this, (item as AppliedComosItem)?.ComosObj);
                 }
             }
             catch (TaskCanceledException)
@@ -96,7 +97,7 @@ namespace iEngr.Hookup.ViewModels
         {
             // 任何鼠标点击都取消当前的悬停计时
             CancelCurrentHover();
-            ComosItemContextMenu?.Invoke(this, item as AppliedComosItem);
+            ComosItemContextMenu?.Invoke(this, (item as AppliedComosItem).ComosObj);
         }
         private void CancelCurrentHover()
         {
@@ -137,8 +138,8 @@ namespace iEngr.Hookup.ViewModels
             get => _assignMode;
             set => SetField(ref _assignMode, value);
         }
-        private string _isLocked;
-        public string IsLocked
+        private bool _isLocked;
+        public bool IsLocked //针对于仪控设备，True后自动匹配安装图失效
         {
             get => _isLocked;
             set => SetField(ref _isLocked, value);

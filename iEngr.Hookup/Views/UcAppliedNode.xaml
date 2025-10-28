@@ -62,6 +62,9 @@
                             <Setter Property="FontStyle" Value="Italic"/>
                             <Setter Property="Foreground" Value="Gray"/>
                         </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="LightSkyBlue"/>
+                        </Trigger>
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>

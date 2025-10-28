@@ -464,6 +464,15 @@ namespace iEngr.Hookup.Models
                     return GetPropertyValue(item, propertyPath)?.ToString() ?? string.Empty;
                 }
             }
+            else if (column is DataGridComboBoxColumn comboxColumn)
+            {
+                var binding = comboxColumn?.SelectedValueBinding as System.Windows.Data.Binding;
+                if (binding?.Path != null)
+                {
+                    string propertyPath = binding.Path.Path;
+                    return GetPropertyValue(item, propertyPath)?.ToString() ?? string.Empty;
+                }
+            }
             return string.Empty;
         }
 
