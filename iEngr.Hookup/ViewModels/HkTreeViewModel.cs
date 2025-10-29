@@ -846,7 +846,7 @@ namespace iEngr.Hookup.ViewModels
         public RelayCommand<HkTreeItem> EditPropertiesCommand { get; set; }
         private void EditProperties(HkTreeItem item)
         {
-            var dialog = new PropertyEditorDialog(item);
+            var dialog = new PropertyEditorDialog(item, null);
             if (dialog.ShowDialog() == true)
             {
                 //item.RefreshDisplayProperties();

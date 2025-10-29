@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Primitives;
 
 namespace iEngr.Hookup.ViewModels
 {
@@ -349,7 +350,9 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 if (SetField(ref _properties, value))
+                {
                     RaisePropDisplayChange(); //  OnPropertyChanged(DisplayProperties); 
+                }
             }
         }
         private void RaisePropDisplayChange()

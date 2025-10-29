@@ -41,36 +41,176 @@ namespace iEngr.Hookup
         public static string UserName = UserComos.RealName;  //"Anonymous";
 
         public static string ErrMsgOmMatData {  get; set; }
-
-        public static ObservableCollection<LabelDisplay> GetPropLabelItems(HkTreeItem item)
+        public static string GetPropertiesString(Dictionary<string, object> properties)
         {
-            ObservableCollection<LabelDisplay> propLabelItems = new ObservableCollection<LabelDisplay>();
-            foreach (var prop in item?.Properties)
+            List<string> keyValues = new List<string>();
+            foreach (var prop in properties)
+            {
+                string value = prop.Value?.ToString();
+                if (prop.Value is ObservableCollection<GeneralItem> items)
+                    value = string.Join("|", items.Select(x => x.Code).ToList());
+                else if (prop.Value is GeneralItem item)
+                    value = item?.Code;
+                keyValues.Add(prop.Key + ":" + value);
+            }
+            return string.Join(",", keyValues);
+        }
+        public static string GetPropertiesString(ObservableCollection<PropertyDefinition> properties)
+        {
+            List<string> keyValues = new List<string>();
+            foreach (var prop in properties)
+            {
+                string value = prop.Value?.ToString();
+                if (prop.Type == PropertyType.EnumItems)
+                    value = string.Join("|", prop.SelectedItems?.Select(x => x.Code).ToList());
+                else if (prop.Type == PropertyType.EnumItem)
+                    value = prop.SelectedItem?.Code;
+                keyValues.Add(prop.Key + ":" + value);
+            }
+            return string.Join(",", keyValues);
+        }
+        public static string GetPropertyDisplay(string key, string value)
+        {
+            var propDef = PropertyLibrary.GetPropertyDefinition(key);
+            string displayValue = null;
+            if (propDef != null)
+            {
+                if (propDef.Type == PropertyType.EnumItems)
+                {
+                    displayValue = string.Join(", ", propDef.Items.Where(x => value.Split('|').Contains(x.Code)).Select(x=>x.Name));
+                }
+                else if (propDef.Type == PropertyType.EnumItem)
+                {
+                    displayValue = propDef.Items.FirstOrDefault(x => x.Code == value).Name;
+                }
+                else
+                    displayValue = value;
+            }
+            return displayValue;
+        }
+        public static string GetPropertyDisplay(string key, object value)
+        {
+            var propDef = PropertyLibrary.GetPropertyDefinition(key);
+            string displayValue = null;
+            if (propDef != null)
+            {
+                if (value is ObservableCollection<GeneralItem> items)
+                {
+                    displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                }
+                else if (value is GeneralItem gItem)
+                {
+                    displayValue = gItem.Name;
+                }
+                else
+                    displayValue = value?.ToString();
+            }
+            return displayValue;
+        }
+        public static Dictionary<string, object> GetPropertyDictionary(string propertiesString)
+        {
+            Dictionary<string, object> propertyDictionary = new Dictionary<string, object>();
+            var dicProp = new Dictionary<string, string>();
+            propertiesString.Split(',')
+                .Where(x => !string.IsNullOrWhiteSpace(x) && x.Contains(':'))
+                .Select(x => x.Split(':', (char)2))
+                .Where(parts => parts.Length == 2)
+                .ToList()
+                .ForEach(parts =>
+                {
+                    var key = parts[0].Trim();
+                    var value = parts[1].Trim();
+                    if (!dicProp.ContainsKey(key))
+                        dicProp.Add(key, value);
+                });
+            foreach (var prop in dicProp)
             {
                 var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
                 if (propDef != null)
                 {
-                    string displayValue = prop.Value?.ToString();
-                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                    if (propDef.Type == PropertyType.EnumItems)
                     {
-                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                        propertyDictionary.Add(prop.Key, new ObservableCollection<GeneralItem>(propDef.Items.Where(x => prop.Value.Split('|').Contains(x.Code)).ToList()));
                     }
-                    else if (prop.Value is GeneralItem gItem)
+                    else if (propDef.Type == PropertyType.EnumItem)
                     {
-                        displayValue = gItem.Name;
+                        propertyDictionary.Add(prop.Key, propDef.Items.FirstOrDefault(x => x.Code == prop.Value));
                     }
-                    propLabelItems.Add(new LabelDisplay
-                    {
-                        Key=prop.Key,
-                        SortNum = propDef.SortNum,
-                        DisplayName = propDef.DisplayName,
-                        DisplayValue1 = displayValue,
-                        IsNodeLabel = true,
-                        IsInherit = false
-                    });
+                    else
+                        propertyDictionary.Add(prop.Key, prop.Value);
                 }
             }
-            foreach (var prop in item?.InheritProperties)
+            return propertyDictionary;
+        }
+        public static ObservableCollection<LabelDisplay> GetPropLabelItems(HkTreeItem item)
+        {
+            //ObservableCollection<LabelDisplay> propLabelItems = new ObservableCollection<LabelDisplay>();
+            //foreach (var prop in item?.Properties)
+            //{
+            //    var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+            //    if (propDef != null)
+            //    {
+            //        string displayValue = prop.Value?.ToString();
+            //        if (prop.Value is ObservableCollection<GeneralItem> items)
+            //        {
+            //            displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+            //        }
+            //        else if (prop.Value is GeneralItem gItem)
+            //        {
+            //            displayValue = gItem.Name;
+            //        }
+            //        propLabelItems.Add(new LabelDisplay
+            //        {
+            //            Key=prop.Key,
+            //            SortNum = propDef.SortNum,
+            //            DisplayName = propDef.DisplayName,
+            //            DisplayValue1 = displayValue,
+            //            IsNodeLabel = true,
+            //            IsInherit = false
+            //        });
+            //    }
+            //}
+            //foreach (var prop in item?.InheritProperties)
+            //{
+            //    var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+            //    if (propDef != null)
+            //    {
+            //        string displayValue = prop.Value?.ToString();
+            //        if (prop.Value is ObservableCollection<GeneralItem> items)
+            //        {
+            //            displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+            //        }
+            //        else if (prop.Value is GeneralItem gItem)
+            //        {
+            //            displayValue = gItem.Name;
+            //        }
+            //        propLabelItems.Add(new LabelDisplay
+            //        {
+            //            Key = prop.Key,
+            //            SortNum = propDef.SortNum,
+            //            DisplayName = propDef.DisplayName,
+            //            DisplayValue1 = displayValue,
+            //            IsNodeLabel = true,
+            //            IsInherit = true
+            //        });
+            //    }
+            //}
+            var propLabelItems = GetPropLabelItems(item?.Properties, true, false)
+                                .Union(GetPropLabelItems(item?.InheritProperties, true, true));
+            // 排序后返回新的 ObservableCollection
+            return new ObservableCollection<LabelDisplay>(propLabelItems.OrderBy(x => x.SortNum));
+        }
+        public static ObservableCollection<LabelDisplay> GetPropLabelItems(DiagramItem item)
+        {
+            var properties = GetPropertyDictionary(item?.IdLabels);
+            var propLabelItems = GetPropLabelItems(properties, true, false);
+            // 排序后返回新的 ObservableCollection
+            return new ObservableCollection<LabelDisplay>(propLabelItems.OrderBy(x => x.SortNum));
+        }
+        private static ObservableCollection<LabelDisplay> GetPropLabelItems(Dictionary<string,object> properties, bool isNodeLabel, bool isInherit)
+        {
+            ObservableCollection<LabelDisplay> propLabelItems = new ObservableCollection<LabelDisplay>();
+            foreach (var prop in properties)
             {
                 var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
                 if (propDef != null)
@@ -90,32 +230,40 @@ namespace iEngr.Hookup
                         SortNum = propDef.SortNum,
                         DisplayName = propDef.DisplayName,
                         DisplayValue1 = displayValue,
-                        IsNodeLabel = true,
-                        IsInherit = true
+                        IsNodeLabel = isNodeLabel,
+                        IsInherit = isInherit
                     });
                 }
             }
-            // 排序后返回新的 ObservableCollection
             return new ObservableCollection<LabelDisplay>(propLabelItems.OrderBy(x => x.SortNum));
         }
-    }
-    public static class DictionaryExtensions
-    {
-        public static Dictionary<TKey, TValue> Copy<TKey, TValue>(
-            this Dictionary<TKey, TValue> original)
+        private static void AddPropLabelItems(ObservableCollection<LabelDisplay> propLabelItems, Dictionary<string, object> properties, bool isNodeLabel, bool isInherit)
         {
-            return new Dictionary<TKey, TValue>(original);
+            foreach (var prop in properties)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    string displayValue = prop.Value?.ToString();
+                    if (prop.Value is ObservableCollection<GeneralItem> items)
+                    {
+                        displayValue = string.Join(", ", items.Select(x => x.Name).ToList());
+                    }
+                    else if (prop.Value is GeneralItem gItem)
+                    {
+                        displayValue = gItem.Name;
+                    }
+                    propLabelItems.Add(new LabelDisplay
+                    {
+                        Key = prop.Key,
+                        SortNum = propDef.SortNum,
+                        DisplayName = propDef.DisplayName,
+                        DisplayValue1 = displayValue,
+                        IsNodeLabel = isNodeLabel,
+                        IsInherit = isInherit
+                    });
+                }
+            }
         }
-
-        public static Dictionary<TKey, TValue> DeepCopy<TKey, TValue>(
-            this Dictionary<TKey, TValue> original) where TValue : ICloneable
-        {
-            return original.ToDictionary(
-                pair => pair.Key,
-                pair => (TValue)pair.Value.Clone()
-            );
-        }
-
     }
-
 }

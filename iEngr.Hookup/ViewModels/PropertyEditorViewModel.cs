@@ -84,6 +84,83 @@ namespace iEngr.Hookup.ViewModels
             IsPropLabel = true;
 
         }
+        public PropertyEditorViewModel(HkTreeItem treeItem, DiagramItem diagItem)
+        {
+            if (treeItem == null && diagItem == null) return;
+            _treeItem = treeItem;
+            _diagItem = null;   
+            Dictionary<string, object> properties = treeItem?.Properties;
+            if (diagItem != null) 
+            {
+                _treeItem = null;
+                _diagItem = diagItem; 
+                properties = HK_General.GetPropertyDictionary(diagItem.IdLabels);
+            }
+
+            AvailableProperties = new ObservableCollection<PropertyDefinition>(PropertyLibrary.AllProperties);
+            SelectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
+            SelectedProperties = new ObservableCollection<PropertyDefinition>();
+
+            // 初始化已选属性
+            foreach (var prop in properties)
+            {
+                var propDef = PropertyLibrary.GetPropertyDefinition(prop.Key);
+                if (propDef != null)
+                {
+                    if (propDef.Type == PropertyType.EnumItems)
+                    {
+                        propDef.SelectedItems = prop.Value as ObservableCollection<GeneralItem>;
+                        if (propDef.SelectedItems != null)
+                            propDef.Value = string.Join(", ", propDef.SelectedItems.Select(x => x.Code)?.ToList());
+                    }
+                    else if (propDef.Type == PropertyType.EnumItem)
+                    {
+                        propDef.SelectedItem = prop.Value as GeneralItem;
+                        propDef.Value = propDef.SelectedItem?.Code;
+                    }
+                    else
+                        propDef.Value = prop.Value;
+                    SelectedProperties.Add(propDef);
+                }
+            }
+            //foreach (var key in treeItem.SelectedPropertyKeys)
+            //{
+            //    var prop = PropertyLibrary.GetPropertyDefinition(key);
+            //    if (prop != null)
+            //    {
+            //        SelectedProperties.Add(prop);
+            //    }
+            //}
+            // 设置过滤
+            _filteredPropertiesSource = new CollectionViewSource { Source = AvailableProperties };
+            _filteredPropertiesSource.Filter += FilterProperties;
+
+            // 命令
+            AddSelectedPropertiesCommand = new RelayCommand<object>(
+                execute: _ => AddSelectedProperties(),
+                canExecute: _ => CanAddMoreProperties
+            );
+
+            RemovePropertyCommand = new RelayCommand<string>(
+                execute: RemoveProperty,
+                canExecute: key => !string.IsNullOrEmpty(key)
+            );
+            SelectedProperties.CollectionChanged += SelectedProperties_CollectionChanged;
+
+            OKCommand = new RelayCommand<object>(_ => OK());
+            CancelCommand = new RelayCommand<object>(_ => Cancel());
+
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(SelectedProperties))
+                {
+                    ((RelayCommand<object>)AddSelectedPropertiesCommand).RaiseCanExecuteChanged();
+                }
+            };
+
+            IsDevLabel = true;
+            IsPropLabel = true;
+        }
 
         private ObservableCollection<PropertyDefinition> _selectedAvailableProperties = new ObservableCollection<PropertyDefinition>();
 
@@ -114,6 +191,7 @@ namespace iEngr.Hookup.ViewModels
             SelectedAvailableProperties = newSelection;
         }
         private readonly HkTreeItem _treeItem;
+        private readonly DiagramItem _diagItem;
         private string _filterText;
         private CollectionViewSource _filteredPropertiesSource;
 
@@ -231,7 +309,8 @@ namespace iEngr.Hookup.ViewModels
             if (propertyToRemove != null)
             {
                 SelectedProperties.Remove(propertyToRemove);
-                _treeItem.RemoveProperty(key);
+                if (_treeItem != null)
+                    _treeItem.RemoveProperty(key);
 
                 // 通知UI更新
                 OnPropertyChanged(nameof(SelectedProperties));
@@ -243,8 +322,10 @@ namespace iEngr.Hookup.ViewModels
             // 更新树节点的选择属性
             //_treeItem.SelectedPropertyKeys = new ObservableCollection<string>(
             //    SelectedProperties.Select(p => p.Key));
-            SetItemProperties(SelectedProperties);
-
+            if (_treeItem != null)
+                SetItemProperties(SelectedProperties);
+            else
+                _diagItem.IdLabels = HK_General.GetPropertiesString(SelectedProperties);
             // 请求关闭对话框
             CloseRequested?.Invoke(this, true);
         }

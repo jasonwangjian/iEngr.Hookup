@@ -44,6 +44,7 @@ namespace iEngr.Hookup.Comos
             InitializeComponent();
             VmTree = ucPDM.ucTree.DataContext as HkTreeViewModel;
             VmTree.TreeItemApplied += OnTreeItemApplied;
+            
             VmPicture = ucPDM.ucPic.DataContext as HkPictureViewModel;
 
             VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagItemsViewModel;
@@ -68,6 +69,8 @@ namespace iEngr.Hookup.Comos
             VmAppliedComos.ComosDiagAppDelCmd += OnComosDiagAppDelCmdClick;
             VmAppliedComos.ComosItemContextMenu += PopContextMenu;
 
+            VmLabel = ucPDM.ucProp.DataContext as PropLabelViewModel;
+
             ucPDM.ucPic.ComosUIDToDiagModGet += OnComosUIDToDiagModGet;
             //ucPDM.ucComosDevs.ComosItemContext += OnComosItemRightClick;
             ucPDM.ucComosDevs.ComosItemDoubleClick += OnComosItemDoubleClick;
@@ -79,6 +82,7 @@ namespace iEngr.Hookup.Comos
         public BomItemsViewModel VmBomComos;
         public BomItemsViewModel VmBomLib;
         public AppliedComosViewModel VmAppliedComos;
+        public PropLabelViewModel VmLabel;
 
         private IComosDGeneralCollection _objects;
         private string _parameters;
@@ -280,6 +284,7 @@ namespace iEngr.Hookup.Comos
         {
             VmBomComos.DataSource.Clear();
             VmAppliedComos.AppliedItems.Clear();
+            VmLabel.Clear("node"); 
             if (value != null && value.ObjComosDiagMod != null)
             {
                 SetBomListDataSource(value.ObjComosDiagMod);
@@ -325,7 +330,8 @@ namespace iEngr.Hookup.Comos
                     VmDiagComos.CanComosDiagModCls = false;
                     VmDiagComos.CanComosDiagModDel = true;
                 }
-
+                //刷行标签比较控件
+                //VmLabel.
             }
         }
 

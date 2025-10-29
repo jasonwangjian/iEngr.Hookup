@@ -1,4 +1,5 @@
 ﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.Views;
 using Microsoft.Win32;
 using Plt;
 using System;
@@ -26,6 +27,7 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<string> DiagramIDChanged;
         public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<DiagramItem> ComosDiagChanged;
+        public event EventHandler<DiagramItem> PropLabelItemsChanged;
 
         public event EventHandler<DiagramItem> ComosDiagModAddCmd; //创建安装图模板
         public event EventHandler<DiagramItem> ComosDiagModClsCmd; //删除安装图模板所适用的说有安装图对象
@@ -46,6 +48,8 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ItemMouseEnterCommand { get; }
         public ICommand ItemMouseLeaveCommand { get; }
         public ICommand ItemMouseClickCommand { get; }
+        public ICommand EditPropertiesCommand { get;}
+
         private CancellationTokenSource _currentTokenSource;
         private object _currentHoveredItem;
 
@@ -62,6 +66,10 @@ namespace iEngr.Hookup.ViewModels
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
+            EditPropertiesCommand = new RelayCommand<DiagramItem>(
+                execute: EditProperties,
+                canExecute: item => item != null && item.IsComosItem == true
+            );
             IsLangCtrlShown = true;
             LangInChinese = true;
             ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
@@ -69,6 +77,14 @@ namespace iEngr.Hookup.ViewModels
             ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
         }
 
+        private void EditProperties(DiagramItem item)
+        {
+            var dialog = new PropertyEditorDialog(null, item);
+            if (dialog.ShowDialog() == true)
+            {
+                PropLabelItemsChanged?.Invoke(this, item);
+            }
+        }
 
         private void HandleCellEditEnding(DataGridCellEditEndingEventArgs e)
         {

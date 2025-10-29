@@ -156,6 +156,7 @@
     <Compile Include="Models\ObservableDictionary.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Models\PropertyDictionary.cs" />
     <Compile Include="Models\PropertyDefinition.cs" />
     <Compile Include="Models\PropertyLibrary.cs" />
     <Compile Include="Models\TreeViewExtensions.cs" />

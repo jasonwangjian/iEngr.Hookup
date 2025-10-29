@@ -7,10 +7,10 @@ namespace iEngr.Hookup.Views
 {
     public partial class PropertyEditorDialog : Window
     {
-        public PropertyEditorDialog(HkTreeItem treeItem)
+        public PropertyEditorDialog(HkTreeItem treeItem, DiagramItem diagramItem)
         {
             InitializeComponent();
-            var viewModel = new PropertyEditorViewModel(treeItem);
+            var viewModel = new PropertyEditorViewModel(treeItem, diagramItem);
             this.DataContext = viewModel;
             viewModel.CloseRequested += (sender, result) =>
             {

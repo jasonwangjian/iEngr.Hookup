@@ -194,6 +194,9 @@
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"      
                               ToolTip="将图形文件分配给安装图"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="🏷设置标签" Command="{Binding EditPropertiesCommand}"      
+                              ToolTip="为安装图模板(组）设置标签"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>
                     <MenuItem Header="应用Diag" Command="{Binding ComosDiagModAddCommand}"
                               ToolTip="将此企业库安装图应用于本Comos项目，在项目中创建安装图模版"

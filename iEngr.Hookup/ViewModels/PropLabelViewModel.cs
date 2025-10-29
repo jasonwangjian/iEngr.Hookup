@@ -29,7 +29,40 @@ namespace iEngr.Hookup.ViewModels
             }
         }
 
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        public void Clear(string cat)
+        {
+            if (PropLabelItems == null) return;
+            if (cat.ToLower() == "node")
+            {
+                foreach (var item in PropLabelItems)
+                {
+                    item.DisplayValue1 = null;
+                    item.IsNodeLabel = null;
+                }
+            }
+            else if (cat.ToLower() == "diagram")
+            {
+                foreach (var item in PropLabelItems)
+                {
+                    item.DisplayValue1 = null;
+                }
+            }
+        }
+
+        public void Update(string cat, Dictionary<string,object> properties)
+        {
+            if (cat.ToLower() == "node")
+            {
+                foreach (var item in PropLabelItems)
+                {
+                    if (properties.ContainsKey(item.Key))
+                    {
+                        item.DisplayValue1 = null;
+                    }
+                }
+            }
+        }
+            protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
@@ -46,8 +79,8 @@ namespace iEngr.Hookup.ViewModels
         public string Key { get; set; }
         public int SortNum { get; set; }
         public string DisplayName { get; set; }
-        public string DisplayValue1 { get; set; }
-        public string DisplayValue2 { get; set; }
+        public string DisplayValue1 { get; set; } //节点上的标签
+        public string DisplayValue2 { get; set; } //模板上的标签
         public bool IsInherit {  get; set; }
         public bool IsDiff
         {

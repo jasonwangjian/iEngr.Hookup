@@ -67,10 +67,6 @@
             <MenuItem Header="刷新节点" 
                       Command="{Binding PlacementTarget.Tag.NodeReloadCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <MenuItem Header="应用至项目" 
-                      ToolTip="将此节点下的安装图作为一个组在Comos中建立安装图模板"
-                      Command="{Binding PlacementTarget.Tag.NodeAppCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                      CommandParameter="{Binding}"/>
             <Separator/>
             <MenuItem Header="展开所有" 
                       Command="{Binding PlacementTarget.Tag.ExpandAllCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
@@ -134,9 +130,12 @@
             <MenuItem Header="继承Diag" 
                       Command="{Binding PlacementTarget.Tag.DiagramNullCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
-            <Separator/>
             <MenuItem Header="设置标签" 
                       Command="{Binding PlacementTarget.Tag.EditPropertiesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                      CommandParameter="{Binding}"/>
+            <MenuItem Header="应用到项目" 
+                      ToolTip="将此节点下的安装图作为一个组在Comos中建立安装图模板"
+                      Command="{Binding PlacementTarget.Tag.NodeAppCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                       CommandParameter="{Binding}"/>
         </ContextMenu>
 

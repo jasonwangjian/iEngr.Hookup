@@ -43,6 +43,7 @@ namespace iEngr.Hookup.Views
         AppliedNodeViewModel VmAppliedLib;
         BomItemsViewModel VmBomComos;
         BomItemsViewModel VmBomLib;
+        PropLabelViewModel VmLabel;
 
         public UcProjDiagMgr()
         {
@@ -50,6 +51,7 @@ namespace iEngr.Hookup.Views
             VmTree= ucTree.DataContext as HkTreeViewModel;
             VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
+            VmTree.PropLabelItemsChanged += OnNodeLabelItemsChanged;
             VmPicture = ucPic.DataContext as HkPictureViewModel;
             VmDiagLib = ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
@@ -58,10 +60,12 @@ namespace iEngr.Hookup.Views
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
             VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
+            VmDiagComos.PropLabelItemsChanged += OnDiagLabelItemsChanged;
             VmAppliedLib = ucNodes.DataContext as AppliedNodeViewModel;
             VmAppliedLib.NodeIDHighlighted += OnNodeIDHighlighted;
             VmBomComos = ucBomComos.DataContext as BomItemsViewModel;
             VmBomLib = ucBomLib.DataContext as BomItemsViewModel;
+            VmLabel = ucProp.DataContext as PropLabelViewModel;
 
             ucDiagLib.ActiveAreaChange += OnActiveAreaChange;
             ucDiagComos.ActiveAreaChange += OnActiveAreaChange;
@@ -114,7 +118,29 @@ namespace iEngr.Hookup.Views
             }
         }
         //更新UcPropLabel
-        private void OnPropLabelItemsChanged(object sender, HkTreeItem value)
+        private void OnNodeLabelItemsChanged(object sender, HkTreeItem value)
+        {
+            if (VmLabel.PropLabelItems == null)
+            {
+                VmLabel.PropLabelItems = HK_General.GetPropLabelItems(value);
+                return;
+            }
+            VmLabel.Clear("node");
+            var nodeLabels = HK_General.GetPropLabelItems(value).ToDictionary(x=>x.Key, x=>x);
+            foreach (var label in VmLabel.PropLabelItems)
+            {
+                if (nodeLabels.ContainsKey(label.Key))
+                {
+                    label.DisplayValue1 = nodeLabels[label.Key].DisplayValue1;
+                    nodeLabels.Remove(label.Key);
+                }
+            }
+            VmLabel.PropLabelItems = new ObservableCollection<LabelDisplay>(
+                VmLabel.PropLabelItems.Union(
+                    new ObservableCollection<LabelDisplay>(nodeLabels.Select(x => x.Value)))
+                .Where(x=>!string.IsNullOrEmpty(x.DisplayValue1) || !string.IsNullOrEmpty(x.DisplayValue2)));
+        }
+        private void OnDiagLabelItemsChanged(object sender, DiagramItem value)
         {
             var labels = (ucProp.DataContext as PropLabelViewModel).PropLabelItems;
 
@@ -126,9 +152,17 @@ namespace iEngr.Hookup.Views
         {
             VmDiagLib.FocusedNode = value;
             //OnPicturePathChanged(sender, value);
-            OnPropLabelItemsChanged(sender, value);
+            OnNodeLabelItemsChanged(sender, value);
             OnDiagramIDsChanged(sender, value);
         }
+        private void OnLabelsChanged(object sender, Dictionary<string,object> value)
+        {
+            if(sender is HkTreeItem treeItem)
+            {
+                
+            }
+        }
+
         private void OnDiagramIDsChanged(object sender, HkTreeItem value)
         {
             VmDiagLib.AssignedDiagramItems.Clear();
