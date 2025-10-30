@@ -49,6 +49,7 @@ namespace iEngr.Hookup.Comos
 
             VmDiagComos = ucPDM.ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.ComosDiagChanged += OnComosDiagramChanged;
+            VmDiagComos.DiagLabelItemsChanged += OnDiagLabelItemsChanged;
             VmDiagComos.ComosPicturePathSet += OnComosPicturePathSet;
             VmDiagComos.ComosDiagObjDelCmd += OnComosDiagObjDelCmdClick;
             VmDiagComos.ComosDiagModClsCmd += OnComosDiagModClsCmdClick;
@@ -284,7 +285,6 @@ namespace iEngr.Hookup.Comos
         {
             VmBomComos.DataSource.Clear();
             VmAppliedComos.AppliedItems.Clear();
-            VmLabel.Clear("node"); 
             if (value != null && value.ObjComosDiagMod != null)
             {
                 SetBomListDataSource(value.ObjComosDiagMod);
@@ -331,9 +331,27 @@ namespace iEngr.Hookup.Comos
                     VmDiagComos.CanComosDiagModDel = true;
                 }
                 //刷行标签比较控件
-                //VmLabel.
+                OnDiagLabelItemsChanged(sender, value);
             }
         }
+        private void OnDiagLabelItemsChanged(object sender, DiagramItem value)
+        {
+            var diagLabels = HK_General.GetPropLabelItems(value).ToDictionary(x => x.Key, x => x);
+            VmLabel.Clear("diagram");
+            var validLabels = VmLabel.PropLabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
+            foreach (var label in validLabels)
+            {
+                if (diagLabels.ContainsKey(label.Key))
+                {
+                    label.DisplayValue2 = diagLabels[label.Key].DisplayValue2;
+                    label.IsComosLabel = diagLabels[label.Key].IsComosLabel;
+                    diagLabels.Remove(label.Key);
+                }
+            }
+            VmLabel.PropLabelItems = new ObservableCollection<LabelDisplay>(
+                validLabels.Union(new ObservableCollection<LabelDisplay>(diagLabels.Select(x => x.Value))));
+        }
+
 
         private void SetBomListDataSource(IComosBaseObject objQueryStart)
         {

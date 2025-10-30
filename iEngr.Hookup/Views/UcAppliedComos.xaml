@@ -55,8 +55,9 @@
                     <!--<Border Padding="2" Margin="2" Background="White" 
                         BorderBrush="red" BorderThickness="1" CornerRadius="4">-->
                     <Border Padding="0,2,0,0" >
+                        <!-- 鼠标进悬停处理 --><!--
                         <i:Interaction.Triggers>
-                            <!-- 鼠标进入时启动延迟计时 -->
+                            --><!-- 鼠标进入时启动延迟计时 --><!--
                             <i:EventTrigger EventName="MouseEnter">
                                 <i:InvokeCommandAction 
                                 Command="{Binding DataContext.ItemMouseEnterCommand, 
@@ -64,21 +65,21 @@
                                 CommandParameter="{Binding}"/>
                             </i:EventTrigger>
 
-                            <!-- 鼠标离开时取消计时 -->
+                            --><!-- 鼠标离开时取消计时 --><!--
                             <i:EventTrigger EventName="MouseLeave">
                                 <i:InvokeCommandAction 
                                 Command="{Binding DataContext.ItemMouseLeaveCommand, 
                                         RelativeSource={RelativeSource AncestorType=ListView}}"
                                 CommandParameter="{Binding}"/>
                             </i:EventTrigger>
-                            <!-- 鼠标左键点击时取消计时 -->
+                            --><!-- 鼠标左键点击时取消计时 --><!--
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <i:InvokeCommandAction 
                                 Command="{Binding DataContext.ItemMouseClickCommand, 
                                         RelativeSource={RelativeSource AncestorType=ListView}}"
                                 CommandParameter="{Binding}"/>
                             </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                        </i:Interaction.Triggers>-->
                         <StackPanel Orientation="Horizontal">
                             <!--<Ellipse Width="40" Height="40" Fill="LightBlue"/>-->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -103,7 +104,10 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>-->
             <ListView.ContextMenu>
-                <ContextMenu> 
+                <ContextMenu>
+                    <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
+                              ToolTip="Comos原生的右键菜单（导航、属性）"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="删除" Command="{Binding RemoveCommand}"
                               ToolTip="将此仪表设备从当前安装图模版中移除，删除对应的安装图对象"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>

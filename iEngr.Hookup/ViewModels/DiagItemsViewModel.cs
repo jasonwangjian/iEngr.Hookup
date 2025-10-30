@@ -27,7 +27,7 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<string> DiagramIDChanged;
         public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<DiagramItem> ComosDiagChanged;
-        public event EventHandler<DiagramItem> PropLabelItemsChanged;
+        public event EventHandler<DiagramItem> DiagLabelItemsChanged;
 
         public event EventHandler<DiagramItem> ComosDiagModAddCmd; //创建安装图模板
         public event EventHandler<DiagramItem> ComosDiagModClsCmd; //删除安装图模板所适用的说有安装图对象
@@ -45,6 +45,7 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
+        public ICommand ComosItemContextMenuCommand { get; }
         public ICommand ItemMouseEnterCommand { get; }
         public ICommand ItemMouseLeaveCommand { get; }
         public ICommand ItemMouseClickCommand { get; }
@@ -72,6 +73,8 @@ namespace iEngr.Hookup.ViewModels
             );
             IsLangCtrlShown = true;
             LangInChinese = true;
+            ComosItemContextMenuCommand = new RelayCommand<object>(OnComosItemContextMenuCommand);
+
             ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
             ItemMouseLeaveCommand = new RelayCommand<object>(OnItemMouseLeave);
             ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
@@ -82,7 +85,7 @@ namespace iEngr.Hookup.ViewModels
             var dialog = new PropertyEditorDialog(null, item);
             if (dialog.ShowDialog() == true)
             {
-                PropLabelItemsChanged?.Invoke(this, item);
+                DiagLabelItemsChanged?.Invoke(this, item);
             }
         }
 
@@ -456,6 +459,10 @@ namespace iEngr.Hookup.ViewModels
             _currentTokenSource?.Cancel();
             _currentTokenSource = null;
             _currentHoveredItem = null;
+        }
+        private void OnComosItemContextMenuCommand(object item)
+        {
+            ComosItemContextMenu?.Invoke(this, (item as DiagramItem).ObjComosDiagMod);
         }
 
         #endregion 

@@ -203,7 +203,7 @@ namespace iEngr.Hookup
         public static ObservableCollection<LabelDisplay> GetPropLabelItems(DiagramItem item)
         {
             var properties = GetPropertyDictionary(item?.IdLabels);
-            var propLabelItems = GetPropLabelItems(properties, true, false);
+            var propLabelItems = GetPropLabelItems(properties, false, false);
             // 排序后返回新的 ObservableCollection
             return new ObservableCollection<LabelDisplay>(propLabelItems.OrderBy(x => x.SortNum));
         }
@@ -229,8 +229,10 @@ namespace iEngr.Hookup
                         Key = prop.Key,
                         SortNum = propDef.SortNum,
                         DisplayName = propDef.DisplayName,
-                        DisplayValue1 = displayValue,
+                        DisplayValue1 = isNodeLabel ? displayValue : null,
+                        DisplayValue2 = isNodeLabel ? null : displayValue,
                         IsNodeLabel = isNodeLabel,
+                        IsComosLabel = !isNodeLabel,
                         IsInherit = isInherit
                     });
                 }

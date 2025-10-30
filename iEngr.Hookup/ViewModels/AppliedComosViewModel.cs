@@ -22,6 +22,8 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<IComosBaseObject> ComosItemContextMenu;
         public ICommand RemoveCommand { get; }
         public ICommand LockCommand { get; }
+        public ICommand ComosItemContextMenuCommand { get; }
+
         public ICommand ItemMouseEnterCommand { get; }
         public ICommand ItemMouseLeaveCommand { get; }
         public ICommand ItemMouseClickCommand { get; }
@@ -30,6 +32,7 @@ namespace iEngr.Hookup.ViewModels
         public AppliedComosViewModel() 
         {
             RemoveCommand = new RelayCommand<AppliedComosItem>(DeleteDiagObj, _=>true);
+            ComosItemContextMenuCommand = new RelayCommand<object>(OnComosItemContextMenuCommand);
             ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
             ItemMouseLeaveCommand = new RelayCommand<object>(OnItemMouseLeave);
             ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
@@ -97,6 +100,10 @@ namespace iEngr.Hookup.ViewModels
         {
             // 任何鼠标点击都取消当前的悬停计时
             CancelCurrentHover();
+            //ComosItemContextMenu?.Invoke(this, (item as AppliedComosItem).ComosObj);
+        }
+        private void OnComosItemContextMenuCommand(object item)
+        {
             ComosItemContextMenu?.Invoke(this, (item as AppliedComosItem).ComosObj);
         }
         private void CancelCurrentHover()

@@ -71,7 +71,7 @@
                                     <!--<Setter Property="FontFamily" Value="Arial"/>-->
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsDiff}" Value="True">
-                                    <Setter Property="Background" Value="Yellow"/>
+                                    <Setter Property="Background" Value="LightCoral"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -82,7 +82,7 @@
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDiff}" Value="True">
-                                    <Setter Property="Background" Value="Yellow"/>
+                                    <Setter Property="Background" Value="LightCoral"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

@@ -60,7 +60,6 @@ namespace iEngr.Hookup.Views
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
             VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
-            VmDiagComos.PropLabelItemsChanged += OnDiagLabelItemsChanged;
             VmAppliedLib = ucNodes.DataContext as AppliedNodeViewModel;
             VmAppliedLib.NodeIDHighlighted += OnNodeIDHighlighted;
             VmBomComos = ucBomComos.DataContext as BomItemsViewModel;
@@ -125,27 +124,21 @@ namespace iEngr.Hookup.Views
                 VmLabel.PropLabelItems = HK_General.GetPropLabelItems(value);
                 return;
             }
+            var nodeLabels = HK_General.GetPropLabelItems(value).ToDictionary(x => x.Key, x => x);
             VmLabel.Clear("node");
-            var nodeLabels = HK_General.GetPropLabelItems(value).ToDictionary(x=>x.Key, x=>x);
-            foreach (var label in VmLabel.PropLabelItems)
+            var validLabels = VmLabel.PropLabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
+            foreach (var label in validLabels)
             {
                 if (nodeLabels.ContainsKey(label.Key))
                 {
                     label.DisplayValue1 = nodeLabels[label.Key].DisplayValue1;
+                    label.IsNodeLabel = nodeLabels[label.Key].IsNodeLabel;
+                    label.IsInherit = nodeLabels[label.Key].IsInherit;
                     nodeLabels.Remove(label.Key);
                 }
             }
             VmLabel.PropLabelItems = new ObservableCollection<LabelDisplay>(
-                VmLabel.PropLabelItems.Union(
-                    new ObservableCollection<LabelDisplay>(nodeLabels.Select(x => x.Value)))
-                .Where(x=>!string.IsNullOrEmpty(x.DisplayValue1) || !string.IsNullOrEmpty(x.DisplayValue2)));
-        }
-        private void OnDiagLabelItemsChanged(object sender, DiagramItem value)
-        {
-            var labels = (ucProp.DataContext as PropLabelViewModel).PropLabelItems;
-
-            var nodeLabels = HK_General.GetPropLabelItems(value);
-            (ucProp.DataContext as PropLabelViewModel).PropLabelItems = HK_General.GetPropLabelItems(value);
+                validLabels.Union(new ObservableCollection<LabelDisplay>(nodeLabels.Select(x => x.Value))));
         }
 
         private void OnTreeItemChanged(object sender, HkTreeItem value)

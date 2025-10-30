@@ -37,14 +37,15 @@ namespace iEngr.Hookup.ViewModels
                 foreach (var item in PropLabelItems)
                 {
                     item.DisplayValue1 = null;
-                    item.IsNodeLabel = null;
+                    item.IsNodeLabel = false;
                 }
             }
             else if (cat.ToLower() == "diagram")
             {
                 foreach (var item in PropLabelItems)
                 {
-                    item.DisplayValue1 = null;
+                    item.DisplayValue2 = null;
+                    item.IsComosLabel = false;  
                 }
             }
         }
@@ -86,7 +87,7 @@ namespace iEngr.Hookup.ViewModels
         {
             get
             {
-                return DisplayValue1 == DisplayValue2;
+                return DisplayValue1 != DisplayValue2;
             }
         }
         public bool IsComosLabel { get; set; }

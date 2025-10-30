@@ -94,19 +94,25 @@
                 <ContextMenu>
                     <!--<MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
                     <Separator/>-->
+                    <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
+                              ToolTip="Comos原生的右键菜单（导航、属性）"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"      
                               ToolTip="将图形文件分配给安装图"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="设置标签" Command="{Binding EditPropertiesCommand}"      
+                              ToolTip="为安装图模板(组）设置标签"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>
                     <!--<MenuItem Header="应用Diag" Command="{Binding ComosDiagModAddCommand}"
                               ToolTip="将此企业库安装图应用于本Comos项目，在Comos项目中创建安装图模版"
                               Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>-->
-                    <MenuItem Header="移除Diag" Command="{Binding DiagramRemoveCommand}"         
+                    <MenuItem Header="卸载安装图" Command="{Binding DiagramRemoveCommand}"         
                               ToolTip="从节点中移除此企业库安装图，安装图仍在企业库中"
                               Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
-                    <MenuItem Header="删除Diag" Command="{Binding ComosDiagObjDelCommand}"         
+                    <MenuItem Header="删除安装图" Command="{Binding ComosDiagObjDelCommand}"         
                               ToolTip="从当前Comos仪控设备的安装图中删除此项"
                               Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
@@ -189,12 +195,15 @@
             </DataGrid.RowStyle>
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
+                              ToolTip="Comos原生的右键菜单（导航、属性）"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
                     <Separator/>
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"      
                               ToolTip="将图形文件分配给安装图"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
-                    <MenuItem Header="🏷设置标签" Command="{Binding EditPropertiesCommand}"      
+                    <MenuItem Header="设置标签" Command="{Binding EditPropertiesCommand}"      
                               ToolTip="为安装图模板(组）设置标签"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>

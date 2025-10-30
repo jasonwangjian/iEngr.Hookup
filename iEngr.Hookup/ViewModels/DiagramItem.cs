@@ -47,7 +47,19 @@ namespace iEngr.Hookup.ViewModels
                 return ID.ToString() ;
             }
         }
-        public string IdLabels { get; set; }
+        private string _idLabels;
+        public string IdLabels
+        {
+            get => _idLabels;
+            set
+            {
+                if (SetField(ref _idLabels, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.spec("Y00T00103.IdLabels").value = value;
+                }
+            }
+        }
+
         IComosBaseObject _objComosDiagMod;
         public IComosBaseObject ObjComosDiagMod
         {
@@ -96,7 +108,10 @@ namespace iEngr.Hookup.ViewModels
             get => _picturePath;
             set
             {
-                SetField(ref _picturePath, value);
+                if(SetField(ref _picturePath, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.spec("Y00T00103.PicturePath").value = value;
+                }
             }
         }
 
@@ -106,7 +121,10 @@ namespace iEngr.Hookup.ViewModels
             get => _nameCn;
             set
             {
-                SetField(ref _nameCn, value);
+                if(SetField(ref _nameCn, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.SetInternationalDescription(4,value);
+                }
             }
         }
         private string _nameEn;
@@ -115,7 +133,10 @@ namespace iEngr.Hookup.ViewModels
             get => _nameEn;
             set
             {
-                SetField(ref _nameEn, value);
+                if(SetField(ref _nameEn, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.SetInternationalDescription(2, value);
+                }
             }
         }
         private string _descCn;
@@ -142,7 +163,10 @@ namespace iEngr.Hookup.ViewModels
             get => _remarksCn;
             set
             {
-                SetField(ref _remarksCn, value);
+                if(SetField(ref _remarksCn, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.spec("Y00T00103.Remarks").SetInternationalValue(4,value);
+                }
             }
         }
         private string _remarksEn;
@@ -151,7 +175,10 @@ namespace iEngr.Hookup.ViewModels
             get => _remarksEn;
             set
             {
-                SetField(ref _remarksEn, value);
+                if (SetField(ref _remarksEn, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, value);
+                }
             }
         }
         public string Name
