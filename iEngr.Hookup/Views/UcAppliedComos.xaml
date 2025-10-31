@@ -115,6 +115,10 @@
                               ToolTip="锁定后，对于改仪表设备的自动分配将失效"
                               Visibility="Collapsed"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="解锁" Command="{Binding LockCommand}"
+                              ToolTip="锁定后，对于改仪表设备的自动分配将失效"
+                              Visibility="Collapsed"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                 </ContextMenu>
             </ListView.ContextMenu>
             <!--<ListView.ItemContainerStyle>

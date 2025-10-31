@@ -28,10 +28,12 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<DiagramItem> ComosDiagChanged;
         public event EventHandler<DiagramItem> DiagLabelItemsChanged;
+        public event EventHandler<DiagramItem> DiagLabelModified;
 
         public event EventHandler<DiagramItem> ComosDiagModAddCmd; //创建安装图模板
         public event EventHandler<DiagramItem> ComosDiagModClsCmd; //删除安装图模板所适用的说有安装图对象
         public event EventHandler<DiagramItem> ComosDiagModDelCmd; //删除安装图模板
+        public event EventHandler<DiagramItem> ComosDiagModRSCmd; //重置安装图模板
         public event EventHandler<DiagramItem> ComosDiagObjDelCmd; //删除安装图对象
 
         public event EventHandler<IComosBaseObject> ComosItemContextMenu;
@@ -42,6 +44,7 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ComosDiagModAddCommand { get; } //创建安装图模板
         public ICommand ComosDiagModClsCommand { get; } //删除安装图模板所适用的说有安装图对象
         public ICommand ComosDiagModDelCommand { get; } //删除安装图模板
+        public ICommand ComosDiagModRSCommand { get; } //重置安装图模板
         public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
@@ -63,6 +66,7 @@ namespace iEngr.Hookup.ViewModels
             ComosDiagModAddCommand = new RelayCommand<DiagramItem>(ComosDiagModAdd, CanComosDiagModAdd);
             ComosDiagModClsCommand = new RelayCommand<DiagramItem>(ComosDiagModCls, _=>CanComosDiagModCls);
             ComosDiagModDelCommand = new RelayCommand<DiagramItem>(ComosDiagModDel, _=>CanComosDiagModDel);
+            ComosDiagModRSCommand = new RelayCommand<DiagramItem>(ComosDiagModRS, _ => CanComosDiagModRS);
             ComosDiagObjDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _ => true);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
@@ -86,6 +90,7 @@ namespace iEngr.Hookup.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 DiagLabelItemsChanged?.Invoke(this, item);
+                DiagLabelModified?.Invoke(this, item);
             }
         }
 
@@ -412,6 +417,15 @@ namespace iEngr.Hookup.ViewModels
         private void ComosDiagModDel(DiagramItem item)
         {
             ComosDiagModDelCmd?.Invoke(this, item);
+        }
+        public bool CanComosDiagModRS { get
+            {
+                return !string.IsNullOrEmpty(SelectedItem.RefID);
+            }
+        }
+        private void ComosDiagModRS(DiagramItem item)
+        {
+            ComosDiagModRSCmd?.Invoke(this, item);
         }
 
         private async void OnItemMouseEnter(object item)

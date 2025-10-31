@@ -731,6 +731,7 @@ namespace iEngr.Hookup.Models
             if (string.IsNullOrEmpty(groupName) || !_syncGroups.ContainsKey(groupName)) return;
 
             var syncGroup = _syncGroups[groupName];
+            if (!syncGroup.MonitoredColumns.ContainsKey(dataGrid)) return;
             var monitoredColumns = syncGroup.MonitoredColumns[dataGrid];
 
             // 清理旧的监听

@@ -108,7 +108,7 @@
                               ToolTip="将此企业库安装图应用于本Comos项目，在Comos项目中创建安装图模版"
                               Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>-->
-                    <MenuItem Header="卸载安装图" Command="{Binding DiagramRemoveCommand}"         
+                    <MenuItem Header="卸载Diag" Command="{Binding DiagramRemoveCommand}"         
                               ToolTip="从节点中移除此企业库安装图，安装图仍在企业库中"
                               Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
@@ -225,6 +225,10 @@
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="删除模板" Command="{Binding ComosDiagModDelCommand}"
                               ToolTip="删除此Comos安装图模版"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="重置模板" Command="{Binding ComosDiagModRSCommand}"         
+                              ToolTip="用企业库中的安装图重置此安装图模板"
                               Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                 </ContextMenu>

@@ -75,6 +75,8 @@ namespace iEngr.Hookup.Views
             VmBomLib.IsLangCtrlShown=false;
             VmBomComos.IsButtonShown = false;
             VmBomLib.IsButtonShown = false;
+            IsComparisonById = true;
+            IsComparisonEnabled = false;
 
             VmDiagComos.IsAssignedDiagramItemsShown = false;
             VmDiagLib.IsAssignedDiagramItemsShown = true;

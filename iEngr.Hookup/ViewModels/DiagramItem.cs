@@ -55,7 +55,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (SetField(ref _idLabels, value) && ObjComosDiagMod != null)
                 {
-                    ObjComosDiagMod.spec("Y00T00103.IdLabels").value = value;
+                     ObjComosDiagMod.XMLSet("Comos/System/Hookup/IdLabels", value);
                 }
             }
         }
@@ -72,7 +72,8 @@ namespace iEngr.Hookup.ViewModels
                     PicturePath = value.spec("Y00T00103.PicturePath").value;
                     RefID = value.spec("Y00T00103.RefIdInLib").value;
                     GroupID = value.spec("Y00T00103.GroupID").value;
-                    IdLabels = value.spec("Y00T00103.IdLabels").value;
+                    //IdLabels = value.spec("Y00T00103.IdLabels").value;
+                    IdLabels = value.XMLGet("Comos/System/Hookup/IdLabels"); //Comos的Value不接受特殊字符"|"
                     NameCn = value.GetInternationalDescription(4);
                     NameEn = value.GetInternationalDescription(2);
                     RemarksCn = value.spec("Y00T00103.Remarks").GetInternationalDisplayValue(4);
