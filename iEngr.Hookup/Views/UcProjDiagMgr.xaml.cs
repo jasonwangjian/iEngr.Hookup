@@ -78,6 +78,8 @@ namespace iEngr.Hookup.Views
             IsComparisonById = true;
             IsComparisonEnabled = false;
 
+            VmLabel.IsCompared = true;
+
             VmDiagComos.IsAssignedDiagramItemsShown = false;
             VmDiagLib.IsAssignedDiagramItemsShown = true;
 
@@ -121,14 +123,14 @@ namespace iEngr.Hookup.Views
         //更新UcPropLabel
         private void OnNodeLabelItemsChanged(object sender, HkTreeItem value)
         {
-            if (VmLabel.PropLabelItems == null)
+            if (VmLabel.LabelItems == null)
             {
-                VmLabel.PropLabelItems = HK_General.GetPropLabelItems(value);
+                VmLabel.LabelItems = HK_General.GetPropLabelItems(value);
                 return;
             }
             var nodeLabels = HK_General.GetPropLabelItems(value).ToDictionary(x => x.Key, x => x);
             VmLabel.Clear("node");
-            var validLabels = VmLabel.PropLabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
+            var validLabels = VmLabel.LabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
             foreach (var label in validLabels)
             {
                 if (nodeLabels.ContainsKey(label.Key))
@@ -139,7 +141,7 @@ namespace iEngr.Hookup.Views
                     nodeLabels.Remove(label.Key);
                 }
             }
-            VmLabel.PropLabelItems = new ObservableCollection<LabelDisplay>(
+            VmLabel.LabelItems = new ObservableCollection<LabelDisplay>(
                 validLabels.Union(new ObservableCollection<LabelDisplay>(nodeLabels.Select(x => x.Value))));
         }
 

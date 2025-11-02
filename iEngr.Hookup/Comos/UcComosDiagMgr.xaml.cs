@@ -340,7 +340,7 @@ namespace iEngr.Hookup.Comos
         {
             var diagLabels = HK_General.GetPropLabelItems(value).ToDictionary(x => x.Key, x => x);
             VmLabel.Clear("diagram");
-            var validLabels = VmLabel.PropLabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
+            var validLabels = VmLabel.LabelItems.Where(x => x.DisplayValue1 != null || x.DisplayValue2 != null);
             foreach (var label in validLabels)
             {
                 if (diagLabels.ContainsKey(label.Key))
@@ -350,7 +350,7 @@ namespace iEngr.Hookup.Comos
                     diagLabels.Remove(label.Key);
                 }
             }
-            VmLabel.PropLabelItems = new ObservableCollection<LabelDisplay>(
+            VmLabel.LabelItems = new ObservableCollection<LabelDisplay>(
                 validLabels.Union(new ObservableCollection<LabelDisplay>(diagLabels.Select(x => x.Value))));
         }
         private void OnDiagLabelModified(object sender, DiagramItem value)

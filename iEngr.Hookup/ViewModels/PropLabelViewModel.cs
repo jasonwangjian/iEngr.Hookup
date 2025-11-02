@@ -13,11 +13,11 @@ namespace iEngr.Hookup.ViewModels
 {
     public class PropLabelViewModel : INotifyPropertyChanged
     {
-        private  ObservableCollection<LabelDisplay> _propLabelItems= new ObservableCollection<LabelDisplay>();
-        public ObservableCollection<LabelDisplay> PropLabelItems
+        private  ObservableCollection<LabelDisplay> _labelItems= new ObservableCollection<LabelDisplay>();
+        public ObservableCollection<LabelDisplay> LabelItems
         {
-            get => _propLabelItems;
-            set => SetField(ref _propLabelItems, value);
+            get => _labelItems;
+            set => SetField(ref _labelItems, value);
         }
         private LabelDisplay _selectedItem;
         public LabelDisplay SelectedItem
@@ -28,13 +28,31 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _selectedItem, value);
             }
         }
-
+        private bool _isCompared;
+        public bool IsCompared
+        {
+            get => _isCompared;
+            set
+            {
+                if (SetField(ref _isCompared, value))
+                {
+                    OnPropertyChanged(nameof(IsNoCompared));
+                }
+            }
+        }
+        public bool IsNoCompared
+        {
+            get
+            {
+                return !IsCompared;
+            }
+        }
         public void Clear(string cat)
         {
-            if (PropLabelItems == null) return;
+            if (LabelItems == null) return;
             if (cat.ToLower() == "node")
             {
-                foreach (var item in PropLabelItems)
+                foreach (var item in LabelItems)
                 {
                     item.DisplayValue1 = null;
                     item.IsNodeLabel = false;
@@ -42,7 +60,7 @@ namespace iEngr.Hookup.ViewModels
             }
             else if (cat.ToLower() == "diagram")
             {
-                foreach (var item in PropLabelItems)
+                foreach (var item in LabelItems)
                 {
                     item.DisplayValue2 = null;
                     item.IsComosLabel = false;  
@@ -54,7 +72,7 @@ namespace iEngr.Hookup.ViewModels
         {
             if (cat.ToLower() == "node")
             {
-                foreach (var item in PropLabelItems)
+                foreach (var item in LabelItems)
                 {
                     if (properties.ContainsKey(item.Key))
                     {

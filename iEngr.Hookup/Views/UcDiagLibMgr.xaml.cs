@@ -24,41 +24,56 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcDiagLibMgr : UserControl
     {
+        HkTreeViewModel VmTree;
+        HkPictureViewModel VmPicture;
+        DiagItemsViewModel VmDiagLib;
+        AppliedNodeViewModel VmAppliedLib;
+        BomItemsViewModel VmBomLib;
+        PropLabelViewModel VmLabel;
+        MatMainViewModel VmMatLib;
+
         public UcDiagLibMgr()
         {
             InitializeComponent();
 
-            (ucTree.DataContext as HkTreeViewModel).PicturePathChanged += OnPicturePathChanged;
-            (ucTree.DataContext as HkTreeViewModel).PropLabelItemsChanged += OnPropLabelItemsChanged;
-            (ucTree.DataContext as HkTreeViewModel).DiagramIDsChanged += OnDiagramIDsChanged;
-            (ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
-            (ucTree.DataContext as HkTreeViewModel).TreeItemChanged += OnTreeItemChanged;
-            (ucDiag.DataContext as DiagGrid2ViewModel).PicturePathChanged += OnPicturePathChanged;
-            (ucDiag.DataContext as DiagGrid2ViewModel).DiagramIDChanged += OnDiagramIDChanged;
-            (ucNode.DataContext as AppliedNodeViewModel).NodeIDHighlighted += OnNodeIDHighlighted;
-            (ucMatLib.DataContext as MatMainViewModel).VmMatList.MatListItemChanged += OmMatListItemChanged;
-            (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
-            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = new ObservableCollection<DiagramItem>();
+            VmTree = ucTree.DataContext as HkTreeViewModel;
+            VmTree.TreeItemChanged += OnTreeItemChanged;
+            VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
+            VmTree.PropLabelItemsChanged += OnNodeLabelItemsChanged;
+
+            //(ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
+            VmPicture = ucPic.DataContext as HkPictureViewModel;
+            VmDiagLib = ucDiag.DataContext as DiagItemsViewModel;
+            VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
+            VmDiagLib.PicturePathChanged += OnPicturePathChanged;
+            VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
+            VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
+
+            VmAppliedLib = ucNode.DataContext as AppliedNodeViewModel;
+            VmAppliedLib.NodeIDHighlighted += OnNodeIDHighlighted;
+
+            VmMatLib = ucMatLib.DataContext as MatMainViewModel;
+            VmMatLib.VmMatList.MatListItemChanged += OmMatListItemChanged;
+
+            VmBomLib = ucBomLib.DataContext as BomItemsViewModel;
+
+            VmLabel = ucProp.DataContext as PropLabelViewModel;
+            VmLabel.IsCompared = false;
         }
         //更新UcHkPicture
-        private void OnPicturePathChanged(object sender, string value)
+        private void OnPicturePathChanged(object sender, DiagramItem value)
         {
-            (ucPic.DataContext as HkPictureViewModel).PicturePath = value;
+            VmPicture.PicturePath = value?.PicturePath;
         }
         //更新UcPropLabel
-        private void OnPropLabelItemsChanged(object sender, HkTreeItem value)
+        private void OnNodeLabelItemsChanged(object sender, HkTreeItem value)
         {
-            (ucProp.DataContext as PropLabelViewModel).PropLabelItems = HK_General.GetPropLabelItems(value);
+            (ucProp.DataContext as PropLabelViewModel).LabelItems = HK_General.GetPropLabelItems(value);
         }
         //更新UcDiagGrid2
         private void OnDiagramIDsChanged(object sender, HkTreeItem value)
         {
-            //刷新NodeDiagramItems
-            //ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true,false);
-            //if (value.DiagID == null) diagramItems = HK_General.GetDiagramItems(value.InheritDiagID, true, true);
-            //(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
-            //if (diagramItems.Count > 0) { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = diagramItems.FirstOrDefault(); }
-            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
+            VmDiagLib.AssignedDiagramItems.Clear();
             bool isInherit = false;
             string diagIds = value.DiagID;
             if (string.IsNullOrEmpty(diagIds))
@@ -72,22 +87,21 @@ namespace iEngr.Hookup.Views
                                    .Select(int.Parse)
                                    .ToList();
             //修正LibDiagramItems.IsOwned
-            //List<int> ids = diagramItems.Select(x=> x.ID).ToList();
-            foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
+            foreach (var item in VmDiagLib.AvailableDiagramItems)
             {
                 if (ids != null && ids.Contains(item.ID))
                 {
                     item.IsOwned = true;
                     item.IsInherit = isInherit;
-                    (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
+                    VmDiagLib.AssignedDiagramItems.Add(item);
                 }
                 else
                 {
                     item.IsOwned = false;
                 }
             }
-            if ((ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Count > 0) 
-            { (ucDiag.DataContext as DiagGrid2ViewModel).NodeSelectedItem = (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.FirstOrDefault(); }
+            if (VmDiagLib.AssignedDiagramItems.Count > 0)
+            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.AssignedDiagramItems.FirstOrDefault(); }
         }
         private void OnDiagramIDAdded(object sender, HkTreeItem value)
         {
@@ -118,21 +132,19 @@ namespace iEngr.Hookup.Views
                 }
             }
         }
-        //更新UcNodeApplied
-        private void OnDiagramIDChanged(object sender, string value)
+        private void OnLibDiagramIDChanged(object sender, string value)
         {
             ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
             if (!(string.IsNullOrEmpty(value)))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
                 {
-                    GetNoteItemsRecursive(item,value,nodeItems);
+                    GetNoteItemsRecursive(item, value, nodeItems);
                 }
             }
-            (ucNode.DataContext as AppliedNodeViewModel).AppliedItems = nodeItems;
-            //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
-            (ucBomLib.DataContext as BomItemsViewModel).SelectedDiagramItem = (ucDiag.DataContext as DiagGrid2ViewModel).SelectedItem;
-            (ucBomLib.DataContext as BomItemsViewModel).DataSource = HK_General.GetDiagBomItems(value);
+            VmAppliedLib.AppliedItems = nodeItems;
+            if (VmBomLib.SelectedDiagramItem != VmDiagLib.SelectedItem) VmBomLib.SelectedDiagramItem = VmDiagLib.SelectedItem;
+            VmBomLib.DataSource = HK_General.GetDiagBomItems(value);
         }
         private ObservableCollection<AppliedNodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<AppliedNodeItem> nodeItems)
         {
@@ -214,44 +226,15 @@ namespace iEngr.Hookup.Views
 
         private void OnTreeItemChanged(object sender, HkTreeItem value)
         {
-            (ucDiag.DataContext as DiagGrid2ViewModel).FocusedNode = value;
-            OnPicturePathChanged(sender, value?.PicturePath);
-            OnPropLabelItemsChanged(sender, value);
+            VmDiagLib.FocusedNode = value;
+            OnNodeLabelItemsChanged(sender, value);
             OnDiagramIDsChanged(sender, value);
         }
         //更新UcBomList
         private void OmMatListItemChanged(object sender, MatListItem value)
         {
-            (ucBomLib.DataContext as BomItemsViewModel).SelectedMatListItem = value;
+            VmBomLib.SelectedMatListItem = value;
         }
 
-        //private void OnTreeItemChanged(object sender, HkTreeItem value)
-        //{
-        //    if (value != null)
-        //    {
-        //        string diagIDs = string.IsNullOrEmpty(value.DiagID) ? value.InheritDiagID : value.DiagID;
-        //        ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(diagIDs, true);
-        //        List<string> ids = new List<string>();
-        //        foreach (var child in value.Children)
-        //        {
-        //            ids = GetDiagIDRecursive(child,ids);
-        //        }
-        //        diagIDs = string.Join(",", ids.Where(x => !string.IsNullOrEmpty(x)).Distinct());
-        //        ObservableCollection<DiagramItem> diagramItemsChild = HK_General.GetDiagramItems(diagIDs, false);
-
-        //        diagramItems.AddRange(diagramItemsChild);
-        //        (ucDiag.DataContext as DiagGridViewModel).DiagramItems = diagramItems;
-        //    }
-        //}
-        //private List<string> GetDiagIDRecursive(HkTreeItem item, List<string> ids)
-        //{
-        //    if (item == null) return ids;
-        //    ids.Add(item.DiagID);
-        //    foreach (var child in item.Children)
-        //    {
-        //        GetDiagIDRecursive(child, ids);
-        //    }
-        //    return ids;
-        //}
     }
 }

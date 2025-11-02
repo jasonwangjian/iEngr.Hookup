@@ -10,6 +10,10 @@
     <UserControl.DataContext>
         <vm:PropLabelViewModel />
     </UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- 创建转换器 -->
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -25,7 +29,7 @@
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   CanUserSortColumns="False"
                   CanUserReorderColumns="False"
-                  ItemsSource="{Binding PropLabelItems}" 
+                  ItemsSource="{Binding LabelItems}" 
 		          SelectedItem="{Binding SelectedItem}"
                   HeadersVisibility="Column"
                   GridLinesVisibility="None"
@@ -60,7 +64,23 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Key" Binding="{Binding Path=Key}"/>
                 <!--<DataGridTextColumn Header="标签名称" Binding="{Binding Path=DisplayName}"/>-->
-                <DataGridTextColumn Header="节点标签值" Binding="{Binding Path=DisplayValue1}">
+                <DataGridTextColumn Header="节点名称" Binding="{Binding Path=DisplayName}" 
+                                    local:Extensions.IsVisible="{Binding Data.IsNoCompared, Source={StaticResource Proxy}}">
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="节点标签值" Binding="{Binding Path=DisplayValue1}" 
+                                    local:Extensions.IsVisible="{Binding Data.IsNoCompared, Source={StaticResource Proxy}}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsInherit}" Value="True">
+                                    <Setter Property="FontStyle" Value="Italic"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="节点标签值" Binding="{Binding Path=DisplayValue1}" 
+                                    local:Extensions.IsVisible="{Binding Data.IsCompared, Source={StaticResource Proxy}}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
@@ -77,7 +97,8 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="项目模板标签值" Binding="{Binding Path=DisplayValue2}">
+                <DataGridTextColumn Header="项目模板标签值" Binding="{Binding Path=DisplayValue2}"
+                                    local:Extensions.IsVisible="{Binding Data.IsCompared, Source={StaticResource Proxy}}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>

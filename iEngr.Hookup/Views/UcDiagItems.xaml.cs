@@ -94,5 +94,13 @@ namespace iEngr.Hookup.Views
             //通过赋值触发事件
             dgDiagAvailable.SelectedItem = dgDiagAvailable.SelectedItem;
         }
+
+        private void dgDiag_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                e.Handled = true; // 阻止Delete键的功能
+            }
+        }
     }
 }

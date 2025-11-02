@@ -61,9 +61,13 @@ namespace iEngr.Hookup.Views
             BindingOperations.SetBinding(dcMatCode, DataGridComboBoxColumn.ItemsSourceProperty, new Binding("MatMats") { Source = DataContext });
         }
 
-        // 禁止回车换行的事件处理
+        // 禁止Delete键的事件处理
         private void dgBOM_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Delete)
+            {
+                e.Handled = true; // 阻止默认行为
+            }
             //if (e.Key == Key.Enter)
             //{
             //    e.Handled = true; // 阻止默认行为

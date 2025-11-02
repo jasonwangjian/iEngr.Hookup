@@ -40,6 +40,7 @@
         <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   Visibility="{Binding IsAssignedDiagramItemsShown, Converter={StaticResource BoolToVisibilityConverter}}"
+                  PreviewKeyDown="dgDiag_PreviewKeyDown"
                   CanUserReorderColumns="False"
                   FrozenColumnCount="2"
                   GotFocus="dgDiagAssigned_GotFocus"
@@ -96,6 +97,7 @@
                     <Separator/>-->
                     <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
                               ToolTip="Comos原生的右键菜单（导航、属性）"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"      
                               ToolTip="将图形文件分配给安装图"
@@ -149,6 +151,7 @@
                       />
         <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
+                  PreviewKeyDown="dgDiag_PreviewKeyDown"
                   FrozenColumnCount="2"
                   CanUserReorderColumns="False"
                   GotFocus="dgDiagAvailable_GotFocus"
@@ -197,6 +200,7 @@
                 <ContextMenu>
                     <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
                               ToolTip="Comos原生的右键菜单（导航、属性）"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
                     <Separator/>
