@@ -365,6 +365,13 @@ namespace iEngr.Hookup.Views
                 SetField(ref _isAutoNavigate, value);
             }
         }
+        public bool IsAdmin
+        {
+            get
+            {
+                return (HK_General.UserComos.Roles & HK_General.RoleAdmin) > 0;
+            }
+        }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

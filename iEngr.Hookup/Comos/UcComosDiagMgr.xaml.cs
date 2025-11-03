@@ -60,6 +60,7 @@ namespace iEngr.Hookup.Comos
 
             VmBomComos = ucPDM.ucBomComos.DataContext as BomItemsViewModel;
             VmBomComos.SelectedBomIDChanged += OnSelectedBomIDChanged;
+            VmBomComos.ComosItemContextMenu += PopContextMenu;
 
             VmDiagLib = ucPDM.ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.ComosDiagModAddCmd += OnComosDiagAppCmdClick;
@@ -625,26 +626,64 @@ namespace iEngr.Hookup.Comos
             }
             return newAddedDiag;
         }
+        //删除模板后重建
+        //private void ComosDiagModReset(DiagramItem item, string groupId = null)
+        //{
+        //    if (item == null || item.ObjComosDiagMod == null) return;
+        //    IComosBaseObject diagMod = Project.Workset().CreateDeviceObject(item.ObjComosDiagMod.owner(), CDevDiagMod);
+        //    if (diagMod == null) return;
+        //    diagMod.spec("Y00T00103.GroupID").value = item.ObjComosDiagMod.spec("Y00T00103.GroupID").value;
+        //    diagMod.spec("Y00T00103.PicturePath").value = item.PicturePath;
+        //    diagMod.spec("Y00T00103.RefIdInLib").value = item.DisplayID;
+        //    diagMod.SetInternationalDescription(4, item.NameCn);
+        //    diagMod.SetInternationalDescription(2, item.NameEn);
+        //    diagMod.spec("Y00T00103.Remarks").SetInternationalValue(4, item.RemarksCn);
+        //    diagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, item.RemarksEn);
+        //    diagMod.XMLSet("Comos/System/Hookup/IdLabels", diagMod.XMLGet("Comos/System/Hookup/IdLabels"));
+        //    item.ObjComosDiagMod.DeleteAll();
+        //    item.ObjComosDiagMod = diagMod;
+        //    //添加BOM
+        //    var bomItens = HK_General.GetDiagBomItems(item.RefID);
+        //    foreach (var bomItem in bomItens)
+        //    {
+        //        IComosBaseObject bomItemObj = Project.Workset().CreateDeviceObject(diagMod, CDevDiagBom);
+        //        if (bomItemObj != null)
+        //        {
+        //            bomItemObj.Label = bomItem.No;
+        //            bomItemObj.spec("Z00T00003.ID").value = bomItem.ID;
+        //            bomItemObj.spec("Z00T00003.Qty").value = bomItem.Qty;
+        //            bomItemObj.spec("Z00T00003.Unit").value = bomItem.Unit;
+        //            bomItemObj.spec("Z00T00003.SD").value = bomItem.SupplyDiscipline;
+        //            bomItemObj.spec("Z00T00003.SR").value = bomItem.SupplyResponsible;
+        //            bomItemObj.spec("Z00T00003.ED").value = bomItem.ErectionDiscipline;
+        //            bomItemObj.spec("Z00T00003.ER").value = bomItem.ErectionResponsible;
+        //            bomItemObj.spec("Z00T00003.Mat").value = bomItem.MatMatCode;
+        //            bomItemObj.SetInternationalDescription(4, bomItem.NameCn);
+        //            bomItemObj.SetInternationalDescription(2, bomItem.NameEn);
+        //            bomItemObj.spec("Z00T00003.Name").SetInternationalValue(4, bomItem.NameCn);
+        //            bomItemObj.spec("Z00T00003.Name").SetInternationalValue(2, bomItem.NameEn);
+        //            bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(4, bomItem.SpecAllCn);
+        //            bomItemObj.spec("Z00T00003.SpecAll").SetInternationalValue(2, bomItem.SpecAllEn);
+        //            bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(4, bomItem.RemarksCn);
+        //            bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(2, bomItem.RemarksEn);
+        //        }
+        //    }
+        //}
+        //删除BOM后重建
         private void ComosDiagModReset(DiagramItem item, string groupId = null)
         {
             if (item == null || item.ObjComosDiagMod == null) return;
-            IComosBaseObject diagMod = Project.Workset().CreateDeviceObject(item.ObjComosDiagMod.owner(), CDevDiagMod);
-            if (diagMod == null) return;
-            diagMod.spec("Y00T00103.GroupID").value = item.ObjComosDiagMod.spec("Y00T00103.GroupID").value;
-            diagMod.spec("Y00T00103.PicturePath").value = item.PicturePath;
-            diagMod.spec("Y00T00103.RefIdInLib").value = item.DisplayID;
-            diagMod.SetInternationalDescription(4, item.NameCn);
-            diagMod.SetInternationalDescription(2, item.NameEn);
-            diagMod.spec("Y00T00103.Remarks").SetInternationalValue(4, item.RemarksCn);
-            diagMod.spec("Y00T00103.Remarks").SetInternationalValue(2, item.RemarksEn);
-            diagMod.XMLSet("Comos/System/Hookup/IdLabels", diagMod.XMLGet("Comos/System/Hookup/IdLabels"));
-            item.ObjComosDiagMod.DeleteAll();
-            item.ObjComosDiagMod = diagMod;
+            //删除已有BOM
+            var existingBomItems = item.ObjComosDiagMod.ScanDevicesWithCObject("", CDevDiagBom);
+            for (int i = 1;i<=existingBomItems.Count(); i++)
+            {
+                existingBomItems.Item(i).DeleteAll();
+            }
             //添加BOM
             var bomItens = HK_General.GetDiagBomItems(item.RefID);
             foreach (var bomItem in bomItens)
             {
-                IComosBaseObject bomItemObj = Project.Workset().CreateDeviceObject(diagMod, CDevDiagBom);
+                IComosBaseObject bomItemObj = Project.Workset().CreateDeviceObject(item.ObjComosDiagMod, CDevDiagBom);
                 if (bomItemObj != null)
                 {
                     bomItemObj.Label = bomItem.No;
@@ -739,13 +778,22 @@ namespace iEngr.Hookup.Comos
         private void OnComosDiagModRSCmdClick(object sender, DiagramItem value)
         {
             if (value == null || value.ObjComosDiagMod == null) return;
-            var appliedCIDevices = GetAppliedCIDevice(value.ObjComosDiagMod);
-            // 被锁定检查，锁定提示、退出； TBA
+            //var appliedCIDevices = GetAppliedCIDevice(value.ObjComosDiagMod);
+            //// 被锁定检查，锁定提示、退出； TBA
+            //ComosDiagModReset(value);
+            //string groupId = value.GroupID;
+            //foreach(var ciDev in appliedCIDevices)
+            //{
+            //    ComosDiagObjCreate(ciDev, value.ObjComosDiagMod);
+            //}
             ComosDiagModReset(value);
-            string groupId = value.GroupID;
-            foreach(var ciDev in appliedCIDevices)
+            if(value == VmDiagComos.SelectedItem)
             {
-                ComosDiagObjCreate(ciDev, value.ObjComosDiagMod);
+                VmBomComos.DataSource.Clear();
+                SetBomListDataSource(value.ObjComosDiagMod);
+                ucPDM.ucBomComos.dgBOM.UpdateLayout();
+                ucPDM.ExecComparision(ucPDM.IsComparisonEnabled);
+                value.BomQty = VmBomComos.DataSource.Count().ToString();
             }
         }
 

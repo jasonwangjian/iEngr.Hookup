@@ -77,19 +77,37 @@ namespace iEngr.Hookup.Models
         //        ObjMatBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, matItem.RemarksEn);
         //    }
         //}
+        //public bool IsComosItem
+        //{
+        //    get
+        //    {
+        //        return ObjComosBomItem != null;
+        //    }
+        //}
+        //public bool IsLibItem
+        //{
+        //    get
+        //    {
+        //        return ObjComosBomItem == null 
+        //            && LibBomItem != null;
+        //    }
+        //}
+        private bool _isComosItem;
         public bool IsComosItem
         {
-            get
-            {
-                return ObjComosBomItem != null;
-            }
+            get => _isComosItem;
+            set => SetField(ref _isComosItem, value);
         }
+        private bool _isLibItem;
         public bool IsLibItem
         {
-            get
+            get => _isLibItem;
+            set
             {
-                return ObjComosBomItem == null 
-                    && LibBomItem != null;
+                if (SetField(ref _isLibItem, value))
+                { 
+                    //OnPropertyChanged(nameof(IsDiagramDeleteShow)); 
+                }
             }
         }
         public bool _isSameID; 
@@ -229,6 +247,7 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _objComosBomItem, value) && value != null)
                 {
+                    IsComosItem = true;
                     No = value.Label;
                     ID = value.spec("Z00T00003.ID").value;
                     NameCn = value.spec("Z00T00003.Name").GetInternationalDisplayValue(4);

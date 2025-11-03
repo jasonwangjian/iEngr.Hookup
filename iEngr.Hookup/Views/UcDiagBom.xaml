@@ -71,8 +71,13 @@
             </DataGrid.RowStyle>
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Comos导航" Command="{Binding ComosItemContextMenuCommand}"
+                              ToolTip="Comos原生的右键菜单（导航、属性）"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
                     <Separator/>
+                    
                 </ContextMenu>
             </DataGrid.ContextMenu>
 
@@ -132,12 +137,14 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <WrapPanel  Visibility="{Binding IsButtonShown, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0,0,0,5">
-            <Button Content="⇞" Command="{Binding MoveToFirstCommand}"  Margin="5" Width="24"/>
-            <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="5" Width="24"/>
-            <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="5" Width="24"/>
-            <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="5" Width="24"/>
+        <WrapPanel  
+                    Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="3,0,0,0">
+            <Button Content="⇞" Command="{Binding MoveToFirstCommand}" Margin="2,5" Width="24"/>
+            <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="2,5" Width="24"/>
+            <Button Content="⬇️" Command="{Binding MoveDownCommand}"  Margin="2,5" Width="24"/>
+            <Button Content="⇟" Command="{Binding MoveToLastCommand}"  Margin="2,5" Width="24"/>
+            <Button Content="🔢" Command="{Binding NoResetCommand}"  Margin="2,10" Width="24"
+                    ToolTip="根据当前顺序重新设置序号"/>
         </WrapPanel>
         <WrapPanel  Visibility="{Binding IsButtonShown, Converter={StaticResource BoolToVisibilityConverter}}"
                     Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,5">

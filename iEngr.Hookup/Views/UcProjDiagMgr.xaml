@@ -78,16 +78,12 @@
                 <GridSplitter Grid.Row="2" Grid.ColumnSpan="7" Height="30" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="2" Grid.RowSpan="5" Width="1" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="4" Grid.RowSpan="5" Width="1" HorizontalAlignment="Stretch"/>
-                <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="7" HorizontalAlignment="Center" Margin="0,0,0,0">
-                    <Button Content="新增" Command="{Binding NewAddCommand}"  Margin="5" Width="80"/>
-                    <Button Content="更新" Command="{Binding UpdateCommand}"  Margin="5" Width="80"/>
-                    <Button Content="变更" Command="{Binding AlterCommand}"  Margin="5" Width="80"/>
-                    <Button Content="比较" Command="{Binding BomCompareCommand}"  Margin="5" Width="80"/>
+                <!--<WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="7" HorizontalAlignment="Center" Margin="0,0,0,0">
+                    --><!--<Button Content="比较" Command="{Binding BomCompareCommand}"  Margin="5" Width="80"/>--><!--
                     <CheckBox IsChecked="{Binding IsComparisonEnabled}" Content="自动比较" Margin="5"/>
                     <CheckBox IsChecked="{Binding IsComparisonById}" Content="基于ID" Margin="5"
                       IsEnabled="{Binding IsComparisonEnabled}"/>
-                    <TextBox Text="测试" AllowDrop="True"/>
-                </WrapPanel>
+                </WrapPanel>-->
 
             </Grid>
         </Grid>
@@ -107,10 +103,13 @@
                         Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" Width="80"/>
             </WrapPanel>
             <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,5"  VerticalAlignment="Bottom">
-                <Button Content="管理" 
-                        Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" Width="80"/>
+                <Button Content="⚙️" ToolTip="企业库管理" IsEnabled="{Binding IsAdmin}"
+                        Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" />
             </WrapPanel>
             <WrapPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"  Margin="0,30,0,5" VerticalAlignment="Bottom">
+                <CheckBox Margin="0,10,10,0" IsChecked="{Binding IsComparisonEnabled}" Content="自动比较" />
+                <CheckBox Margin="0,10,10,0" IsChecked="{Binding IsComparisonById}" Content="基于ID" 
+                      IsEnabled="{Binding IsComparisonEnabled}"/>
                 <CheckBox Margin="0,10,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
                 <CheckBox Margin="0,10,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
             </WrapPanel>

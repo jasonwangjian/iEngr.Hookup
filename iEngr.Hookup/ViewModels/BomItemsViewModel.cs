@@ -25,6 +25,8 @@ namespace iEngr.Hookup.ViewModels
     public class BomItemsViewModel : INotifyPropertyChanged
     {
         public event EventHandler<string> SelectedBomIDChanged;
+        public event EventHandler<IComosBaseObject> ComosItemContextMenu;
+        public ICommand ComosItemContextMenuCommand { get; }
 
         public BomItemsViewModel()
         {
@@ -39,6 +41,7 @@ namespace iEngr.Hookup.ViewModels
             MoveDownCommand = new RelayCommand<object>(_ => MoveDown(), _ => CanMoveDown());
             MoveToFirstCommand = new RelayCommand<object>(_ => MoveToFirst(), _ => CanMoveUp());
             MoveToLastCommand = new RelayCommand<object>(_ => MoveToLast(), _ => CanMoveDown());
+            NoResetCommand = new RelayCommand<object>(_ => NoReset(), _ => CanNoReset());
             NewAddCommand = new RelayCommand<object>(_ => NewAdd(), _ => SelectedMatListItem != null && (CurrentObject != null || SelectedDiagramItem != null));
             UpdateCommand = new RelayCommand<object>(_ => Update(), _ => !string.IsNullOrEmpty(SelectedItem?.ID));
             AlterCommand = new RelayCommand<object>(_ => Alter(), _ => SelectedItem != null && SelectedMatListItem != null);
@@ -47,6 +50,7 @@ namespace iEngr.Hookup.ViewModels
             IsLangCtrlShown = true;
             IsButtonShown = true;
             LangInChinese = true;
+            ComosItemContextMenuCommand = new RelayCommand<object>(OnComosItemContextMenuCommand);
         }
         public List<GeneralItem> Disciplines { get; set; }
         public List<GeneralItem> Responsibles { get; set; }
@@ -236,6 +240,14 @@ namespace iEngr.Hookup.ViewModels
             get => _dataSource;
             set => SetField(ref _dataSource, value);
         }
+        public void ItemNoReset(int index =1)
+        {
+            foreach (var item in DataSource)
+            {
+                item.No = index.ToString();
+                index++;
+            }
+        }
         private BomItem _selectedItem;
         public BomItem SelectedItem
         {
@@ -269,13 +281,27 @@ namespace iEngr.Hookup.ViewModels
         public RelayCommand<object> MoveDownCommand { get; }
         public RelayCommand<object> MoveToFirstCommand { get; }
         public RelayCommand<object> MoveToLastCommand { get; }
+        public RelayCommand<object> NoResetCommand { get; }
         private void MoveUp() => DataSource.MoveUp(SelectedItem);
         private void MoveDown() => DataSource.MoveDown(SelectedItem);
         private void MoveToFirst() => DataSource.MoveToFirst(SelectedItem);
         private void MoveToLast() => DataSource.MoveToLast(SelectedItem);
+        private void NoReset() => ItemNoReset();
 
-        private bool CanMoveUp() => SelectedItem != null && DataSource.IndexOf(SelectedItem) > 0;
-        private bool CanMoveDown() => SelectedItem != null && DataSource.IndexOf(SelectedItem) < DataSource.Count - 1;
+        private bool CanMoveUp() => SelectedItem != null && 
+                                    DataSource.IndexOf(SelectedItem) > 0 &&
+                                    (SelectedItem.IsComosItem ||
+                                     SelectedItem.IsLibItem &&
+                                     (HK_General.UserComos.Roles & HK_General.RoleAdmin) > 0);
+        private bool CanMoveDown() => SelectedItem != null && 
+                                      DataSource.IndexOf(SelectedItem) < DataSource.Count - 1 &&
+                                      (SelectedItem.IsComosItem ||
+                                     SelectedItem.IsLibItem &&
+                                     (HK_General.UserComos.Roles & HK_General.RoleAdmin) > 0);
+        private bool CanNoReset() => SelectedItem != null &&
+                                     (SelectedItem.IsComosItem ||
+                                     SelectedItem.IsLibItem && 
+                                     (HK_General.UserComos.Roles & HK_General.RoleAdmin)>0);
         public RelayCommand<object> UpdateCommand { get; }
         public RelayCommand<object> NewAddCommand { get; }
         public RelayCommand<object> AlterCommand { get; }
@@ -309,7 +335,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 IComosBaseObject cdev = Project.GetCDeviceBySystemFullname("@30|M41|A50|A10Z|A10|A10|A60|A30|Z10", 1);
                 IComosBaseObject newMat = Project.Workset().CreateDeviceObject(CurrentObject, cdev);
-                BomItem newBomItem = new BomItem() { ObjComosBomItem = newMat, No = newNo, LibBomItem = SelectedMatListItem };
+                BomItem newBomItem = new BomItem() { ObjComosBomItem = newMat, No = newNo, LibBomItem = SelectedMatListItem};
                 //newBomItem.SetBomListItemFromMatListItem();
                 newBomItem.SetComosObjectFromData();
                 //newBomItem.SetDataFromComosObject();
@@ -317,7 +343,7 @@ namespace iEngr.Hookup.ViewModels
             }
             else if (SelectedDiagramItem != null)
             {
-                BomItem newBomItem = new BomItem() { ObjComosBomItem = null, No = newNo, LibBomItem = SelectedMatListItem };
+                BomItem newBomItem = new BomItem() { ObjComosBomItem = null, No = newNo, LibBomItem = SelectedMatListItem, IsLibItem = true };
                 //newBomItem.SetBomListItemFromMatListItem();
                 HK_General.NewDiagBomAdd(SelectedDiagramItem.ID, newNo, SelectedMatListItem);
                 SelectedDiagramItem.BomQty = HK_General.GetDiagBomCount(SelectedDiagramItem.ID).ToString();
@@ -396,6 +422,10 @@ namespace iEngr.Hookup.ViewModels
                 }
                 SelectedItems = _selectedItems;
             }
+        }
+        private void OnComosItemContextMenuCommand(object item)
+        {
+            ComosItemContextMenu?.Invoke(this, (item as BomItem).ObjComosBomItem);
         }
     }
 }

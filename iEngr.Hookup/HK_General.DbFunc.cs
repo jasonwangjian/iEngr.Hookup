@@ -1203,7 +1203,8 @@ namespace iEngr.Hookup
                                $"inner join HK_MatGenLib mgl on bom.MatLibID = mgl.ID " +
                                $"left join HK_LibMatName mn on mn.ID = mgl.NameID " +
                                $"left join HK_LibPN pn on mgl.PClass = pn.ID " +
-                               $"where DiagID = {diagID}";
+                               $"where DiagID = {diagID} " +
+                               $"order by No";
                 using (OdbcConnection conn = GetConnection())
                 {
                     try
@@ -1252,6 +1253,7 @@ namespace iEngr.Hookup
                                     ErectionDiscipline = Convert.ToString(reader["ErecDisc"]),
                                     ErectionResponsible = Convert.ToString(reader["ErecResp"]),
                                     ID = Convert.ToInt32(reader["MatLibID"]).ToString("D4"),
+                                    IsLibItem = true,
                                 };
                                 item.SpecMainCn = getSpecMainAux(item.MatLibItem.TechSpecMain, 4);
                                 item.SpecAuxCn = getSpecMainAux(item.MatLibItem.TechSpecAux, 4);

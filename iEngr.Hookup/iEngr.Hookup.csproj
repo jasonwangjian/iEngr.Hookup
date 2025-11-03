@@ -162,7 +162,6 @@
     <Compile Include="Models\TreeViewExtensions.cs" />
     <Compile Include="Models\UserComos.cs" />
     <Compile Include="ViewModels\AppliedComosViewModel.cs" />
-    <Compile Include="ViewModels\BomItem1.cs" />
     <Compile Include="ViewModels\BomItemsViewModel.cs" />
     <Compile Include="ViewModels\BomItem.cs" />
     <Compile Include="ViewModels\BomMgrViewModel.cs" />
