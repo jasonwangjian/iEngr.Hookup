@@ -31,6 +31,7 @@ namespace iEngr.Hookup.ViewModels
         }
         public bool IsDiagramDeleteShow { get { return IsLibItem && (HK_General.UserComos.Roles & HK_General.RoleAdmin)> 0; } }
         public int ID { get; set; }
+        public string ComosName { get; set; }
         public string RefID { get; set; }
         public string GroupID { get; set; } //NodeID as default
         private bool _isSelectedGroup;
@@ -69,6 +70,7 @@ namespace iEngr.Hookup.ViewModels
                 IsComosItem = true;
                 if (SetField(ref _objComosDiagMod, value) && value != null)
                 {
+                    ComosName = value.Name;
                     PicturePath = value.spec("Y00T00103.PicturePath").value;
                     RefID = value.spec("Y00T00103.RefIdInLib").value;
                     GroupID = value.spec("Y00T00103.GroupID").value;
@@ -81,7 +83,9 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
         }
-        public IComosBaseObject ObjComosDiagObj { get; set; }
+        public IComosBaseObject ObjComosDiagObj { 
+            get; 
+            set; }
         public bool _isOwned; //是否属于某一节点或Comos设备
         public bool IsOwned
         {

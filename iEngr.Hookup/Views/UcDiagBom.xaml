@@ -137,7 +137,7 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <WrapPanel  
+        <WrapPanel Visibility="{Binding IsButtonShown, Converter={StaticResource BoolToVisibilityConverter}}" 
                     Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="3,0,0,0">
             <Button Content="⇞" Command="{Binding MoveToFirstCommand}" Margin="2,5" Width="24"/>
             <Button Content="⬆️" Command="{Binding MoveUpCommand}"  Margin="2,5" Width="24"/>

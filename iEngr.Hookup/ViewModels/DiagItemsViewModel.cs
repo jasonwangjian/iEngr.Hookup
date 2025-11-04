@@ -35,6 +35,8 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> ComosDiagModDelCmd; //删除安装图模板
         public event EventHandler<DiagramItem> ComosDiagModRSCmd; //重置安装图模板
         public event EventHandler<DiagramItem> ComosDiagObjDelCmd; //删除安装图对象
+        public event EventHandler<DiagramItem> ComosDiagObjAddCmd; //创建安装图对象
+        public event EventHandler<DiagramItem> ComosDiagMod2LibCmd; //将安装图模板添加至企业库
 
         public event EventHandler<IComosBaseObject> ComosItemContextMenu;
 
@@ -44,8 +46,10 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ComosDiagModAddCommand { get; } //创建安装图模板
         public ICommand ComosDiagModClsCommand { get; } //删除安装图模板所适用的说有安装图对象
         public ICommand ComosDiagModDelCommand { get; } //删除安装图模板
+        public ICommand ComosDiagMod2LibCommand { get; } //删除安装图模板
         public ICommand ComosDiagModRSCommand { get; } //重置安装图模板
         public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
+        public ICommand ComosDiagObjAddCommand { get; }//创建安装图对象
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
         public ICommand ComosItemContextMenuCommand { get; }
@@ -68,8 +72,10 @@ namespace iEngr.Hookup.ViewModels
             ComosDiagModDelCommand = new RelayCommand<DiagramItem>(ComosDiagModDel, _=>CanComosDiagModDel);
             ComosDiagModRSCommand = new RelayCommand<DiagramItem>(ComosDiagModRS, _ => CanComosDiagModRS);
             ComosDiagObjDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _ => true);
+            ComosDiagObjAddCommand = new RelayCommand<DiagramItem>(ComosDiagObjAdd, _ => CanComosDiagObjAdd);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
+            ComosDiagMod2LibCommand = new RelayCommand<DiagramItem>(ComosDiagMod2Lib, _ => CanComosDiagMod2Lib);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
             EditPropertiesCommand = new RelayCommand<DiagramItem>(
                 execute: EditProperties,
@@ -408,6 +414,11 @@ namespace iEngr.Hookup.ViewModels
         {
             ComosDiagObjDelCmd?.Invoke(this, item);
         }
+        public bool CanComosDiagObjAdd { get { return IsAssignedDiagramItemsShown && SelectedItem != null && !SelectedItem.IsOwned; } }
+        private void ComosDiagObjAdd(DiagramItem item)
+        {
+            ComosDiagObjAddCmd?.Invoke(this, item);
+        }
         public bool CanComosDiagModCls { get; set; }
         private void ComosDiagModCls(DiagramItem item)
         {
@@ -420,12 +431,17 @@ namespace iEngr.Hookup.ViewModels
         }
         public bool CanComosDiagModRS { get
             {
-                return !string.IsNullOrEmpty(SelectedItem.RefID);
+                return SelectedItem != null && !string.IsNullOrEmpty(SelectedItem.RefID);
             }
         }
         private void ComosDiagModRS(DiagramItem item)
         {
             ComosDiagModRSCmd?.Invoke(this, item);
+        }
+        public bool CanComosDiagMod2Lib { get; set; }
+        private void ComosDiagMod2Lib(DiagramItem item)
+        {
+            ComosDiagMod2LibCmd?.Invoke(this, item);
         }
 
         private async void OnItemMouseEnter(object item)

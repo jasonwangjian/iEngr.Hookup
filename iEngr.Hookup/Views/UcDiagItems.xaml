@@ -115,7 +115,11 @@
                               Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="删除安装图" Command="{Binding ComosDiagObjDelCommand}"         
-                              ToolTip="从当前Comos仪控设备的安装图中删除此项"
+                              ToolTip="从当前Comos仪控设备的安装图中删除此图（组）"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="添加至企业库" Command="{Binding ComosDiagMod2LibCommand}"      
+                              ToolTip="将此（组）项目模板添加至企业库"
                               Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
 
@@ -187,8 +191,8 @@
                             <Setter Property="Background" Value="LightBlue"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsSelectedGroup}" Value="True">
-                            <Setter Property="Background" Value="LightBlue"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
+                            <!--<Setter Property="Background" Value="LightBlue"/>-->
+                            <Setter Property="FontWeight" Value="ExtraBold"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
                             <Setter Property="Foreground" Value="Red"/>
@@ -203,6 +207,18 @@
                               Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="清除排序" Click="ClearAllSorting_click"/>
+                    <MenuItem Header="建立分组" Command="{Binding ComosDiagModGroupCommand}"
+                              ToolTip="将选中的安装图模板作为一个分组"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="打散分组" Command="{Binding ComosDiagModUnGroupCommand}"
+                              ToolTip="将选中的安装图模板分组打散"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="重置分组" Command="{Binding ComosDiagModGroupRSCommand}"
+                              ToolTip="将选中的安装图模板分组重置，重置后"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <Separator/>
                     <MenuItem Header="分配图形" Command="{Binding PictureSetCommand}"      
                               ToolTip="将图形文件分配给安装图"
@@ -222,6 +238,10 @@
                     <MenuItem Header="删除Diag" Command="{Binding DiagramDeleteCommand}"       
                               ToolTip="删除此企业库安装图"
                               Visibility="{Binding SelectedItem.IsDiagramDeleteShow, Converter={StaticResource BoolToVisibilityConverter}}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                    <MenuItem Header="应用到仪控设备" Command="{Binding ComosDiagObjAddCommand}"
+                              ToolTip="将此安装图模板应用于该仪控设备"
+                              Visibility="{Binding SelectedItem.IsComosItem, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="卸载仪控设备" Command="{Binding ComosDiagModClsCommand}"
                               ToolTip="移除此安装图适用的全部Comos仪控设备"
