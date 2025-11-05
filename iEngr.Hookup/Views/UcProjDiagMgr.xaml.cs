@@ -60,6 +60,7 @@ namespace iEngr.Hookup.Views
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
             VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
+            VmDiagComos.DiagramGroupChanged += OnNodeIDHighlighted;
             VmAppliedLib = ucNodes.DataContext as AppliedNodeViewModel;
             VmAppliedLib.NodeIDHighlighted += OnNodeIDHighlighted;
             VmBomComos = ucBomComos.DataContext as BomItemsViewModel;
@@ -195,6 +196,8 @@ namespace iEngr.Hookup.Views
         //更新UcNodeApplied
         private void OnLibDiagramIDChanged(object sender, string value)
         {
+            VmDiagComos.AvailableDiagramsSelectedItem = null;
+            VmDiagComos.AssignedDiagramsSelectedItem = null;
             ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
             if (!(string.IsNullOrEmpty(value)))
             {
@@ -246,12 +249,36 @@ namespace iEngr.Hookup.Views
         //在Tree上标记
         private void OnNodeIDHighlighted(object sender, AppliedNodeItem value)
         {
+            HighlightNode(value?.NodeID);
+            //HkTreeItem highlightedNode = null;
+            //if (!string.IsNullOrEmpty(value?.NodeID))
+            //{
+            //    foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+            //    {
+            //        highlightedNode = HighlightNodeRecursive(item, value?.NodeID);
+            //    }
+            //}
+            //else
+            //{
+            //    foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
+            //    {
+            //        HighlightNodeClearRecursive(item);
+            //    }
+            //}
+            //if (highlightedNode != null) { ucTree.tvHk.BringItemIntoView(highlightedNode); }
+        }
+        private void OnNodeIDHighlighted(object sender, DiagramItem value)
+        {
+            HighlightNode(value?.GroupID);
+        }
+        private void HighlightNode(string nodeId)
+        {
             HkTreeItem highlightedNode = null;
-            if (!string.IsNullOrEmpty(value?.NodeID))
+            if (!string.IsNullOrEmpty(nodeId) && int.TryParse(nodeId, out _))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
                 {
-                    highlightedNode = HighlightNodeRecursive(item, value?.NodeID);
+                    highlightedNode = HighlightNodeRecursive(item, nodeId);
                 }
             }
             else

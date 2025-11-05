@@ -306,6 +306,8 @@ namespace iEngr.Hookup.Comos
         }
         private void OnComosDiagramChanged(object sender, DiagramItem value)
         {
+            VmDiagLib.AvailableDiagramsSelectedItem = null; // 清除选择，以便颜色显示
+            VmDiagLib.AssignedDiagramsSelectedItem = null;
             VmBomComos.DataSource.Clear();
             VmAppliedComos.AppliedItems.Clear();
             if (value != null && value.ObjComosDiagMod != null)
@@ -323,7 +325,7 @@ namespace iEngr.Hookup.Comos
                     {
                         diagItem.IsSelectedGroup = false;
                     }
-                    value.IsSelectedGroup = true;
+                    //value.IsSelectedGroup = true;
                 }
                 else
                 {
@@ -863,6 +865,10 @@ namespace iEngr.Hookup.Comos
         }
         private void OnSelectedBomIDChanged(object sender, string value)
         {
+            if (sender == VmBomComos)
+                VmBomLib.SelectedItem = null;
+            else if (sender == VmBomLib)
+                VmBomComos.SelectedItem = null;
             foreach (var item in VmBomComos.DataSource)
             {
                 item.IsSameID = (item.ID == value);

@@ -33,7 +33,18 @@ namespace iEngr.Hookup.ViewModels
         public int ID { get; set; }
         public string ComosName { get; set; }
         public string RefID { get; set; }
-        public string GroupID { get; set; } //NodeID as default
+        private string _groupID;
+        public string GroupID //NodeID as default
+        {
+            get => _groupID;
+            set
+            {
+                if (SetField(ref _groupID, value) && ObjComosDiagMod != null)
+                {
+                    ObjComosDiagMod.spec("Y00T00103.GroupID").value = value;
+                }
+            }
+        }
         private bool _isSelectedGroup;
         public bool IsSelectedGroup //是否和选中的Diagram为同一Group
         {

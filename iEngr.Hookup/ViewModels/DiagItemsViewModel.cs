@@ -24,6 +24,7 @@ namespace iEngr.Hookup.ViewModels
     public class DiagItemsViewModel : INotifyPropertyChanged
     {
         public event EventHandler<DiagramItem> PicturePathChanged;
+        public event EventHandler<DiagramItem> DiagramGroupChanged;
         public event EventHandler<string> DiagramIDChanged;
         public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<DiagramItem> ComosDiagChanged;
@@ -50,6 +51,9 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ComosDiagModRSCommand { get; } //重置安装图模板
         public ICommand ComosDiagObjDelCommand { get; }//删除安装图对象
         public ICommand ComosDiagObjAddCommand { get; }//创建安装图对象
+        public ICommand ComosDiagModGroupCommand { get; } //建立分组
+        public ICommand ComosDiagModUnGroupCommand { get; } //打散分组
+        public ICommand ComosDiagModGroupRSCommand { get; } //重置分组
         public ICommand DiagramRemoveCommand { get; }
         public ICommand DiagramDeleteCommand { get; }
         public ICommand ComosItemContextMenuCommand { get; }
@@ -71,6 +75,9 @@ namespace iEngr.Hookup.ViewModels
             ComosDiagModClsCommand = new RelayCommand<DiagramItem>(ComosDiagModCls, _=>CanComosDiagModCls);
             ComosDiagModDelCommand = new RelayCommand<DiagramItem>(ComosDiagModDel, _=>CanComosDiagModDel);
             ComosDiagModRSCommand = new RelayCommand<DiagramItem>(ComosDiagModRS, _ => CanComosDiagModRS);
+            ComosDiagModGroupCommand = new RelayCommand<DiagramItem>(ComosDiagModGroup, _ => CanComosDiagModGrouo);
+            ComosDiagModUnGroupCommand = new RelayCommand<DiagramItem>(ComosDiagModUnGroup, _ => CanComosDiagModUnGroup);
+            ComosDiagModGroupRSCommand = new RelayCommand<DiagramItem>(ComosDiagModGroupRS, _ => CanComosDiagModGroupRS);
             ComosDiagObjDelCommand = new RelayCommand<DiagramItem>(ComosDiagObjDel, _ => true);
             ComosDiagObjAddCommand = new RelayCommand<DiagramItem>(ComosDiagObjAdd, _ => CanComosDiagObjAdd);
             DiagramRemoveCommand = new RelayCommand<DiagramItem>(RemoveDiagram, CanRemoveDiagram);
@@ -358,6 +365,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _assignedDiagramsSelectedItem, value);
                 SelectedItem = value;
                 PicturePathChanged?.Invoke(this, value);
+                DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
                 {
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
@@ -383,6 +391,7 @@ namespace iEngr.Hookup.ViewModels
                 SetField(ref _availableDiagramsSelectedItem, value);
                 SelectedItem = value;
                 PicturePathChanged?.Invoke(this, value);
+                DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
                 {
                     DiagramIDChanged?.Invoke(this, value?.ID.ToString());
@@ -396,6 +405,72 @@ namespace iEngr.Hookup.ViewModels
         public DiagramItem SelectedItem { set; get; }
         #endregion
 
+        public bool CanComosDiagModGrouo
+        {
+            get
+            {
+                if (SelectedItem != null && SelectedItems.Count>0)
+                {
+                    foreach (var item in SelectedItems)
+                    {
+                        if (!string.IsNullOrEmpty(item.GroupID))
+                            return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+        private void ComosDiagModGroup(DiagramItem item)
+        {
+            string groupID = $"{HK_General.UserComos.RealName}_{DateTime.Now}";
+            foreach (var diagItem in SelectedItems)
+            {
+                diagItem.GroupID = groupID;
+                diagItem.IsSelectedGroup = true;
+            }
+            DiagramGroupChanged?.Invoke(this, item);
+        }
+        public bool CanComosDiagModUnGroup
+        {
+            get
+            {
+                if (SelectedItem != null && SelectedItems.Count==1 && !string.IsNullOrEmpty(SelectedItem.GroupID))
+                    return true;
+                return false;
+            }
+        }
+        private void ComosDiagModUnGroup(DiagramItem item)
+        {
+            string groupID = item.GroupID;
+            var groupedItems = AvailableDiagramItems.Where(x => !string.IsNullOrEmpty(x.GroupID) && x.GroupID.Equals(groupID));
+            foreach (var diagItem in groupedItems)
+            {
+                diagItem.GroupID = null;
+                diagItem.IsSelectedGroup = false;
+            }
+            DiagramGroupChanged?.Invoke(this, item);
+        }
+        public bool CanComosDiagModGroupRS
+        {
+            get
+            {
+                if (SelectedItem != null && SelectedItems.Count == 1 && !string.IsNullOrEmpty(SelectedItem.GroupID))
+                    return true;
+                return false;
+            }
+        }
+        private void ComosDiagModGroupRS(DiagramItem item)
+        {
+            string newGroupID = $"{HK_General.UserComos.RealName}_{DateTime.Now}";
+            string groupID = item.GroupID;
+            var groupedItems = AvailableDiagramItems.Where(x => !string.IsNullOrEmpty(x.GroupID) && x.GroupID.Equals(groupID));
+            foreach (var diagItem in groupedItems)
+            {
+                diagItem.GroupID = newGroupID;
+            }
+            DiagramGroupChanged?.Invoke(this,item);
+        }
         #region CommandEvent
         private bool CanComosDiagModAdd(object parameter)
         {
