@@ -25,7 +25,7 @@ namespace iEngr.Hookup.ViewModels
     {
         public event EventHandler<DiagramItem> PicturePathChanged;
         public event EventHandler<DiagramItem> DiagramGroupChanged;
-        public event EventHandler<string> DiagramIDChanged;
+        public event EventHandler<DiagramItem> LibDiagramChanged;
         public event EventHandler<DiagramItem> ComosPicturePathSet;
         public event EventHandler<DiagramItem> ComosDiagChanged;
         public event EventHandler<DiagramItem> DiagLabelItemsChanged;
@@ -214,7 +214,7 @@ namespace iEngr.Hookup.ViewModels
                 }
             }
             FilterText = FilterText;
-            DiagramIDChanged?.Invoke(this, item.ID.ToString());
+            LibDiagramChanged?.Invoke(this, item);
         }
         private bool CanRemoveDiagram(object parameter)
         {
@@ -374,11 +374,12 @@ namespace iEngr.Hookup.ViewModels
             {
                 SetField(ref _assignedDiagramsSelectedItem, value);
                 SelectedItem = value;
+                HK_General.FocusedDiagram = value != null ? HK_General.AssignedDiagramFocused: 0;
                 PicturePathChanged?.Invoke(this, value);
                 DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
                 {
-                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                    LibDiagramChanged?.Invoke(this, value);
                 }
                 if (SelectedItem?.IsComosItem == true)
                 {
@@ -406,11 +407,12 @@ namespace iEngr.Hookup.ViewModels
             {
                 SetField(ref _availableDiagramsSelectedItem, value);
                 SelectedItem = value;
+                HK_General.FocusedDiagram = value != null ? HK_General.AvailableDiagramFocused : 0;
                 PicturePathChanged?.Invoke(this, value);
                 DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
                 {
-                    DiagramIDChanged?.Invoke(this, value?.ID.ToString());
+                    LibDiagramChanged?.Invoke(this, value);
                 }
                 if (SelectedItem?.IsComosItem == true)
                 {

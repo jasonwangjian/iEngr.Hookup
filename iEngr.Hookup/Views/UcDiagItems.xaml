@@ -91,8 +91,11 @@
                             <Setter Property="Background" Value="LightBlue"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsSelectedGroup}" Value="True">
-                            <Setter Property="Background" Value="LightBlue"/>
+                            <!--<Setter Property="Background" Value="LightBlue"/>-->
                             <Setter Property="FontWeight" Value="Bold"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelectedID}" Value="True">
+                            <Setter Property="FontStyle" Value="Italic"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsInherit}" Value="True">
                             <Setter Property="FontStyle" Value="Italic"/>
@@ -152,10 +155,10 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
+                <!--<DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Description" Binding="{Binding Path=DescEn}" 
-                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>-->
                 <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  
@@ -204,7 +207,10 @@
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsSelectedGroup}" Value="True">
                             <!--<Setter Property="Background" Value="LightBlue"/>-->
-                            <Setter Property="FontWeight" Value="ExtraBold"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelectedID}" Value="True">
+                            <Setter Property="FontStyle" Value="Italic"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding PicturePath, Converter={StaticResource EmptyToBoolConverter}}" Value="True">
                             <Setter Property="Foreground" Value="Red"/>
@@ -290,10 +296,10 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Diagram Name" Binding="{Binding Path=NameEn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
-                <DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
+                <!--<DataGridTextColumn Header="描述" Binding="{Binding Path=DescCn}" 
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Description" Binding="{Binding Path=DescEn}" 
-                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
+                                    local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>-->
                 <DataGridTextColumn Header="备注" Binding="{Binding Path=RemarksCn}"  
                                     local:Extensions.IsVisible="{Binding Data.LangInChinese, Source={StaticResource Proxy}}"/>
                 <DataGridTextColumn Header="Remarks" Binding="{Binding Path=RemarksEn}"  

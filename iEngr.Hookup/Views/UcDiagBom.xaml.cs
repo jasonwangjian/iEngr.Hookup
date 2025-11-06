@@ -2,6 +2,8 @@
 using Comos.UIF;
 using ComosQueryInterface;
 using ComosQueryXObj;
+using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
 using Plt;
 using System;
 using System.Collections.Generic;
@@ -79,6 +81,25 @@ namespace iEngr.Hookup.Views
             //    //    dataGrid.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             //    //}
             //}
+        }
+        private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            var bomItem = e.Row.Item as BomItem;
+            if (bomItem == null) { e.Cancel = true; return; }
+            if (bomItem.IsComosItem && ((HK_General.RoleRE + HK_General.RoleDL + HK_General.RoleAdmin) & HK_General.UserComos.Roles) == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
+            if (bomItem.IsLibItem && (HK_General.RoleAdmin & HK_General.UserComos.Roles) == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
+            if (bomItem.IsLibItem && HK_General.FocusedDiagram !=  HK_General.AssignedDiagramFocused)
+            {
+                e.Cancel = true;
+            }
         }
 
         private void ClearAllSorting_click(object sender, RoutedEventArgs e)

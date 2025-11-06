@@ -54,7 +54,7 @@ namespace iEngr.Hookup.Views
             VmTree.PropLabelItemsChanged += OnNodeLabelItemsChanged;
             VmPicture = ucPic.DataContext as HkPictureViewModel;
             VmDiagLib = ucDiagLib.DataContext as DiagItemsViewModel;
-            VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
+            VmDiagLib.LibDiagramChanged += OnLibDiagramChanged;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
             VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
@@ -94,6 +94,8 @@ namespace iEngr.Hookup.Views
 
             LibDiagMgrCommand = new RelayCommand<object>(LibDiagMgr, CanLibDiagMgr);
             BomCompareCommand = new RelayCommand<object>(BomCompare, CanBomCompare);
+
+            LangInChinese = true;
 
         }
 
@@ -195,24 +197,54 @@ namespace iEngr.Hookup.Views
             { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.FilteredAssignedDiagramItems.FirstOrDefault(); }
         }
         //更新UcNodeApplied
-        private void OnLibDiagramIDChanged(object sender, string value)
+        private void OnLibDiagramChanged(object sender, DiagramItem value)
         {
+            string id = value.ID.ToString();
             VmDiagComos.AvailableDiagramsSelectedItem = null;
             VmDiagComos.AssignedDiagramsSelectedItem = null;
             ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
-            if (!(string.IsNullOrEmpty(value)))
+            if (!(string.IsNullOrEmpty(id)))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
                 {
-                    GetNoteItemsRecursive(item, value, nodeItems);
+                    GetNoteItemsRecursive(item, id, nodeItems);
                 }
             }
             VmAppliedLib.AppliedItems = nodeItems;
             //(ucBomLib.DataContext as BomListViewModel).SelectedDiagramItem = HK_General.GetDiagramItem(value);
             if (VmBomLib.SelectedDiagramItem != VmDiagLib.SelectedItem) VmBomLib.SelectedDiagramItem = VmDiagLib.SelectedItem;
-            VmBomLib.DataSource = HK_General.GetDiagBomItems(value);
+            VmBomLib.DataSource = HK_General.GetDiagBomItems(id);
             ucBomLib.dgBOM.UpdateLayout();
             ExecComparision(IsComparisonEnabled);
+            //刷行IsSelectedID
+            if (string.IsNullOrEmpty(id))
+            {
+                foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                {
+                    diagItem.IsSelectedID = false;
+                }
+                foreach (var diagItem in VmDiagLib.AvailableDiagramItems)
+                {
+                    diagItem.IsSelectedID = false;
+                }
+            }
+            else
+            {
+                foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                {
+                    if (diagItem.RefID == id)
+                        diagItem.IsSelectedID = true;
+                    else
+                        diagItem.IsSelectedID = false;
+                }
+                foreach (var diagItem in VmDiagLib.AvailableDiagramItems)
+                {
+                    if (diagItem.ID.ToString() == id)
+                        diagItem.IsSelectedID = true;
+                    else
+                        diagItem.IsSelectedID = false;
+                }
+            }
         }
         private ObservableCollection<AppliedNodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<AppliedNodeItem> nodeItems)
         {

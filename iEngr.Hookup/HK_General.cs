@@ -33,7 +33,11 @@ namespace iEngr.Hookup
         public static readonly int RoleAP = 64; // 审定人
         public static readonly int RoleAdmin = 128; // 管理员
 
+        public static readonly int AssignedDiagramFocused = 1;
+        public static readonly int AvailableDiagramFocused = 2;
+
         public static bool IsAutoComosUpdate = true;
+        public static int FocusedDiagram = 0;
         public static readonly string[] portDef = { "EQ1", "DF1", "AS1", "NEQ" };
         public static readonly string[] portNA = { "NA", "IS" };
 

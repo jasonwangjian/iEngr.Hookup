@@ -51,6 +51,12 @@ namespace iEngr.Hookup.ViewModels
             get => _isSelectedGroup;
             set => SetField(ref _isSelectedGroup, value);
         }
+        private bool _isSelectedID;
+        public bool IsSelectedID //是否和选中的Diagram为同一ID（RefID)）
+        {
+            get => _isSelectedID;
+            set => SetField(ref _isSelectedID, value);
+        }
         public string DisplayID
         {
             get

@@ -40,6 +40,7 @@
         <DataGrid x:Name="dgBOM" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgBOM_PreviewKeyDown"
+                  BeginningEdit="DataGrid_BeginningEdit"
                   FrozenColumnCount="3"
                   ItemsSource="{Binding DataSource}" 
 		          SelectedItem="{Binding SelectedItem}"

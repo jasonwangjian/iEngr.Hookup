@@ -358,6 +358,37 @@ namespace iEngr.Hookup.Comos
                 }
                 //刷行标签比较控件
                 OnDiagLabelItemsChanged(sender, value);
+                //刷行IsSelectedID
+                string id = value.RefID;
+                if (string.IsNullOrEmpty(id))
+                {
+                    foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                    {
+                        diagItem.IsSelectedID = false;
+                    }
+                    foreach (var diagItem in VmDiagLib.AvailableDiagramItems)
+                    {
+                        diagItem.IsSelectedID = false;
+                    }
+                }
+                else
+                {
+                    foreach (var diagItem in VmDiagComos.AvailableDiagramItems)
+                    {
+                        if (diagItem.RefID == id)
+                            diagItem.IsSelectedID = true;
+                        else
+                            diagItem.IsSelectedID = false;
+                    }
+                    foreach (var diagItem in VmDiagLib.AvailableDiagramItems)
+                    {
+                        if (diagItem.ID.ToString() == id)
+                            diagItem.IsSelectedID = true;
+                        else
+                            diagItem.IsSelectedID = false;
+                    }
+                }
+
             }
         }
         private void OnDiagLabelItemsChanged(object sender, DiagramItem value)

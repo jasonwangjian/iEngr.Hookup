@@ -44,7 +44,7 @@ namespace iEngr.Hookup.Views
             //(ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
             VmPicture = ucPic.DataContext as HkPictureViewModel;
             VmDiagLib = ucDiag.DataContext as DiagItemsViewModel;
-            VmDiagLib.DiagramIDChanged += OnLibDiagramIDChanged;
+            VmDiagLib.LibDiagramChanged += OnLibDiagramChanged;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
             VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
@@ -134,19 +134,20 @@ namespace iEngr.Hookup.Views
                 }
             }
         }
-        private void OnLibDiagramIDChanged(object sender, string value)
+        private void OnLibDiagramChanged(object sender, DiagramItem value)
         {
+            string id = value.ID.ToString();
             ObservableCollection<AppliedNodeItem> nodeItems = new ObservableCollection<AppliedNodeItem>();
-            if (!(string.IsNullOrEmpty(value)))
+            if (!(string.IsNullOrEmpty(id)))
             {
                 foreach (var item in (ucTree.DataContext as HkTreeViewModel).TreeItems)
                 {
-                    GetNoteItemsRecursive(item, value, nodeItems);
+                    GetNoteItemsRecursive(item, id, nodeItems);
                 }
             }
             VmAppliedLib.AppliedItems = nodeItems;
             if (VmBomLib.SelectedDiagramItem != VmDiagLib.SelectedItem) VmBomLib.SelectedDiagramItem = VmDiagLib.SelectedItem;
-            VmBomLib.DataSource = HK_General.GetDiagBomItems(value);
+            VmBomLib.DataSource = HK_General.GetDiagBomItems(id);
         }
         private ObservableCollection<AppliedNodeItem> GetNoteItemsRecursive(HkTreeItem item, string diagID, ObservableCollection<AppliedNodeItem> nodeItems)
         {
