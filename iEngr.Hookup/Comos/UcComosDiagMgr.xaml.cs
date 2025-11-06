@@ -220,6 +220,7 @@ namespace iEngr.Hookup.Comos
                         VmDiagComos.AvailableDiagramItems.Add(diagItem);
                     }
                 }
+                VmDiagComos.FilterText = VmDiagComos.FilterText;
             }
             catch (Exception ex)
             {
@@ -257,7 +258,7 @@ namespace iEngr.Hookup.Comos
                 {
                     VmDiagComos.AssignedDiagramItems.Add(item);
                 }
-
+                VmDiagComos.FilterText = VmDiagComos.FilterText;
             }
             catch (Exception ex)
             {
@@ -647,6 +648,7 @@ namespace iEngr.Hookup.Comos
                     bomItemObj.spec("Z00T00003.Remarks").SetInternationalValue(2, bomItem.RemarksEn);
                 }
             }
+            VmDiagComos.FilterText = VmDiagComos.FilterText;
             return newAddedDiag;
         }
         //删除模板后重建

@@ -95,6 +95,8 @@ namespace iEngr.Hookup.ViewModels
             ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
             ItemMouseLeaveCommand = new RelayCommand<object>(OnItemMouseLeave);
             ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
+
+            FilterText = string.Empty;
         }
 
         private void EditProperties(DiagramItem item)
@@ -211,6 +213,7 @@ namespace iEngr.Hookup.ViewModels
                     itemLib.IsOwned = false;
                 }
             }
+            FilterText = FilterText;
             DiagramIDChanged?.Invoke(this, item.ID.ToString());
         }
         private bool CanRemoveDiagram(object parameter)
@@ -260,6 +263,7 @@ namespace iEngr.Hookup.ViewModels
                         itemLib.IsOwned = false;
                     }
                 }
+                FilterText = FilterText;
             }
         }
         public ObservableCollection<DiagramItem> SelectedItems { get; set; }
@@ -354,7 +358,13 @@ namespace iEngr.Hookup.ViewModels
         public ObservableCollection<DiagramItem> AssignedDiagramItems
         {
             get => _assignedDiagramItems;
-            set => SetField(ref _assignedDiagramItems, value);
+            set
+            {
+                if (SetField(ref _assignedDiagramItems, value))
+                {
+                    FilterText = FilterText;
+                }
+            }
         }
         private DiagramItem _assignedDiagramsSelectedItem;
         public DiagramItem AssignedDiagramsSelectedItem
@@ -380,7 +390,13 @@ namespace iEngr.Hookup.ViewModels
         public ObservableCollection<DiagramItem> AvailableDiagramItems
         {
             get => _availableDiagramItems;
-            set => SetField(ref _availableDiagramItems, value);
+            set
+            {
+                if (SetField(ref _availableDiagramItems, value))
+                {
+                    FilterText = FilterText;
+                }
+            }
         }
         private DiagramItem _availableDiagramsSelectedItem;
         public DiagramItem AvailableDiagramsSelectedItem
@@ -403,6 +419,49 @@ namespace iEngr.Hookup.ViewModels
             }
         }
         public DiagramItem SelectedItem { set; get; }
+        private string _filterText;
+        public string FilterText
+        {
+            get => _filterText;
+            set
+            {
+                SetField(ref _filterText, value);
+                {
+                    FilteredAvailableDiagramItems = new ObservableCollection<DiagramItem>
+                        (AvailableDiagramItems.Where(x => x.NameCn.Contains(value) ||
+                                                          x.NameEn.Contains(value) ||
+                                                          x.RemarksCn.Contains(value) ||
+                                                          x.RemarksEn.Contains(value) ||
+                                                          x.GroupID != null && x.GroupID.Contains(value) ||
+                                                          x.RefID != null && x.RefID.Contains(value) ||
+                                                          x.ID.ToString().Contains(value)
+                                                     )
+                        );
+                    FilteredAssignedDiagramItems = new ObservableCollection<DiagramItem>
+                        (AssignedDiagramItems.Where(x => x.NameCn.Contains(value) ||
+                                                          x.NameEn.Contains(value) ||
+                                                          x.RemarksCn.Contains(value) ||
+                                                          x.RemarksEn.Contains(value) ||
+                                                          x.GroupID != null && x.GroupID.Contains(value) ||
+                                                          x.RefID != null && x.RefID.Contains(value) ||
+                                                          x.ID.ToString().Contains(value)
+                                                     )
+                        );
+                }
+            }
+        }
+        private ObservableCollection<DiagramItem> _filteredAvailableDiagramItems = new ObservableCollection<DiagramItem>();
+        public ObservableCollection<DiagramItem> FilteredAvailableDiagramItems
+        {
+            get => _filteredAvailableDiagramItems;
+            set => SetField(ref _filteredAvailableDiagramItems, value);
+        }
+        private ObservableCollection<DiagramItem> _filteredAssignedDiagramItems = new ObservableCollection<DiagramItem>();
+        public ObservableCollection<DiagramItem> FilteredAssignedDiagramItems
+        {
+            get => _filteredAssignedDiagramItems;
+            set => SetField(ref _filteredAssignedDiagramItems, value);
+        }
         #endregion
 
         public bool CanComosDiagModGrouo

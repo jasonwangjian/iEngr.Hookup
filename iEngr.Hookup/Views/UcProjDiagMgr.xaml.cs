@@ -190,8 +190,9 @@ namespace iEngr.Hookup.Views
                     item.IsOwned = false;
                 }
             }
+            VmDiagLib.FilterText = VmDiagLib.FilterText;
             if (VmDiagLib.AssignedDiagramItems.Count > 0)
-            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.AssignedDiagramItems.FirstOrDefault(); }
+            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.FilteredAssignedDiagramItems.FirstOrDefault(); }
         }
         //更新UcNodeApplied
         private void OnLibDiagramIDChanged(object sender, string value)

@@ -100,8 +100,10 @@ namespace iEngr.Hookup.Views
                     item.IsOwned = false;
                 }
             }
+            VmDiagLib.FilterText = VmDiagLib.FilterText;
             if (VmDiagLib.AssignedDiagramItems.Count > 0)
-            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.AssignedDiagramItems.FirstOrDefault(); }
+            { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.FilteredAssignedDiagramItems.FirstOrDefault(); }
+
         }
         private void OnDiagramIDAdded(object sender, HkTreeItem value)
         {

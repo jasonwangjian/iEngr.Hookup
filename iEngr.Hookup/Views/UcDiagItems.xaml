@@ -29,6 +29,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="5*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -37,7 +38,18 @@
             <CheckBox Margin="0,0,10,0" IsChecked="{Binding LangInEnglish}">English</CheckBox>
             <CheckBox Margin="0,0,10,0"  IsChecked="{Binding LangInChinese}">中文</CheckBox>
         </WrapPanel>
-        <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+        <Grid Grid.Column="1" Margin="0,0,0,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBox Grid.Column="1"  Text="{Binding FilterText, 
+                                    UpdateSourceTrigger=PropertyChanged, 
+                                    Mode=TwoWay,
+                                    Delay=200}" />
+        </Grid>
+        <DataGrid x:Name="dgDiagAssigned" Margin="0" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   Visibility="{Binding IsAssignedDiagramItemsShown, Converter={StaticResource BoolToVisibilityConverter}}"
                   PreviewKeyDown="dgDiag_PreviewKeyDown"
@@ -49,7 +61,7 @@
                   HorizontalGridLinesBrush="DarkGray"
                   VerticalGridLinesBrush="DarkGray"
                   BeginningEdit="DataGrid_BeginningEdit"
-                  ItemsSource="{Binding AssignedDiagramItems}" 
+                  ItemsSource="{Binding FilteredAssignedDiagramItems}" 
 		          SelectedItem="{Binding AssignedDiagramsSelectedItem}"
                   VerticalAlignment="Top"
                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
@@ -150,10 +162,10 @@
                                     local:Extensions.IsVisible="{Binding Data.LangInEnglish, Source={StaticResource Proxy}}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <GridSplitter Grid.Row="2" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"
+        <GridSplitter Grid.Row="3" Grid.Column="1" Height="1" HorizontalAlignment="Stretch"
                       Visibility="{Binding IsAssignedDiagramItemsShown, Converter={StaticResource BoolToVisibilityConverter}}"
                       />
-        <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
+        <DataGrid x:Name="dgDiagAvailable" Margin="0" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" IsReadOnly="False" 
                   CanUserAddRows="False" AutoGenerateColumns="False" SelectionUnit="FullRow" HorizontalAlignment="Stretch"
                   PreviewKeyDown="dgDiag_PreviewKeyDown"
                   FrozenColumnCount="2"
@@ -163,7 +175,7 @@
                   VerticalGridLinesBrush="DarkGray"
                   HeadersVisibility="Column"
                   BeginningEdit="DataGrid_BeginningEdit"
-                  ItemsSource="{Binding AvailableDiagramItems}" 
+                  ItemsSource="{Binding FilteredAvailableDiagramItems}" 
 		          SelectedItem="{Binding AvailableDiagramsSelectedItem}"
                   ex:ScrollSyncBehavior.SyncGroup="DiagramGroup"
                   ex:DataGridColumnSyncBehavior.SyncGroupName="dgDiagram"
