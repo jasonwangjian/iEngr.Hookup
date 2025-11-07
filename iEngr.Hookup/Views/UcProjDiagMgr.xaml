@@ -95,12 +95,12 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <WrapPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,30,0,5"  VerticalAlignment="Bottom">
-                <Button Content="XX" Command="{Binding }"  Margin="5,0,5,0" Width="80"/>
+                <!--<Button Content="XX" Command="{Binding }"  Margin="5,0,5,0" Width="80"/>
                 <Button Content="XX" Command="{Binding }"  Margin="10,0,5,0" Width="80"/>
                 <Button Content="XX" Command="{Binding }"  Margin="5,0,5,0" Width="80"/>
                 <Button Content="XX" Command="{Binding }"  Margin="5,0,5,0" Width="80"/>
                 <Button Content="管理" 
-                        Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" Width="80"/>
+                        Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" Width="80"/>-->
             </WrapPanel>
             <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,5"  VerticalAlignment="Bottom">
                 <Button Content="⚙️" ToolTip="企业库管理" IsEnabled="{Binding IsAdmin}"

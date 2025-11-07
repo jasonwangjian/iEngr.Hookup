@@ -24,13 +24,13 @@ namespace iEngr.Hookup
     public static partial class HK_General
     {
         public static int ProjLanguage = 4; // 4: 中文； 2为英文
-        public static readonly int RoleAE = 1; // 制图人
-        public static readonly int RoleRE = 2; // 设计人
-        public static readonly int RoleCK = 4; // 校对人
-        public static readonly int RoleDL = 8; // 专业负责人
-        public static readonly int RoleVF = 16; // 审核人
-        public static readonly int RoleMG = 32; // 项目负责人
-        public static readonly int RoleAP = 64; // 审定人
+        public static readonly int RoleAE = 1; // AE 制图人
+        public static readonly int RoleRE = 2; // RE 设计人
+        public static readonly int RoleCK = 4; // CK 校对人
+        public static readonly int RoleDL = 8; // DL 专业负责人
+        public static readonly int RoleVF = 16; // VF 审核人
+        public static readonly int RoleMG = 32; // MG 项目负责人
+        public static readonly int RoleAP = 64; // AP 审定人
         public static readonly int RoleAdmin = 128; // 管理员
 
         public static readonly int AssignedDiagramFocused = 1;

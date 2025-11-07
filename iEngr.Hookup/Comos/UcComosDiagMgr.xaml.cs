@@ -39,6 +39,7 @@ namespace iEngr.Hookup.Comos
     {
         private PopupDefinitions m_ppDef;
         private CtxMenu m_popup;
+        private UserComos userCurrent;
         public UcComosDiagMgr()
         {
             InitializeComponent();
@@ -90,6 +91,12 @@ namespace iEngr.Hookup.Comos
         public BomItemsViewModel VmBomLib;
         public AppliedComosViewModel VmAppliedComos;
         public PropLabelViewModel VmLabel;
+        //private bool _isEnabled;
+        //public bool IsEnabled
+        //{
+        //    get => _isEnabled;
+        //    set => SetField(ref _isEnabled, value);
+        //}
 
         private IComosDGeneralCollection _objects;
         private string _parameters;
@@ -111,6 +118,7 @@ namespace iEngr.Hookup.Comos
                 _workset = value;
                 Project = Workset.GetCurrentProject();
                 ProjectInitial();
+                CurrentUserInitial();
                 VmBomComos.Project = Project;
             }
         }
@@ -160,6 +168,61 @@ namespace iEngr.Hookup.Comos
         public IComosDCDevice CDevDiagMod { get; set; }
         public IComosDCDevice CDevDiagObj { get; set; }
         public IComosDCDevice CDevDiagBom { get; set; }
+        private void CurrentUserInitial()
+        {
+            userCurrent = new UserComos(Workset.GetCurrentUser());
+            string strUserCurrID = userCurrent.ComosDUser.GetRemark(5);
+            if (!string.IsNullOrEmpty(strUserCurrID))
+            {
+                userCurrent.ObjUser = (IComosBaseObject)Workset.LoadObjectByType(8, strUserCurrID);
+                userCurrent.RealName = userCurrent.ObjUser?.spec("Y00T00026.Y00A01154").DisplayValue();
+                userCurrent.HaisumId = userCurrent.ObjUser?.spec("Y00T00026.Y00A02688").DisplayValue();
+                IComosDCDevice cDevUser = Project.GetCDeviceBySystemFullname("@20|B30|A10|Z10", 1);
+                var col = ProjectCfgCI.owner().ScanDevicesWithCObject("", cDevUser);
+                for (int i = 0; i < col.Count(); i++)
+                {
+                    IComosBaseObject user = col.Item(i + 1);
+                    if (user.spec("Z00A09998").LinkObject?.SystemUID == strUserCurrID)
+                    {
+                        if (user.spec("Z00A00032").StandardValue() != null &&
+                            user.spec("Z00A00032").value == "I" &&
+                            user.spec("Z00A00033").StandardValue() != null)
+                        {
+                            switch (user.spec("Z00A00033").value)
+                            {
+                                case "AP":
+                                    userCurrent.Roles += HK_General.RoleAP;
+                                    break;
+                                case "MG":
+                                    userCurrent.Roles += HK_General.RoleMG;
+                                    break;
+                                case "VF":
+                                    userCurrent.Roles += HK_General.RoleVF;
+                                    break;
+                                case "DL":
+                                    userCurrent.Roles += HK_General.RoleDL;
+                                    break;
+                                case "CK":
+                                    userCurrent.Roles += HK_General.RoleCK;
+                                    break;
+                                case "RE":
+                                    userCurrent.Roles += HK_General.RoleRE;
+                                    break;
+                                case "AE":
+                                    userCurrent.Roles += HK_General.RoleAE;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (userCurrent.ComosDUser.AdminRights == 1) // administrator
+                userCurrent.Roles += HK_General.RoleAdmin;
+            if (userCurrent.ComosDUser.ExtendedRights == 1) // Project Manager
+                userCurrent.Roles += HK_General.RoleMG;
+            if (userCurrent.Roles==0)
+                IsEnabled = false;
+        }
         private void ProjectInitial()
         {
             IsComosProjectIniOK = false;

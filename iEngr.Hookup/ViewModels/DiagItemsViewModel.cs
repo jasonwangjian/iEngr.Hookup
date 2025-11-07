@@ -374,7 +374,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 SetField(ref _assignedDiagramsSelectedItem, value);
                 SelectedItem = value;
-                HK_General.FocusedDiagram = value != null ? HK_General.AssignedDiagramFocused: 0;
+                HK_General.FocusedDiagram = value != null ? HK_General.AssignedDiagramFocused: HK_General.FocusedDiagram;
                 PicturePathChanged?.Invoke(this, value);
                 DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)
@@ -407,7 +407,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 SetField(ref _availableDiagramsSelectedItem, value);
                 SelectedItem = value;
-                HK_General.FocusedDiagram = value != null ? HK_General.AvailableDiagramFocused : 0;
+                HK_General.FocusedDiagram = value != null ? HK_General.AvailableDiagramFocused : HK_General.FocusedDiagram;
                 PicturePathChanged?.Invoke(this, value);
                 DiagramGroupChanged?.Invoke(this, value);
                 if (SelectedItem?.IsLibItem == true)

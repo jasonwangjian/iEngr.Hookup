@@ -454,6 +454,7 @@ namespace iEngr.Hookup.Views
         private void LibDiagMgr(object parameter)
         {
             var dialog = new GenLibDiagMgrDialog();
+            dialog.WindowState = WindowState.Maximized;
             dialog.ShowDialog();
         }
         public RelayCommand<object> BomCompareCommand { get; set; }
