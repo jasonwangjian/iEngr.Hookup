@@ -11,7 +11,11 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="35*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -21,8 +25,31 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <local:UcBomList x:Name="ucBL" Grid.Row="1" Grid.Column="1"  Grid.ColumnSpan="3" Margin="0,25,0,0"/>
-        <GridSplitter Grid.Row="2" Grid.Column="1" Height="3" HorizontalAlignment="Stretch"/>
-        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1"  Grid.ColumnSpan="3"/>
+        <Grid Grid.Row="1" Grid.Column="1" Margin="0,30,2,0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Grid.Column="0">安装图图名:</Label>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DiagramNameCn}"></TextBox>
+            <Label Grid.Row="1" Grid.Column="0">Diagram Name:</Label>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DiagramNameEn}"></TextBox>
+            <Label Grid.Row="2" Grid.Column="0">备注:</Label>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DiagramRemarksCn}"></TextBox>
+            <Label Grid.Row="3" Grid.Column="0">Remarks:</Label>
+            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding DiagramRemarksEn}"></TextBox>
+            <local:UcHkPicture x:Name="ucPic" Grid.Row="4" Grid.ColumnSpan="2" Margin="0,2,0,0"/>
+            </Grid>
+        <local:UcDiagBom x:Name="ucBL" Grid.Row="1" Grid.Column="3"  Grid.ColumnSpan="1" Margin="0,32,2,0"/>
+        <local:UcAppliedComos x:Name="ucComosDevs" Grid.Row="1" Grid.Column="5"  Grid.ColumnSpan="1" Margin="0,2,0,0"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Height="3" HorizontalAlignment="Stretch"/>
+        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"/>
     </Grid>
 </UserControl>

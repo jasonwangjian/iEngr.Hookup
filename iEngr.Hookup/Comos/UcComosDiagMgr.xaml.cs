@@ -370,7 +370,7 @@ namespace iEngr.Hookup.Comos
         }
         private void OnComosDiagramChanged(object sender, DiagramItem value)
         {
-            VmDiagLib.AvailableDiagramsSelectedItem = null; // 清除选择，以便颜色显示
+            VmDiagLib.AvailableDiagramsSelectedItem = null; // 清除选择，以便颜色显示 ！造成图像丢失
             VmDiagLib.AssignedDiagramsSelectedItem = null;
             VmBomComos.DataSource.Clear();
             VmAppliedComos.AppliedItems.Clear();
