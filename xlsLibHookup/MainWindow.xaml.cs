@@ -639,6 +639,88 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibPropLabel":
+                        if (isDataExisting("HK_LibPropLabel", (result as HKLibPropLabel).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibPropLabel SET " +
+                                $"NameCn=N'{(result as HKLibPropLabel).NameCn}'," +
+                                $"NameEn=N'{(result as HKLibPropLabel).NameEn}'," +
+                                $"RemarksCn=N'{(result as HKLibPropLabel).RemarksCn}'," +
+                                $"RemarksEn=N'{(result as HKLibPropLabel).RemarksEn}'," +
+                                $"Status={(result as HKLibPropLabel).Status}," +
+                                $"SortNum={(result as HKLibPropLabel).SortNum}, " +
+                                $"NestedName=N'{(result as HKLibPropLabel).NestedName}'," +
+                                $"StandardTable=N'{(result as HKLibPropLabel).StandardTable}'," +
+                                $"AppliedDevice=N'{(result as HKLibPropLabel).AppliedDevice}'," +
+                                $"PropertyType=N'{(result as HKLibPropLabel).PropertyType}'," +
+                                $"DicApplied=N'{(result as HKLibPropLabel).DicApplied}'," +
+                                $"PropCode=N'{(result as HKLibPropLabel).PropCode}'," +
+                                $"PrefixCn=N'{(result as HKLibPropLabel).PrefixCn}'," +
+                                $"PropNameCn=N'{(result as HKLibPropLabel).PropNameCn}'," +
+                                $"SuffixCn=N'{(result as HKLibPropLabel).SuffixCn}'," +
+                                $"PrefixEn=N'{(result as HKLibPropLabel).PrefixEn}'," +
+                                $"PropNameEn=N'{(result as HKLibPropLabel).PropNameEn}'," +
+                                $"SuffixEn=N'{(result as HKLibPropLabel).SuffixEn}' " +
+                                $"WHERE ID='{(result as HKLibPropLabel).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibPropLabel (ID, NameCn, NameEn, RemarksCn, RemarksEn, " +
+                                $"Status, SortNum, " +
+                                $"NestedName, StandardTable, AppliedDevice, PropertyType, DicApplied, PropCode, " +
+                                $"PrefixCn, PropNameCn, SuffixCn, PrefixEn, PropNameEn, SuffixEn) VALUES (" +
+                                $"N'{(result as HKLibPropLabel).ID}'," +
+                                $"N'{(result as HKLibPropLabel).NameCn}'," +
+                                $"N'{(result as HKLibPropLabel).NameEn}'," +
+                                $"N'{(result as HKLibPropLabel).RemarksCn}'," +
+                                $"N'{(result as HKLibPropLabel).RemarksEn}'," +
+                                $"{(result as HKLibPropLabel).Status}," +
+                                $"{(result as HKLibPropLabel).SortNum}," +
+                                $"N'{(result as HKLibPropLabel).NestedName}'," +
+                                $"N'{(result as HKLibPropLabel).StandardTable}'," +
+                                $"N'{(result as HKLibPropLabel).AppliedDevice}'," +
+                                $"N'{(result as HKLibPropLabel).PropertyType}'," +
+                                $"N'{(result as HKLibPropLabel).DicApplied}'," +
+                                $"N'{(result as HKLibPropLabel).PropCode}'," +
+                                $"N'{(result as HKLibPropLabel).PrefixCn}'," +
+                                $"N'{(result as HKLibPropLabel).PropNameCn}'," +
+                                $"N'{(result as HKLibPropLabel).SuffixCn}'," +
+                                $"N'{(result as HKLibPropLabel).PrefixEn}'," +
+                                $"N'{(result as HKLibPropLabel).PropNameEn}'," +
+                                $"N'{(result as HKLibPropLabel).SuffixEn}'" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
+                    case "HKLibPropValue":
+                        if (isDataExisting("HK_LibPropValue", (result as HKLibPropValue).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibPropValue SET " +
+                                $"PropTag=N'{(result as HKLibPropValue).PropTag}'," +
+                                $"NameCn=N'{(result as HKLibPropValue).NameCn}'," +
+                                $"NameEn=N'{(result as HKLibPropValue).NameEn}'," +
+                                $"RemarksCn=N'{(result as HKLibPropValue).RemarksCn}'," +
+                                $"RemarksEn=N'{(result as HKLibPropValue).RemarksEn}'," +
+                                $"Status={(result as HKLibPropValue).Status}," +
+                                $"SortNum={(result as HKLibPropValue).SortNum} " +
+                                $"WHERE ID='{(result as HKLibPropValue).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibPropValue (ID, PropTag, " +
+                                $"NameCn, NameEn, RemarksCn, RemarksEn, Status, SortNum) VALUES (" +
+                                $"N'{(result as HKLibPropValue).ID}'," +
+                                $"N'{(result as HKLibPropValue).PropTag}'," +
+                                $"N'{(result as HKLibPropValue).NameCn}'," +
+                                $"N'{(result as HKLibPropValue).NameEn}'," +
+                                $"N'{(result as HKLibPropValue).RemarksCn}'," +
+                                $"N'{(result as HKLibPropValue).RemarksEn}'," +
+                                $"{(result as HKLibPropValue).Status}," +
+                                $"{(result as HKLibPropValue).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -1403,6 +1485,97 @@ namespace xlsLibHookup
             }
             return data;
         }
+        private ObservableCollection<HKLibPropLabel> GetXlsHKPropLabelLib(string id = null)
+        {
+            ObservableCollection<HKLibPropLabel> data = new ObservableCollection<HKLibPropLabel>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibPropLabel$]"
+                                      : $"select * from [LibPropLabel$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibPropLabel item = new HKLibPropLabel
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                        NestedName = Convert.ToString(reader["NestedName"]),
+                        StandardTable = Convert.ToString(reader["StandardTable"]),
+                        AppliedDevice = Convert.ToString(reader["AppliedDevice"]),
+                        PropertyType = Convert.ToString(reader["PropertyType"]),
+                        DicApplied = Convert.ToString(reader["DicApplied"]),
+                        PropCode = Convert.ToString(reader["PropCode"]),
+                        PrefixCn = Convert.ToString(reader["PrefixCn"]),
+                        PropNameCn = Convert.ToString(reader["PropNameCn"]),
+                        SuffixCn = Convert.ToString(reader["SuffixCn"]),
+                        PrefixEn = Convert.ToString(reader["PrefixEn"]),
+                        PropNameEn = Convert.ToString(reader["PropNameEn"]),
+                        SuffixEn = Convert.ToString(reader["SuffixEn"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
+        private ObservableCollection<HKLibPropValue> GetXlsHKPropValueLib(string id = null)
+        {
+            ObservableCollection<HKLibPropValue> data = new ObservableCollection<HKLibPropValue>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibPropValue$]"
+                                      : $"select * from [LibPropValue$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibPropValue item = new HKLibPropValue
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        PropTag = Convert.ToString(reader["PropTag"]),
+                        NameCn = Convert.ToString(reader["NameCn"]),
+                        NameEn = Convert.ToString(reader["NameEn"]),
+                        RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                        RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibMatCat();
@@ -1467,6 +1640,14 @@ namespace xlsLibHookup
         private void btnHkDevValue_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsHKDevValueLib();
+        }
+        private void btnHkPropLabel_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKPropLabelLib();
+        }
+        private void btnHkPropValue_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKPropValueLib();
         }
     }
 }

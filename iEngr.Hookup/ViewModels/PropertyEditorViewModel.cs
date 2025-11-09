@@ -1,5 +1,6 @@
 ﻿using iEngr.Hookup.Models;
 using iEngr.Hookup.Services;
+using iEngr.Hookup.Views;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -71,6 +73,7 @@ namespace iEngr.Hookup.ViewModels
 
             OKCommand = new RelayCommand<object>(_ => OK());
             CancelCommand = new RelayCommand<object>(_ => Cancel());
+            KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDown);
 
             PropertyChanged += (s, e) =>
             {
@@ -149,6 +152,7 @@ namespace iEngr.Hookup.ViewModels
 
             OKCommand = new RelayCommand<object>(_ => OK());
             CancelCommand = new RelayCommand<object>(_ => Cancel());
+            KeyDownCommand = new RelayCommand<KeyEventArgs>(HandleKeyDown);
 
             PropertyChanged += (s, e) =>
             {
@@ -195,7 +199,7 @@ namespace iEngr.Hookup.ViewModels
         private string _filterText;
         private CollectionViewSource _filteredPropertiesSource;
 
-        public ObservableCollection<PropertyDefinition> AvailableProperties { get; }
+        public ObservableCollection<PropertyDefinition> AvailableProperties { get; set; }
         public ObservableCollection<PropertyDefinition> SelectedProperties { get; }
         public ICollectionView FilteredProperties => _filteredPropertiesSource.View;
 
@@ -229,6 +233,7 @@ namespace iEngr.Hookup.ViewModels
             {
                 _isPropLabel = value;
                 OnPropertyChanged();
+                _filteredPropertiesSource.View.Refresh();
             }
         }
         public bool CanAddMoreProperties => SelectedProperties.Count < 10 && SelectedAvailableProperties.Any();
@@ -354,6 +359,38 @@ namespace iEngr.Hookup.ViewModels
         private void Cancel()
         {
             CloseRequested?.Invoke(this, false);
+        }
+        public ICommand KeyDownCommand { get; }
+        private void HandleKeyDown(KeyEventArgs e) //放弃动态增加下拉项（增加的下拉项不适合放到数据库中，因此需手动放到数据库中（或将来增加错误检查后加入到数据库）。
+        {
+            if (e.Key == Key.Enter) // 示例：按Enter键时处理
+            {
+                if (e.OriginalSource is TextBox textBox)
+                {
+                    string propKey = (textBox.DataContext as PropertyDefinition).Key;
+                    string value = textBox.Text;
+                    if (HK_General.dicPropLabel.ContainsKey(propKey))
+                    {
+                        if (!HK_General.dicPropValue.Where(x => x.Value.PropTag == propKey).Any(x => x.Value.ID == value || x.Value.Name == value))
+                        {
+                            HK_General.dicPropValue.Add(value, new HKLibPropValue()
+                            {
+                                ID = value,
+                                PropTag=propKey,
+                                NameCn = value,
+                                NameEn=value,
+
+                            });
+                            AvailableProperties.FirstOrDefault(x => x.Key == propKey).Items.Add(new GeneralItem()
+                            {
+                                Code = value,
+                                NameCn = value,
+                                NameEn = value
+                            });
+                        }
+                    }
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

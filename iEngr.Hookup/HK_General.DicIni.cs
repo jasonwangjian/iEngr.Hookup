@@ -47,6 +47,8 @@ namespace iEngr.Hookup
 
         internal static Dictionary<string, HKLibDevLabel> dicDevLabel = dicDevLabelIni();
         internal static Dictionary<string, HKLibDevValue> dicDevValue = dicDevValueIni();
+        internal static Dictionary<string, HKLibPropLabel> dicPropLabel = dicPropLabelIni();
+        internal static Dictionary<string, HKLibPropValue> dicPropValue = dicPropValueIni();
         private static Dictionary<string, HKLibMatName> dicMatNameIni()
         {
             Dictionary<string, HKLibMatName> dicMatName = new Dictionary<string, HKLibMatName>();
@@ -658,6 +660,85 @@ namespace iEngr.Hookup
                 }
             }
             return dicDevValue;
+        }
+        private static Dictionary<string, HKLibPropLabel> dicPropLabelIni()
+        {
+            Dictionary<string, HKLibPropLabel> dicPropLabel = new Dictionary<string, HKLibPropLabel>();
+            string query = "select * from HK_LibPropLabel Where Status>0 order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicPropLabel.Add(Convert.ToString(reader["ID"]), new HKLibPropLabel
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"]),
+                                NestedName = Convert.ToString(reader["NestedName"]),
+                                StandardTable = Convert.ToString(reader["StandardTable"]),
+                                AppliedDevice = Convert.ToString(reader["AppliedDevice"]),
+                                PropertyType = Convert.ToString(reader["PropertyType"]),
+                                DicApplied = Convert.ToString(reader["DicApplied"]),
+                                PropCode = Convert.ToString(reader["PropCode"]),
+                                PrefixCn = Convert.ToString(reader["PrefixCn"]),
+                                PropNameCn = Convert.ToString(reader["PropNameCn"]),
+                                SuffixCn = Convert.ToString(reader["SuffixCn"]),
+                                PrefixEn = Convert.ToString(reader["PrefixEn"]),
+                                PropNameEn = Convert.ToString(reader["PropNameEn"]),
+                                SuffixEn = Convert.ToString(reader["SuffixEn"]),
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicPropLabelIni(), Error: {ex.Message}");
+                }
+            }
+            return dicPropLabel;
+        }
+        private static Dictionary<string, HKLibPropValue> dicPropValueIni()
+        {
+            Dictionary<string, HKLibPropValue> dicPropValue = new Dictionary<string, HKLibPropValue>();
+            string query = "select * from HK_LibPropValue Where Status>0 order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicPropValue.Add(Convert.ToString(reader["ID"]), new HKLibPropValue
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                PropTag = Convert.ToString(reader["PropTag"]),
+                                NameCn = Convert.ToString(reader["NameCn"]),
+                                NameEn = Convert.ToString(reader["NameCn"]),
+                                RemarksCn = Convert.ToString(reader["RemarksCn"]),
+                                RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicLabelPropValueIni(), Error: {ex.Message}");
+                }
+            }
+            return dicPropValue;
         }
     }
 }

@@ -94,6 +94,49 @@ namespace iEngr.Hookup.Services
                     }).ToList())
                 });
             }
+            // Prop标签
+            foreach (string key in HK_General.dicPropLabel.Keys)
+            {
+                HKLibPropLabel PropLabel = HK_General.dicPropLabel[key];
+                PropertyDefinition propDef = new PropertyDefinition()
+                {
+                    Key = PropLabel.ID,
+                    SortNum = PropLabel.SortNum,
+                    DisplayNameCn = PropLabel.NameCn,
+                    DisplayNameEn = PropLabel.NameEn,
+                    RemarksCn = PropLabel.RemarksCn,
+                    RemarksEn = PropLabel.RemarksEn,
+                    Type = PropLabel.PropertyType switch
+                    {
+                        "String" => PropertyType.String,
+                        "Boolean" => PropertyType.Boolean,
+                        "Enum" => PropertyType.Enum,
+                        "EnumItem" => PropertyType.EnumItem,
+                        "EnumItems" => PropertyType.EnumItems,
+                        "DateTime" => PropertyType.DateTime,
+                        _ => PropertyType.String
+                    },
+                    Category = "Spec",
+                    Items = new ObservableCollection<GeneralItem>(HK_General.dicPropValue.Where(x => x.Value.PropTag == PropLabel.ID).Select(x => x.Value).Select(x => new GeneralItem
+                    {
+                        Code = x.ID,
+                        NameCn = x.NameCn,
+                        NameEn = x.NameEn
+
+                    }).ToList())
+                };
+                switch (key)
+                {
+                    case "ConnectorLength": //可添加下拉菜单
+                        break;
+                    default:
+                        break;
+
+
+                }
+                allProperties.Add(propDef);
+            }
+
             return allProperties;
         }
 

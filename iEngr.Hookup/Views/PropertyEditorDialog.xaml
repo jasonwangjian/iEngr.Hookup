@@ -3,6 +3,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="🏷️标签管理" Height="560" Width="900"
         WindowStartupLocation="CenterOwner">
 
@@ -31,10 +32,20 @@
         </DataTemplate>
         <DataTemplate x:Key="EnumItemsEditorTemplate">
             <xctk:CheckComboBox ItemsSource="{Binding Items}" 
+                  IsEditable="false"
                   DisplayMemberPath ="Name"
                   SelectedItemsOverride="{Binding SelectedItems, Mode=TwoWay}"
                   Delimiter=", "
-                  Width="150" Margin="2"/>
+                  Width="150" Margin="2">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="KeyDown">
+                        <i:InvokeCommandAction 
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+            </xctk:CheckComboBox>
         </DataTemplate>
 
 

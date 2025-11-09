@@ -510,7 +510,7 @@ namespace iEngr.Hookup.ViewModels
                     var key = parts[0].Trim();
                     var value = parts[1].Trim();
                     if (!dicProp.ContainsKey(key))
-                        dicProp.Add(key, value);
+                        dicProp.Add(key, value); //此处可为无效key的处理
                 });
             foreach (var prop in dicProp)
             {

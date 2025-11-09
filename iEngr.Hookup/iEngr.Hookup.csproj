@@ -151,6 +151,8 @@
     <Compile Include="Models\DataGridExtensions.cs" />
     <Compile Include="Models\HKLibDevValue.cs" />
     <Compile Include="Models\HKLibDevLabel.cs" />
+    <Compile Include="Models\HKLibPropLabel.cs" />
+    <Compile Include="Models\HKLibPropValue.cs" />
     <Compile Include="Models\HKLibTreeNode.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\ObservableDictionary.cs" />

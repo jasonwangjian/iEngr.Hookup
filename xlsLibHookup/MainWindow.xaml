@@ -64,6 +64,12 @@
             <Button x:Name="btnHkDevValue" Content="Device标签值"  Click="btnHkDevValue_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnHkPropLabel" Content="属性标签"  Click="btnHkPropLabel_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnHkPropValue" Content="属性标签值"  Click="btnHkPropValue_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
         </StackPanel>
         <StackPanel Orientation ="Horizontal" Grid.Column="1">
             <Button x:Name="btnUpload" IsEnabled="True" Margin="5" Content="Upload" FontSize="11" Click="btnUpload_Click"/>
