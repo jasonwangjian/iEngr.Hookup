@@ -28,6 +28,9 @@
             <Button x:Name="btnLibThread" Content="螺纹规格"  Click="btnLibThread_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>
+            <Button x:Name="btnLibThreadSize" Content="螺纹尺寸"  Click="btnLibThreadSize_Click" 
+                    Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
+                    IsEnabled="True"  Margin="5" FontSize="11"/>
             <Button x:Name="btnLibGland" Content="电缆接头"  Click="btnLibGland_Click" 
                     Background="Transparent" BorderThickness="0" Foreground="Black" Cursor="Hand" FontWeight="Normal"
                     IsEnabled="True"  Margin="5" FontSize="11"/>

@@ -846,10 +846,10 @@ namespace iEngr.Hookup.ViewModels
             AuxSpecV1 = AuxSpecV1All?.Count > 0 ? AuxSpecV1All?[0] : null;
             AuxSpecV2 = AuxSpecV2All?.Count > 0 ? AuxSpecV2All?[0] : null;
             AuxSpecV3 = AuxSpecV3All?.Count > 0 ? AuxSpecV3All?[0] : null;
-            TypeP1 = TypeAllP1?[0];
-            TypeP2 = TypeAllP2?[0];
-            SizeP1 = SizeAllP1?[0];
-            SizeP2 = SizeAllP1?[0];
+            TypeP1 = TypeAllP1?.Count > 0 ? TypeAllP1[0] : null;
+            TypeP2 = TypeAllP2?.Count > 0 ? TypeAllP2[0] : null;
+            SizeP1 = SizeAllP1?.Count > 0 ? SizeAllP1[0] : null;
+            SizeP2 = SizeAllP2?.Count > 0 ? SizeAllP2[0] : null;
             StatusText = string.Empty;
             HK_General.ErrMsgOmMatData = string.Empty;
             ClearCmbText?.Invoke(this, true);
@@ -878,13 +878,15 @@ namespace iEngr.Hookup.ViewModels
                     //bool isValid = true;
                     string value = comboBox.Text?.Trim();
                     string standardValue= string.Empty;
+                    string key = TypeP1?.ID;
                     var titleItem = (comboBox.DataContext as MatDataCmbItem);
-                    string key = titleItem.ID;
+                    if (titleItem != null) { key = titleItem.ID; }
                     var cmbItems = comboBox.ItemsSource as ObservableCollection<MatDataCmbItem>;
-                    
-                    
-                    
-                    switch(titleItem.Class)
+                    string validType = titleItem?.Class;
+
+
+
+                    switch (validType)
                     {
                         case "Num3Items":
                             standardValue = GeneralFun.GetStandardNumberString(value, 2, titleItem.Link);
@@ -966,9 +968,10 @@ namespace iEngr.Hookup.ViewModels
                             Debug.WriteLine($"错误整数: {value}");
                             StatusText = $"错误整数: {value}";
                             return;
-                        //default :
-                        //    StatusText = string.Empty;
-                        //    break ;
+                        default :
+                            standardValue = value;
+                            StatusText = string.Empty;
+                            break;
                     }
                     SetNoLinkDic(key, standardValue);
                     SetCmbItems(cmbItems, key);
@@ -1248,7 +1251,7 @@ namespace iEngr.Hookup.ViewModels
         {
             List<MatDataCmbItem> lst = new List<MatDataCmbItem>();
             if (title == null || string.IsNullOrEmpty(title.ID)) return null;
-            if (title.Class.StartsWith("Link") && !string.IsNullOrEmpty(title.Link.Trim()))
+            if (title.Class.StartsWith("Link") && !string.IsNullOrEmpty(title.Link?.Trim()))
             {
                 string[] _segParts = title.Link.Split(',').Select(item => item.Trim()).ToArray(); 
                 string[] segParts = new string[3] { "", "", "" };

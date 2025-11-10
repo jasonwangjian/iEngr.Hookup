@@ -14,5 +14,7 @@
         public string Link { get; set; }
         public int SortNum { get; set; }
         public string Remarks { get; set; }
+        public string StvName { get; set; }
+        public string StvValue { get; set;}
     }
 }

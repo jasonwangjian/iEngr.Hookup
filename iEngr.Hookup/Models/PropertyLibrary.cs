@@ -125,16 +125,66 @@ namespace iEngr.Hookup.Services
 
                     }).ToList())
                 };
+                //修正特殊类型
                 switch (key)
                 {
                     case "ConnectorLength": //可添加下拉菜单
                         break;
                     default:
                         break;
-
-
                 }
+                //修正dicPropValue中没有的数据（在其他dic中）
                 allProperties.Add(propDef);
+                switch (PropLabel.DicApplied)
+                {
+                    case "dicTubeOD": 
+                        propDef.Items = new ObservableCollection<GeneralItem>(HK_General.dicTubeOD
+                            .Select(x=>x.Value).Select(x=> new GeneralItem
+                        {
+                            Code = x.ID,
+                            NameCn = x.SpecCn + " O.D.",
+                            NameEn = x.SpecEn + " O.D.",
+                        }).ToList());
+                        break;
+                    case "dicPortType":
+                        propDef.Items = new ObservableCollection<GeneralItem>(HK_General.dicPortType.Where(x=>!string.IsNullOrEmpty(x.Value.StvName))
+                            .Select(x => x.Value).Select(x => new GeneralItem
+                        {
+                            Code = x.ID,
+                            NameCn = x.NameCn,
+                            NameEn = x.NameEn,
+                        }).ToList());
+                        break;
+                    case "dicPipeOD":
+                        propDef.Items = new ObservableCollection<GeneralItem>(HK_General.dicPipeOD.Where(x => !string.IsNullOrEmpty(x.Value.StvName))
+                            .Select(x => x.Value).Select(x => new GeneralItem
+                        {
+                            Code = x.ID,
+                            NameCn = "DN"+ x.DN + " (" + x.NPS + ")",
+                            NameEn = "DN" + x.DN + " (" + x.NPS + ")",
+                        }).ToList());
+                        break;
+                    case "dicThreadSize":
+                        propDef.Items = new ObservableCollection<GeneralItem>(HK_General.dicThreadSize//.Where(x => !string.IsNullOrEmpty(x.Value.StvName))
+                            .Select(x => x.Value).Select(x => new GeneralItem
+                            {
+                                Code = x.ID,
+                                NameCn = x.SpecCn,
+                                NameEn = x.SpecEn,
+                            }).ToList());
+                        break;
+                    case "dicPN":
+                        propDef.Items = new ObservableCollection<GeneralItem>(HK_General.dicPN//.Where(x => !string.IsNullOrEmpty(x.Value.StvName))
+                            .Select(x => x.Value).Select(x => new GeneralItem
+                            {
+                                Code = x.ID,
+                                NameCn = x.SpecCn,
+                                NameEn = x.SpecEn,
+                            }).ToList());
+                        break;
+                    default:
+                        break;
+                }
             }
 
             return allProperties;

@@ -140,10 +140,19 @@
                       ItemsSource="{Binding TypeAllP1}" SelectedItem="{Binding TypeP1}" 
                       Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource PositiveNumberToVisibilityConverter}}"
                      ></ComboBox>
-                    <ComboBox x:Name ="cmbSizeP1"  MinWidth="120"  Margin="2" IsEditable="False" DisplayMemberPath="Name"
+                    <ComboBox x:Name ="cmbSizeP1"  MinWidth="120"  Margin="2" DisplayMemberPath="Name"
                       ItemsSource="{Binding SizeAllP1}" SelectedItem="{Binding SizeP1}" 
                       Visibility ="{Binding TypeAllP1.Count, Converter={StaticResource PositiveNumberToVisibilityConverter}}"
-                      ></ComboBox>
+                      IsEditable="{Binding TypeP1.Class, Converter={StaticResource NoLinkEditableConverter}}"
+                      >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="KeyDown">
+                                <i:InvokeCommandAction 
+                                Command="{Binding DataContext.KeyDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
                 </WrapPanel>
                 <WrapPanel  Grid.Row="6" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" >
                     <Label  Grid.Row="4" Grid.Column="0">端口二：</Label>

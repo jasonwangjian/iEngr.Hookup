@@ -37,6 +37,7 @@ namespace iEngr.Hookup
         internal static Dictionary<string, HKLibPN> dicPN = dicPNIni();
         internal static Dictionary<string, HKLibSteel> dicSteel = dicSteelIni();
         internal static Dictionary<string, HKLibThread> dicThread = dicThreadIni();
+        internal static Dictionary<string, HKLibThreadSize> dicThreadSize = dicThreadSizeIni();
         internal static Dictionary<string, HKLibTubeOD> dicTubeOD = dicTubeODIni();
         internal static Dictionary<string, HKLibGland> dicGland = dicGlandIni();
         internal static Dictionary<string, HKLibGenOption> dicGenOption = dicGenOptionIni();
@@ -118,6 +119,8 @@ namespace iEngr.Hookup
                                 SubClass = Convert.ToString(reader["SubClass"]),
                                 Remarks = Convert.ToString(reader["Remarks"]),
                                 Link = Convert.ToString(reader["Link"]),
+                                StvName = Convert.ToString(reader["StvName"]),
+                                StvValue = Convert.ToString(reader["StvValue"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"])
                             });
                         }
@@ -196,6 +199,9 @@ namespace iEngr.Hookup
                                 SWDiaGB = !string.IsNullOrEmpty(Convert.ToString(reader["SWDiaGB"])) ? Convert.ToDecimal(reader["SWDiaGB"]) : nullDecimal,
                                 SpecRem = Convert.ToString(reader["SpecRem"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"]),
+                                StvName = Convert.ToString(reader["StvName"]),
+                                StvValue = Convert.ToString(reader["StvValue"]),
+                                PPRDN = Convert.ToString(reader["PPRDN"]),
                             });
                         }
                     }
@@ -648,6 +654,7 @@ namespace iEngr.Hookup
                                 NameEn = Convert.ToString(reader["NameCn"]),
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
+                                Status = Convert.ToByte(reader["Status"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"])
                             });
                         }
@@ -682,6 +689,7 @@ namespace iEngr.Hookup
                                 RemarksCn = Convert.ToString(reader["RemarksCn"]),
                                 RemarksEn = Convert.ToString(reader["RemarksEn"]),
                                 SortNum = Convert.ToInt32(reader["SortNum"]),
+                                Status = Convert.ToByte(reader["Status"]),
                                 NestedName = Convert.ToString(reader["NestedName"]),
                                 StandardTable = Convert.ToString(reader["StandardTable"]),
                                 AppliedDevice = Convert.ToString(reader["AppliedDevice"]),
@@ -736,6 +744,38 @@ namespace iEngr.Hookup
                 {
                     // 处理异常
                     Debug.WriteLine($"___HK_General.dicLabelPropValueIni(), Error: {ex.Message}");
+                }
+            }
+            return dicPropValue;
+        }
+        private static Dictionary<string, HKLibThreadSize> dicThreadSizeIni()
+        {
+            Dictionary<string, HKLibThreadSize> dicPropValue = new Dictionary<string, HKLibThreadSize>();
+            string query = "select * from HK_LibThreadSize Where Status>0 order by SortNum";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    using (OdbcDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            dicPropValue.Add(Convert.ToString(reader["ID"]), new HKLibThreadSize
+                            {
+                                ID = Convert.ToString(reader["ID"]),
+                                SpecCn = Convert.ToString(reader["SpecCn"]),
+                                SpecEn = Convert.ToString(reader["SpecEn"]),
+                                Status = Convert.ToByte(reader["Status"]),
+                                SortNum = Convert.ToInt32(reader["SortNum"])
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    Debug.WriteLine($"___HK_General.dicLibThreadSizeIni(), Error: {ex.Message}");
                 }
             }
             return dicPropValue;

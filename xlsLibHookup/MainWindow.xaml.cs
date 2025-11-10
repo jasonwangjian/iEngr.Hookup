@@ -174,12 +174,15 @@ namespace xlsLibHookup
                                 $"SuffixEn=N'{(result as HKLibPortType).SuffixEn}'," +
                                 $"Link='{(result as HKLibPortType).Link}'," +
                                 $"Remarks='{(result as HKLibPortType).Remarks}'," +
+                                $"StvName='{(result as HKLibPortType).StvName}'," +
+                                $"StvValue='{(result as HKLibPortType).StvValue}'," +
                                 $"SortNum={(result as HKLibPortType).SortNum} " +
                                 $"WHERE ID='{(result as HKLibPortType).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibPortType (ID, Class, SubClass, NameCn, NameEn, PrefixCn, PrefixEn, SuffixCn, SuffixEn, Link, Remarks, SortNum) VALUES (" +
+                            sqlString = $"INSERT INTO HK_LibPortType (ID, Class, SubClass, NameCn, NameEn, PrefixCn, PrefixEn, SuffixCn, SuffixEn, Link, Remarks, " +
+                                $"StvName, StvValue, SortNum) VALUES (" +
                                 $"'{(result as HKLibPortType).ID}'," +
                                 $"'{(result as HKLibPortType).Class}'," +
                                 $"'{(result as HKLibPortType).SubClass}'," +
@@ -191,6 +194,8 @@ namespace xlsLibHookup
                                 $"N'{(result as HKLibPortType).SuffixEn}'," +
                                 $"'{(result as HKLibPortType).Link}'," +
                                 $"'{(result as HKLibPortType).Remarks}'," +
+                                $"'{(result as HKLibPortType).StvName}'," +
+                                $"'{(result as HKLibPortType).StvValue}'," +
                                 $"{(result as HKLibPortType).SortNum} " +
                                 $")";
                         }
@@ -208,13 +213,15 @@ namespace xlsLibHookup
                                 $"SpecEn=N'{(result as HKLibThread).SpecEn}'," +
                                 $"Value={(result as HKLibThread).Value}," +
                                 $"Pitch={(result as HKLibThread).Pitch}," +
+                                $"SizeCode='{(result as HKLibThread).SizeCode}'," +
                                 $"Qty={qty}," +
                                 $"SortNum={(result as HKLibThread).SortNum} " +
                                 $"WHERE ID='{(result as HKLibThread).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibThread (ID, Class, SubClass, ClassEx, SpecCn, SpecEn, Value, Pitch, Qty, SortNum) VALUES (" +
+                            sqlString = $"INSERT INTO HK_LibThread (ID, Class, SubClass, ClassEx, SpecCn, SpecEn, Value, Pitch, " +
+                                $"SizeCode, Qty, SortNum) VALUES (" +
                                 $"'{(result as HKLibThread).ID}'," +
                                 $"'{(result as HKLibThread).Class}'," +
                                 $"'{(result as HKLibThread).SubClass}'," +
@@ -223,6 +230,7 @@ namespace xlsLibHookup
                                 $"N'{(result as HKLibThread).SpecEn}'," +
                                 $"{(result as HKLibThread).Value}," +
                                 $"{(result as HKLibThread).Pitch}," +
+                                $"'{(result as HKLibThread).SizeCode}'," +
                                 $"{qty}," +
                                 $"{(result as HKLibThread).SortNum}" +
                               $")";
@@ -306,12 +314,16 @@ namespace xlsLibHookup
                                 $"ASME={aSME}," +
                                 $"SWDiaGB={sWDiaGB}," +
                                 $"SpecRem='{(result as HKLibPipeOD).SpecRem}'," +
+                                $"StvName='{(result as HKLibPipeOD).StvName}'," +
+                                $"StvValue='{(result as HKLibPipeOD).StvValue}'," +
+                                $"PPRDN='{(result as HKLibPipeOD).PPRDN}'," +
                                 $"SortNum={(result as HKLibPipeOD).SortNum} " +
                                 $"WHERE ID='{(result as HKLibPipeOD).ID}'";
                         }
                         else
                         {
-                            sqlString = $"INSERT INTO HK_LibPipeOD (ID, DN, NPS, HGIa, HGIb, HGII, GBI, GBII, ISO, ASME, SWDiaGB, SpecRem, SortNum) VALUES (" +
+                            sqlString = $"INSERT INTO HK_LibPipeOD (ID, DN, NPS, HGIa, HGIb, HGII, GBI, GBII, ISO, ASME, SWDiaGB, SpecRem, " +
+                                $"StvName, StvValue, PPRDN, SortNum) VALUES (" +
                                 $"'{(result as HKLibPipeOD).ID}'," +
                                 $"'{(result as HKLibPipeOD).DN}'," +
                                 $"N'{(result as HKLibPipeOD).NPS}'," +
@@ -324,6 +336,8 @@ namespace xlsLibHookup
                                 $"{aSME}," +
                                 $"{sWDiaGB}," +
                                 $"'{(result as HKLibPipeOD).SpecRem}'," +
+                                $"'{(result as HKLibPipeOD).StvName}'," +
+                                $"'{(result as HKLibPipeOD).PPRDN}'," +
                                 $"{(result as HKLibPipeOD).SortNum}" +
                                 $")";
                         }
@@ -721,6 +735,29 @@ namespace xlsLibHookup
                         }
                         count = count + updateData(sqlString);
                         break;
+                    case "HKLibThreadSize":
+                        if (isDataExisting("HK_LibThreadSize", (result as HKLibThreadSize).ID))
+                        {
+                            sqlString = $"UPDATE HK_LibThreadSize SET " +
+                                $"SpecCn=N'{(result as HKLibThreadSize).SpecCn}'," +
+                                $"SpecEn=N'{(result as HKLibThreadSize).SpecEn}'," +
+                                $"Status={(result as HKLibThreadSize).Status}," +
+                                $"SortNum={(result as HKLibThreadSize).SortNum} " +
+                                $"WHERE ID='{(result as HKLibThreadSize).ID}'";
+                        }
+                        else
+                        {
+                            sqlString = $"INSERT INTO HK_LibThreadSize (ID, " +
+                                $"SpecCn, SpecEn, Status, SortNum) VALUES (" +
+                                $"N'{(result as HKLibThreadSize).ID}'," +
+                                $"N'{(result as HKLibThreadSize).SpecCn}'," +
+                                $"N'{(result as HKLibThreadSize).SpecEn}'," +
+                                $"{(result as HKLibThreadSize).Status}," +
+                                $"{(result as HKLibThreadSize).SortNum}" +
+                                $")";
+                        }
+                        count = count + updateData(sqlString);
+                        break;
                 }
                 //Type type = result.GetType();
 
@@ -920,9 +957,11 @@ namespace xlsLibHookup
                         SuffixCn = Convert.ToString(reader["SuffixCn"]),
                         SuffixEn = Convert.ToString(reader["SuffixEn"]),
                         Link = Convert.ToString(reader["Link"]),
-                         SortNum = Convert.ToInt32(reader["SortNum"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
                         Remarks = Convert.ToString(reader["Remarks"]),
-                   };
+                        StvName = Convert.ToString(reader["StvName"]),
+                        StvValue = Convert.ToString(reader["StvValue"]),
+                    };
                     data.Add(item);
                 }
 
@@ -963,6 +1002,7 @@ namespace xlsLibHookup
                         Pitch = Convert.ToDecimal(reader["Pitch"]),
                         Qty = !string.IsNullOrEmpty(Convert.ToString(reader["Qty"])) ? Convert.ToInt32(reader["Qty"]) : nullInt,
                         ClassEx = Convert.ToString(reader["ClassEx"]),
+                        SizeCode = Convert.ToString(reader["SizeCode"]),
                         SortNum = Convert.ToInt32(reader["SortNum"]),
                     };
                     libThreads.Add(libThread);
@@ -1088,6 +1128,9 @@ namespace xlsLibHookup
                         SWDiaGB = !string.IsNullOrEmpty(Convert.ToString(reader["SWDiaGB"])) ? Convert.ToDecimal(reader["SWDiaGB"]) : nullDecimal,
                         SpecRem = Convert.ToString(reader["SpecRem"]),
                         SortNum = Convert.ToInt32(reader["SortNum"]),
+                        StvName = Convert.ToString(reader["StvName"]),
+                        StvValue = Convert.ToString(reader["StvValue"]),
+                        PPRDN = Convert.ToString(reader["PPRDN"]),
                     };
                     libPipeODs.Add(libPipeOD);
                 }
@@ -1576,6 +1619,43 @@ namespace xlsLibHookup
             }
             return data;
         }
+        private ObservableCollection<HKLibThreadSize> GetXlsHKThreadSizeLib(string id = null)
+        {
+            ObservableCollection<HKLibThreadSize> data = new ObservableCollection<HKLibThreadSize>();
+            // 构建 SQL 查询语句
+            string query = (id == null) ? "select * from [LibThreadSize$]"
+                                      : $"select * from [LibThreadSize$] where ID = '{id}'";
+            try
+            {
+                if (xlsConn == null || xlsConn.State != ConnectionState.Open)
+                    xlsConn = GetXlsConnection();
+                OdbcCommand command = new OdbcCommand(query, xlsConn);
+                OdbcDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(reader["ID"]).Trim()))
+                        break;
+                    HKLibThreadSize item = new HKLibThreadSize
+                    {
+                        ID = Convert.ToString(reader["ID"]),
+                        SpecCn = Convert.ToString(reader["SpecCn"]),
+                        SpecEn = Convert.ToString(reader["SpecEn"]),
+                        Status = Convert.IsDBNull(reader["Status"]) ? (byte)0 : Convert.ToByte(reader["Status"]),
+                        SortNum = Convert.ToInt32(reader["SortNum"]),
+                    };
+                    data.Add(item);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常
+                MessageBox.Show($"Error: {ex.Message}");
+                // 可以选择返回空列表或者其他适当的处理
+            }
+            return data;
+        }
         private void btnMainCat_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsLibMatCat();
@@ -1648,6 +1728,10 @@ namespace xlsLibHookup
         private void btnHkPropValue_Click(object sender, RoutedEventArgs e)
         {
             dgResult.ItemsSource = GetXlsHKPropValueLib();
+        }
+        private void btnLibThreadSize_Click(object sender, RoutedEventArgs e)
+        {
+            dgResult.ItemsSource = GetXlsHKThreadSizeLib();
         }
     }
 }

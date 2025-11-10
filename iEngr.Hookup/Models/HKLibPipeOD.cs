@@ -17,5 +17,8 @@
         public int SortNum { get; set; }
         public string NameCn { get; set; }
         public string NameEn { get; set; }
+        public string StvName { get; set; }
+        public string StvValue { get; set; }
+        public string PPRDN { get; set; }
     }
 }
