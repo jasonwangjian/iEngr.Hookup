@@ -19,7 +19,12 @@ namespace iEngr.Hookup.ViewModels
     public class MatListViewModel : MatListItem, INotifyPropertyChanged
     {
         public event EventHandler<MatListItem> MatListItemChanged;
-
+        public bool _isAdminBtnShow;
+        public bool IsAdminBtnShow
+        {
+            get => _isAdminBtnShow;
+            set => SetField(ref _isAdminBtnShow, value);
+        }
         public MatListViewModel()
         {
             DataSource = new ObservableCollection<MatListItem>();
@@ -33,6 +38,7 @@ namespace iEngr.Hookup.ViewModels
             CountExistingData = HK_General.CountExistingData(getConditionEqual(MatDataToQuery));
             AutoQueryEnable = true;
             LangInChinese = true;
+            IsAdminBtnShow = true;
         }
         // 确保命令支持刷新
 

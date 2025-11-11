@@ -40,6 +40,7 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> ComosDiagMod2LibCmd; //将安装图模板添加至企业库
 
         public event EventHandler<IComosBaseObject> ComosItemContextMenu;
+        public event EventHandler<IComosBaseObject> ComosItemDoubleClick;
 
         public ICommand CellEditEndingCommand { get; }
         public ICommand PictureSetCommand { get; }
@@ -84,6 +85,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramDeleteCommand = new RelayCommand<DiagramItem>(DeleteDiagram, CanDeleteDiagram);
             ComosDiagMod2LibCommand = new RelayCommand<DiagramItem>(ComosDiagMod2Lib, _ => CanComosDiagMod2Lib);
             SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(HandleSelectionChanged);
+            MouseDoubleClickCommand = new RelayCommand<MouseButtonEventArgs>(HandleMouseDoubleClick);
             EditPropertiesCommand = new RelayCommand<DiagramItem>(
                 execute: EditProperties,
                 canExecute: item => item != null && item.IsComosItem == true
@@ -281,6 +283,18 @@ namespace iEngr.Hookup.ViewModels
                 SelectedItems = _selectedItems;
             }
         }
+        public RelayCommand<MouseButtonEventArgs> MouseDoubleClickCommand { get; }
+        private void HandleMouseDoubleClick(MouseButtonEventArgs e) // 处理多选
+        {
+            if (e.Source is DataGrid dgDiagrams)
+            {
+                DiagramItem item = (dgDiagrams.DataContext as DiagItemsViewModel).SelectedItem;
+                if (item != null && item.IsComosItem && item.ObjComosDiagMod != null) 
+                { 
+                    ComosItemDoubleClick?.Invoke(this, item.ObjComosDiagMod);
+                }
+            }
+        }
 
         private bool CanDeleteDiagram(object parameter)
         {
@@ -440,10 +454,10 @@ namespace iEngr.Hookup.ViewModels
                                                      )
                         );
                     FilteredAssignedDiagramItems = new ObservableCollection<DiagramItem>
-                        (AssignedDiagramItems.Where(x => x.NameCn.Contains(value) ||
-                                                          x.NameEn.Contains(value) ||
-                                                          x.RemarksCn.Contains(value) ||
-                                                          x.RemarksEn.Contains(value) ||
+                        (AssignedDiagramItems.Where(x => x.NameCn != null && x.NameCn.Contains(value) ||
+                                                          x.NameEn != null && x.NameEn.Contains(value) ||
+                                                          x.RemarksCn != null && x.RemarksCn.Contains(value) ||
+                                                          x.RemarksEn != null && x.RemarksEn.Contains(value) ||
                                                           x.GroupID != null && x.GroupID.Contains(value) ||
                                                           x.RefID != null && x.RefID.Contains(value) ||
                                                           x.ID.ToString().Contains(value)

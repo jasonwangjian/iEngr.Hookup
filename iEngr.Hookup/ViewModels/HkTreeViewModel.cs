@@ -92,6 +92,7 @@ namespace iEngr.Hookup.ViewModels
         }
         public HkTreeViewModel()
         {
+            CanAppTreeNode = true;
             TreeItems = new ObservableCollection<HkTreeItem>();
 
             MoveUpCommand = new RelayCommand<object>(MoveUp, _ => CanMoveUp);
@@ -117,7 +118,7 @@ namespace iEngr.Hookup.ViewModels
             DiagramDelCommand = new RelayCommand<object>(DiagramDel, _ => (SelectedItem.DiagID != string.Empty));
             DiagramNullCommand = new RelayCommand<object>(DiagramNull, _ => (SelectedItem.DiagID != null));
             NodeReloadCommand = new RelayCommand<HkTreeItem>(LoadTreeNode, _ => SelectedItem != null);
-            NodeAppCommand = new RelayCommand<HkTreeItem>(AppTreeNode);
+            NodeAppCommand = new RelayCommand<HkTreeItem>(AppTreeNode, _=> CanAppTreeNode);
             // 从XML文件加载数据
             LoadTreeNode();
             //LoadTreeDataFromXml();
@@ -938,6 +939,7 @@ namespace iEngr.Hookup.ViewModels
         
         #region Comos操作
         public RelayCommand<HkTreeItem> NodeAppCommand { get; }
+        public bool CanAppTreeNode { get; set; }
         private void AppTreeNode(HkTreeItem item)
         {
             TreeItemApplied?.Invoke(this, item);

@@ -44,6 +44,7 @@ namespace iEngr.Hookup.Comos
         {
             InitializeComponent();
             VmTree = ucPDM.ucTree.DataContext as HkTreeViewModel;
+            VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.TreeItemApplied += OnTreeItemApplied;
             
             VmPicture = ucPDM.ucPic.DataContext as HkPictureViewModel;
@@ -59,6 +60,7 @@ namespace iEngr.Hookup.Comos
             VmDiagComos.ComosDiagModDelCmd += OnComosDiagModDelCmdClick;
             VmDiagComos.ComosDiagModRSCmd += OnComosDiagModRSCmdClick;
             VmDiagComos.ComosItemContextMenu += PopContextMenu;
+            VmDiagComos.ComosItemDoubleClick += OnComosItemDoubleClick;
 
             VmBomComos = ucPDM.ucBomComos.DataContext as BomItemsViewModel;
             VmBomComos.SelectedBomIDChanged += OnSelectedBomIDChanged;
@@ -82,6 +84,8 @@ namespace iEngr.Hookup.Comos
             ucPDM.ucComosDevs.ComosItemDoubleClick += OnComosItemDoubleClick;
 
             VmDiagComos.CanComosDiagMod2Lib = false;
+
+            ucPDM.RefreshComosData += OnRefreshComosData;
         }
         public HkTreeViewModel VmTree;
         public HkPictureViewModel VmPicture;
@@ -259,8 +263,10 @@ namespace iEngr.Hookup.Comos
 
             //Project.Workset().Globals().
         }
-        private void SetDiagComosAvailable(IComosBaseObject objQueryStart = null)
+        private void SetDiagComosAvailable(IComosBaseObject objQueryStart = null, string comosName = null)
         {
+            bool isComosNameFound = false;
+            DiagramItem foundDiagram = null;
             try
             {
                 //if (objQueryStart is null) return;
@@ -281,17 +287,28 @@ namespace iEngr.Hookup.Comos
                         IComosBaseObject item = qry.RowObject[i];
                         DiagramItem diagItem = new DiagramItem() { ObjComosDiagMod = item, BomQty = "?" };
                         VmDiagComos.AvailableDiagramItems.Add(diagItem);
+                        if(!isComosNameFound && !string.IsNullOrEmpty(comosName) && comosName == item.Name)
+                        {
+                            foundDiagram = diagItem;
+                            isComosNameFound = true;
+                        }
                     }
                 }
                 VmDiagComos.FilterText = VmDiagComos.FilterText;
+                if (foundDiagram != null)
+                {
+                    VmDiagComos.AvailableDiagramsSelectedItem = foundDiagram;
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($" ___UcComosDiagMgr.SetDiagComosAvailable(IComosBaseObject objQueryStart) Error occurred: {ex.Message}");
             }
         }
-        private void SetDiagComosAssigned(IComosBaseObject objQueryStart)
+        private void SetDiagComosAssigned(IComosBaseObject objQueryStart, string comosName = null)
         {
+            bool isComosNameFound = false;
+            DiagramItem foundDiagram = null;
             try
             {
                 //VmDiagComos.AssignedDiagramItems = GetDiagComosItems(objQueryStart);
@@ -309,6 +326,11 @@ namespace iEngr.Hookup.Comos
                             item.BomQty = newItem.BomQty;
                             item.IsOwned = true;
                             VmDiagComos.AssignedDiagramItems.Add(item);
+                            if (!isComosNameFound && !string.IsNullOrEmpty(comosName) && comosName == item.ComosName)
+                            {
+                                foundDiagram = item;
+                                isComosNameFound = true;
+                            }
                         }
                     }
                     else
@@ -322,6 +344,10 @@ namespace iEngr.Hookup.Comos
                     VmDiagComos.AssignedDiagramItems.Add(item);
                 }
                 VmDiagComos.FilterText = VmDiagComos.FilterText;
+                if (foundDiagram != null)
+                {
+                    VmDiagComos.AssignedDiagramsSelectedItem = foundDiagram;
+                }
             }
             catch (Exception ex)
             {
@@ -539,6 +565,28 @@ namespace iEngr.Hookup.Comos
             //Chemserv.ComosClass mntc = new Chemserv.ComosClass();
             //mntc.ShowComosObject(obj);
         }
+        private void OnComosItemDoubleClick(object sender, IComosBaseObject value)
+        {
+            if (value == null) return;
+            Project.Workset().Globals().Navigator.GetCurrentTree.DefaultAction(value);
+
+            //Set mntc = createobject("Chemserv.ComosClass")
+            //mntc.ShowComosObject(c) '弹出浮窗
+            //Set Mntc = Nothing
+            //新弹窗
+            //Chemserv.ComosClass mntc = new Chemserv.ComosClass();
+            //mntc.ShowComosObject(obj);
+        }
+        private void OnRefreshComosData(object sender, bool value)
+        {
+            if (!value) return;
+            {
+                string comosNameAvailable = VmDiagComos.AvailableDiagramsSelectedItem?.ComosName;
+                SetDiagComosAvailable(CurrentObject, comosNameAvailable);
+                string comosNameAssigned = VmDiagComos.AssignedDiagramsSelectedItem?.ComosName;
+                SetDiagComosAssigned(CurrentObject, comosNameAssigned);
+            }
+        }
         private void PopContextMenu(object sender, IComosBaseObject comosObj)
         {
             if (comosObj == null) return;
@@ -669,13 +717,34 @@ namespace iEngr.Hookup.Comos
 
 
         #region Command for Event
+        private void OnTreeItemChanged(object sender, HkTreeItem value)
+        {
+            bool isIsSelectedGroupFound = false;
+            //修正ComosDiagramItems.IsSelectedGroup
+            foreach (var item in VmDiagComos.AvailableDiagramItems)
+            {
+                if (value != null && !string.IsNullOrEmpty(value.ID) && value.ID == item.GroupID)
+                {
+                    item.IsSelectedGroup = true;
+                    isIsSelectedGroupFound = true;
+                }
+                else
+                {
+                    item.IsSelectedGroup = false;
+                }
+            }
+            VmTree.CanAppTreeNode = !isIsSelectedGroupFound;
+            VmDiagComos.FilterText = VmDiagComos.FilterText;
+        }
+
         //创建Diagram模板
-        private  void OnTreeItemApplied(object sender, HkTreeItem value)
+        private void OnTreeItemApplied(object sender, HkTreeItem value)
         {
             string groupID = value.ID;
             if (VmDiagComos.AvailableDiagramItems.Any(x=>x.GroupID == groupID))
             {
                 //有重名GroupID
+                return;
             }
             foreach (var item in VmDiagLib.AssignedDiagramItems)
             {

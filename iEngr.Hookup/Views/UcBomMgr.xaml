@@ -11,16 +11,16 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="35*"/>
+            <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="40*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="9*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20*"/>
+            <RowDefinition Height="15*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="15*"/>
             <RowDefinition Height="Auto"/>
@@ -37,19 +37,21 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Grid.Column="0">安装图图名:</Label>
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DiagramNameCn}"></TextBox>
-            <Label Grid.Row="1" Grid.Column="0">Diagram Name:</Label>
-            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DiagramNameEn}"></TextBox>
-            <Label Grid.Row="2" Grid.Column="0">备注:</Label>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DiagramRemarksCn}"></TextBox>
-            <Label Grid.Row="3" Grid.Column="0">Remarks:</Label>
-            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding DiagramRemarksEn}"></TextBox>
+            <Label Grid.Row="0" Grid.Column="0" Margin="5,0">安装图图名:</Label>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="2" Text="{Binding DiagramNameCn}"></TextBox>
+            <Label Grid.Row="1" Grid.Column="0" Margin="5,0">Diagram Name:</Label>
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="2" Text="{Binding DiagramNameEn}"></TextBox>
+            <Label Grid.Row="2" Grid.Column="0" Margin="5,0">备注:</Label>
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="2" Text="{Binding DiagramRemarksCn}"></TextBox>
+            <Label Grid.Row="3" Grid.Column="0" Margin="5,0">Remarks:</Label>
+            <TextBox Grid.Row="3" Grid.Column="1" Margin="2" Text="{Binding DiagramRemarksEn}"></TextBox>
             <local:UcHkPicture x:Name="ucPic" Grid.Row="4" Grid.ColumnSpan="2" Margin="0,2,0,0"/>
-            </Grid>
+        </Grid>
         <local:UcDiagBom x:Name="ucBL" Grid.Row="1" Grid.Column="3"  Grid.ColumnSpan="1" Margin="0,32,2,0"/>
-        <local:UcAppliedComos x:Name="ucComosDevs" Grid.Row="1" Grid.Column="5"  Grid.ColumnSpan="1" Margin="0,2,0,0"/>
-        <GridSplitter Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Height="3" HorizontalAlignment="Stretch"/>
-        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"/>
+        <local:UcAppliedComos x:Name="ucComosDevs" Grid.Row="1" Grid.Column="5"  Grid.RowSpan="3" Margin="0,32,0,0"/>
+        <GridSplitter Grid.Column="2" Grid.RowSpan="3" Width="2" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Column="4" Grid.RowSpan="5" Width="2" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Height="2" HorizontalAlignment="Stretch"/>
+        <local:UcMatMain x:Name="ucMM" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"/>
     </Grid>
 </UserControl>

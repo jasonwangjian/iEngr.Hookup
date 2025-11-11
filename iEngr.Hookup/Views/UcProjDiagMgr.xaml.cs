@@ -35,6 +35,7 @@ namespace iEngr.Hookup.Views
     /// </summary>
     public partial class UcProjDiagMgr :UserControl, INotifyPropertyChanged
     {
+        public event EventHandler<bool> RefreshComosData;
         public ActiveArea ActiveArea { get; set; }  
         HkTreeViewModel VmTree;
         HkPictureViewModel VmPicture;
@@ -92,6 +93,7 @@ namespace iEngr.Hookup.Views
             //VmProjDiagMgr.LangInEnglishChanged += OnLangInEnglishChanged;
             DataContext = this;
 
+            RefreshCommand = new RelayCommand<object>(Refresh, CanRefresh);
             LibDiagMgrCommand = new RelayCommand<object>(LibDiagMgr, CanLibDiagMgr);
             BomCompareCommand = new RelayCommand<object>(BomCompare, CanBomCompare);
 
@@ -446,6 +448,15 @@ namespace iEngr.Hookup.Views
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         #region Command
+        public RelayCommand<object> RefreshCommand { get; set; }
+        private bool CanRefresh(object parameter)
+        {
+            return true;
+        }
+        private void Refresh(object parameter)
+        {
+            RefreshComosData?.Invoke(this, true);
+        }
         public RelayCommand<object> LibDiagMgrCommand { get; set; }
         private bool CanLibDiagMgr(object parameter)
         {

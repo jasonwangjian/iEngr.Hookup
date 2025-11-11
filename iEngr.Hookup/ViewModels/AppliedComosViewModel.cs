@@ -29,6 +29,12 @@ namespace iEngr.Hookup.ViewModels
         public ICommand ItemMouseClickCommand { get; }
         private CancellationTokenSource _currentTokenSource;
         private object _currentHoveredItem;
+        public bool _isRemoveShow;
+        public bool IsRemoveShow
+        {
+            get => _isRemoveShow;
+            set => SetField(ref _isRemoveShow, value);
+        }
         public AppliedComosViewModel() 
         {
             RemoveCommand = new RelayCommand<AppliedComosItem>(DeleteDiagObj, _=>true);
@@ -36,6 +42,11 @@ namespace iEngr.Hookup.ViewModels
             ItemMouseEnterCommand = new RelayCommand<object>(OnItemMouseEnter);
             ItemMouseLeaveCommand = new RelayCommand<object>(OnItemMouseLeave);
             ItemMouseClickCommand = new RelayCommand<object>(OnItemMouseClick);
+            IsRemoveShow = true;
+        }
+        private void ModeInitial()
+        {
+
         }
         private ObservableCollection<AppliedComosItem> _appliedItems = new ObservableCollection<AppliedComosItem>();
         public ObservableCollection<AppliedComosItem> AppliedItems

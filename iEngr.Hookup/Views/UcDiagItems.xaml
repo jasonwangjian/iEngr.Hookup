@@ -287,6 +287,11 @@
                         Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                         PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction 
+                        Command="{Binding DataContext.MouseDoubleClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
             </i:Interaction.Triggers>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Path=DisplayID}"  IsReadOnly="True"/>
