@@ -104,9 +104,9 @@
             </WrapPanel>
             <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,5"  VerticalAlignment="Bottom">
                 <Button Content="🔃" ToolTip="刷新页面" 
-                        Command="{Binding RefreshCommand}"  Margin="5,0,0,0" />
+                        Command="{Binding RefreshCommand}"   />
                 <Button Content="⚙️" ToolTip="企业库管理" IsEnabled="{Binding IsAdmin}"
-                        Command="{Binding LibDiagMgrCommand}"  Margin="5,0,5,0" />
+                        Command="{Binding LibDiagMgrCommand}"  Margin="2,0,5,0" />
             </WrapPanel>
             <WrapPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"  Margin="0,30,0,5" VerticalAlignment="Bottom">
                 <CheckBox Margin="0,10,10,0" IsChecked="{Binding IsComparisonEnabled}" Content="自动比较" />
