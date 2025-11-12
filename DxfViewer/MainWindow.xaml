@@ -1,0 +1,29 @@
+﻿<Window x:Class="DxfViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DxfViewer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel>
+        <ToolBar DockPanel.Dock="Top">
+            <Button Content="打开" Click="OpenFile_Click"/>
+            <Button Content="放大" Click="ZoomIn_Click"/>
+            <Button Content="缩小" Click="ZoomOut_Click"/>
+            <Button Content="适应窗口" Click="FitToView_Click"/>
+        </ToolBar>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Canvas x:Name="mainCanvas" 
+                    Background="LightBlue"
+                    Width="1000" Height="1000"/>
+        </ScrollViewer>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock x:Name="statusText" Text="就绪"/>
+            </StatusBarItem>
+        </StatusBar>
+    </DockPanel>
+</Window>

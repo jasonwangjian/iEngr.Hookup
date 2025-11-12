@@ -27,7 +27,9 @@ namespace iEngr.Hookup
                 // 定义 DSN 名称
                 string dsnName = "ComosExt";
                 // 创建 OdbcConnection 对象并传入 DSN 连接字符串
-                OdbcConnection connection = new OdbcConnection($"DSN={dsnName};UID=COMOSSH;Pwd=comos#321");
+                // OdbcConnection connection = new OdbcConnection($"DSN={dsnName};UID=COMOSSH;Pwd=comos#321");
+                string connectionString = "Driver={SQL Server};Server=172.18.11.47;Database=ComosExt;Uid=COMOSSH;Pwd=comos#321;";
+                OdbcConnection connection = new OdbcConnection(connectionString);
                 // 打开数据库连接
                 connection.Open();
                 // 返回连接对象
