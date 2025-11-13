@@ -78,6 +78,9 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.135\lib\net462\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
+    <Reference Include="netDxf, Version=2023.11.10.0, Culture=neutral, PublicKeyToken=618c63290969e781, processorArchitecture=MSIL">
+      <HintPath>..\packages\netDxf.2023.11.10\lib\net48\netDxf.dll</HintPath>
+    </Reference>
     <Reference Include="PdfiumViewer, Version=2.13.0.0, Culture=neutral, PublicKeyToken=91e4789cfb0609e0, processorArchitecture=MSIL">
       <HintPath>..\packages\PdfiumViewer.2.13.0.0\lib\net20\PdfiumViewer.dll</HintPath>
     </Reference>
@@ -217,6 +220,9 @@
     <Compile Include="Views\UcAppliedNode.xaml.cs">
       <DependentUpon>UcAppliedNode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UcDxfViewer.xaml.cs">
+      <DependentUpon>UcDxfViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UcPropLabel.xaml.cs">
       <DependentUpon>UcPropLabel.xaml</DependentUpon>
     </Compile>
@@ -332,6 +338,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UcAppliedNode.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcDxfViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
