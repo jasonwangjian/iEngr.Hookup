@@ -7,7 +7,7 @@
              xmlns:cv="clr-namespace:iEngr.Hookup.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             SizeChanged="ContentImage_SizeChanged">
+             SizeChanged="zoomCanvas_SizeChanged">
     <UserControl.Resources>
         <cv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
@@ -20,10 +20,15 @@
 
         <StackPanel Orientation="Horizontal" Margin="0">
             <TextBlock Text="{Binding DxfPath}" Margin="2"/>
+            <TextBlock Text="{Binding PositionX}" Margin="2"/>
+            <TextBlock Text="{Binding PositionY}" Margin="2"/>
         </StackPanel>
         <!-- Canvas 容器 -->
-        <Canvas x:Name="zoomCanvas" Grid.Row="1"
+        <Canvas x:Name="zoomCanvas" Grid.Row="1" Background="LightBlue"
+                MouseMove="MainCanvas_MouseMove"
             ClipToBounds="True">
+
+
 
             <Image x:Name="frameImage" Source="{Binding ImageSource}" Stretch="None"
                    RenderOptions.BitmapScalingMode="HighQuality"
@@ -31,6 +36,7 @@
                    Drop="frameImage_Drop"
                    >
 
+                <!-- 添加右键菜单 -->
                 <Image.ContextMenu>
                     <ContextMenu x:Name="imageContextMenu">
                         <MenuItem Header="上一页" Command="{Binding PreviousPageCommand}" 
@@ -38,17 +44,11 @@
                         <MenuItem Header="下一页" Command="{Binding NextPageCommand}" 
                          Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <Separator Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <MenuItem Header="重置" Click="Reset_Click"/>
+                        <MenuItem Header="重置" Click="FileOpen_Click"/>
                         <MenuItem Header="适应窗口" Click="FitToWindow_Click"/>
                     </ContextMenu>
                 </Image.ContextMenu>
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform x:Name="imageScale" ScaleX="1" ScaleY="1"/>
-                        <TranslateTransform x:Name="imageTranslate" X="0" Y="0"/>
-                    </TransformGroup>
-                </Image.RenderTransform>
             </Image>
-            </Canvas>
+        </Canvas>
     </Grid>
 </UserControl>

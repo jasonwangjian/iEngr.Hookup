@@ -37,18 +37,153 @@ namespace iEngr.Hookup.Views
         private DxfRenderer _renderer;
         private ZoomManager _zoomManager;
 
+        private double _scale = 1.0;
+        private Point _panOffset = new Point(0, 0);
+        private Point? _lastDragPoint;
+        private bool _isDragging = false;
+        private int _framPixelWidth;
+        private int _framPixelHeight;
         public UcDxfViewer()
         {
             InitializeComponent();
             DataContext = this;
-            SetImageSource("pack://application:,,,/iEngr.Hookup;component/Resources/A4LEmpty.Png");
+            SetImageSource("pack://application:,,,/iEngr.Hookup;component/Resources/A4LEmpty.png");
+            frameImage.Source = ImageSource;
+            _framPixelWidth = ImageSource.PixelWidth;
+            _framPixelHeight = ImageSource.PixelHeight;
+            MouseEventIni();
             _renderer = new DxfRenderer(zoomCanvas);
-            _zoomManager = new ZoomManager(zoomCanvas, frameImage);
-
+            ApplyTransform();
+            Reset();
             // 监听图像大小变化
-            zoomCanvas.SizeChanged += ContentImage_SizeChanged;
+            zoomCanvas.SizeChanged += zoomCanvas_SizeChanged;
          }
+        #region Zoom Manager
+        private void MouseEventIni()
+        {
+            MouseWheel += (s, e) =>
+            {
+                Point mouseCanvasPos = e.GetPosition(this);
+                double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
+                double newScale = Math.Max(0.1, Math.Min(20.0, _scale * zoomFactor));
 
+                double scaleChange = newScale / _scale;
+
+                double oldTranslateX = _panOffset.X;
+                double oldTranslateY = _panOffset.Y;
+
+                _panOffset.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
+                _panOffset.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
+
+                _scale = newScale;
+
+                ApplyTransform();
+                e.Handled = true;
+            };
+            // 鼠标拖动平移 - 使用Preview事件确保能捕获到
+            PreviewMouseDown += (s, e) =>
+            {
+                if (e.MiddleButton == MouseButtonState.Pressed ||
+                    (e.LeftButton == MouseButtonState.Pressed)) // && Keyboard.Modifiers == ModifierKeys.Shift))
+                {
+                    _isDragging = true;
+                    _lastDragPoint = e.GetPosition(this);
+                    Cursor = Cursors.Hand;
+                    CaptureMouse(); // 重要：捕获鼠标
+                    e.Handled = true;
+                }
+            };
+
+            PreviewMouseMove += (s, e) =>
+            {
+                if (_isDragging && _lastDragPoint.HasValue) // && e.LeftButton == MouseButtonState.Pressed)
+                {
+                    Point currentPos = e.GetPosition(this);
+                    Vector delta = currentPos - _lastDragPoint.Value;
+
+                    _panOffset.X += delta.X;
+                    _panOffset.Y += delta.Y;
+
+                    _lastDragPoint = currentPos;
+                    ApplyTransform();
+                    e.Handled = true;
+                }
+            };
+
+            PreviewMouseUp += (s, e) =>
+            {
+                if (_isDragging)
+                {
+                    _isDragging = false;
+                    Cursor = Cursors.Arrow;
+                    ReleaseMouseCapture(); // 释放鼠标捕获
+                    e.Handled = true;
+                }
+            };
+
+            // 确保即使鼠标在Canvas外也能释放捕获
+            LostMouseCapture += (s, e) =>
+            {
+                if (_isDragging)
+                {
+                    _isDragging = false;
+                    Cursor = Cursors.Arrow;
+                }
+            };
+
+        }
+        public void Reset()
+        {
+            _scale = 1.0;
+            _panOffset = new Point(0, 0);
+            ApplyTransform();
+            if (IsImageLargerThanWindow())
+            {
+                double scaleX = zoomCanvas.ActualWidth / _framPixelWidth;
+                double scaleY = zoomCanvas.ActualHeight / _framPixelHeight;
+                double scaleImage = Math.Min(scaleX, scaleY) * 0.95;
+
+                double imageWidth = _framPixelWidth * scaleImage;
+                double imageHeight = _framPixelHeight * scaleImage;
+                Point offsetImage = new Point(Math.Max(0, (zoomCanvas.ActualWidth - imageWidth) / 2),
+                                              Math.Max(0, (zoomCanvas.ActualHeight - imageHeight) / 2));
+                ApplyTransform(scaleImage, offsetImage);
+            }
+            else
+            {
+                ApplyTransform(1.0, new Point(0, 0));
+            }
+        }
+        private bool IsImageLargerThanWindow()
+        {
+            if (!(frameImage.Source is BitmapSource bitmap))
+                return false;
+
+            double imageWidth = bitmap.PixelWidth;
+            double imageHeight = bitmap.PixelHeight;
+            double canvasWidth = zoomCanvas.ActualWidth;
+            double canvasHeight = zoomCanvas.ActualHeight;
+
+            return imageWidth > canvasWidth * 0.95 || imageHeight > canvasHeight * 0.95;
+        }
+        private void ApplyTransform()
+        {
+            if (zoomCanvas == null) return;
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
+            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
+            zoomCanvas.RenderTransform = transformGroup;
+        }
+        private void ApplyTransform(double scale, Point offset)
+        {
+            if (frameImage == null) return;
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new ScaleTransform(scale, scale));
+            transformGroup.Children.Add(new TranslateTransform(offset.X, offset.Y));
+            frameImage.RenderTransform = transformGroup;
+        }
+        #endregion
+        #region 属性
         private FileStatus _fileStatus;
         public FileStatus FileStatus
         {
@@ -81,7 +216,6 @@ namespace iEngr.Hookup.Views
             }
         }
         private BitmapImage _imageSource;
-
         public BitmapImage ImageSource
         {
             get => _imageSource;
@@ -110,6 +244,19 @@ namespace iEngr.Hookup.Views
                 }
             }
         }
+        private double _positionX;
+        public double PositionX
+        {
+            get => _positionX;
+            set => SetField(ref _positionX, value);
+        }
+        private double _positionY;
+        public double PositionY
+        {
+            get => _positionY;
+            set => SetField(ref _positionY, value);
+        }
+        #endregion
         public void SetImageSource(string filePath)
         {
             var bitmap = new BitmapImage();
@@ -126,160 +273,28 @@ namespace iEngr.Hookup.Views
 
             if (fileExtension == ".dxf")
             {
-                FileStatus = _renderer.RenderDxf(filePath);
+                FileStatus = _renderer.RenderDxf(filePath,_scale);
             }
             else
             {
                 FileStatus = FileStatus.NotDxfExtension; ;
             }
         }
-        private void ContentImage_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void zoomCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // 图像大小发生变化时居中
+            // Canvas大小发生变化时居中
             if (e.NewSize.Width > 0 && e.NewSize.Height > 0)
             {
-                CenterImageAfterLoad();
+                Reset();
             }
-        }
-
-        // 原有图像查看字段
-        private System.Windows.Point? _lastDragPoint;
-        private bool _isDragging = false;
-        private double _scale = 1.0;
-        private System.Windows.Point _panOffset = new System.Windows.Point(0, 0);
-
-
-        //#region 图像查看功能（鼠标动作）
-        //private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
-        //{
-        //    //System.Windows.Point mouseCanvasPos = e.GetPosition(zoomCanvas);
-
-        //    //double zoomFactor = e.Delta > 0 ? 1.2 : 0.8;
-        //    //double newScale = Math.Max(0.1, Math.Min(20.0, _currentScale * zoomFactor));
-
-        //    //double scaleChange = newScale / _currentScale;
-
-        //    //double oldTranslateX = canvasTranslate.X;
-        //    //double oldTranslateY = canvasTranslate.Y;
-
-        //    //_currentScale = newScale;
-        //    //canvasScale.ScaleX = _currentScale;
-        //    //canvasScale.ScaleY = _currentScale;
-
-        //    //canvasTranslate.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
-        //    //canvasTranslate.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
-        //    double zoomFactor = e.Delta > 0 ? 1.2 : 1 / 1.2;
-        //    Zoom(zoomFactor, e.GetPosition(zoomCanvas));
-        //    e.Handled = true;
-        //}
-        //public void Zoom(double factor, System.Windows.Point zoomCenter)
-        //{
-        //    double oldScale = _scale;
-        //    _scale *= factor;
-
-        //    // 限制缩放范围
-        //    _scale = Math.Max(0.6, Math.Min(20.0, _scale));
-
-        //    // 基于缩放中心调整平移
-        //    if (oldScale != 0)
-        //    {
-        //        double scaleRatio = _scale / oldScale;
-        //        _panOffset.X = zoomCenter.X / _scale - (zoomCenter.X / oldScale - _panOffset.X) * scaleRatio;
-        //        _panOffset.Y = zoomCenter.Y / _scale - (zoomCenter.Y / oldScale - _panOffset.Y) * scaleRatio;
-        //    }
-
-        //    ApplyTransform();
-        //}
-        //private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (e.ChangedButton == MouseButton.Left)
-        //    {
-        //        _lastDragPoint = e.GetPosition(zoomCanvas);
-        //        _isDragging = true;
-        //        //zoomCanvas.CaptureMouse();
-        //        zoomCanvas.Cursor = Cursors.Hand;
-        //        e.Handled = true;
-        //    }
-        //}
-
-        //private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (e.ChangedButton == MouseButton.Left && _isDragging)
-        //    {
-        //        _isDragging = false;
-        //        _lastDragPoint = null;
-        //        zoomCanvas.ReleaseMouseCapture();
-        //        zoomCanvas.Cursor = Cursors.Arrow;
-        //        e.Handled = true;
-        //    }
-        //}
-
-        //private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (_isDragging && _lastDragPoint.HasValue && e.LeftButton == MouseButtonState.Pressed)
-        //    {
-        //        System.Windows.Point currentPos = e.GetPosition(zoomCanvas);
-        //        Vector delta = currentPos - _lastDragPoint.Value;
-
-        //        canvasTranslate.X += delta.X;
-        //        canvasTranslate.Y += delta.Y;
-
-        //        _lastDragPoint = currentPos;
-        //        e.Handled = true;
-        //    }
-        //}
-        //#endregion
-
-
-        private void Reset_Click(object sender, RoutedEventArgs e)
-        {
-
-                FitToWindow(true);
         }
 
         private void FitToWindow_Click(object sender, RoutedEventArgs e)
         {
             //FitToView(_renderer.EntityObjects);
-            _zoomManager.FitToView(_renderer.EntityObjects);
-        }
-        public void ResetView()
-        {
-            _scale = 1.0;
-            _panOffset = new System.Windows.Point(0, 0);
-            ApplyTransform();
-        }
-        public void FitToView(IEnumerable<EntityObject> entities)
-        {
-            if (entities == null || !entities.Any())
-            {
-                ResetView();
-                return;
-            }
-            // 计算所有实体的边界
-            Rect bounds = CalculateTotalBounds(entities);
-
-            if (bounds.IsEmpty) return;
-
-            // 计算适合视图的缩放比例
-            double scaleX = zoomCanvas.ActualWidth / bounds.Width;
-            double scaleY = zoomCanvas.ActualHeight / bounds.Height;
-            _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
-            canvasScale.ScaleX = scaleX;
-            canvasScale.ScaleY = scaleY;
-            // 居中显示
-            _panOffset.X = -bounds.Left + (zoomCanvas.ActualWidth / _scale - bounds.Width) / 2;
-            _panOffset.Y = -bounds.Top + (zoomCanvas.ActualHeight / _scale - bounds.Height) / 2;
-            ApplyTransform();
+            Reset();
         }
 
-        private void ApplyTransform()
-        {
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-
-            zoomCanvas.RenderTransform = transformGroup;
-        }
         private Rect CalculateTotalBounds(IEnumerable<EntityObject> entities)
         {
             double minX = double.MaxValue, minY = double.MaxValue;
@@ -338,53 +353,17 @@ namespace iEngr.Hookup.Views
                 return null;
             }
         }
-        private void FitToWindow(bool isAutoFit = false)
-        {
-                //double scaleX = zoomCanvas.ActualWidth / bitmap.PixelWidth;
-                //double scaleY = zoomCanvas.ActualHeight / bitmap.PixelHeight;
-                //_currentScale = Math.Min(scaleX, scaleY);
-
-                //imageScale.ScaleX = _currentScale;
-                //imageScale.ScaleY = _currentScale;
-
-                //CenterImage();
-
-                //if (!isAutoFit)
-                //{
-                //    _autoFitToWindow = false;
-                //}
-        }
-
-        private void ResetToCenter()
-        {
-            //_currentScale = 1.0;
-            //imageScale.ScaleX = 1.0;
-            //imageScale.ScaleY = 1.0;
-            //CenterImage();
-        }
-
-        private void CenterImage()
-        {
-            //if (contentImage.Source is BitmapSource bitmap)
-            //{
-            //    double imageWidth = bitmap.PixelWidth * _currentScale;
-            //    double imageHeight = bitmap.PixelHeight * _currentScale;
-
-            //    imageTranslate.X = Math.Max(0, (zoomCanvas.ActualWidth - imageWidth) / 2);
-            //    imageTranslate.Y = Math.Max(0, (zoomCanvas.ActualHeight - imageHeight) / 2);
-            //}
-        }
 
 
 
-        private void CenterImageAfterLoad()
-        {
-            // 确保在UI线程执行
-            Dispatcher.Invoke(() =>
-            {
-                 FitToView(_renderer.EntityObjects);
-            });
-        }
+        //private void CenterImageAfterLoad()
+        //{
+        //    // 确保在UI线程执行
+        //    Dispatcher.Invoke(() =>
+        //    {
+        //         _zoomManager.FitToWindow();
+        //    });
+        //}
 
 
 
@@ -421,18 +400,26 @@ namespace iEngr.Hookup.Views
                DxfPath =  dialog.FileName;
             }
         }
+
+        private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            Point windowPosition = e.GetPosition(this);
+            PositionX = windowPosition.X;
+            PositionY = windowPosition.Y;
+        }
     }
     public class ZoomManager
     {
         private Canvas _canvas;
         private System.Windows.Controls.Image _frameImage;
+        private BitmapImage _image;
         private double _scale = 1.0;
-        private bool _isPanning = false;
+        private bool _isDragging = false;
         private Point _panOffset = new Point(0, 0);
-        private Point _lastMousePosition;
+        private Point? _lastDragPoint;
 
-        private int _framPixelWidth = 3508;
-        private int _framPixelHeight = 2480;
+        private int _framPixelWidth;
+        private int _framPixelHeight;
         public double Scale => _scale;
         public Point PanOffset => _panOffset;
 
@@ -440,122 +427,69 @@ namespace iEngr.Hookup.Views
         {
             _canvas = canvas;
             _frameImage = frameImage;
+            _image = frameImage.Source as BitmapImage;
+            _framPixelWidth = _image.PixelWidth;
+            _framPixelHeight = _image.PixelHeight;
             InitializeEvents();
         }
 
         private void InitializeEvents()
         {
-            // 鼠标滚轮缩放
-            _canvas.MouseWheel += (s, e) =>
-            {
-                double zoomFactor = e.Delta > 0 ? 1.2 : 1 / 1.2;
-                Zoom(zoomFactor, e.GetPosition(_canvas));
-                e.Handled = true;
-            };
+            //鼠标滚轮缩放
+            //_canvas.MouseWheel += (s, e) =>
+            //{
 
-            // 鼠标拖动平移 - 使用Preview事件确保能捕获到
-            _canvas.PreviewMouseDown += (s, e) =>
-            {
-                if (e.MiddleButton == MouseButtonState.Pressed ||
-                    (e.LeftButton == MouseButtonState.Pressed && Keyboard.Modifiers == ModifierKeys.Shift))
-                {
-                    _isPanning = true;
-                    _lastMousePosition = e.GetPosition(_canvas);
-                    _canvas.Cursor = Cursors.Hand;
-                    _canvas.CaptureMouse(); // 重要：捕获鼠标
-                    e.Handled = true;
-                }
-            };
+            //    Point mouseCanvasPos = e.GetPosition(_canvas);
+            //    double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
+            //    double newScale = Math.Max(0.1, Math.Min(20.0, _scale * zoomFactor));
 
-            _canvas.PreviewMouseMove += (s, e) =>
-            {
-                if (_isPanning && _canvas.IsMouseCaptured)
-                {
-                    Point currentPosition = e.GetPosition(_canvas);
-                    Vector delta = currentPosition - _lastMousePosition;
+            //    double scaleChange = newScale / _scale;
 
-                    // 应用平移（考虑缩放比例）
-                    double newPanX = _panOffset.X + delta.X / _scale;
-                    double newPanY = _panOffset.Y + delta.Y / _scale;
+            //    //((_frameImage.RenderTransform as TransformGroup).Children[1] as TranslateTransform).X
+            //    double oldTranslateX = _panOffset.X;
+            //    double oldTranslateY = _panOffset.Y;
 
-                    _panOffset.X = newPanX;
-                    _panOffset.Y = newPanY;
+            //    _panOffset.X = mouseCanvasPos.X / newScale - (mouseCanvasPos.X / _scale - oldTranslateX) * scaleChange;
+            //    _panOffset.Y = mouseCanvasPos.Y / newScale - (mouseCanvasPos.Y / _scale - oldTranslateY) * scaleChange;
+            //    //_panOffset.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
+            //    //_panOffset.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
 
-                    _lastMousePosition = currentPosition;
-                    CanvasApplyTransform();
-                }
-            };
+            //    _scale = newScale;
 
-            _canvas.PreviewMouseUp += (s, e) =>
-            {
-                if (_isPanning)
-                {
-                    _isPanning = false;
-                    _canvas.Cursor = Cursors.Arrow;
-                    _canvas.ReleaseMouseCapture(); // 释放鼠标捕获
-                    e.Handled = true;
-                }
-            };
+            //    CanvasApplyTransform();
+            //    e.Handled = true;
+            //};
 
-            // 确保即使鼠标在Canvas外也能释放捕获
-            _canvas.LostMouseCapture += (s, e) =>
-            {
-                if (_isPanning)
-                {
-                    _isPanning = false;
-                    _canvas.Cursor = Cursors.Arrow;
-                }
-            };
         }
 
-        public void Zoom(double factor, Point zoomCenter)
-        {
-            double oldScale = _scale;
-            _scale *= factor;
 
-            // 限制缩放范围
-            _scale = Math.Max(0.1, Math.Min(20.0, _scale));
 
-            // 基于缩放中心调整平移
-            if (oldScale != 0)
-            {
-                double scaleRatio = _scale / oldScale;
-                _panOffset.X = zoomCenter.X / _scale - (zoomCenter.X / oldScale - _panOffset.X) * scaleRatio;
-                _panOffset.Y = zoomCenter.Y / _scale - (zoomCenter.Y / oldScale - _panOffset.Y) * scaleRatio;
-            }
+        //public void FitToView(IEnumerable<EntityObject> entities)
+        //{
+        //    if (entities == null || !entities.Any())
+        //    {
+        //        ResetView();
+        //        return;
+        //    }
 
-            CanvasApplyTransform();
-        }
+        //    // 计算所有实体的边界
+        //    Rect bounds = CalculateTotalBounds(entities);
 
-        public void FitToView()
-        {
-            if (entities == null || !entities.Any())
-            {
-                ResetView();
-                return;
-            }
+        //    if (bounds.IsEmpty) return;
 
-            // 计算所有实体的边界
-            Rect bounds = CalculateTotalBounds(entities);
+        //    SetContentBounds(bounds);
 
-            if (bounds.IsEmpty) return;
+        //    // 计算适合视图的缩放比例
+        //    double scaleX = _canvas.ActualWidth / bounds.Width;
+        //    double scaleY = _canvas.ActualHeight / bounds.Height;
+        //    _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
 
-            SetContentBounds(bounds);
+        //    // 居中显示
+        //    _panOffset.X = -bounds.Left + (_canvas.ActualWidth / _scale - bounds.Width) / 2;
+        //    _panOffset.Y = -bounds.Top + (_canvas.ActualHeight / _scale - bounds.Height) / 2;
 
-            // 计算适合视图的缩放比例
-            double scaleX = _canvas.ActualWidth / bounds.Width;
-            double scaleY = _canvas.ActualHeight / bounds.Height;
-            _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
-
-            // 居中显示
-            _panOffset.X = -bounds.Left + (_canvas.ActualWidth / _scale - bounds.Width) / 2;
-            _panOffset.Y = -bounds.Top + (_canvas.ActualHeight / _scale - bounds.Height) / 2;
-
-            // 应用约束
-            ApplyPanConstraints();
-
-            CanvasApplyTransform();
-        }
+        //    CanvasApplyTransform();
+        //}
 
         public void ResetView()
         {
@@ -564,122 +498,28 @@ namespace iEngr.Hookup.Views
             CanvasApplyTransform();
         }
 
-        public void PanTo(double x, double y)
-        {
-            _panOffset.X = x;
-            _panOffset.Y = y;
-            ApplyPanConstraints();
-            CanvasApplyTransform();
-        }
-
-        public void CenterOn(double x, double y)
-        {
-            _panOffset.X = -x + _canvas.ActualWidth / (2 * _scale);
-            _panOffset.Y = -y + _canvas.ActualHeight / (2 * _scale);
-            ApplyPanConstraints();
-            CanvasApplyTransform();
-        }
-        private void Reset_Click(object sender, RoutedEventArgs e)
-        {
-            if (contentImage.Source == null) return;
-
-            _autoFitToWindow = true;
-
-            if (IsImageLargerThanWindow())
-            {
-                FitToWindow(true);
-            }
-            else
-            {
-                ResetToCenter();
-            }
-        }
-        private void FitToWindow()
-        {
-                double scaleX = _canvas.ActualWidth / _framPixelWidth;
-                double scaleY = _canvas.ActualHeight / _framPixelHeight;
-                _scale = Math.Min(scaleX, scaleY);
-
-                imageScale.ScaleX = _currentScale;
-                imageScale.ScaleY = _currentScale;
-
-                CenterImage();
-        }
-
-        private void ResetToCenter()
-        {
-            _currentScale = 1.0;
-            imageScale.ScaleX = 1.0;
-            imageScale.ScaleY = 1.0;
-            CenterImage();
-        }
-
-        private void CenterImage()
-        {
-            double imageWidth = _framPixelWidth * _scale;
-            double imageHeight = _framPixelHeight * _scale;
-
-            Point imageTranslate = new Point
-                (
-                Math.Max(0, (_canvas.ActualWidth - imageWidth) / 2),
-                Math.Max(0, (_canvas.ActualHeight - imageHeight) / 2)
-                );
-            ImageApplyTransform(_scale, imageTranslate);
-        }
-
-        private bool IsImageLargerThanWindow()
-        {
-            if (!(contentImage.Source is BitmapSource bitmap))
-                return false;
-
-            double imageWidth = bitmap.PixelWidth;
-            double imageHeight = bitmap.PixelHeight;
-            double canvasWidth = zoomCanvas.ActualWidth;
-            double canvasHeight = zoomCanvas.ActualHeight;
-
-            return imageWidth > canvasWidth || imageHeight > canvasHeight;
-        }
 
 
 
-        private void CenterImageAfterLoad()
-        {
-            // 确保在UI线程执行
-            Dispatcher.Invoke(() =>
-            {
-                if (contentImage.Source is BitmapSource bitmap)
-                {
-                    // 检查图像是否有效
-                    if (bitmap.PixelWidth > 0 && bitmap.PixelHeight > 0)
-                    {
-                        //_autoFitToWindow = true;
 
-                        if (IsImageLargerThanWindow())
-                        {
-                            //FitToWindow(true);
-                            FitToWindow(_autoFitToWindow);
-                        }
-                        else
-                        {
-                            ResetToCenter();
-                        }
 
-                        Console.WriteLine($"图像加载完成: {bitmap.PixelWidth}x{bitmap.PixelHeight}, 缩放: {_currentScale}");
-                    }
-                }
-            });
-        }
 
 
         private void CanvasApplyTransform()
         {
             if (_canvas == null) return;
-
             TransformGroup transformGroup = new TransformGroup();
             transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
             transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-
             _canvas.RenderTransform = transformGroup;
+        }
+        private void ImageApplyTransform()
+        {
+            if (_frameImage == null) return;
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
+            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
+            _frameImage.RenderTransform = transformGroup;
         }
         private void ImageApplyTransform(double _scale, Point _panOffset)
         {
@@ -727,7 +567,7 @@ namespace iEngr.Hookup.Views
         public FileStatus RenderDxf(string filePath, double scale = 1.0)
         {
             _scale = scale;
-            _canvas.Children.Clear();
+            //_canvas.Children.Clear();
 
             try
             {
