@@ -23,32 +23,35 @@
             <TextBlock Text="{Binding PositionX}" Margin="2"/>
             <TextBlock Text="{Binding PositionY}" Margin="2"/>
         </StackPanel>
-        <!-- Canvas 容器 -->
-        <Canvas x:Name="zoomCanvas" Grid.Row="1" Background="LightBlue"
+        <Border Grid.Row="1" >
+            <Canvas x:Name="zoomCanvas" Background="LightBlue"
+                Width="auto" Height="auto"
                 MouseMove="MainCanvas_MouseMove"
             ClipToBounds="True">
-
-
-
-            <Image x:Name="frameImage" Source="{Binding ImageSource}" Stretch="None"
-                   RenderOptions.BitmapScalingMode="HighQuality"
-                   AllowDrop="{Binding AllowDrop}"
-                   Drop="frameImage_Drop"
-                   >
-
                 <!-- 添加右键菜单 -->
-                <Image.ContextMenu>
+                <Canvas.ContextMenu>
                     <ContextMenu x:Name="imageContextMenu">
                         <MenuItem Header="上一页" Command="{Binding PreviousPageCommand}" 
                          Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <MenuItem Header="下一页" Command="{Binding NextPageCommand}" 
                          Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <Separator Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <MenuItem Header="重置" Click="FileOpen_Click"/>
+                        <MenuItem Header="测试" Click="Test_Click"/>
+                        <MenuItem Header="打开文件" Click="FileOpen_Click"/>
                         <MenuItem Header="适应窗口" Click="FitToWindow_Click"/>
                     </ContextMenu>
-                </Image.ContextMenu>
-            </Image>
-        </Canvas>
+                </Canvas.ContextMenu>
+
+
+                <Image x:Name="frameImage" Source="{Binding ImageSource}" Stretch="None"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   AllowDrop="{Binding AllowDrop}"
+                   Drop="frameImage_Drop"
+                   >
+
+                </Image>
+            </Canvas>
+        </Border>
+        <!-- Canvas 容器 -->
     </Grid>
 </UserControl>

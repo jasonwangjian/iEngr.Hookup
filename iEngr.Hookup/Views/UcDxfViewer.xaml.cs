@@ -14,7 +14,6 @@ using netDxf;
 using netDxf.Entities;
 using System.Linq;
 using netDxf.Tables;
-using SkiaSharp;
 using Point = System.Windows.Point;
 using System.Windows.Threading;
 
@@ -35,8 +34,9 @@ namespace iEngr.Hookup.Views
         public event EventHandler<string> ComosUIDToDiagModGet;
 
         private DxfRenderer _renderer;
-        private ZoomManager _zoomManager;
+        //private ZoomManager _zoomManager;
 
+        private FrameworkElement _parentContainer; // 父容器（Border等）
         private double _scale = 1.0;
         private Point _panOffset = new Point(0, 0);
         private Point? _lastDragPoint;
@@ -51,6 +51,7 @@ namespace iEngr.Hookup.Views
             frameImage.Source = ImageSource;
             _framPixelWidth = ImageSource.PixelWidth;
             _framPixelHeight = ImageSource.PixelHeight;
+            _parentContainer = FindParentContainer(zoomCanvas);
             MouseEventIni();
             _renderer = new DxfRenderer(zoomCanvas);
             ApplyTransform();
@@ -58,6 +59,22 @@ namespace iEngr.Hookup.Views
             // 监听图像大小变化
             zoomCanvas.SizeChanged += zoomCanvas_SizeChanged;
          }
+        private FrameworkElement FindParentContainer(Canvas canvas)
+        {
+            // 查找第一个非Canvas的父容器
+            DependencyObject parent = VisualTreeHelper.GetParent(canvas);
+            while (parent != null)
+            {
+                if (parent is FrameworkElement frameworkElement &&
+                    !(parent is Canvas) &&
+                    !(parent is Window))
+                {
+                    return frameworkElement;
+                }
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return null;
+        }        
         #region Zoom Manager
         private void MouseEventIni()
         {
@@ -101,8 +118,22 @@ namespace iEngr.Hookup.Views
                     Point currentPos = e.GetPosition(this);
                     Vector delta = currentPos - _lastDragPoint.Value;
 
-                    _panOffset.X += delta.X;
-                    _panOffset.Y += delta.Y;
+                    double newPanX = _panOffset.X + delta.X;
+                    double newPanY = _panOffset.Y + delta.Y;
+
+                    if (newPanX > 200)
+                    {
+
+                    }
+                    ApplyPanConstraints(ref newPanX, ref newPanY);
+
+                    // 应用约束
+
+                    _panOffset.X = newPanX;
+                    _panOffset.Y = newPanY;
+
+                    //_panOffset.X += delta.X;
+                    //_panOffset.Y += delta.Y;
 
                     _lastDragPoint = currentPos;
                     ApplyTransform();
@@ -132,6 +163,16 @@ namespace iEngr.Hookup.Views
             };
 
         }
+        private void ApplyPanConstraints(ref double panX, ref double panY)
+        {
+            if (_parentContainer == null) return;
+            // 计算父容器的可见区域（世界坐标）
+            double visibleWidth = _parentContainer.ActualWidth * 0.9 * _scale;
+            double visibleHeight = _parentContainer.ActualHeight * 0.9 * _scale; 
+            panX = panX > 0 ? Math.Min(visibleWidth, panX) : Math.Max(-visibleWidth, panX);
+            panY = panY > 0 ? Math.Min(visibleHeight, panY) : Math.Max(-visibleHeight, panY);
+        }
+
         public void Reset()
         {
             _scale = 1.0;
@@ -285,7 +326,8 @@ namespace iEngr.Hookup.Views
             // Canvas大小发生变化时居中
             if (e.NewSize.Width > 0 && e.NewSize.Height > 0)
             {
-                Reset();
+                FileStatus = _renderer.RenderDxf(DxfPath, _scale);
+                //Reset();
             }
         }
 
@@ -386,6 +428,9 @@ namespace iEngr.Hookup.Views
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        private void Test_Click(object sender, RoutedEventArgs e)
+        {
+        }
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
@@ -408,131 +453,136 @@ namespace iEngr.Hookup.Views
             PositionY = windowPosition.Y;
         }
     }
-    public class ZoomManager
-    {
-        private Canvas _canvas;
-        private System.Windows.Controls.Image _frameImage;
-        private BitmapImage _image;
-        private double _scale = 1.0;
-        private bool _isDragging = false;
-        private Point _panOffset = new Point(0, 0);
-        private Point? _lastDragPoint;
+    //public class ZoomManager
+    //{
+    //    private Canvas _canvas;
+    //    private System.Windows.Controls.Image _frameImage;
+    //    private BitmapImage _image;
+    //    private double _scale = 1.0;
+    //    private bool _isDragging = false;
+    //    private Point _panOffset = new Point(0, 0);
+    //    private Point? _lastDragPoint;
 
-        private int _framPixelWidth;
-        private int _framPixelHeight;
-        public double Scale => _scale;
-        public Point PanOffset => _panOffset;
+    //    private int _framPixelWidth;
+    //    private int _framPixelHeight;
+    //    public double Scale => _scale;
+    //    public Point PanOffset => _panOffset;
 
-        public ZoomManager(Canvas canvas, System.Windows.Controls.Image frameImage)
-        {
-            _canvas = canvas;
-            _frameImage = frameImage;
-            _image = frameImage.Source as BitmapImage;
-            _framPixelWidth = _image.PixelWidth;
-            _framPixelHeight = _image.PixelHeight;
-            InitializeEvents();
-        }
+    //    public ZoomManager(Canvas canvas, System.Windows.Controls.Image frameImage)
+    //    {
+    //        _canvas = canvas;
+    //        _frameImage = frameImage;
+    //        _image = frameImage.Source as BitmapImage;
+    //        _framPixelWidth = _image.PixelWidth;
+    //        _framPixelHeight = _image.PixelHeight;
+    //        InitializeEvents();
+    //    }
 
-        private void InitializeEvents()
-        {
-            //鼠标滚轮缩放
-            //_canvas.MouseWheel += (s, e) =>
-            //{
+    //    private void InitializeEvents()
+    //    {
+    //        //鼠标滚轮缩放
+    //        //_canvas.MouseWheel += (s, e) =>
+    //        //{
 
-            //    Point mouseCanvasPos = e.GetPosition(_canvas);
-            //    double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
-            //    double newScale = Math.Max(0.1, Math.Min(20.0, _scale * zoomFactor));
+    //        //    Point mouseCanvasPos = e.GetPosition(_canvas);
+    //        //    double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
+    //        //    double newScale = Math.Max(0.1, Math.Min(20.0, _scale * zoomFactor));
 
-            //    double scaleChange = newScale / _scale;
+    //        //    double scaleChange = newScale / _scale;
 
-            //    //((_frameImage.RenderTransform as TransformGroup).Children[1] as TranslateTransform).X
-            //    double oldTranslateX = _panOffset.X;
-            //    double oldTranslateY = _panOffset.Y;
+    //        //    //((_frameImage.RenderTransform as TransformGroup).Children[1] as TranslateTransform).X
+    //        //    double oldTranslateX = _panOffset.X;
+    //        //    double oldTranslateY = _panOffset.Y;
 
-            //    _panOffset.X = mouseCanvasPos.X / newScale - (mouseCanvasPos.X / _scale - oldTranslateX) * scaleChange;
-            //    _panOffset.Y = mouseCanvasPos.Y / newScale - (mouseCanvasPos.Y / _scale - oldTranslateY) * scaleChange;
-            //    //_panOffset.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
-            //    //_panOffset.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
+    //        //    _panOffset.X = mouseCanvasPos.X / newScale - (mouseCanvasPos.X / _scale - oldTranslateX) * scaleChange;
+    //        //    _panOffset.Y = mouseCanvasPos.Y / newScale - (mouseCanvasPos.Y / _scale - oldTranslateY) * scaleChange;
+    //        //    //_panOffset.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
+    //        //    //_panOffset.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
 
-            //    _scale = newScale;
+    //        //    _scale = newScale;
 
-            //    CanvasApplyTransform();
-            //    e.Handled = true;
-            //};
+    //        //    CanvasApplyTransform();
+    //        //    e.Handled = true;
+    //        //};
 
-        }
-
-
-
-        //public void FitToView(IEnumerable<EntityObject> entities)
-        //{
-        //    if (entities == null || !entities.Any())
-        //    {
-        //        ResetView();
-        //        return;
-        //    }
-
-        //    // 计算所有实体的边界
-        //    Rect bounds = CalculateTotalBounds(entities);
-
-        //    if (bounds.IsEmpty) return;
-
-        //    SetContentBounds(bounds);
-
-        //    // 计算适合视图的缩放比例
-        //    double scaleX = _canvas.ActualWidth / bounds.Width;
-        //    double scaleY = _canvas.ActualHeight / bounds.Height;
-        //    _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
-
-        //    // 居中显示
-        //    _panOffset.X = -bounds.Left + (_canvas.ActualWidth / _scale - bounds.Width) / 2;
-        //    _panOffset.Y = -bounds.Top + (_canvas.ActualHeight / _scale - bounds.Height) / 2;
-
-        //    CanvasApplyTransform();
-        //}
-
-        public void ResetView()
-        {
-            _scale = 1.0;
-            _panOffset = new Point(0, 0);
-            CanvasApplyTransform();
-        }
+    //    }
 
 
+
+    //    //public void FitToView(IEnumerable<EntityObject> entities)
+    //    //{
+    //    //    if (entities == null || !entities.Any())
+    //    //    {
+    //    //        ResetView();
+    //    //        return;
+    //    //    }
+
+    //    //    // 计算所有实体的边界
+    //    //    Rect bounds = CalculateTotalBounds(entities);
+
+    //    //    if (bounds.IsEmpty) return;
+
+    //    //    SetContentBounds(bounds);
+
+    //    //    // 计算适合视图的缩放比例
+    //    //    double scaleX = _canvas.ActualWidth / bounds.Width;
+    //    //    double scaleY = _canvas.ActualHeight / bounds.Height;
+    //    //    _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
+
+    //    //    // 居中显示
+    //    //    _panOffset.X = -bounds.Left + (_canvas.ActualWidth / _scale - bounds.Width) / 2;
+    //    //    _panOffset.Y = -bounds.Top + (_canvas.ActualHeight / _scale - bounds.Height) / 2;
+
+    //    //    CanvasApplyTransform();
+    //    //}
+
+    //    public void ResetView()
+    //    {
+    //        _scale = 1.0;
+    //        _panOffset = new Point(0, 0);
+    //        CanvasApplyTransform();
+    //    }
 
 
 
 
 
 
-        private void CanvasApplyTransform()
-        {
-            if (_canvas == null) return;
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-            _canvas.RenderTransform = transformGroup;
-        }
-        private void ImageApplyTransform()
-        {
-            if (_frameImage == null) return;
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-            _frameImage.RenderTransform = transformGroup;
-        }
-        private void ImageApplyTransform(double _scale, Point _panOffset)
-        {
-            if (_frameImage == null) return;
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-            transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-            _frameImage.RenderTransform = transformGroup;
-        }
-    }
+
+
+    //    private void CanvasApplyTransform()
+    //    {
+    //        if (_canvas == null) return;
+    //        TransformGroup transformGroup = new TransformGroup();
+    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
+    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
+    //        _canvas.RenderTransform = transformGroup;
+    //    }
+    //    private void ImageApplyTransform()
+    //    {
+    //        if (_frameImage == null) return;
+    //        TransformGroup transformGroup = new TransformGroup();
+    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
+    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
+    //        _frameImage.RenderTransform = transformGroup;
+    //    }
+    //    private void ImageApplyTransform(double _scale, Point _panOffset)
+    //    {
+    //        if (_frameImage == null) return;
+    //        TransformGroup transformGroup = new TransformGroup();
+    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
+    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
+    //        _frameImage.RenderTransform = transformGroup;
+    //    }
+    //}
     public class DxfRenderer
     {
         private Canvas _canvas;
+        private double _dxfWidth;
+        private double _dxfHeight;
+        private double _zoomFacter;
+        private double _panX = 0;
+        private double _panY = 0;
         private double _scale = 1.0;
         private double _offsetX = 0;
         private double _offsetY = 0;
@@ -566,8 +616,8 @@ namespace iEngr.Hookup.Views
 
         public FileStatus RenderDxf(string filePath, double scale = 1.0)
         {
-            _scale = scale;
-            //_canvas.Children.Clear();
+            //_scale = _zoomFacter;
+            _canvas.Children.Clear();
 
             try
             {
@@ -603,7 +653,12 @@ namespace iEngr.Hookup.Views
                         maxY = System.Math.Max(maxY, bounds.Value.Bottom);
                     }
                 }
-
+                _dxfWidth = maxX - minX;
+                _dxfHeight = maxY - minY;
+                _zoomFacter = Math.Min(_canvas.ActualWidth / _dxfWidth, _canvas.ActualHeight / _dxfHeight);
+                _panX = (_canvas.ActualWidth - _dxfWidth * _zoomFacter) / 2;
+                _panY = (_canvas.ActualHeight - _dxfHeight * _zoomFacter) / 2;
+                _scale = _zoomFacter;
                 _offsetX = -minX;
                 _offsetY = -minY; // 注意Y轴方向
             }
@@ -688,7 +743,7 @@ namespace iEngr.Hookup.Views
                 //    RenderArc(arc);
                 //    break;
                 case Polyline2D polyline:
-                    RenderPolyline(polyline);
+                    //RenderPolyline(polyline);
                     break;
                     //case LwPolyline lwPolyline:
                     //    RenderLwPolyline(lwPolyline);
@@ -718,9 +773,9 @@ namespace iEngr.Hookup.Views
             System.Windows.Shapes.Line wpfLine = new System.Windows.Shapes.Line
             {
                 X1 = (line.StartPoint.X + _offsetX) * _scale,
-                Y1 = (_canvas.ActualHeight - (line.StartPoint.Y + _offsetY)) * _scale,
+                Y1 = (_canvas.ActualHeight - (line.StartPoint.Y + _offsetY)- _canvas.ActualHeight + _dxfHeight) * _scale + _panY,
                 X2 = (line.EndPoint.X + _offsetX) * _scale,
-                Y2 = (_canvas.ActualHeight - (line.EndPoint.Y + _offsetY)) * _scale,
+                Y2 = (_canvas.ActualHeight - (line.EndPoint.Y + _offsetY) - _canvas.ActualHeight + _dxfHeight) * _scale + _panY,
                 Stroke = brush,
                 StrokeThickness = GetLineWeight(line.Lineweight)
             };

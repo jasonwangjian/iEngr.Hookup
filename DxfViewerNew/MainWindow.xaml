@@ -8,6 +8,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="400">
     <Grid>
-        <mv:UcDxfViewer/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+        <TextBox>AAA</TextBox>
+            <mv:UcDxfViewer Grid.Row="1"/>
     </Grid>
 </Window>
