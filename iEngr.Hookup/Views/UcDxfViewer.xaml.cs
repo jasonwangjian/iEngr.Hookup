@@ -1,21 +1,23 @@
-﻿using iEngr.Hookup.ViewModels;
+﻿using iEngr.Hookup.Models;
+using iEngr.Hookup.ViewModels;
+using netDxf;
+using netDxf.Entities;
+using netDxf.Tables;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Printing;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
-using netDxf;
-using netDxf.Entities;
-using System.Linq;
-using netDxf.Tables;
-using Point = System.Windows.Point;
 using System.Windows.Threading;
+using Point = System.Windows.Point;
 
 namespace iEngr.Hookup.Views
 {
@@ -47,10 +49,10 @@ namespace iEngr.Hookup.Views
         {
             InitializeComponent();
             DataContext = this;
-            SetImageSource("pack://application:,,,/iEngr.Hookup;component/Resources/A4LEmpty.png");
-            frameImage.Source = ImageSource;
-            _framPixelWidth = ImageSource.PixelWidth;
-            _framPixelHeight = ImageSource.PixelHeight;
+            //SetImageSource("pack://application:,,,/iEngr.Hookup;component/Resources/A4LEmpty.png");
+            //frameImage.Source = ImageSource;
+            //_framPixelWidth = ImageSource.PixelWidth;
+            //_framPixelHeight = ImageSource.PixelHeight;
             _parentContainer = FindParentContainer(zoomCanvas);
             MouseEventIni();
             _renderer = new DxfRenderer(zoomCanvas);
@@ -167,8 +169,8 @@ namespace iEngr.Hookup.Views
         {
             if (_parentContainer == null) return;
             // 计算父容器的可见区域（世界坐标）
-            double visibleWidth = _parentContainer.ActualWidth * 0.9 * _scale;
-            double visibleHeight = _parentContainer.ActualHeight * 0.9 * _scale; 
+            double visibleWidth = _parentContainer.ActualWidth * 0.8 * _scale;
+            double visibleHeight = _parentContainer.ActualHeight * 0.8 * _scale; 
             panX = panX > 0 ? Math.Min(visibleWidth, panX) : Math.Max(-visibleWidth, panX);
             panY = panY > 0 ? Math.Min(visibleHeight, panY) : Math.Max(-visibleHeight, panY);
         }
@@ -178,35 +180,35 @@ namespace iEngr.Hookup.Views
             _scale = 1.0;
             _panOffset = new Point(0, 0);
             ApplyTransform();
-            if (IsImageLargerThanWindow())
-            {
-                double scaleX = zoomCanvas.ActualWidth / _framPixelWidth;
-                double scaleY = zoomCanvas.ActualHeight / _framPixelHeight;
-                double scaleImage = Math.Min(scaleX, scaleY) * 0.95;
+            //if (IsImageLargerThanWindow())
+            //{
+            //    double scaleX = zoomCanvas.ActualWidth / _framPixelWidth;
+            //    double scaleY = zoomCanvas.ActualHeight / _framPixelHeight;
+            //    double scaleImage = Math.Min(scaleX, scaleY) * 0.95;
 
-                double imageWidth = _framPixelWidth * scaleImage;
-                double imageHeight = _framPixelHeight * scaleImage;
-                Point offsetImage = new Point(Math.Max(0, (zoomCanvas.ActualWidth - imageWidth) / 2),
-                                              Math.Max(0, (zoomCanvas.ActualHeight - imageHeight) / 2));
-                ApplyTransform(scaleImage, offsetImage);
-            }
-            else
-            {
-                ApplyTransform(1.0, new Point(0, 0));
-            }
+            //    double imageWidth = _framPixelWidth * scaleImage;
+            //    double imageHeight = _framPixelHeight * scaleImage;
+            //    Point offsetImage = new Point(Math.Max(0, (zoomCanvas.ActualWidth - imageWidth) / 2),
+            //                                  Math.Max(0, (zoomCanvas.ActualHeight - imageHeight) / 2));
+            //    ApplyTransform(scaleImage, offsetImage);
+            //}
+            //else
+            //{
+            //    ApplyTransform(1.0, new Point(0, 0));
+            //}
         }
-        private bool IsImageLargerThanWindow()
-        {
-            if (!(frameImage.Source is BitmapSource bitmap))
-                return false;
+        //private bool IsImageLargerThanWindow()
+        //{
+        //    if (!(frameImage.Source is BitmapSource bitmap))
+        //        return false;
 
-            double imageWidth = bitmap.PixelWidth;
-            double imageHeight = bitmap.PixelHeight;
-            double canvasWidth = zoomCanvas.ActualWidth;
-            double canvasHeight = zoomCanvas.ActualHeight;
+        //    double imageWidth = bitmap.PixelWidth;
+        //    double imageHeight = bitmap.PixelHeight;
+        //    double canvasWidth = zoomCanvas.ActualWidth;
+        //    double canvasHeight = zoomCanvas.ActualHeight;
 
-            return imageWidth > canvasWidth * 0.95 || imageHeight > canvasHeight * 0.95;
-        }
+        //    return imageWidth > canvasWidth * 0.95 || imageHeight > canvasHeight * 0.95;
+        //}
         private void ApplyTransform()
         {
             if (zoomCanvas == null) return;
@@ -215,14 +217,14 @@ namespace iEngr.Hookup.Views
             transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
             zoomCanvas.RenderTransform = transformGroup;
         }
-        private void ApplyTransform(double scale, Point offset)
-        {
-            if (frameImage == null) return;
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform(scale, scale));
-            transformGroup.Children.Add(new TranslateTransform(offset.X, offset.Y));
-            frameImage.RenderTransform = transformGroup;
-        }
+        //private void ApplyTransform(double scale, Point offset)
+        //{
+        //    if (frameImage == null) return;
+        //    TransformGroup transformGroup = new TransformGroup();
+        //    transformGroup.Children.Add(new ScaleTransform(scale, scale));
+        //    transformGroup.Children.Add(new TranslateTransform(offset.X, offset.Y));
+        //    frameImage.RenderTransform = transformGroup;
+        //}
         #endregion
         #region 属性
         private FileStatus _fileStatus;
@@ -327,7 +329,7 @@ namespace iEngr.Hookup.Views
             if (e.NewSize.Width > 0 && e.NewSize.Height > 0)
             {
                 FileStatus = _renderer.RenderDxf(DxfPath, _scale);
-                //Reset();
+                Reset();
             }
         }
 
@@ -336,78 +338,6 @@ namespace iEngr.Hookup.Views
             //FitToView(_renderer.EntityObjects);
             Reset();
         }
-
-        private Rect CalculateTotalBounds(IEnumerable<EntityObject> entities)
-        {
-            double minX = double.MaxValue, minY = double.MaxValue;
-            double maxX = double.MinValue, maxY = double.MinValue;
-
-            foreach (var entity in entities)
-            {
-                var bounds = GetEntityBounds(entity);
-                if (bounds.HasValue)
-                {
-                    minX = Math.Min(minX, bounds.Value.Left);
-                    minY = Math.Min(minY, bounds.Value.Top);
-                    maxX = Math.Max(maxX, bounds.Value.Right);
-                    maxY = Math.Max(maxY, bounds.Value.Bottom);
-                }
-            }
-
-            if (minX == double.MaxValue) return Rect.Empty;
-
-            return new Rect(minX, minY, maxX - minX, maxY - minY);
-        }
-        private Rect? GetEntityBounds(EntityObject entity)
-        {
-            try
-            {
-                switch (entity)
-                {
-                    case Line line:
-                        return new Rect(
-                            System.Math.Min(line.StartPoint.X, line.EndPoint.X),
-                            System.Math.Min(line.StartPoint.Y, line.EndPoint.Y),
-                            System.Math.Abs(line.EndPoint.X - line.StartPoint.X),
-                            System.Math.Abs(line.EndPoint.Y - line.StartPoint.Y));
-
-                    case Circle circle:
-                        return new Rect(
-                            circle.Center.X - circle.Radius,
-                            circle.Center.Y - circle.Radius,
-                            circle.Radius * 2,
-                            circle.Radius * 2);
-
-                    case Arc arc:
-                        // 简化计算圆弧边界
-                        return new Rect(
-                            arc.Center.X - arc.Radius,
-                            arc.Center.Y - arc.Radius,
-                            arc.Radius * 2,
-                            arc.Radius * 2);
-
-                    default:
-                        return null;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-
-        //private void CenterImageAfterLoad()
-        //{
-        //    // 确保在UI线程执行
-        //    Dispatcher.Invoke(() =>
-        //    {
-        //         _zoomManager.FitToWindow();
-        //    });
-        //}
-
-
 
         private void frameImage_Drop(object sender, DragEventArgs e)
         {
@@ -451,439 +381,6 @@ namespace iEngr.Hookup.Views
             Point windowPosition = e.GetPosition(this);
             PositionX = windowPosition.X;
             PositionY = windowPosition.Y;
-        }
-    }
-    //public class ZoomManager
-    //{
-    //    private Canvas _canvas;
-    //    private System.Windows.Controls.Image _frameImage;
-    //    private BitmapImage _image;
-    //    private double _scale = 1.0;
-    //    private bool _isDragging = false;
-    //    private Point _panOffset = new Point(0, 0);
-    //    private Point? _lastDragPoint;
-
-    //    private int _framPixelWidth;
-    //    private int _framPixelHeight;
-    //    public double Scale => _scale;
-    //    public Point PanOffset => _panOffset;
-
-    //    public ZoomManager(Canvas canvas, System.Windows.Controls.Image frameImage)
-    //    {
-    //        _canvas = canvas;
-    //        _frameImage = frameImage;
-    //        _image = frameImage.Source as BitmapImage;
-    //        _framPixelWidth = _image.PixelWidth;
-    //        _framPixelHeight = _image.PixelHeight;
-    //        InitializeEvents();
-    //    }
-
-    //    private void InitializeEvents()
-    //    {
-    //        //鼠标滚轮缩放
-    //        //_canvas.MouseWheel += (s, e) =>
-    //        //{
-
-    //        //    Point mouseCanvasPos = e.GetPosition(_canvas);
-    //        //    double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
-    //        //    double newScale = Math.Max(0.1, Math.Min(20.0, _scale * zoomFactor));
-
-    //        //    double scaleChange = newScale / _scale;
-
-    //        //    //((_frameImage.RenderTransform as TransformGroup).Children[1] as TranslateTransform).X
-    //        //    double oldTranslateX = _panOffset.X;
-    //        //    double oldTranslateY = _panOffset.Y;
-
-    //        //    _panOffset.X = mouseCanvasPos.X / newScale - (mouseCanvasPos.X / _scale - oldTranslateX) * scaleChange;
-    //        //    _panOffset.Y = mouseCanvasPos.Y / newScale - (mouseCanvasPos.Y / _scale - oldTranslateY) * scaleChange;
-    //        //    //_panOffset.X = oldTranslateX + (1 - scaleChange) * (mouseCanvasPos.X - oldTranslateX);
-    //        //    //_panOffset.Y = oldTranslateY + (1 - scaleChange) * (mouseCanvasPos.Y - oldTranslateY);
-
-    //        //    _scale = newScale;
-
-    //        //    CanvasApplyTransform();
-    //        //    e.Handled = true;
-    //        //};
-
-    //    }
-
-
-
-    //    //public void FitToView(IEnumerable<EntityObject> entities)
-    //    //{
-    //    //    if (entities == null || !entities.Any())
-    //    //    {
-    //    //        ResetView();
-    //    //        return;
-    //    //    }
-
-    //    //    // 计算所有实体的边界
-    //    //    Rect bounds = CalculateTotalBounds(entities);
-
-    //    //    if (bounds.IsEmpty) return;
-
-    //    //    SetContentBounds(bounds);
-
-    //    //    // 计算适合视图的缩放比例
-    //    //    double scaleX = _canvas.ActualWidth / bounds.Width;
-    //    //    double scaleY = _canvas.ActualHeight / bounds.Height;
-    //    //    _scale = Math.Min(scaleX, scaleY) * 0.9; // 留一些边距
-
-    //    //    // 居中显示
-    //    //    _panOffset.X = -bounds.Left + (_canvas.ActualWidth / _scale - bounds.Width) / 2;
-    //    //    _panOffset.Y = -bounds.Top + (_canvas.ActualHeight / _scale - bounds.Height) / 2;
-
-    //    //    CanvasApplyTransform();
-    //    //}
-
-    //    public void ResetView()
-    //    {
-    //        _scale = 1.0;
-    //        _panOffset = new Point(0, 0);
-    //        CanvasApplyTransform();
-    //    }
-
-
-
-
-
-
-
-
-    //    private void CanvasApplyTransform()
-    //    {
-    //        if (_canvas == null) return;
-    //        TransformGroup transformGroup = new TransformGroup();
-    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-    //        _canvas.RenderTransform = transformGroup;
-    //    }
-    //    private void ImageApplyTransform()
-    //    {
-    //        if (_frameImage == null) return;
-    //        TransformGroup transformGroup = new TransformGroup();
-    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-    //        _frameImage.RenderTransform = transformGroup;
-    //    }
-    //    private void ImageApplyTransform(double _scale, Point _panOffset)
-    //    {
-    //        if (_frameImage == null) return;
-    //        TransformGroup transformGroup = new TransformGroup();
-    //        transformGroup.Children.Add(new ScaleTransform(_scale, _scale));
-    //        transformGroup.Children.Add(new TranslateTransform(_panOffset.X, _panOffset.Y));
-    //        _frameImage.RenderTransform = transformGroup;
-    //    }
-    //}
-    public class DxfRenderer
-    {
-        private Canvas _canvas;
-        private double _dxfWidth;
-        private double _dxfHeight;
-        private double _zoomFacter;
-        private double _panX = 0;
-        private double _panY = 0;
-        private double _scale = 1.0;
-        private double _offsetX = 0;
-        private double _offsetY = 0;
-        private Dictionary<string, Brush> _layerBrushes;
-        public IEnumerable<EntityObject> EntityObjects { get; private set; }
-
-        public DxfRenderer(Canvas canvas)
-        {
-            _canvas = canvas;
-            InitializeLayerBrushes();
-        }
-
-        private void DebugEntityProperties(DxfDocument dxf)
-        {
-            var properties = dxf.Entities.GetType().GetProperties();
-            foreach (var prop in properties)
-            {
-                Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}");
-            }
-        }
-        private void InitializeLayerBrushes()
-        {
-            _layerBrushes = new Dictionary<string, Brush>
-        {
-            { "0", Brushes.Black },
-            { "Defpoints", Brushes.Red },
-            { "Dimensions", Brushes.Green },
-            { "Text", Brushes.Blue }
-        };
-        }
-
-        public FileStatus RenderDxf(string filePath, double scale = 1.0)
-        {
-            //_scale = _zoomFacter;
-            _canvas.Children.Clear();
-
-            try
-            {
-                DxfDocument dxf = DxfDocument.Load(filePath);
-                DebugEntityProperties(dxf);
-                CalculateViewport(dxf);
-                RenderAllEntities(dxf);
-                return FileStatus.ValidedDxf;
-            }
-            catch (System.Exception ex)
-            {
-                return FileStatus.InValidedDxf;
-            }
-        }
-
-        private void CalculateViewport(DxfDocument dxf)
-        {
-            // 修正：使用正确的实体访问方式
-            var entities = GetEntitiesList(dxf);
-            if (entities.Count > 0)
-            {
-                double minX = double.MaxValue, minY = double.MaxValue;
-                double maxX = double.MinValue, maxY = double.MinValue;
-
-                foreach (var entity in entities)
-                {
-                    var bounds = GetEntityBounds(entity);
-                    if (bounds.HasValue)
-                    {
-                        minX = System.Math.Min(minX, bounds.Value.Left);
-                        minY = System.Math.Min(minY, bounds.Value.Top);
-                        maxX = System.Math.Max(maxX, bounds.Value.Right);
-                        maxY = System.Math.Max(maxY, bounds.Value.Bottom);
-                    }
-                }
-                _dxfWidth = maxX - minX;
-                _dxfHeight = maxY - minY;
-                _zoomFacter = Math.Min(_canvas.ActualWidth / _dxfWidth, _canvas.ActualHeight / _dxfHeight);
-                _panX = (_canvas.ActualWidth - _dxfWidth * _zoomFacter) / 2;
-                _panY = (_canvas.ActualHeight - _dxfHeight * _zoomFacter) / 2;
-                _scale = _zoomFacter;
-                _offsetX = -minX;
-                _offsetY = -minY; // 注意Y轴方向
-            }
-        }
-
-        // 修正：获取实体列表的正确方法
-        private List<EntityObject> GetEntitiesList(DxfDocument dxf)
-        {
-            var entities = new List<EntityObject>();
-
-            // 使用索引器或特定方法访问实体
-            entities.AddRange(dxf.Entities.Lines);
-            entities.AddRange(dxf.Entities.Circles);
-            entities.AddRange(dxf.Entities.Arcs);
-            entities.AddRange(dxf.Entities.Polylines2D);
-            entities.AddRange(dxf.Entities.Texts);
-            entities.AddRange(dxf.Entities.MTexts);
-            entities.AddRange(dxf.Entities.Inserts);
-            entities.AddRange(dxf.Entities.Ellipses);
-            entities.AddRange(dxf.Entities.Splines);
-            entities.AddRange(dxf.Entities.Solids);
-            EntityObjects = entities.ToArray();
-            return entities;
-        }
-
-        private void RenderAllEntities(DxfDocument dxf)
-        {
-            var entities = GetEntitiesList(dxf);
-            foreach (var entity in entities)
-            {
-                RenderEntity(entity);
-            }
-        }
-        private Rect? GetEntityBounds(EntityObject entity)
-        {
-            try
-            {
-                switch (entity)
-                {
-                    case Line line:
-                        return new Rect(
-                            System.Math.Min(line.StartPoint.X, line.EndPoint.X),
-                            System.Math.Min(line.StartPoint.Y, line.EndPoint.Y),
-                            System.Math.Abs(line.EndPoint.X - line.StartPoint.X),
-                            System.Math.Abs(line.EndPoint.Y - line.StartPoint.Y));
-
-                    case Circle circle:
-                        return new Rect(
-                            circle.Center.X - circle.Radius,
-                            circle.Center.Y - circle.Radius,
-                            circle.Radius * 2,
-                            circle.Radius * 2);
-
-                    case Arc arc:
-                        // 简化计算圆弧边界
-                        return new Rect(
-                            arc.Center.X - arc.Radius,
-                            arc.Center.Y - arc.Radius,
-                            arc.Radius * 2,
-                            arc.Radius * 2);
-
-                    default:
-                        return null;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        private void RenderEntity(EntityObject entity)
-        {
-            switch (entity)
-            {
-                case Line line:
-                    RenderLine(line);
-                    break;
-                //case Circle circle:
-                //    RenderCircle(circle);
-                //    break;
-                //case Arc arc:
-                //    RenderArc(arc);
-                //    break;
-                case Polyline2D polyline:
-                    //RenderPolyline(polyline);
-                    break;
-                    //case LwPolyline lwPolyline:
-                    //    RenderLwPolyline(lwPolyline);
-                    //    break;
-                    //case Text text:
-                    //    RenderText(text);
-                    //    break;
-                    //case MText mtext:
-                    //    RenderMText(mtext);
-                    //    break;
-                    //case Insert insert:
-                    //    RenderInsert(insert);
-                    //    break;
-                    //case Ellipse ellipse:
-                    //    RenderEllipse(ellipse);
-                    //    break;
-                    //case Spline spline:
-                    //    RenderSpline(spline);
-                    //    break;
-                    // 可以根据需要添加更多实体类型
-            }
-        }
-        private void RenderLine(Line line)
-        {
-            var brush = GetLayerBrush(line.Layer.Name);
-
-            System.Windows.Shapes.Line wpfLine = new System.Windows.Shapes.Line
-            {
-                X1 = (line.StartPoint.X + _offsetX) * _scale,
-                Y1 = (_canvas.ActualHeight - (line.StartPoint.Y + _offsetY)- _canvas.ActualHeight + _dxfHeight) * _scale + _panY,
-                X2 = (line.EndPoint.X + _offsetX) * _scale,
-                Y2 = (_canvas.ActualHeight - (line.EndPoint.Y + _offsetY) - _canvas.ActualHeight + _dxfHeight) * _scale + _panY,
-                Stroke = brush,
-                StrokeThickness = GetLineWeight(line.Lineweight)
-            };
-
-            SetLineType(wpfLine, line.Linetype);
-            _canvas.Children.Add(wpfLine);
-        }
-
-        //private void RenderCircle(Circle circle)
-        //{
-        //    var brush = GetLayerBrush(circle.Layer.Name);
-
-        //    Ellipse ellipse = new Ellipse
-        //    {
-        //        Width = circle.Radius * 2 * _scale,
-        //        Height = circle.Radius * 2 * _scale,
-        //        Stroke = brush,
-        //        StrokeThickness = GetLineWeight(circle.Lineweight),
-        //        Fill = Brushes.Transparent
-        //    };
-
-        //    Canvas.SetLeft(ellipse, ((circle.Center.X - circle.Radius) + _offsetX) * _scale);
-        //    Canvas.SetTop(ellipse, (_canvas.ActualHeight - (circle.Center.Y + circle.Radius + _offsetY)) * _scale);
-        //    _canvas.Children.Add(ellipse);
-        //}
-
-        //private void RenderArc(Arc arc)
-        //{
-        //    var brush = GetLayerBrush(arc.Layer.Name);
-
-        //    PathGeometry pathGeometry = new PathGeometry();
-        //    PathFigure pathFigure = new PathFigure
-        //    {
-        //        StartPoint = new Point(
-        //            (arc.StartPoint.X + _offsetX) * _scale,
-        //            (_canvas.ActualHeight - (arc.StartPoint.Y + _offsetY)) * _scale),
-        //        IsClosed = false
-        //    };
-
-        //    ArcSegment arcSegment = new ArcSegment
-        //    {
-        //        Point = new Point(
-        //            (arc.EndPoint.X + _offsetX) * _scale,
-        //            (_canvas.ActualHeight - (arc.EndPoint.Y + _offsetY)) * _scale),
-        //        Size = new Size(arc.Radius * _scale, arc.Radius * _scale),
-        //        SweepDirection = arc.StartAngle < arc.EndAngle ? SweepDirection.Clockwise : SweepDirection.Counterclockwise,
-        //        IsLargeArc = System.Math.Abs(arc.EndAngle - arc.StartAngle) > 180
-        //    };
-
-        //    pathFigure.Segments.Add(arcSegment);
-        //    pathGeometry.Figures.Add(pathFigure);
-
-        //    Path path = new Path
-        //    {
-        //        Data = pathGeometry,
-        //        Stroke = brush,
-        //        StrokeThickness = GetLineWeight(arc.Lineweight)
-        //    };
-
-        //    _canvas.Children.Add(path);
-        //}
-
-        private void RenderPolyline(Polyline2D polyline)
-        {
-            if (polyline.Vertexes.Count < 2) return;
-
-            var brush = GetLayerBrush(polyline.Layer.Name);
-            System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
-            {
-                Stroke = brush,
-                StrokeThickness = GetLineWeight(polyline.Lineweight),
-                Fill = polyline.IsClosed ? brush : Brushes.Transparent
-            };
-
-            foreach (var vertex in polyline.Vertexes)
-            {
-                wpfPolyline.Points.Add(new System.Windows.Point(
-                    (vertex.Position.X + _offsetX) * _scale,
-                    (_canvas.ActualHeight - (vertex.Position.Y + _offsetY)) * _scale));
-            }
-
-            _canvas.Children.Add(wpfPolyline);
-        }
-        private Brush GetLayerBrush(string layerName)
-        {
-            return _layerBrushes.ContainsKey(layerName) ? _layerBrushes[layerName] : Brushes.Black;
-        }
-
-        private double GetLineWeight(Lineweight lineweight)
-        {
-            //return lineweight.Value > 0 ? lineweight.Value * _scale * 0.1 : 1;
-            if (lineweight != Lineweight.ByLayer)
-            {
-
-            }
-            return 1;
-        }
-
-        private void SetLineType(System.Windows.Shapes.Shape shape, Linetype linetype)
-        {
-            if (linetype.Name.Contains("DASHED"))
-            {
-                shape.StrokeDashArray = new DoubleCollection(new double[] { 4, 2 });
-            }
-            else if (linetype.Name.Contains("DOTTED"))
-            {
-                shape.StrokeDashArray = new DoubleCollection(new double[] { 1, 2 });
-            }
         }
     }
 }

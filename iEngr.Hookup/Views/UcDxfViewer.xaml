@@ -23,33 +23,34 @@
             <TextBlock Text="{Binding PositionX}" Margin="2"/>
             <TextBlock Text="{Binding PositionY}" Margin="2"/>
         </StackPanel>
-        <Border Grid.Row="1" >
-            <Canvas x:Name="zoomCanvas" Background="LightBlue"
+        <Border Grid.Row="1"
+                ClipToBounds="True" Background="LightBlue">
+            <!-- 添加右键菜单 -->
+            <Border.ContextMenu>
+                <ContextMenu x:Name="imageContextMenu">
+                    <MenuItem Header="上一页" Command="{Binding PreviousPageCommand}" 
+                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <MenuItem Header="下一页" Command="{Binding NextPageCommand}" 
+                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Separator Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <MenuItem Header="测试" Click="Test_Click"/>
+                    <MenuItem Header="打开文件" Click="FileOpen_Click"/>
+                    <MenuItem Header="适应窗口" Click="FitToWindow_Click"/>
+                </ContextMenu>
+            </Border.ContextMenu>
+            <Canvas x:Name="zoomCanvas" Background="Transparent"
                 Width="auto" Height="auto"
                 MouseMove="MainCanvas_MouseMove"
             ClipToBounds="True">
-                <!-- 添加右键菜单 -->
-                <Canvas.ContextMenu>
-                    <ContextMenu x:Name="imageContextMenu">
-                        <MenuItem Header="上一页" Command="{Binding PreviousPageCommand}" 
-                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <MenuItem Header="下一页" Command="{Binding NextPageCommand}" 
-                         Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <Separator Visibility="{Binding IsPdfFile, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <MenuItem Header="测试" Click="Test_Click"/>
-                        <MenuItem Header="打开文件" Click="FileOpen_Click"/>
-                        <MenuItem Header="适应窗口" Click="FitToWindow_Click"/>
-                    </ContextMenu>
-                </Canvas.ContextMenu>
 
 
-                <Image x:Name="frameImage" Source="{Binding ImageSource}" Stretch="None"
+                <!--<Image x:Name="frameImage" Source="{Binding ImageSource}" Stretch="None"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    AllowDrop="{Binding AllowDrop}"
                    Drop="frameImage_Drop"
                    >
 
-                </Image>
+                </Image>-->
             </Canvas>
         </Border>
         <!-- Canvas 容器 -->

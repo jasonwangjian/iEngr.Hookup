@@ -152,6 +152,7 @@
     <Compile Include="HK_General.DbFunc.cs" />
     <Compile Include="HK_General.DicIni.cs" />
     <Compile Include="Models\DataGridExtensions.cs" />
+    <Compile Include="Models\DxfManager.cs" />
     <Compile Include="Models\HKLibDevValue.cs" />
     <Compile Include="Models\HKLibDevLabel.cs" />
     <Compile Include="Models\HKLibPropLabel.cs" />
