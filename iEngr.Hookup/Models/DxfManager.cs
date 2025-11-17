@@ -12,9 +12,28 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Point = System.Windows.Point;
+using Path = System.Windows.Shapes.Path;
 
 namespace iEngr.Hookup.Models
 {
+    public class PolylineSegment
+    {
+        public Point StartPoint { get; set; }
+        public Point EndPoint { get; set; }
+        public double StartWidth { get; set; }
+        public double EndWidth { get; set; }
+        public double Bulge { get; set; }
+        public bool IsArc => Math.Abs(Bulge) > 0.001;
+
+        public PolylineSegment(Point start, Point end, double startWidth, double endWidth, double bulge)
+        {
+            StartPoint = start;
+            EndPoint = end;
+            StartWidth = Math.Max(0.1, startWidth);
+            EndWidth = Math.Max(0.1, endWidth);
+            Bulge = bulge;
+        }
+    }
     public class DxfLayerReader
     {
         private DxfDocument _dxfDocument;
@@ -348,15 +367,15 @@ namespace iEngr.Hookup.Models
                 //    RenderArc(arc);
                 //    break;
                 case Polyline2D polyline:
-                    //RenderPolyline(polyline);
-                    RenderLwPolyline(polyline);
+                    RenderPolyline(polyline);
+                    //RenderLwPolyline(polyline);
                     break;
                     //case LwPolyline lwPolyline:
                     //    RenderLwPolyline(lwPolyline);
                     //    break;
-                    //case Text text:
-                    //    RenderText(text);
-                    //    break;
+                    case Text text:
+                        RenderText(text);
+                        break;
                     //case MText mtext:
                     //    RenderMText(mtext);
                     //    break;
@@ -453,33 +472,546 @@ namespace iEngr.Hookup.Models
 
         //    _canvas.Children.Add(path);
         //}
-
-        private void RenderPolyline(Polyline2D polyline)
+        private void RenderText(Text text)
         {
-            if (polyline.Vertexes.Count < 2) return;
+            // 解析实体的最终样式
+            var finalColor = _styleManager.ResolveEntityColor(text);
+            var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
-            var brush = GetLayerBrush(polyline.Layer.Name);
-            System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
+            TextBlock textBlock = new TextBlock
             {
-                Stroke = brush,
-                StrokeThickness = GetLineWeight(polyline.Lineweight),
-                //Fill = polyline.IsClosed ? brush : Brushes.Transparent
+                Text = text.Value,
+                FontFamily = new FontFamily(text.Style.FontFamilyName),
+                FontSize = text.Height * _scale * 0.8, // 调整字体大小比例
+                Foreground = new SolidColorBrush(wpfColor),
+                RenderTransform = new RotateTransform(-text.Rotation) // DXF旋转角度与WPF相反
             };
 
-            foreach (var vertex in polyline.Vertexes)
+            Canvas.SetLeft(textBlock, ConvertToCanvasPointX(text.Position.X));
+            Canvas.SetTop(textBlock, ConvertToCanvasPointY(text.Position.Y));
+
+            _canvas.Children.Add(textBlock);
+        }
+
+        #region Polyline2D
+        private void RenderPolyline(Polyline2D lwPolyline)
+        {
+            try
             {
-                //wpfPolyline.Points.Add(new System.Windows.Point(
-                //    (vertex.Position.X + _offsetX) * _scale + _panX,
-                //    (_dxfHeight - (vertex.Position.Y + _offsetY)) * _scale + _panY));
-                wpfPolyline.Points.Add(ConvertToCanvasPoint(vertex.Position));
+                var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+                var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
+
+                // 检查特性
+                //bool hasBulge = lwPolyline.Vertexes.Any(v => Math.Abs(v.Bulge) > 0.001);
+                bool hasBulge = lwPolyline.Vertexes.Any(v => v.Bulge != 0);
+                bool hasVariableWidth = lwPolyline.Vertexes.Any(v =>
+                    (Math.Abs(v.StartWidth) > 0.001 || Math.Abs(v.EndWidth) > 0.001) &&
+                    v.StartWidth != v.EndWidth);
+
+                if (hasVariableWidth && hasBulge)
+                {
+                    // 最复杂的情况：可变宽度 + 圆弧
+                    RenderLwPolylineWithWidthAndBulge(lwPolyline, wpfColor);
+                }
+                else if (hasVariableWidth)
+                {
+                    // 只有可变宽度
+                    RenderVariableWidthPolyline(lwPolyline, wpfColor);
+                }
+                else if (hasBulge)
+                {
+                    // 只有圆弧
+                    RenderLwPolylineWithBulge(lwPolyline, wpfColor);
+                }
+                else
+                {
+                    // 简单直线段
+                    RenderSimpleLwPolyline(lwPolyline, wpfColor);
+                }
             }
-            if (polyline.IsClosed && polyline.Vertexes.Count > 0)
+            catch (Exception ex)
             {
-                wpfPolyline.Points.Add(ConvertToCanvasPoint(polyline.Vertexes[0].Position));
+                Console.WriteLine($"渲染 LwPolyline 时出错: {ex.Message}");
+                // 降级到简单渲染
+                var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+                var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
+                RenderSimpleLwPolyline(lwPolyline, wpfColor);
             }
+        }
+        private void RenderSimpleLwPolyline(Polyline2D lwPolyline, Color color)
+        {
+            if (lwPolyline.Vertexes.Count < 2) return;
+
+            var brush = new SolidColorBrush(color);
+            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+
+            var points = new PointCollection();
+            foreach (var vertex in lwPolyline.Vertexes)
+            {
+                points.Add(ConvertToCanvasPoint(vertex.Position));
+            }
+
+            if (lwPolyline.IsClosed && lwPolyline.Vertexes.Count > 2)
+            {
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+            }
+
+            System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
+            {
+                Points = points,
+                Stroke = brush,
+                StrokeThickness = wpfLinewidth * _scale,
+                Fill = lwPolyline.IsClosed ?
+                    new SolidColorBrush(Color.FromArgb(50, color.R, color.G, color.B)) :
+                    Brushes.Transparent,
+                StrokeLineJoin = PenLineJoin.Round
+            };
 
             _canvas.Children.Add(wpfPolyline);
         }
+        private void RenderLwPolylineWithBulge(Polyline2D lwPolyline, Color color)
+        {
+            if (lwPolyline.Vertexes.Count < 2) return;
+
+            var brush = new SolidColorBrush(color);
+            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+
+            var points = new PointCollection();
+
+            // 遍历所有顶点，处理 bulge
+            for (int i = 0; i < lwPolyline.Vertexes.Count; i++)
+            {
+                var currentVertex = lwPolyline.Vertexes[i];
+                var nextVertex = lwPolyline.Vertexes[(i + 1) % lwPolyline.Vertexes.Count];
+
+                // 添加当前点
+                points.Add(ConvertToCanvasPoint(currentVertex.Position));
+
+                // 处理 bulge（圆弧段）
+                if (currentVertex.Bulge != 0 && i < lwPolyline.Vertexes.Count - 1)
+                {
+                    var bulgePoints = ConvertBulgeToPoints(currentVertex, nextVertex, currentVertex.Bulge);
+                    // 修正：使用循环添加点
+                    foreach (var point in bulgePoints)
+                    {
+                        points.Add(point);
+                    }
+                }
+            }
+
+            // 如果是闭合的，添加第一个点
+            if (lwPolyline.IsClosed)
+            {
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+            }
+
+            System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
+            {
+                Points = points,
+                Stroke = brush,
+                StrokeThickness = wpfLinewidth * _scale,
+                Fill = lwPolyline.IsClosed ? CreateFillBrush(new SolidColorBrush(Color.FromArgb(50, color.R, color.G, color.B))) : Brushes.Transparent,
+                StrokeLineJoin = PenLineJoin.Round
+            };
+
+            SetLineType(wpfPolyline, lwPolyline.Linetype);
+            _canvas.Children.Add(wpfPolyline);
+        }
+        private void RenderVariableWidthPolyline(Polyline2D lwPolyline, Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            var geometryGroup = new GeometryGroup();
+
+            // 遍历每一段，为每段创建独立的几何图形
+            for (int i = 0; i < lwPolyline.Vertexes.Count - 1; i++)
+            {
+                var startVertex = lwPolyline.Vertexes[i];
+                var endVertex = lwPolyline.Vertexes[i + 1];
+
+                // 获取段的宽度
+                double startWidth = Math.Max(0.1, startVertex.StartWidth); // 使用起始顶点的结束宽度
+                double endWidth = Math.Max(0.1, endVertex.EndWidth);   // 使用结束顶点的起始宽度
+
+                if (Math.Abs(startWidth - endWidth) < 0.001)
+                {
+                    // 宽度相同，使用简单的矩形
+                    var segmentGeometry = CreateConstantWidthSegment(startVertex, endVertex, startWidth);
+                    geometryGroup.Children.Add(segmentGeometry);
+                }
+                else
+                {
+                    // 宽度不同，使用梯形
+                    var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth);
+                    geometryGroup.Children.Add(segmentGeometry);
+                }
+            }
+
+            // 如果是闭合多段线，添加最后一段到第一段的连接
+            if (lwPolyline.IsClosed && lwPolyline.Vertexes.Count > 2)
+            {
+                var startVertex = lwPolyline.Vertexes[lwPolyline.Vertexes.Count - 1]; // 最后一个顶点
+                var endVertex = lwPolyline.Vertexes[0];    // 第一个顶点
+
+                double startWidth = Math.Max(0.1, startVertex.EndWidth);
+                double endWidth = Math.Max(0.1, endVertex.StartWidth);
+
+                var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth);
+                geometryGroup.Children.Add(segmentGeometry);
+            }
+
+            Path path = new Path
+            {
+                Data = geometryGroup,
+                Fill = brush,
+                Stroke = Brushes.Transparent, // 使用填充而不是描边
+                StrokeThickness = 0
+            };
+
+            _canvas.Children.Add(path);
+        }
+        private Geometry CreateConstantWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double width)
+        {
+            var startPoint = ConvertToCanvasPoint(start.Position);
+            var endPoint = ConvertToCanvasPoint(end.Position);
+
+            // 计算垂直方向
+            Vector direction = endPoint - startPoint;
+            if (direction.Length == 0) return null;
+
+            direction.Normalize();
+            Vector perpendicular = new Vector(-direction.Y, direction.X);
+
+            // 计算矩形的四个角点
+            Point p1 = startPoint + perpendicular * (width * _scale / 2);
+            Point p2 = startPoint - perpendicular * (width * _scale / 2);
+            Point p3 = endPoint - perpendicular * (width * _scale / 2);
+            Point p4 = endPoint + perpendicular * (width * _scale / 2);
+
+            // 创建路径几何
+            PathGeometry geometry = new PathGeometry();
+            PathFigure figure = new PathFigure
+            {
+                StartPoint = p1,
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            figure.Segments.Add(new LineSegment(p2, true));
+            figure.Segments.Add(new LineSegment(p3, true));
+            figure.Segments.Add(new LineSegment(p4, true));
+
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
+        private Geometry CreateVariableWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double startWidth, double endWidth)
+        {
+            var startPoint = ConvertToCanvasPoint(start.Position);
+            var endPoint = ConvertToCanvasPoint(end.Position);
+
+            // 计算垂直方向
+            Vector direction = endPoint - startPoint;
+            if (direction.Length == 0) return null;
+
+            direction.Normalize();
+            Vector perpendicular = new Vector(-direction.Y, direction.X);
+
+            // 计算梯形的四个角点
+            Point p1 = startPoint + perpendicular * (startWidth * _scale / 2);  // 起始点左侧
+            Point p2 = startPoint - perpendicular * (startWidth * _scale / 2);  // 起始点右侧
+            Point p3 = endPoint - perpendicular * (endWidth * _scale / 2);      // 结束点右侧
+            Point p4 = endPoint + perpendicular * (endWidth * _scale / 2);      // 结束点左侧
+
+            // 创建路径几何
+            PathGeometry geometry = new PathGeometry();
+            PathFigure figure = new PathFigure
+            {
+                StartPoint = p1,
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            figure.Segments.Add(new LineSegment(p2, true));
+            figure.Segments.Add(new LineSegment(p3, true));
+            figure.Segments.Add(new LineSegment(p4, true));
+
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
+        private void RenderLwPolylineWithWidthAndBulge(Polyline2D lwPolyline, Color color)
+        {
+            if (lwPolyline.Vertexes.Count < 2) return;
+
+            var brush = new SolidColorBrush(color);
+            var geometryGroup = new GeometryGroup();
+
+            // 获取所有线段
+            var segments = GetPolylineSegments(lwPolyline);
+
+            foreach (var segment in segments)
+            {
+                Geometry segmentGeometry;
+
+                if (segment.IsArc)
+                {
+                    // 处理带宽度和圆弧的段
+                    segmentGeometry = CreateVariableWidthArcSegment(segment);
+                }
+                else
+                {
+                    // 处理带宽度和直线的段
+                    segmentGeometry = CreateVariableWidthLineSegment(segment);
+                }
+
+                if (segmentGeometry != null)
+                {
+                    geometryGroup.Children.Add(segmentGeometry);
+                }
+            }
+
+            Path path = new Path
+            {
+                Data = geometryGroup,
+                Fill = brush,
+                Stroke = Brushes.Transparent,
+                StrokeThickness = 0
+            };
+
+            _canvas.Children.Add(path);
+        }
+        private List<PolylineSegment> GetPolylineSegments(Polyline2D lwPolyline)
+        {
+            var segments = new List<PolylineSegment>();
+
+            for (int i = 0; i < lwPolyline.Vertexes.Count - 1; i++)
+            {
+                var startVertex = lwPolyline.Vertexes[i];
+                var endVertex = lwPolyline.Vertexes[i + 1];
+
+                var segment = new PolylineSegment(
+                    ConvertToCanvasPoint(startVertex.Position),
+                    ConvertToCanvasPoint(endVertex.Position),
+                    startVertex.EndWidth,  // 使用起始顶点的结束宽度
+                    endVertex.StartWidth,  // 使用结束顶点的起始宽度
+                    startVertex.Bulge
+                );
+
+                segments.Add(segment);
+            }
+
+            // 处理闭合多段线
+            if (lwPolyline.IsClosed && lwPolyline.Vertexes.Count > 2)
+            {
+                var startVertex = lwPolyline.Vertexes[lwPolyline.Vertexes.Count - 1];
+                var endVertex = lwPolyline.Vertexes[0];
+
+                var segment = new PolylineSegment(
+                    ConvertToCanvasPoint(startVertex.Position),
+                    ConvertToCanvasPoint(endVertex.Position),
+                    startVertex.EndWidth,
+                    endVertex.StartWidth,
+                    startVertex.Bulge
+                );
+
+                segments.Add(segment);
+            }
+
+            return segments;
+        }
+        private Geometry CreateVariableWidthLineSegment(PolylineSegment segment)
+        {
+            Vector direction = segment.EndPoint - segment.StartPoint;
+            if (direction.Length == 0) return null;
+
+            direction.Normalize();
+            Vector perpendicular = new Vector(-direction.Y, direction.X);
+
+            // 计算梯形的四个角点
+            double startHalfWidth = segment.StartWidth * _scale / 2;
+            double endHalfWidth = segment.EndWidth * _scale / 2;
+
+            Point p1 = segment.StartPoint + perpendicular * startHalfWidth;  // 起始左侧
+            Point p2 = segment.StartPoint - perpendicular * startHalfWidth;  // 起始右侧
+            Point p3 = segment.EndPoint - perpendicular * endHalfWidth;      // 结束右侧
+            Point p4 = segment.EndPoint + perpendicular * endHalfWidth;      // 结束左侧
+
+            return CreateQuadGeometry(p1, p2, p3, p4);
+        }
+        private Geometry CreateVariableWidthArcSegment(PolylineSegment segment)
+        {
+            // 计算圆弧参数
+            var arcParams = CalculateArcParameters(segment.StartPoint, segment.EndPoint, segment.Bulge);
+            if (arcParams == null) return null;
+
+            var (center, radius, startAngle, endAngle, isCounterClockwise) = arcParams.Value;
+
+            // 将圆弧分割为多个小段来近似
+            int segments = CalculateArcSegments(radius, Math.Abs(endAngle - startAngle));
+            var outerPoints = new List<Point>();
+            var innerPoints = new List<Point>();
+
+            for (int i = 0; i <= segments; i++)
+            {
+                double t = (double)i / segments;
+                double angle = startAngle + (endAngle - startAngle) * t;
+
+                // 计算圆弧上的点
+                double x = center.X + radius * Math.Cos(angle);
+                double y = center.Y + radius * Math.Sin(angle);
+                Point arcPoint = new Point(x, y);
+
+                // 计算该点的宽度（线性插值）
+                double currentWidth = segment.StartWidth + (segment.EndWidth - segment.StartWidth) * t;
+                double halfWidth = currentWidth * _scale / 2;
+
+                // 计算该点的法线方向（指向圆心的方向）
+                Vector toCenter = center - arcPoint;
+                if (toCenter.Length > 0)
+                {
+                    toCenter.Normalize();
+                }
+                else
+                {
+                    toCenter = new Vector(0, 1); // 特殊情况处理
+                }
+
+                // 根据 bulge 方向调整内外侧
+                if (isCounterClockwise)
+                {
+                    outerPoints.Add(arcPoint + toCenter * halfWidth);
+                    innerPoints.Add(arcPoint - toCenter * halfWidth);
+                }
+                else
+                {
+                    outerPoints.Add(arcPoint - toCenter * halfWidth);
+                    innerPoints.Add(arcPoint + toCenter * halfWidth);
+                }
+            }
+
+            // 创建路径几何
+            return CreateVariableWidthArcGeometry(outerPoints, innerPoints, isCounterClockwise);
+        }
+        private (Point center, double radius, double startAngle, double endAngle, bool isCounterClockwise)?
+            CalculateArcParameters(Point start, Point end, double bulge)
+        {
+            if (Math.Abs(bulge) < 0.001) return null;
+
+            double chordLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
+            if (chordLength == 0) return null;
+
+            // bulge = tan(θ/4)，其中 θ 是圆弧的包含角
+            double theta = 4 * Math.Atan(Math.Abs(bulge));
+            double radius = chordLength / (2 * Math.Sin(theta / 2));
+
+            // 计算弦的中点
+            double midX = (start.X + end.X) / 2;
+            double midY = (start.Y + end.Y) / 2;
+
+            // 计算垂直方向
+            double dx = end.X - start.X;
+            double dy = end.Y - start.Y;
+            double perpX = -dy;
+            double perpY = dx;
+            double perpLength = Math.Sqrt(perpX * perpX + perpY * perpY);
+
+            if (perpLength == 0) return null;
+
+            perpX /= perpLength;
+            perpY /= perpLength;
+
+            // 计算 sagitta（弦高）
+            double sagitta = radius * Math.Sqrt(1 - Math.Pow(chordLength / (2 * radius), 2));
+            if (double.IsNaN(sagitta)) sagitta = radius;
+
+            // 根据 bulge 符号确定圆心方向
+            bool isCounterClockwise = bulge > 0;
+            //if (!isCounterClockwise)
+            if (!isCounterClockwise)
+            {
+                perpX = -perpX;
+                perpY = -perpY;
+            }
+
+            // 计算圆心
+            double centerX = midX + perpX * sagitta;
+            double centerY = midY + perpY * sagitta;
+            Point center = new Point(centerX, centerY);
+
+            // 计算起始角和终止角
+            double startAngle = Math.Atan2(start.Y - center.Y, start.X - center.X);
+            double endAngle = Math.Atan2(end.Y - center.Y, end.X - center.X);
+
+            // 调整角度方向
+            if (isCounterClockwise)
+            {
+                if (endAngle < startAngle) endAngle += 2 * Math.PI;
+            }
+            else
+            {
+                if (endAngle > startAngle) endAngle -= 2 * Math.PI;
+            }
+
+            return (center, radius, startAngle, endAngle, isCounterClockwise);
+        }
+         private int CalculateArcSegments(double radius, double angle)
+        {
+            // 根据圆弧长度和半径动态计算分段数
+            double arcLength = radius * Math.Abs(angle);
+            int segments = Math.Max(8, (int)(arcLength / 10)); // 每10像素一个分段
+            return Math.Min(segments, 50); // 最多50段
+        }
+        private Geometry CreateVariableWidthArcGeometry(List<Point> outerPoints, List<Point> innerPoints, bool isCounterClockwise)
+        {
+            if (outerPoints.Count < 2 || innerPoints.Count < 2) return null;
+
+            PathGeometry geometry = new PathGeometry();
+            PathFigure figure = new PathFigure
+            {
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            // 根据方向确定绘制顺序
+            if (isCounterClockwise)
+            {
+                figure.StartPoint = outerPoints[0];
+
+                // 添加外侧边（使用多段线近似）
+                for (int i = 1; i < outerPoints.Count; i++)
+                {
+                    figure.Segments.Add(new LineSegment(outerPoints[i], true));
+                }
+
+                // 添加内侧边（反向）
+                for (int i = innerPoints.Count - 1; i >= 0; i--)
+                {
+                    figure.Segments.Add(new LineSegment(innerPoints[i], true));
+                }
+            }
+            else
+            {
+                figure.StartPoint = innerPoints[0];
+
+                // 添加内侧边
+                for (int i = 1; i < innerPoints.Count; i++)
+                {
+                    figure.Segments.Add(new LineSegment(innerPoints[i], true));
+                }
+
+                // 添加外侧边（反向）
+                for (int i = outerPoints.Count - 1; i >= 0; i--)
+                {
+                    figure.Segments.Add(new LineSegment(outerPoints[i], true));
+                }
+            }
+
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
+        #endregion
+
+        #region 等宽曲线
         private void RenderLwPolyline(Polyline2D lwPolyline)
         {
             try
@@ -556,36 +1088,71 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPolyline, lwPolyline.Linetype);
             _canvas.Children.Add(wpfPolyline);
         }
+        //private List<Point> ConvertBulgeToPoints(Polyline2DVertex start, Polyline2DVertex end, double bulge)
+        //{
+        //    var points = new List<Point>();
+
+        //    // bulge = tan(θ/4)，其中 θ 是圆弧的包含角
+        //    double theta = 4 * Math.Atan(Math.Abs(bulge));
+        //    double radius = CalculateArcRadius(start.Position, end.Position, theta);
+
+        //    // 计算圆心
+        //    var center = CalculateArcCenter(start.Position, end.Position, radius, bulge > 0);
+
+        //    // 计算起始角和终止角
+        //    double startAngle = Math.Atan2(start.Position.Y - center.Y, start.Position.X - center.X);
+        //    double endAngle = Math.Atan2(end.Position.Y - center.Y, end.Position.X - center.X);
+
+        //    // 调整角度方向
+        //    if (bulge < 0)
+        //    {
+        //        if (endAngle > startAngle) endAngle -= 2 * Math.PI;
+        //    }
+        //    else
+        //    {
+        //        if (endAngle < startAngle) endAngle += 2 * Math.PI;
+        //    }
+
+        //    // 将圆弧分割为多个线段来近似
+        //    int segments = Math.Max(8, (int)(Math.Abs(endAngle - startAngle) * 16 / Math.PI));
+        //    for (int i = 1; i < segments; i++)
+        //    {
+        //        double angle = startAngle + (endAngle - startAngle) * i / segments;
+        //        double x = center.X + radius * Math.Cos(angle);
+        //        double y = center.Y + radius * Math.Sin(angle);
+        //        points.Add(ConvertToCanvasPoint(new Vector2((float)x, (float)y)));
+        //    }
+
+        //    return points;
+        //}
         private List<Point> ConvertBulgeToPoints(Polyline2DVertex start, Polyline2DVertex end, double bulge)
         {
             var points = new List<Point>();
 
-            // bulge = tan(θ/4)，其中 θ 是圆弧的包含角
-            double theta = 4 * Math.Atan(Math.Abs(bulge));
-            double radius = CalculateArcRadius(start.Position, end.Position, theta);
-
-            // 计算圆心
-            var center = CalculateArcCenter(start.Position, end.Position, radius, bulge > 0);
-
-            // 计算起始角和终止角
-            double startAngle = Math.Atan2(start.Position.Y - center.Y, start.Position.X - center.X);
-            double endAngle = Math.Atan2(end.Position.Y - center.Y, end.Position.X - center.X);
-
-            // 调整角度方向
-            if (bulge < 0)
+            if (Math.Abs(bulge) < 0.001)
             {
-                if (endAngle > startAngle) endAngle -= 2 * Math.PI;
-            }
-            else
-            {
-                if (endAngle < startAngle) endAngle += 2 * Math.PI;
+                // 没有 bulge，直接返回直线
+                return points;
             }
 
-            // 将圆弧分割为多个线段来近似
+            // 计算圆弧参数
+            var arcParams = CalculateArcParameters(
+                new Point(start.Position.X, start.Position.Y),
+                new Point(end.Position.X, end.Position.Y),
+                bulge);
+
+            if (arcParams == null) return points;
+
+            var (center, radius, startAngle, endAngle, isCounterClockwise) = arcParams.Value;
+
+            // 确定正确的圆弧方向
             int segments = Math.Max(8, (int)(Math.Abs(endAngle - startAngle) * 16 / Math.PI));
+
             for (int i = 1; i < segments; i++)
             {
-                double angle = startAngle + (endAngle - startAngle) * i / segments;
+                double t = (double)i / segments;
+                double angle = startAngle + (endAngle - startAngle) * t;
+
                 double x = center.X + radius * Math.Cos(angle);
                 double y = center.Y + radius * Math.Sin(angle);
                 points.Add(ConvertToCanvasPoint(new Vector2((float)x, (float)y)));
@@ -593,13 +1160,11 @@ namespace iEngr.Hookup.Models
 
             return points;
         }
-
         private double CalculateArcRadius(Vector2 start, Vector2 end, double theta)
         {
             double chordLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             return chordLength / (2 * Math.Sin(theta / 2));
         }
-
         private Vector2 CalculateArcCenter(Vector2 start, Vector2 end, double radius, bool isCounterClockwise)
         {
             double chordLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
@@ -635,7 +1200,6 @@ namespace iEngr.Hookup.Models
 
             return new Vector2((float)centerX, (float)centerY);
         }
-
         private void RenderSimpleLwPolyline(Polyline2D lwPolyline)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
@@ -677,6 +1241,7 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPolyline, LwPolyline.Linetype);
             _canvas.Children.Add(wpfPolyline);
         }
+        #endregion
         private Brush CreateFillBrush(Brush strokeBrush)
         {
             // 创建填充画刷（使用半透明颜色）
@@ -715,11 +1280,36 @@ namespace iEngr.Hookup.Models
                 shape.StrokeDashArray = new DoubleCollection(new double[] { 1, 2 });
             }
         }
+        private Geometry CreateQuadGeometry(Point p1, Point p2, Point p3, Point p4)
+        {
+            PathGeometry geometry = new PathGeometry();
+            PathFigure figure = new PathFigure
+            {
+                StartPoint = p1,
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            figure.Segments.Add(new LineSegment(p2, true));
+            figure.Segments.Add(new LineSegment(p3, true));
+            figure.Segments.Add(new LineSegment(p4, true));
+
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
         private Point ConvertToCanvasPoint(Vector2 point)
         {
             double x = (point.X + _offsetX) * _scale + _panX;
             double y = (_dxfHeight - (point.Y + _offsetY)) * _scale + _panY;
             return new Point(x, y);
+        }
+        private double ConvertToCanvasPointX(double positionX)
+        {
+            return (positionX + _offsetX) * _scale + _panX;
+        }
+        private double ConvertToCanvasPointY(double positionY)
+        {
+            return (_dxfHeight - (positionY + _offsetY)) * _scale + _panY;
         }
 
     }
