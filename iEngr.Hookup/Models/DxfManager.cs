@@ -15,6 +15,8 @@ using Point = System.Windows.Point;
 using Path = System.Windows.Shapes.Path;
 using TextAlignment = System.Windows.TextAlignment;
 using System.Text.RegularExpressions;
+using netDxf.Units;
+
 
 namespace iEngr.Hookup.Models
 {
@@ -248,6 +250,10 @@ namespace iEngr.Hookup.Models
         // 解析实体的最终线宽（处理 ByLayer 和 ByBlock）
         public Lineweight ResolveEntityLineweight(EntityObject entity)
         {
+            //if (entity is Polyline2D polyline2d)
+            //{
+            //    return polyline2d.Vertexes[0].StartWidth;
+            //}
             if (entity.Lineweight == Lineweight.ByLayer)
             {
                 // 如果是 ByLayer，返回图层线宽
@@ -306,9 +312,11 @@ namespace iEngr.Hookup.Models
     }
     public class DxfRenderer
     {
+        private DxfDocument _dxfDocument;
         private Canvas _canvas;
         private DxfLayerReader _layerReader;
         private DxfStyleManager _styleManager;
+        private Insert _insert;
         private double _margin = 0.05;
         private double _fontFactor = 1.0;
         private double _dxfWidth;
@@ -334,7 +342,7 @@ namespace iEngr.Hookup.Models
 
             try
             {
-                DxfDocument _dxfDocument = DxfDocument.Load(filePath);
+                _dxfDocument = DxfDocument.Load(filePath);
                 _styleManager = new DxfStyleManager(_dxfDocument);
                 DebugEntityProperties(_dxfDocument);
                 DisplayLayerInfo();
@@ -421,6 +429,7 @@ namespace iEngr.Hookup.Models
             entities.AddRange(dxf.Entities.Splines);
             entities.AddRange(dxf.Entities.Solids);
             entities.AddRange(dxf.Entities.Hatches);
+            entities.AddRange(dxf.Entities.Dimensions);
             entities.AddRange(dxf.Entities.Inserts);
             EntityObjects = entities.ToArray();
             return entities;
@@ -446,6 +455,10 @@ namespace iEngr.Hookup.Models
                             Math.Min(line.StartPoint.Y, line.EndPoint.Y),
                             Math.Abs(line.EndPoint.X - line.StartPoint.X),
                             Math.Abs(line.EndPoint.Y - line.StartPoint.Y));
+
+                    case Polyline2D polyline2D:
+                        return new Rect(new Point(polyline2D.Vertexes.Min(x=>x.Position.X), polyline2D.Vertexes.Min(x => x.Position.Y)),
+                                        new Point(polyline2D.Vertexes.Max(x => x.Position.X), polyline2D.Vertexes.Max(x => x.Position.Y)));
 
                     case Circle circle:
                         return new Rect(
@@ -504,19 +517,24 @@ namespace iEngr.Hookup.Models
                     RenderSolidAsPolygon(solid);
                     break;
                 case Hatch hatch:
-                    //RenderHatchDirect(hatch);
-                    RenderHatch(hatch);
+                    //过于复杂，放弃
+                    //RenderHatch(hatch); 
+                    break;
+                case Dimension dimension:
+                    //过于复杂，仅处理文字
+                    RenderDimensionTextOnly(dimension);
                     break;
                 case Insert insert:
-                    //    RenderInsert(insert);
+                    RenderInsert(insert);
                     break;
                     // 可以根据需要添加更多实体类型
             }
         }
-        private void RenderLine(Line line)
+        #region Line, Arc, Circle, Ellipse
+        private void RenderLine(Line line, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(line);
+            var finalColor = insert == null? _styleManager.ResolveEntityColor(line): !line.Color.IsByLayer && !line.Color.IsByBlock?line.Color:  _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(line);
 
             // 转换为 WPF 格式
@@ -525,10 +543,10 @@ namespace iEngr.Hookup.Models
 
             System.Windows.Shapes.Line wpfLine = new System.Windows.Shapes.Line
             {
-                X1 = ConvertToCanvasPointX(line.StartPoint.X),//(line.StartPoint.X + _offsetX) * _scale + _panX,
-                Y1 = ConvertToCanvasPointY(line.StartPoint.Y),//(_dxfHeight - (line.StartPoint.Y + _offsetY)) * _scale + _panY,
-                X2 = ConvertToCanvasPointX(line.EndPoint.X),//(line.EndPoint.X + _offsetX) * _scale + _panX,
-                Y2 = ConvertToCanvasPointY(line.EndPoint.Y),//(_dxfHeight - (line.EndPoint.Y + _offsetY)) * _scale + _panY,
+                X1 = insert == null ? ConvertToCanvasPointX(line.StartPoint.X): line.StartPoint.X * _scale,//(line.StartPoint.X + _offsetX) * _scale + _panX,
+                Y1 = insert == null ? ConvertToCanvasPointY(line.StartPoint.Y) : - line.StartPoint.Y * _scale,//(_dxfHeight - (line.StartPoint.Y + _offsetY)) * _scale + _panY,
+                X2 = insert == null ? ConvertToCanvasPointX(line.EndPoint.X) : line.EndPoint.X * _scale,//(line.EndPoint.X + _offsetX) * _scale + _panX,
+                Y2 = insert == null ? ConvertToCanvasPointY(line.EndPoint.Y) : - line.EndPoint.Y * _scale,//(_dxfHeight - (line.EndPoint.Y + _offsetY)) * _scale + _panY,
                 Stroke = new SolidColorBrush(wpfColor),
                 StrokeThickness = wpfLinewidth * _scale
             };
@@ -536,10 +554,11 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfLine, line.Linetype);
             _canvas.Children.Add(wpfLine);
         }
-        private void RenderArc(Arc arc)
+        private void RenderArc(Arc arc, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(arc);
+            //var finalColor = _styleManager.ResolveEntityColor(arc);
+            var finalColor = insert == null ? _styleManager.ResolveEntityColor(arc) : !arc.Color.IsByLayer && !arc.Color.IsByBlock ? arc.Color : _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(arc);
 
             // 转换为 WPF 格式
@@ -547,7 +566,8 @@ namespace iEngr.Hookup.Models
             var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
 
             // 计算中心点
-            Point center = ConvertToCanvasPoint(arc.Center);
+            //Point center = ConvertToCanvasPoint(arc.Center);
+            Point center = insert == null ? ConvertToCanvasPoint(arc.Center): new Point(arc.Center.X*_scale, - arc.Center.Y * _scale);
             //    new Point(
             //    (arc.Center.X + _offsetX) * _scale + _panX,
             //    (_dxfHeight - (arc.Center.Y + _offsetY)) * _scale + _panY
@@ -675,10 +695,11 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPath, arc.Linetype);
             _canvas.Children.Add(wpfPath);
         }
-        private void RenderCircle(Circle circle)
+        private void RenderCircle(Circle circle, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(circle);
+            //var finalColor = _styleManager.ResolveEntityColor(circle);
+            var finalColor = insert == null ? _styleManager.ResolveEntityColor(circle) : !circle.Color.IsByLayer && !circle.Color.IsByBlock ? circle.Color : _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(circle);
 
             // 转换为 WPF 格式
@@ -696,8 +717,10 @@ namespace iEngr.Hookup.Models
             };
 
             // 设置位置（圆心坐标）
-            double centerX = ConvertToCanvasPointX(circle.Center.X);// (circle.Center.X + _offsetX) * _scale + _panX;
-            double centerY = ConvertToCanvasPointY(circle.Center.Y);// (_dxfHeight - (circle.Center.Y + _offsetY)) * _scale + _panY;
+            //double centerX = ConvertToCanvasPointX(circle.Center.X);// (circle.Center.X + _offsetX) * _scale + _panX;
+            //double centerY = ConvertToCanvasPointY(circle.Center.Y);// (_dxfHeight - (circle.Center.Y + _offsetY)) * _scale + _panY;
+            double centerX = insert == null ? ConvertToCanvasPointX(circle.Center.X): circle.Center.X * _scale;
+            double centerY = insert == null ? ConvertToCanvasPointY(circle.Center.Y) : - circle.Center.Y * _scale;
 
             Canvas.SetLeft(wpfEllipse, centerX - wpfEllipse.Width / 2);
             Canvas.SetTop(wpfEllipse, centerY - wpfEllipse.Height / 2);
@@ -826,6 +849,9 @@ namespace iEngr.Hookup.Models
                 Console.WriteLine($"Ellipse rendering failed: {ex.Message}");
             }
         }
+        #endregion
+
+        #region Spline, Solid
         private void RenderSpline(Spline spline)
         {
             // 解析实体的最终样式
@@ -1130,7 +1156,289 @@ namespace iEngr.Hookup.Models
                 Console.WriteLine($"Solid polygon rendering failed: {ex.Message}");
             }
         }
+        #endregion
 
+        #region DimensionText
+        private void RenderDimensionTextOnly(Dimension dimension)
+        {
+            try
+            {
+                // 解析实体的最终样式
+                var finalColor = _styleManager.ResolveEntityColor(dimension);
+                var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
+
+                // 获取格式化的尺寸文本
+                string dimensionText = GetFormattedDimensionText(dimension);
+
+                if (string.IsNullOrEmpty(dimensionText))
+                    return;
+
+                // 获取文本位置和样式
+                Vector2 textPosition = dimension.TextReferencePoint;
+                double textHeight = Math.Max(dimension.Style?.TextHeight ?? 2.5, 2.5); // 默认文字高度
+                double rotation = dimension.TextRotation;
+
+                // 创建文本
+                TextBlock textBlock = new TextBlock
+                {
+                    Text = dimensionText,
+                    Foreground = new SolidColorBrush(wpfColor),
+                    FontSize = textHeight * _scale,
+                    FontFamily = new FontFamily(GetDimensionFontFamily(dimension)),
+                    // Background = Brushes.White, // 确保文字可读
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // 设置位置（文本参考点通常是文字中心）
+                double left = (textPosition.X + _offsetX) * _scale + _panX;
+                double top = (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY;
+
+                Canvas.SetLeft(textBlock, left - textBlock.ActualWidth / 2);
+                Canvas.SetTop(textBlock, top - textBlock.ActualHeight / 2);
+
+                // 应用旋转
+                if (Math.Abs(rotation) > 0.001)
+                {
+                    textBlock.RenderTransform = new RotateTransform(rotation);
+                    textBlock.RenderTransformOrigin = new Point(0.5, 0.5); // 围绕中心旋转
+                }
+
+                _canvas.Children.Add(textBlock);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Dimension text rendering failed: {ex.Message}");
+            }
+        }
+        private string GetFormattedDimensionText(Dimension dimension)
+        {
+            // 优先使用用户覆盖的文本
+            if (!string.IsNullOrEmpty(dimension.UserText))
+                return ProcessTextOverride(dimension.UserText);
+
+            // 根据尺寸类型格式化测量值
+            double measurement = dimension.Measurement;
+
+            switch (dimension)
+            {
+                case RadialDimension _:
+                    return FormatRadialDimension(dimension, measurement);
+
+                case DiametricDimension _:
+                    return FormatDiametricDimension(dimension, measurement);
+
+                case Angular2LineDimension _:
+                    return FormatAngularDimension(dimension, measurement);
+
+                default:
+                    return FormatLinearDimension(dimension, measurement);
+            }
+        }
+        private string FormatLinearDimension(Dimension dimension, double measurement)
+        {
+            short precision = dimension.Style?.LengthPrecision ?? 2;
+            string format = $"F{precision}";
+
+            // 使用NetDXF的单位格式化方法
+            if (dimension.Style?.DimLengthUnits != null)
+            {
+                try
+                {
+                    // 创建单位样式格式
+                    UnitStyleFormat unitFormat = new UnitStyleFormat
+                    {
+                        LinearDecimalPlaces = precision,
+                        DecimalSeparator = "."
+                    };
+
+                    // 根据单位类型格式化
+                    switch (dimension.Style.DimLengthUnits)
+                    {
+                        case LinearUnitType.Decimal:
+                            return LinearUnitFormat.ToDecimal(measurement, unitFormat);
+
+                        case LinearUnitType.Architectural:
+                            return LinearUnitFormat.ToArchitectural(measurement, unitFormat);
+
+                        case LinearUnitType.Engineering:
+                            return LinearUnitFormat.ToEngineering(measurement, unitFormat);
+
+                        case LinearUnitType.Fractional:
+                            return LinearUnitFormat.ToFractional(measurement, unitFormat);
+
+                        case LinearUnitType.Scientific:
+                            return LinearUnitFormat.ToScientific(measurement, unitFormat);
+
+                        case LinearUnitType.WindowsDesktop:
+                            return measurement.ToString(format);
+
+                        default:
+                            return measurement.ToString(format);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unit formatting failed: {ex.Message}, using default format");
+                    return measurement.ToString(format);
+                }
+            }
+
+            return measurement.ToString(format);
+        }
+        private string FormatRadialDimension(Dimension dimension, double measurement)
+        {
+            string value = FormatLinearDimension(dimension, measurement);
+            return $"R{value}"; // 半径符号
+        }
+        private string FormatDiametricDimension(Dimension dimension, double measurement)
+        {
+            string value = FormatLinearDimension(dimension, measurement);
+            return $"Ø{value}"; // 直径符号
+        }
+        private string FormatAngularDimension(Dimension dimension, double measurement)
+        {
+            short precision = dimension.Style?.AngularPrecision ?? 1;
+            string format = $"F{precision}";
+
+            // 角度单位格式化
+            if (dimension.Style?.DimAngularUnits != null)
+            {
+                try
+                {
+                    UnitStyleFormat unitFormat = new UnitStyleFormat
+                    {
+                        AngularDecimalPlaces = precision,
+                        DecimalSeparator = "."
+                    };
+
+                    switch (dimension.Style.DimAngularUnits)
+                    {
+                        case AngleUnitType.DecimalDegrees:
+                            return AngleUnitFormat.ToDecimal(measurement, unitFormat);
+
+                        case AngleUnitType.DegreesMinutesSeconds:
+                            return AngleUnitFormat.ToDegreesMinutesSeconds(measurement, unitFormat);
+
+                        case AngleUnitType.Gradians:
+                            return AngleUnitFormat.ToGradians(measurement, unitFormat);
+
+                        case AngleUnitType.Radians:
+                            return AngleUnitFormat.ToRadians(measurement, unitFormat);
+
+                        default:
+                            return measurement.ToString(format);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Angular formatting failed: {ex.Message}, using default format");
+                    return measurement.ToString(format) + "°";
+                }
+            }
+
+            return measurement.ToString(format) + "°";
+        }
+        private string ProcessTextOverride(string textOverride)
+        {
+            if (string.IsNullOrEmpty(textOverride))
+                return textOverride;
+
+            // 处理DXF文本中的特殊字符和标记
+            string processedText = textOverride;
+
+            // 移除格式标记
+            processedText = Regex.Replace(processedText, @"\\[A-Za-z][^;]*;", "");
+
+            // 处理特殊转义序列
+            processedText = processedText.Replace("\\P", "\n")        // 换行
+                                        .Replace("\\~", " ")         // 非换行空格
+                                        .Replace("\\\\", "\\")       // 反斜杠
+                                        .Replace("\\{", "{")         // 左花括号
+                                        .Replace("\\}", "}");        // 右花括号
+
+            // 处理多行文本标记
+            processedText = processedText.Replace("\\A1;", "");
+
+            return processedText.Trim();
+        }
+        private string GetDimensionFontFamily(Dimension dimension)
+        {
+            // 从尺寸样式中获取字体
+            string fontName = dimension.Style?.TextStyle?.FontFamilyName;
+
+            if (!string.IsNullOrEmpty(fontName))
+            {
+                return MapDxfFontToWpf(fontName);
+            }
+
+            // 如果没有指定字体，使用默认字体
+            return "Arial";
+        }
+        private string MapDxfFontToWpf(string dxfFontName)
+        {
+            var fontMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "txt", "Arial" },
+        { "simplex", "Arial" },
+        { "complex", "Times New Roman" },
+        { "italic", "Times New Roman" },
+        { "romans", "Times New Roman" },
+        { "isocp", "Arial" },
+        { "isocp2", "Arial" },
+        { "isocp3", "Arial" },
+        { "Arial", "Arial" },
+        { "Times New Roman", "Times New Roman" }
+    };
+
+            return fontMappings.TryGetValue(dxfFontName, out string wpfFont) ? wpfFont : "Arial";
+        }
+
+        private void RenderDimensionSimple(Dimension dimension)
+        {
+            try
+            {
+                var finalColor = _styleManager.ResolveEntityColor(dimension);
+                var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
+
+                // 只渲染尺寸文本
+                string dimensionText = GetDimensionText(dimension);
+                if (!string.IsNullOrEmpty(dimensionText))
+                {
+                    Vector2 textPosition = dimension.TextReferencePoint;
+
+                    TextBlock textBlock = new TextBlock
+                    {
+                        Text = dimensionText,
+                        Foreground = new SolidColorBrush(wpfColor),
+                        FontSize = 3 * _scale, // 固定字体大小
+                        FontFamily = new FontFamily(dimension.Style.TextStyle.FontFamilyName ?? "Arial"),// new FontFamily("Arial"),
+                        //Background = Brushes.White
+                    };
+
+                    Canvas.SetLeft(textBlock, (textPosition.X + _offsetX) * _scale + _panX);
+                    Canvas.SetTop(textBlock, (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY);
+
+                    _canvas.Children.Add(textBlock);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Simple dimension rendering failed: {ex.Message}");
+            }
+        }
+        private string GetDimensionText(Dimension dimension)
+        {
+            // 优先使用用户覆盖的文本
+            if (!string.IsNullOrEmpty(dimension.UserText))
+                return dimension.UserText;
+
+            // 使用测量值
+            return dimension.Measurement.ToString("F2");
+        }
+        #endregion
+
+        #region Hatch - Pendding
         private void RenderHatch(Hatch hatch)
         {
             // 解析实体的最终样式
@@ -1254,7 +1562,6 @@ namespace iEngr.Hookup.Models
             // 半径偏差小且首尾点接近，认为是圆形
             return maxRadiusDeviation < avgRadius * 0.1 && startEndDistance < avgRadius * 0.1;
         }
-
         private bool IsLikelyArc(HatchBoundaryPath.Polyline polyline)
         {
             if (polyline.Vertexes.Count() != 3)
@@ -1288,7 +1595,6 @@ namespace iEngr.Hookup.Models
 
             return circleGeometry;
         }
-
         private Geometry CreateArcGeometry(HatchBoundaryPath.Polyline polyline)
         {
             if (polyline.Vertexes.Count() != 3)
@@ -1327,7 +1633,6 @@ namespace iEngr.Hookup.Models
 
             return arcGeometry;
         }
-
         private Geometry CreateClosedPolylineGeometry(HatchBoundaryPath.Polyline polyline)
         {
             if (polyline.Vertexes.Count() < 2)
@@ -1483,6 +1788,8 @@ namespace iEngr.Hookup.Models
                 Console.WriteLine($"Direct hatch rendering failed: {ex.Message}");
             }
         }
+        #endregion
+
         #region Text
         private void RenderText(Text text)
         {
@@ -1497,10 +1804,6 @@ namespace iEngr.Hookup.Models
                 Foreground = new SolidColorBrush(wpfColor),
                 RenderTransformOrigin = new Point(0.5, 0.5)
             };
-            if (textBlock.Text == "13")
-            {
-
-            }
             ApplyTextAlignment(textBlock, text);
 
             // 使用增强的位置计算
@@ -1915,11 +2218,12 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region Polyline2D
-        private void RenderPolyline(Polyline2D lwPolyline)
+        private void RenderPolyline(Polyline2D lwPolyline, Insert insert = null)
         {
             try
             {
-                var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+                //var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+                var finalColor = insert == null ? _styleManager.ResolveEntityColor(lwPolyline) : !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color : _styleManager.ResolveEntityColor(insert);
                 var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
                 // 检查特性
@@ -1934,15 +2238,15 @@ namespace iEngr.Hookup.Models
                     // 最复杂的情况：可变宽度 + 圆弧
                     RenderLwPolylineWithWidthAndBulge(lwPolyline, wpfColor);
                 }
-                else if (hasVariableWidth)
-                {
-                    // 只有可变宽度
-                    RenderVariableWidthPolyline(lwPolyline, wpfColor);
-                }
                 else if (hasBulge)
                 {
                     // 只有圆弧
                     RenderLwPolylineWithBulge(lwPolyline, wpfColor);
+                }
+                else if (hasVariableWidth || lwPolyline.Lineweight == Lineweight.ByLayer || lwPolyline.Lineweight == Lineweight.ByBlock)
+                {
+                    // 只有可变宽度
+                    RenderVariableWidthPolyline(lwPolyline, wpfColor);
                 }
                 else
                 {
@@ -2258,6 +2562,23 @@ namespace iEngr.Hookup.Models
             Point p4 = segment.EndPoint + perpendicular * endHalfWidth;      // 结束左侧
 
             return CreateQuadGeometry(p1, p2, p3, p4);
+        }
+        private Geometry CreateQuadGeometry(Point p1, Point p2, Point p3, Point p4)
+        {
+            PathGeometry geometry = new PathGeometry();
+            PathFigure figure = new PathFigure
+            {
+                StartPoint = p1,
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            figure.Segments.Add(new LineSegment(p2, true));
+            figure.Segments.Add(new LineSegment(p3, true));
+            figure.Segments.Add(new LineSegment(p4, true));
+
+            geometry.Figures.Add(figure);
+            return geometry;
         }
         private Geometry CreateVariableWidthArcSegment(PolylineSegment segment)
         {
@@ -2644,15 +2965,15 @@ namespace iEngr.Hookup.Models
                 points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
             }
 
-            CreatePolylineFromPoints(points, lwPolyline, new SolidColorBrush(wpfColor));
+            CreatePolylineFromPoints(points, lwPolyline, wpfLinewidth, new SolidColorBrush(wpfColor));
         }
-        private void CreatePolylineFromPoints(PointCollection points, Polyline2D LwPolyline, Brush brush)
+        private void CreatePolylineFromPoints(PointCollection points, Polyline2D LwPolyline,double lineWeight, Brush brush)
         {
             System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
             {
                 Points = points,
                 Stroke = brush,
-                StrokeThickness = GetLineWeight(LwPolyline.Lineweight),//wpfLinewidth * _scale,
+                StrokeThickness = lineWeight * _scale,
                 Fill = LwPolyline.IsClosed ? CreateFillBrush(brush) : Brushes.Transparent,
                 StrokeLineJoin = PenLineJoin.Round,
                 StrokeEndLineCap = PenLineCap.Round,
@@ -2663,6 +2984,140 @@ namespace iEngr.Hookup.Models
             _canvas.Children.Add(wpfPolyline);
         }
         #endregion
+
+        #region Insert 
+        private void RenderInsert(Insert insert)
+        {
+            try
+            {
+                netDxf.Blocks.Block block = _dxfDocument.Blocks[insert.Block.Name];
+                if (block == null || !block.Layer.IsVisible) return;
+                _insert = insert;
+                TransformGroup transform = new TransformGroup();
+
+                // 检查是否需要镜像
+                bool mirrorX = insert.Scale.X < 0;
+                bool mirrorY = insert.Scale.Y < 0;
+
+                // 使用绝对值的缩放，通过负值实现镜像
+                double scaleX = Math.Abs(insert.Scale.X);
+                double scaleY = Math.Abs(insert.Scale.Y);
+
+                // 应用缩放（使用绝对值）
+                if (Math.Abs(scaleX - 1.0) > 0.001 || Math.Abs(scaleY - 1.0) > 0.001)
+                {
+                    ScaleTransform scale = new ScaleTransform(scaleX, scaleY);
+                    transform.Children.Add(scale);
+                }
+
+                // 应用镜像（如果需要）
+                if (mirrorX || mirrorY)
+                {
+                    // 镜像实际上是通过额外的负缩放实现的
+                    ScaleTransform mirror = new ScaleTransform(
+                        mirrorX ? -1 : 1,
+                        mirrorY ? -1 : 1
+                    );
+                    transform.Children.Add(mirror);
+                }
+
+                // 应用旋转
+                if (Math.Abs(insert.Rotation) > 0.001)
+                {
+                    // 注意：镜像会影响旋转方向，可能需要调整
+                    double adjustedRotation = AdjustRotationForMirror(insert.Rotation, mirrorX, mirrorY);
+                    RotateTransform rotate = new RotateTransform(adjustedRotation);
+                    transform.Children.Add(rotate);
+                }
+
+                // 应用平移
+                TranslateTransform translate = new TranslateTransform(
+                    ConvertToCanvasPointX(insert.Position.X),
+                    ConvertToCanvasPointY(insert.Position.Y)
+                );
+                transform.Children.Add(translate);
+
+                RenderBlockEntities(block, transform);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Insert with mirror rendering failed: {ex.Message}");
+            }
+        }
+        private double AdjustRotationForMirror(double originalRotation, bool mirrorX, bool mirrorY)
+        {
+            double adjustedRotation = originalRotation;
+
+            // 镜像会影响旋转方向
+            if (mirrorX && !mirrorY)
+            {
+                // 仅X轴镜像：旋转方向反转
+                adjustedRotation =  originalRotation;
+            }
+            else if (!mirrorX && mirrorY)
+            {
+                // 仅Y轴镜像：旋转方向反转
+                adjustedRotation = -originalRotation;
+            }
+            else if (mirrorX && mirrorY)
+            {
+                // 双轴镜像：相当于180度旋转，保持原方向
+                // 不需要调整
+            }
+
+            return -adjustedRotation;
+        }
+        private void RenderBlockEntities(netDxf.Blocks.Block block, TransformGroup transform)
+        {
+            foreach (var entity in block.Entities)
+            {
+                // 为每个实体创建容器来应用变换
+                Canvas entityContainer = new Canvas();
+                entityContainer.RenderTransform = transform;
+
+                // 临时设置当前画布为实体容器
+                var originalCanvas = _canvas;
+                _canvas = entityContainer;
+
+                try
+                {
+                    // 渲染实体（使用之前定义的方法）
+                    RenderEntityInBlock(entity);
+                }
+                finally
+                {
+                    // 恢复原始画布
+                    _canvas = originalCanvas;
+                }
+
+                // 将实体容器添加到主画布
+                _canvas.Children.Add(entityContainer);
+            }
+        }
+        private void RenderEntityInBlock(EntityObject entity)
+        {
+            // 注意：这里使用之前定义的渲染方法，但坐标是相对于块原点的
+            switch (entity)
+            {
+                case Line line:
+                    RenderLine(line, _insert);
+                    break;
+                case Circle circle:
+                    RenderCircle(circle, _insert);
+                    break;
+                case Arc arc:
+                    RenderArc(arc, _insert);
+                    break;
+                case Polyline2D polyline:
+                    RenderPolyline(polyline, _insert);
+                    break;
+                default:
+                    Console.WriteLine($"Unsupported block entity type: {entity.GetType().Name}");
+                    break;
+            }
+        }
+        #endregion
+
         private Brush CreateFillBrush(Brush strokeBrush)
         {
             // 创建填充画刷（使用半透明颜色）
@@ -2680,19 +3135,9 @@ namespace iEngr.Hookup.Models
             return _layerBrushes.ContainsKey(layerName) ? _layerBrushes[layerName] : Brushes.Black;
         }
 
-        private double GetLineWeight(Lineweight lineweight)
-        {
-            //return lineweight.Value > 0 ? lineweight.Value * _scale * 0.1 : 1;
-            if (lineweight != Lineweight.ByLayer)
-            {
-
-            }
-            return 1;
-        }
-
         private void SetLineType(System.Windows.Shapes.Shape shape, Linetype linetype)
         {
-            if (linetype.Name.Contains("DASHED"))
+            if (linetype.Name.Contains("DASHED") || linetype.Name.Contains("HIDDEN"))
             {
                 shape.StrokeDashArray = new DoubleCollection(new double[] { 4, 2 });
             }
@@ -2700,23 +3145,6 @@ namespace iEngr.Hookup.Models
             {
                 shape.StrokeDashArray = new DoubleCollection(new double[] { 1, 2 });
             }
-        }
-        private Geometry CreateQuadGeometry(Point p1, Point p2, Point p3, Point p4)
-        {
-            PathGeometry geometry = new PathGeometry();
-            PathFigure figure = new PathFigure
-            {
-                StartPoint = p1,
-                IsClosed = true,
-                IsFilled = true
-            };
-
-            figure.Segments.Add(new LineSegment(p2, true));
-            figure.Segments.Add(new LineSegment(p3, true));
-            figure.Segments.Add(new LineSegment(p4, true));
-
-            geometry.Figures.Add(figure);
-            return geometry;
         }
         private Point ConvertToCanvasPoint(Vector2 point)
         {

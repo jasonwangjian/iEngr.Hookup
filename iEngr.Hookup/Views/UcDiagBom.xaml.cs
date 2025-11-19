@@ -98,7 +98,7 @@ namespace iEngr.Hookup.Views
             }
             if (bomItem.IsLibItem && HK_General.FocusedDiagram !=  HK_General.AssignedDiagramFocused)
             {
-                e.Cancel = true;
+                //e.Cancel = true;
             }
         }
 
