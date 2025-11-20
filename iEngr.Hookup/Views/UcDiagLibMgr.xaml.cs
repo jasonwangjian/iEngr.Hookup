@@ -39,12 +39,16 @@ namespace iEngr.Hookup.Views
             VmTree = ucTree.DataContext as HkTreeViewModel;
             VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
+            VmTree.DiagramIDAdded += OnDiagramIDAdded;
             VmTree.PropLabelItemsChanged += OnNodeLabelItemsChanged;
 
             //(ucTree.DataContext as HkTreeViewModel).DiagramIDAdded += OnDiagramIDAdded;
             VmPicture = ucPic.DataContext as HkPictureViewModel;
             VmDiagLib = ucDiag.DataContext as DiagItemsViewModel;
+            VmDiagLib.IsAssignedDiagramItemsShown = true;
+            HK_General.IsNoProjectApplied = true;
             VmDiagLib.LibDiagramChanged += OnLibDiagramChanged;
+            VmDiagLib.ClearLibDiagBom += OnClearLibDiagBom;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
             VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
@@ -107,31 +111,43 @@ namespace iEngr.Hookup.Views
         }
         private void OnDiagramIDAdded(object sender, HkTreeItem value)
         {
-            //刷新NodeDiagramItems
-            //ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
-            //(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
-            (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
-            List<int> ids = value.DiagID?.Split(',')
-                       .Select(s => s.Trim())  // 去除空格
-                       .Where(s => int.TryParse(s, out _))
-                       .Select(int.Parse)
-                       .ToList();
+            ////刷新NodeDiagramItems
+            ////ObservableCollection<DiagramItem> diagramItems = HK_General.GetDiagramItems(value.DiagID, true, false);
+            ////(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems = diagramItems;
+            //(ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Clear();
+            //List<int> ids = value.DiagID?.Split(',')
+            //           .Select(s => s.Trim())  // 去除空格
+            //           .Where(s => int.TryParse(s, out _))
+            //           .Select(int.Parse)
+            //           .ToList();
 
-            //刷新LibDiagramItems
-            (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
-            //List<int> ids = diagramItems.Select(x => x.ID).ToList();
-            foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
+            ////刷新LibDiagramItems
+            //(ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems = HK_General.GetDiagramItems();
+            ////List<int> ids = diagramItems.Select(x => x.ID).ToList();
+            //foreach (var item in (ucDiag.DataContext as DiagGrid2ViewModel).LibDiagramItems)
+            //{
+            //    if (ids != null && ids.Contains(item.ID))
+            //    {
+            //        item.IsOwned = true;
+            //        item.IsInherit = false;
+            //        (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
+            //    }
+            //    else
+            //    {
+            //        item.IsOwned = false;
+            //    }
+            //}
+            DiagramItem item = HK_General.GetDiagramItem(value.NewAddedID.ToString());
+            item.IsOwned = true; item.IsInherit = false;item.IsLibItem=true;
+            VmDiagLib.AvailableDiagramItems.Add(item);
+            VmDiagLib.AssignedDiagramItems.Add(item);
+            VmDiagLib.FilterText = VmDiagLib.FilterText;// 刷新FilteredAvailableDiagramItems
+        }
+        private void OnClearLibDiagBom(object sender, bool value)
+        {
+            if (value)
             {
-                if (ids != null && ids.Contains(item.ID))
-                {
-                    item.IsOwned = true;
-                    item.IsInherit = false;
-                    (ucDiag.DataContext as DiagGrid2ViewModel).NodeDiagramItems.Add(item);
-                }
-                else
-                {
-                    item.IsOwned = false;
-                }
+                VmBomLib.DataSource.Clear();
             }
         }
         private void OnLibDiagramChanged(object sender, DiagramItem value)

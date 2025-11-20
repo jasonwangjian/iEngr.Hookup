@@ -499,6 +499,7 @@ namespace iEngr.Hookup.ViewModels
         private void ParseTreeNode(HkTreeItem item, int count = 0)
         {
             item.Parent = allItems.FirstOrDefault(x => x.ID == item.ParentID);
+            item.IsExpanded= item.NodeItem.IsPropNode? false:true;
             item.Properties = new Dictionary<string, object>();
             var dicProp = new Dictionary<string, string>();
             item.PropertiesString.Split(',')
@@ -908,6 +909,7 @@ namespace iEngr.Hookup.ViewModels
             if (item == null) return;   
             int newID = HK_General.NewDiagAdd(item);
             if (newID == 0) return;
+            item.NewAddedID = newID;
             item.DiagID = string.Join(",", (item.DiagID + "," + newID.ToString()).Split(',').Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList());
             HK_General.UpdateLibData("HK_TreeNode", int.Parse(item.ID), "DiagID", item.DiagID);
             item.IsInheritDiagIDActive = true; //强制刷新

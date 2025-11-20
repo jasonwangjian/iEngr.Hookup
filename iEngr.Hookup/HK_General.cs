@@ -44,6 +44,9 @@ namespace iEngr.Hookup
         public static UserComos UserComos = new UserComos(null) { RealName = "Anonymous",Roles = 255 };
         public static string UserName = UserComos.RealName;  //"Anonymous";
 
+        public static bool IsNoProjectApplied { set; get; }
+
+
         public static string ErrMsgOmMatData {  get; set; }
         public static string GetPropertiesString(Dictionary<string, object> properties)
         {

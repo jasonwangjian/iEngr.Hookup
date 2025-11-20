@@ -16,8 +16,17 @@ namespace iEngr.Hookup.ViewModels
         private bool _isComosItem;
         public bool IsComosItem
         {
-            get => _isComosItem;
-            set => SetField(ref _isComosItem, value);
+            get
+            {
+                return _isComosItem;
+            }
+
+            set 
+            { 
+                SetField(ref _isComosItem, value);
+                HK_General.IsNoProjectApplied = false;
+            }
+
         }
         private bool _isLibItem;
         public bool IsLibItem
@@ -26,10 +35,13 @@ namespace iEngr.Hookup.ViewModels
             set
             {
                 if (SetField(ref _isLibItem, value))
-                { OnPropertyChanged(nameof(IsDiagramDeleteShow)); }
+                { OnPropertyChanged(nameof(IsDiagramDeleteShow));
+                    OnPropertyChanged(nameof(IsDiagramApplyShow));
+                }
             }
         }
         public bool IsDiagramDeleteShow { get { return IsLibItem && (HK_General.UserComos.Roles & HK_General.RoleAdmin)> 0; } }
+        public bool IsDiagramApplyShow { get { return IsLibItem && !HK_General.IsNoProjectApplied; } }
         public int ID { get; set; }
         public string ComosName { get; set; }
         public string RefID { get; set; }

@@ -134,6 +134,27 @@ namespace iEngr.Hookup
                 }
             }
         }
+        internal static int DeleteByFieldName(string tableName, string fieldName, int value)
+        {
+            string query = $"DELETE FROM {tableName} WHERE {fieldName} = {value}";
+            using (OdbcConnection conn = GetConnection())
+            {
+                try
+                {
+                    // 创建并配置 OdbcCommand 对象
+                    using (OdbcCommand command = new OdbcCommand(query, conn))
+                    {
+                        // 执行查询，获取记录数
+                        return (int)command.ExecuteNonQuery(); ;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"___HK_General.DeleteByFieldName(string tableName, string fieldName, int value), Error: {ex.Message}");
+                    return 0;
+                }
+            }
+        }
 
 
         #region MatGenLib
@@ -916,7 +937,7 @@ namespace iEngr.Hookup
             List<HkTreeItem> result = new List<HkTreeItem>();
             string query = $"select * " +
                 $"from HK_TreeNode " +
-                $"where Status >=0 " +
+                $"where Status >= 0 " +
                 $"order by IndexOf";
             using (OdbcConnection conn = GetConnection())
             {
@@ -988,7 +1009,8 @@ namespace iEngr.Hookup
             {
                 ObservableCollection<LabelDisplay> propLabelItems = GetPropLabelItems(item);
                 string desc = string.Join(",", propLabelItems.Select(x => x.DisplayName + ":" + x.DisplayValue1));
-                string name = item.DisPlayName;
+                string name = item.DisPlayName.Trim();
+                name = name.Length>50 ? name.Substring(0, 46) + "..." : name;
                 try
                 {
 

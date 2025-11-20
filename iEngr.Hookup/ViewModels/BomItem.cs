@@ -126,6 +126,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _no, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.Label = value;
+                else if (IsLibItem && BomID>0 && int.TryParse(value, out int no) && no > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "No", no);
             }
         }
         private string _id;
@@ -146,6 +148,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _qty, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.Qty").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "Qty", value);
             }
         }
         private string _unit;
@@ -156,6 +160,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _unit, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.Unit").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "Unit", value);
             }
         }
         private string _supplyDiscipline;
@@ -166,6 +172,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _supplyDiscipline, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.SD").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "SupDisc", value);
             }
         }
         private string _supplyResponsible;
@@ -176,6 +184,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _supplyResponsible, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.SR").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "SupResp", value);
             }
         }
         private string _erectionDiscipline;
@@ -186,6 +196,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _erectionDiscipline, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.ED").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "ErecDisc", value);
             }
         }
         private string _erectionResponsible;
@@ -196,6 +208,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _erectionResponsible, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.ER").value = value;
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "ErecResp", value);
             }
         }
         private string _remarksCn;
@@ -206,6 +220,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _remarksCn, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.Remarks").SetInternationalValue(4, value);
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "RemarksCn", value);
             }
         }
         private string _remarksEn;
@@ -216,6 +232,8 @@ namespace iEngr.Hookup.Models
             {
                 if (SetField(ref _remarksEn, value) && IsComosItem && AutoComosUpdate)
                     ObjComosBomItem.spec("Z00T00003.Remarks").SetInternationalValue(2, value);
+                else if (IsLibItem && BomID > 0)
+                    HK_General.UpdateLibData("HK_DiagBom", BomID, "RemarksEn", value);
             }
         }
         private string _specAllCn;

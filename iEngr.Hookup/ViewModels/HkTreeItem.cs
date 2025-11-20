@@ -21,6 +21,7 @@ namespace iEngr.Hookup.ViewModels
         {
             Children = new ObservableCollection<HkTreeItem>();
         }
+        public int NewAddedID { get; set; } 
 
         private bool _isExpanded;
         public bool IsExpanded

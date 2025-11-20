@@ -52,13 +52,16 @@ namespace iEngr.Hookup.Views
             VmTree= ucTree.DataContext as HkTreeViewModel;
             VmTree.TreeItemChanged += OnTreeItemChanged;
             VmTree.DiagramIDsChanged += OnDiagramIDsChanged;
+            VmTree.DiagramIDAdded += OnDiagramIDAdded;
             VmTree.PropLabelItemsChanged += OnNodeLabelItemsChanged;
             VmPicture = ucPic.DataContext as HkPictureViewModel;
             VmDiagLib = ucDiagLib.DataContext as DiagItemsViewModel;
             VmDiagLib.LibDiagramChanged += OnLibDiagramChanged;
+            VmDiagLib.ClearLibDiagBom += OnClearLibDiagBom;
             VmDiagLib.PicturePathChanged += OnPicturePathChanged;
             VmDiagLib.AvailableDiagramItems = HK_General.GetDiagramItems();
             VmDiagLib.AssignedDiagramItems = new ObservableCollection<DiagramItem>();
+
             VmDiagComos = ucDiagComos.DataContext as DiagItemsViewModel;
             VmDiagComos.PicturePathChanged += OnPicturePathChanged;
             VmDiagComos.DiagramGroupChanged += OnNodeIDHighlighted;
@@ -164,7 +167,14 @@ namespace iEngr.Hookup.Views
                 
             }
         }
-
+        private void OnDiagramIDAdded(object sender, HkTreeItem value)
+        {
+            DiagramItem item = HK_General.GetDiagramItem(value.NewAddedID.ToString());
+            item.IsOwned = true; item.IsInherit = false;
+            VmDiagLib.AvailableDiagramItems.Add(item);
+            VmDiagLib.AssignedDiagramItems.Add(item);
+            VmDiagLib.FilterText = VmDiagLib.FilterText;// 刷新FilteredItems
+        }
         private void OnDiagramIDsChanged(object sender, HkTreeItem value)
         {
             VmDiagLib.AssignedDiagramItems.Clear();
@@ -197,6 +207,13 @@ namespace iEngr.Hookup.Views
             VmDiagLib.FilterText = VmDiagLib.FilterText;
             if (VmDiagLib.AssignedDiagramItems.Count > 0)
             { VmDiagLib.AssignedDiagramsSelectedItem = VmDiagLib.FilteredAssignedDiagramItems.FirstOrDefault(); }
+        }
+        private void OnClearLibDiagBom(object sender, bool value)
+        {
+            if (value)
+            {
+                VmBomLib.DataSource.Clear();
+            }
         }
         //更新UcNodeApplied
         private void OnLibDiagramChanged(object sender, DiagramItem value)
@@ -462,11 +479,12 @@ namespace iEngr.Hookup.Views
         {
             return true;
         }
+        // 在用户控件中获取父窗口
         private void LibDiagMgr(object parameter)
         {
             var dialog = new GenLibDiagMgrDialog();
             dialog.WindowState = WindowState.Maximized;
-            dialog.ShowDialog();
+            dialog.Show();
         }
         public RelayCommand<object> BomCompareCommand { get; set; }
         private bool CanBomCompare(object parameter)

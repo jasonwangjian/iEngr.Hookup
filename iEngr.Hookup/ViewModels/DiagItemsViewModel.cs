@@ -39,6 +39,8 @@ namespace iEngr.Hookup.ViewModels
         public event EventHandler<DiagramItem> ComosDiagObjAddCmd; //创建安装图对象
         public event EventHandler<DiagramItem> ComosDiagMod2LibCmd; //将安装图模板添加至企业库
 
+        public event EventHandler<bool> ClearLibDiagBom; 
+
         public event EventHandler<IComosBaseObject> ComosItemContextMenu;
         public event EventHandler<IComosBaseObject> ComosItemDoubleClick;
 
@@ -322,7 +324,11 @@ namespace iEngr.Hookup.ViewModels
             {
                 if (!HK_General.IsIDAssigned(itemS.ID))
                 {
+                    if (itemS == SelectedItem)
+                        ClearLibDiagBom?.Invoke(this, true);
+                    FilteredAvailableDiagramItems.Remove(itemS);
                     AvailableDiagramItems.Remove(itemS);
+                    HK_General.DeleteByFieldName("HK_DiagBom", "DiagID", itemS.ID);
                     HK_General.DeleteByID("HK_Diagram", itemS.ID);
                 }
             }

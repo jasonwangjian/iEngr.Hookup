@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -244,13 +245,15 @@ namespace iEngr.Hookup.Comos
                     tqry.MainObject = objQueryStart;
                     tqry.Execute();
                     IQuery qry = tqry.Query;
+                    List<BomItem> bomItems = new List<BomItem>();
                     for (int i = 1; i <= qry.RowCount; i++)
                     {
                         IComosBaseObject item = qry.RowObject[i];
                         BomItem bomItem = new BomItem() { ObjComosBomItem = item };
                         //bomItem.SetDataFromComosObject();
-                        VmBomList.DataSource.Add(bomItem);
+                        bomItems.Add(bomItem);
                     }
+                    VmBomList.DataSource = new ObservableCollection<BomItem>(bomItems.OrderBy(x => x.No));
                 }
             }
             catch (Exception ex)

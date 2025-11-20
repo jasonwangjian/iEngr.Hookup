@@ -247,7 +247,7 @@
                     <Separator/>
                     <MenuItem Header="应用Diag" Command="{Binding ComosDiagModAddCommand}"
                               ToolTip="将此企业库安装图应用于本Comos项目，在项目中创建安装图模版"
-                              Visibility="{Binding SelectedItem.IsLibItem, Converter={StaticResource BoolToVisibilityConverter}}"
+                              Visibility="{Binding SelectedItem.IsDiagramApplyShow, Converter={StaticResource BoolToVisibilityConverter}}"
                               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
                     <MenuItem Header="添加Diag" Command="{Binding DiagramAddCommand}"                      
                               ToolTip="将此企业库安装图添加至节点"

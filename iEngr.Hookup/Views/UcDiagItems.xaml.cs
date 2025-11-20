@@ -75,7 +75,7 @@ namespace iEngr.Hookup.Views
                 e.Cancel = true;
                 return;
             }
-            if (dataItem.IsLibItem && (!dataItem.IsOwned || dataItem.IsInherit))
+            if (dataItem.IsLibItem && (!dataItem.IsOwned || dataItem.IsInherit) && dataItem.IsInherit)
             {
                 e.Cancel = true;
             }

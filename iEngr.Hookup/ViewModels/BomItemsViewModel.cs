@@ -339,7 +339,7 @@ namespace iEngr.Hookup.ViewModels
                 //newBomItem.SetBomListItemFromMatListItem();
                 newBomItem.SetComosObjectFromData();
                 //newBomItem.SetDataFromComosObject();
-                DataSource.Insert(index, newBomItem);
+                DataSource.Insert(Math.Max(index,0), newBomItem);
             }
             else if (SelectedDiagramItem != null)
             {
