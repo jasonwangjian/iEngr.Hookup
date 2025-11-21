@@ -16,6 +16,8 @@ using Path = System.Windows.Shapes.Path;
 using TextAlignment = System.Windows.TextAlignment;
 using System.Text.RegularExpressions;
 using netDxf.Units;
+using ComosQueryInterface;
+using System.Windows.Media.Animation;
 
 
 namespace iEngr.Hookup.Models
@@ -209,6 +211,7 @@ namespace iEngr.Hookup.Models
     public class DxfStyleManager
     {
         private double defaultLineWeight = 0.1;
+        private double defaultMinWeight = 0.02;
         private DxfDocument _dxfDocument;
         public Dictionary<string, Layer> _layers;
 
@@ -246,7 +249,6 @@ namespace iEngr.Hookup.Models
                 return entity.Color;
             }
         }
-
         // 解析实体的最终线宽（处理 ByLayer 和 ByBlock）
         public Lineweight ResolveEntityLineweight(EntityObject entity)
         {
@@ -269,6 +271,10 @@ namespace iEngr.Hookup.Models
                 // 返回实体自身的线宽
                 return entity.Lineweight;
             }
+        }
+        public double ResolveEntityLineWidth(Polyline2D entity)
+        {
+            return Math.Max(entity.Vertexes[0].StartWidth, defaultMinWeight);
         }
 
         // 将 AciColor 转换为 WPF 的 Color
@@ -316,7 +322,8 @@ namespace iEngr.Hookup.Models
         private Canvas _canvas;
         private DxfLayerReader _layerReader;
         private DxfStyleManager _styleManager;
-        private Insert _insert;
+        private Insert _parentInsert;
+        public AciColor _defaultAciColor = new AciColor(255, 255, 255);
         private double _margin = 0.05;
         private double _fontFactor = 1.0;
         private double _dxfWidth;
@@ -329,6 +336,7 @@ namespace iEngr.Hookup.Models
         private double _offsetY = 0;
         private Dictionary<string, Brush> _layerBrushes;
         public IEnumerable<EntityObject> EntityObjects { get; private set; }
+        public IEnumerable<AttributeDefinition> AttributeDefinitions { get; private set; }
 
         public DxfRenderer(Canvas canvas)
         {
@@ -432,9 +440,9 @@ namespace iEngr.Hookup.Models
             entities.AddRange(dxf.Entities.Dimensions);
             entities.AddRange(dxf.Entities.Inserts);
             EntityObjects = entities.ToArray();
+            AttributeDefinitions = dxf.Entities.OfType<AttributeDefinition>().ToArray();
             return entities;
         }
-
         private void RenderAllEntities(DxfDocument dxf)
         {
             var entities = GetEntitiesList(dxf);
@@ -534,7 +542,10 @@ namespace iEngr.Hookup.Models
         private void RenderLine(Line line, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = insert == null? _styleManager.ResolveEntityColor(line): !line.Color.IsByLayer && !line.Color.IsByBlock?line.Color:  _styleManager.ResolveEntityColor(insert);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(line): 
+                                        !line.Color.IsByLayer && !line.Color.IsByBlock?line.Color:
+                                        _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(line);
 
             // 转换为 WPF 格式
@@ -543,10 +554,10 @@ namespace iEngr.Hookup.Models
 
             System.Windows.Shapes.Line wpfLine = new System.Windows.Shapes.Line
             {
-                X1 = insert == null ? ConvertToCanvasPointX(line.StartPoint.X): line.StartPoint.X * _scale,//(line.StartPoint.X + _offsetX) * _scale + _panX,
-                Y1 = insert == null ? ConvertToCanvasPointY(line.StartPoint.Y) : - line.StartPoint.Y * _scale,//(_dxfHeight - (line.StartPoint.Y + _offsetY)) * _scale + _panY,
-                X2 = insert == null ? ConvertToCanvasPointX(line.EndPoint.X) : line.EndPoint.X * _scale,//(line.EndPoint.X + _offsetX) * _scale + _panX,
-                Y2 = insert == null ? ConvertToCanvasPointY(line.EndPoint.Y) : - line.EndPoint.Y * _scale,//(_dxfHeight - (line.EndPoint.Y + _offsetY)) * _scale + _panY,
+                X1 = ConvertToCanvasPointX(line.StartPoint.X, isInBlock),//(line.StartPoint.X + _offsetX) * _scale + _panX,
+                Y1 = ConvertToCanvasPointY(line.StartPoint.Y, isInBlock),//(_dxfHeight - (line.StartPoint.Y + _offsetY)) * _scale + _panY,
+                X2 = ConvertToCanvasPointX(line.EndPoint.X, isInBlock),//(line.EndPoint.X + _offsetX) * _scale + _panX,
+                Y2 = ConvertToCanvasPointY(line.EndPoint.Y, isInBlock),//(_dxfHeight - (line.EndPoint.Y + _offsetY)) * _scale + _panY,
                 Stroke = new SolidColorBrush(wpfColor),
                 StrokeThickness = wpfLinewidth * _scale
             };
@@ -558,7 +569,10 @@ namespace iEngr.Hookup.Models
         {
             // 解析实体的最终样式
             //var finalColor = _styleManager.ResolveEntityColor(arc);
-            var finalColor = insert == null ? _styleManager.ResolveEntityColor(arc) : !arc.Color.IsByLayer && !arc.Color.IsByBlock ? arc.Color : _styleManager.ResolveEntityColor(insert);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(arc) : 
+                                             !arc.Color.IsByLayer && !arc.Color.IsByBlock ? arc.Color : 
+                                             _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(arc);
 
             // 转换为 WPF 格式
@@ -567,7 +581,7 @@ namespace iEngr.Hookup.Models
 
             // 计算中心点
             //Point center = ConvertToCanvasPoint(arc.Center);
-            Point center = insert == null ? ConvertToCanvasPoint(arc.Center): new Point(arc.Center.X*_scale, - arc.Center.Y * _scale);
+            Point center = ConvertToCanvasPoint(arc.Center, isInBlock);
             //    new Point(
             //    (arc.Center.X + _offsetX) * _scale + _panX,
             //    (_dxfHeight - (arc.Center.Y + _offsetY)) * _scale + _panY
@@ -626,10 +640,14 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPath, arc.Linetype);
             _canvas.Children.Add(wpfPath);
         }
-        private void RenderArcAsLineSegment(Arc arc)
+        private void RenderArcAsLineSegment(Arc arc, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(arc);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(arc) :
+                                             !arc.Color.IsByLayer && !arc.Color.IsByBlock ? arc.Color :
+                                             _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(arc);
             var finalLineweight = _styleManager.ResolveEntityLineweight(arc);
 
             // 转换为 WPF 格式
@@ -637,7 +655,7 @@ namespace iEngr.Hookup.Models
             var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
 
             // 计算中心点
-            Point center = ConvertToCanvasPoint(arc.Center);
+            Point center = ConvertToCanvasPoint(arc.Center, isInBlock);
 
             double radius = arc.Radius * _scale;
 
@@ -699,7 +717,10 @@ namespace iEngr.Hookup.Models
         {
             // 解析实体的最终样式
             //var finalColor = _styleManager.ResolveEntityColor(circle);
-            var finalColor = insert == null ? _styleManager.ResolveEntityColor(circle) : !circle.Color.IsByLayer && !circle.Color.IsByBlock ? circle.Color : _styleManager.ResolveEntityColor(insert);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(circle) : 
+                                         !circle.Color.IsByLayer && !circle.Color.IsByBlock ? circle.Color : 
+                                         _styleManager.ResolveEntityColor(insert);
             var finalLineweight = _styleManager.ResolveEntityLineweight(circle);
 
             // 转换为 WPF 格式
@@ -719,8 +740,8 @@ namespace iEngr.Hookup.Models
             // 设置位置（圆心坐标）
             //double centerX = ConvertToCanvasPointX(circle.Center.X);// (circle.Center.X + _offsetX) * _scale + _panX;
             //double centerY = ConvertToCanvasPointY(circle.Center.Y);// (_dxfHeight - (circle.Center.Y + _offsetY)) * _scale + _panY;
-            double centerX = insert == null ? ConvertToCanvasPointX(circle.Center.X): circle.Center.X * _scale;
-            double centerY = insert == null ? ConvertToCanvasPointY(circle.Center.Y) : - circle.Center.Y * _scale;
+            double centerX = ConvertToCanvasPointX(circle.Center.X, isInBlock);
+            double centerY = ConvertToCanvasPointY(circle.Center.Y, isInBlock);
 
             Canvas.SetLeft(wpfEllipse, centerX - wpfEllipse.Width / 2);
             Canvas.SetTop(wpfEllipse, centerY - wpfEllipse.Height / 2);
@@ -728,10 +749,14 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfEllipse, circle.Linetype);
             _canvas.Children.Add(wpfEllipse);
         }
-        private void RenderEllipse(Ellipse ellipse)
+        private void RenderEllipse(Ellipse ellipse, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(ellipse);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(ellipse) :
+            !ellipse.Color.IsByLayer && !ellipse.Color.IsByBlock ? ellipse.Color :
+                                             _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(ellipse);
             var finalLineweight = _styleManager.ResolveEntityLineweight(ellipse);
 
             // 转换为 WPF 格式
@@ -760,8 +785,10 @@ namespace iEngr.Hookup.Models
             wpfEllipse.Height = height;
 
             // 设置位置（中心点）
-            double centerX = (ellipse.Center.X + _offsetX) * _scale + _panX;
-            double centerY = (_dxfHeight - (ellipse.Center.Y + _offsetY)) * _scale + _panY;
+            //double centerX = (ellipse.Center.X + _offsetX) * _scale + _panX;
+            //double centerY = (_dxfHeight - (ellipse.Center.Y + _offsetY)) * _scale + _panY;
+            double centerX = ConvertToCanvasPointX(ellipse.Center.X, isInBlock);
+            double centerY = ConvertToCanvasPointY(ellipse.Center.Y, isInBlock);
 
             Canvas.SetLeft(wpfEllipse, centerX - width / 2);
             Canvas.SetTop(wpfEllipse, centerY - height / 2);
@@ -776,10 +803,14 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfEllipse, ellipse.Linetype);
             _canvas.Children.Add(wpfEllipse);
         }
-        private void RenderEllipseAsPath(Ellipse ellipse)
+        private void RenderEllipseAsPath(Ellipse ellipse, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(ellipse);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(ellipse) :
+                                         !ellipse.Color.IsByLayer && !ellipse.Color.IsByBlock ? ellipse.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(ellipse);
             var finalLineweight = _styleManager.ResolveEntityLineweight(ellipse);
 
             // 转换为 WPF 格式
@@ -802,8 +833,8 @@ namespace iEngr.Hookup.Models
                 // 转换第一个点为世界坐标并设置为起点
                 Vector2 firstVertex = vertexes[0];
                 Point startPoint = new Point(
-                    ConvertToCanvasPointX(ellipse.Center.X + firstVertex.X),
-                    ConvertToCanvasPointY(ellipse.Center.Y + firstVertex.Y)
+                    ConvertToCanvasPointX(ellipse.Center.X + firstVertex.X,isInBlock),
+                    ConvertToCanvasPointY(ellipse.Center.Y + firstVertex.Y, isInBlock)
                 );
                 //Point startPoint = new Point(
                 //    (ellipse.Center.X + firstVertex.X + _offsetX) * _scale + _panX,
@@ -820,8 +851,8 @@ namespace iEngr.Hookup.Models
                     Vector2 vertex = vertexes[i];
                     // 将局部坐标转换为世界坐标：世界坐标 = 中心点 + 局部坐标
                     Point point = new Point(
-                        ConvertToCanvasPointX(ellipse.Center.X + vertex.X),
-                        ConvertToCanvasPointY(ellipse.Center.Y + vertex.Y)
+                        ConvertToCanvasPointX(ellipse.Center.X + vertex.X, isInBlock),
+                        ConvertToCanvasPointY(ellipse.Center.Y + vertex.Y, isInBlock)
                     );
                     //Point point = new Point(
                     //    (ellipse.Center.X + vertex.X + _offsetX) * _scale + _panX,
@@ -852,10 +883,14 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region Spline, Solid
-        private void RenderSpline(Spline spline)
+        private void RenderSpline(Spline spline, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(spline);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(spline) :
+                                         !spline.Color.IsByLayer && !spline.Color.IsByBlock ? spline.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(spline);
             var finalLineweight = _styleManager.ResolveEntityLineweight(spline);
 
             // 转换为 WPF 格式
@@ -874,7 +909,7 @@ namespace iEngr.Hookup.Models
             {
                 foreach (var controlPoint in spline.ControlPoints)
                 {
-                    Point wpfPoint = ConvertToCanvasPoint(controlPoint);
+                    Point wpfPoint = ConvertToCanvasPoint(controlPoint,isInBlock);
                     //Point wpfPoint = new Point(
                     //    (controlPoint.X + _offsetX) * _scale + _panX,
                     //    (_dxfHeight - (controlPoint.Y + _offsetY)) * _scale + _panY
@@ -891,7 +926,7 @@ namespace iEngr.Hookup.Models
 
                 foreach (var vertex in vertexes)
                 {
-                    Point wpfPoint = ConvertToCanvasPoint(vertex);
+                    Point wpfPoint = ConvertToCanvasPoint(vertex, isInBlock);
                     //Point wpfPoint = new Point(
                     //    (vertex.X + _offsetX) * _scale + _panX,
                     //    (_dxfHeight - (vertex.Y + _offsetY)) * _scale + _panY
@@ -933,10 +968,14 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPath, spline.Linetype);
             _canvas.Children.Add(wpfPath);
         }
-        private void RenderSplineAsPolyline(Spline spline)
+        private void RenderSplineAsPolyline(Spline spline, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(spline);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(spline) :
+                                         !spline.Color.IsByLayer && !spline.Color.IsByBlock ? spline.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(spline);
             var finalLineweight = _styleManager.ResolveEntityLineweight(spline);
 
             // 转换为 WPF 格式
@@ -957,8 +996,8 @@ namespace iEngr.Hookup.Models
 
                 // 设置起点
                 Point startPoint = new Point(
-                    ConvertToCanvasPointX(polyline.Vertexes[0].Position.X),
-                    ConvertToCanvasPointY(polyline.Vertexes[0].Position.Y)
+                    ConvertToCanvasPointX(polyline.Vertexes[0].Position.X,isInBlock),
+                    ConvertToCanvasPointY(polyline.Vertexes[0].Position.Y, isInBlock)
                 );
                 //Point startPoint = new Point(
                 //    (polyline.Vertexes[0].Position.X + _offsetX) * _scale + _panX,
@@ -973,8 +1012,8 @@ namespace iEngr.Hookup.Models
                 for (int i = 1; i < polyline.Vertexes.Count; i++)
                 {
                     Point point = new Point(
-                        ConvertToCanvasPointX(polyline.Vertexes[i].Position.X),
-                        ConvertToCanvasPointY(polyline.Vertexes[i].Position.Y)
+                        ConvertToCanvasPointX(polyline.Vertexes[i].Position.X, isInBlock),
+                        ConvertToCanvasPointY(polyline.Vertexes[i].Position.Y, isInBlock)
                     );
                     //Point point = new Point(
                     //    (polyline.Vertexes[i].Position.X + _offsetX) * _scale + _panX,
@@ -1004,10 +1043,14 @@ namespace iEngr.Hookup.Models
                 RenderSpline(spline);
             }
         }
-        private void RenderSolid(Solid solid)
+        private void RenderSolid(Solid solid, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(solid);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(solid) :
+                                         !solid.Color.IsByLayer && !solid.Color.IsByBlock ? solid.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+
             var finalLineweight = _styleManager.ResolveEntityLineweight(solid);
 
             // 转换为 WPF 格式
@@ -1046,8 +1089,8 @@ namespace iEngr.Hookup.Models
 
                 // 设置起点
                 Point startPoint = new Point(
-                    ConvertToCanvasPointX(distinctVertices[0].X),
-                    ConvertToCanvasPointY(distinctVertices[0].Y)
+                    ConvertToCanvasPointX(distinctVertices[0].X, isInBlock),
+                    ConvertToCanvasPointY(distinctVertices[0].Y, isInBlock)
                 );
                 //Point startPoint = new Point(
                 //    (distinctVertices[0].X + _offsetX) * _scale + _panX,
@@ -1062,8 +1105,8 @@ namespace iEngr.Hookup.Models
                 for (int i = 1; i < distinctVertices.Count; i++)
                 {
                     Point point = new Point(
-                        ConvertToCanvasPointX(distinctVertices[i].X),
-                        ConvertToCanvasPointY(distinctVertices[i].Y)
+                        ConvertToCanvasPointX(distinctVertices[i].X, isInBlock),
+                        ConvertToCanvasPointY(distinctVertices[i].Y, isInBlock)
                     );
                     //Point point = new Point(
                     //    (distinctVertices[i].X + _offsetX) * _scale + _panX,
@@ -1091,10 +1134,14 @@ namespace iEngr.Hookup.Models
                 Console.WriteLine($"Solid rendering failed: {ex.Message}");
             }
         }
-        private void RenderSolidAsPolygon(Solid solid)
+        private void RenderSolidAsPolygon(Solid solid, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(solid);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(solid) :
+                                         !solid.Color.IsByLayer && !solid.Color.IsByBlock ? solid.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(solid);
             var finalLineweight = _styleManager.ResolveEntityLineweight(solid);
 
             // 转换为 WPF 格式
@@ -1118,8 +1165,8 @@ namespace iEngr.Hookup.Models
                 {
                     // 检查顶点是否有效（非重复和有效坐标）
                     Point point = new Point(
-                        ConvertToCanvasPointX(vertex.X),
-                        ConvertToCanvasPointY(vertex.Y)
+                        ConvertToCanvasPointX(vertex.X, isInBlock),
+                        ConvertToCanvasPointY(vertex.Y, isInBlock)
                     );
                     //Point point = new Point(
                     //    (vertex.X + _offsetX) * _scale + _panX,
@@ -1159,12 +1206,16 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region DimensionText
-        private void RenderDimensionTextOnly(Dimension dimension)
+        private void RenderDimensionTextOnly(Dimension dimension, Insert insert = null)
         {
             try
             {
                 // 解析实体的最终样式
-                var finalColor = _styleManager.ResolveEntityColor(dimension);
+                bool isInBlock = insert != null;
+                var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(dimension) :
+                                             !dimension.Color.IsByLayer && !dimension.Color.IsByBlock ? dimension.Color :
+                                             _styleManager.ResolveEntityColor(insert);
+                //var finalColor = _styleManager.ResolveEntityColor(dimension);
                 var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
                 // 获取格式化的尺寸文本
@@ -1191,8 +1242,10 @@ namespace iEngr.Hookup.Models
                 };
 
                 // 设置位置（文本参考点通常是文字中心）
-                double left = (textPosition.X + _offsetX) * _scale + _panX;
-                double top = (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY;
+                //double left = (textPosition.X + _offsetX) * _scale + _panX;
+                //double top = (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY;
+                double left = ConvertToCanvasPointX(textPosition.X, isInBlock);
+                double top = ConvertToCanvasPointY(textPosition.Y, isInBlock);
 
                 Canvas.SetLeft(textBlock, left - textBlock.ActualWidth / 2);
                 Canvas.SetTop(textBlock, top - textBlock.ActualHeight / 2);
@@ -1394,11 +1447,15 @@ namespace iEngr.Hookup.Models
             return fontMappings.TryGetValue(dxfFontName, out string wpfFont) ? wpfFont : "Arial";
         }
 
-        private void RenderDimensionSimple(Dimension dimension)
+        private void RenderDimensionSimple(Dimension dimension, Insert insert = null)
         {
             try
             {
-                var finalColor = _styleManager.ResolveEntityColor(dimension);
+                bool isInBlock = insert != null;
+                var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(dimension) :
+                                             !dimension.Color.IsByLayer && !dimension.Color.IsByBlock ? dimension.Color :
+                                             _styleManager.ResolveEntityColor(insert);
+                //var finalColor = _styleManager.ResolveEntityColor(dimension);
                 var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
                 // 只渲染尺寸文本
@@ -1416,8 +1473,10 @@ namespace iEngr.Hookup.Models
                         //Background = Brushes.White
                     };
 
-                    Canvas.SetLeft(textBlock, (textPosition.X + _offsetX) * _scale + _panX);
-                    Canvas.SetTop(textBlock, (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY);
+                    Canvas.SetLeft(textBlock, ConvertToCanvasPointX(textPosition.X, isInBlock));
+                    Canvas.SetTop(textBlock, ConvertToCanvasPointY(textPosition.Y, isInBlock));
+                    //Canvas.SetLeft(textBlock, (textPosition.X + _offsetX) * _scale + _panX);
+                    //Canvas.SetTop(textBlock, (_dxfHeight - (textPosition.Y + _offsetY)) * _scale + _panY);
 
                     _canvas.Children.Add(textBlock);
                 }
@@ -1699,10 +1758,14 @@ namespace iEngr.Hookup.Models
 
             return new Vector3(centerX, centerY, 0);
         }
-        private void RenderHatchDirect(Hatch hatch)
+        private void RenderHatchDirect(Hatch hatch, Insert insert = null)
         {
             // 解析实体的最终样式
-            var finalColor = _styleManager.ResolveEntityColor(hatch);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(hatch) :
+                                         !hatch.Color.IsByLayer && !hatch.Color.IsByBlock ? hatch.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(hatch);
             var finalLineweight = _styleManager.ResolveEntityLineweight(hatch);
 
             // 转换为 WPF 格式
@@ -1740,7 +1803,7 @@ namespace iEngr.Hookup.Models
                                 double radius = Vector3.Distance(center, polyline.Vertexes[0]);
                                 figure.StartPoint = ConvertToCanvasPoint(new Vector2(
                                         center.X + radius * Math.Cos(0),
-                                        center.Y + radius * Math.Sin(0)));
+                                        center.Y + radius * Math.Sin(0)), isInBlock);
                                 figure.IsClosed = true;
                                 // 生成36个点的圆形
                                 for (int i = 1; i <= 8; i++)
@@ -1791,9 +1854,13 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region Text
-        private void RenderText(Text text)
+        private void RenderText(Text text, Insert insert = null)
         {
-            var finalColor = _styleManager.ResolveEntityColor(text);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(text) :
+                                         !text.Color.IsByLayer && !text.Color.IsByBlock ? text.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(text);
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
             TextBlock textBlock = new TextBlock
@@ -1807,7 +1874,7 @@ namespace iEngr.Hookup.Models
             ApplyTextAlignment(textBlock, text);
 
             // 使用增强的位置计算
-            var position = CalculateTextPosition(text);
+            var position = CalculateTextPosition(text, isInBlock);
             Canvas.SetLeft(textBlock, position.X);
             Canvas.SetTop(textBlock, position.Y);
 
@@ -1893,10 +1960,10 @@ namespace iEngr.Hookup.Models
                     break;
             }
         }
-        private Point CalculateTextPosition(Text text)
+        private Point CalculateTextPosition(Text text, bool isInBlock)
         {
-            double baseX = ConvertToCanvasPointX(text.Position.X);
-            double baseY = ConvertToCanvasPointY(text.Position.Y);
+            double baseX = ConvertToCanvasPointX(text.Position.X, isInBlock);
+            double baseY = ConvertToCanvasPointY(text.Position.Y, isInBlock);
 
             // 测量文字尺寸
             var textSize = MeasureTextSize(text);
@@ -2012,9 +2079,13 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region MText
-        private void RenderMText(MText mtext)
+        private void RenderMText(MText mtext, Insert insert = null)
         {
-            var finalColor = _styleManager.ResolveEntityColor(mtext);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(mtext) :
+                                         !mtext.Color.IsByLayer && !mtext.Color.IsByBlock ? mtext.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(mtext);
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
             TextBlock textBlock = new TextBlock
@@ -2037,7 +2108,7 @@ namespace iEngr.Hookup.Models
             ApplyMTextAlignment(textBlock, mtext);
 
             // 计算多行文字位置
-            var position = CalculateMTextPosition(mtext);
+            var position = CalculateMTextPosition(mtext, isInBlock);
             Canvas.SetLeft(textBlock, position.X);
             Canvas.SetTop(textBlock, position.Y);
 
@@ -2099,10 +2170,10 @@ namespace iEngr.Hookup.Models
             }
         }
         // 计算 MText 位置
-        private Point CalculateMTextPosition(MText mtext)
+        private Point CalculateMTextPosition(MText mtext, bool isInBlock)
         {
-            double baseX = ConvertToCanvasPointX(mtext.Position.X);
-            double baseY = ConvertToCanvasPointY(mtext.Position.Y);
+            double baseX = ConvertToCanvasPointX(mtext.Position.X, isInBlock);
+            double baseY = ConvertToCanvasPointY(mtext.Position.Y, isInBlock);
 
             // 测量多行文字尺寸
             var textSize = MeasureMTextSize(mtext);
@@ -2223,7 +2294,10 @@ namespace iEngr.Hookup.Models
             try
             {
                 //var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
-                var finalColor = insert == null ? _styleManager.ResolveEntityColor(lwPolyline) : !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color : _styleManager.ResolveEntityColor(insert);
+                bool isInBlock = insert != null;
+                var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(lwPolyline) :
+                                             !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color :
+                                             _styleManager.ResolveEntityColor(insert);
                 var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
                 // 检查特性
@@ -2236,50 +2310,55 @@ namespace iEngr.Hookup.Models
                 if (hasVariableWidth && hasBulge)
                 {
                     // 最复杂的情况：可变宽度 + 圆弧
-                    RenderLwPolylineWithWidthAndBulge(lwPolyline, wpfColor);
+                    RenderLwPolylineWithWidthAndBulge(lwPolyline, wpfColor, isInBlock);
                 }
                 else if (hasBulge)
                 {
                     // 只有圆弧
-                    RenderLwPolylineWithBulge(lwPolyline, wpfColor);
+                    RenderLwPolylineWithBulge(lwPolyline, wpfColor, isInBlock);
                 }
                 else if (hasVariableWidth || lwPolyline.Lineweight == Lineweight.ByLayer || lwPolyline.Lineweight == Lineweight.ByBlock)
                 {
                     // 只有可变宽度
-                    RenderVariableWidthPolyline(lwPolyline, wpfColor);
+                    RenderVariableWidthPolyline(lwPolyline, wpfColor, isInBlock);
                 }
                 else
                 {
                     // 简单直线段
-                    RenderSimpleLwPolyline(lwPolyline, wpfColor);
+                    RenderSimpleLwPolyline(lwPolyline, wpfColor, isInBlock);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"渲染 LwPolyline 时出错: {ex.Message}");
                 // 降级到简单渲染
-                var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+                bool isInBlock = insert != null;
+                var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(lwPolyline) :
+                                             !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color :
+                                             _styleManager.ResolveEntityColor(insert);
+                //var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
                 var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
-                RenderSimpleLwPolyline(lwPolyline, wpfColor);
+                RenderSimpleLwPolyline(lwPolyline, wpfColor, isInBlock);
             }
         }
-        private void RenderSimpleLwPolyline(Polyline2D lwPolyline, Color color)
+        private void RenderSimpleLwPolyline(Polyline2D lwPolyline, Color color, bool isInBlock)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
 
             var brush = new SolidColorBrush(color);
-            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            //var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            //var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ResolveEntityLineWidth(lwPolyline);
 
             var points = new PointCollection();
             foreach (var vertex in lwPolyline.Vertexes)
             {
-                points.Add(ConvertToCanvasPoint(vertex.Position));
+                points.Add(ConvertToCanvasPoint(vertex.Position, isInBlock));
             }
 
             if (lwPolyline.IsClosed && lwPolyline.Vertexes.Count > 2)
             {
-                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position, isInBlock));
             }
 
             System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
@@ -2295,13 +2374,14 @@ namespace iEngr.Hookup.Models
 
             _canvas.Children.Add(wpfPolyline);
         }
-        private void RenderLwPolylineWithBulge(Polyline2D lwPolyline, Color color)
+        private void RenderLwPolylineWithBulge(Polyline2D lwPolyline, Color color, bool isInBlock)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
 
             var brush = new SolidColorBrush(color);
-            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            //var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            //var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ResolveEntityLineWidth(lwPolyline);
 
             var points = new PointCollection();
 
@@ -2312,12 +2392,12 @@ namespace iEngr.Hookup.Models
                 var nextVertex = lwPolyline.Vertexes[(i + 1) % lwPolyline.Vertexes.Count];
 
                 // 添加当前点
-                points.Add(ConvertToCanvasPoint(currentVertex.Position));
+                points.Add(ConvertToCanvasPoint(currentVertex.Position, isInBlock));
 
                 // 处理 bulge（圆弧段）
-                if (currentVertex.Bulge != 0 && i < lwPolyline.Vertexes.Count - 1)
+                if (currentVertex.Bulge != 0 && i < lwPolyline.Vertexes.Count)
                 {
-                    var bulgePoints = ConvertBulgeToPoints(currentVertex, nextVertex, currentVertex.Bulge);
+                    var bulgePoints = ConvertBulgeToPoints(currentVertex, nextVertex, currentVertex.Bulge, isInBlock);
                     // 修正：使用循环添加点
                     foreach (var point in bulgePoints)
                     {
@@ -2329,7 +2409,7 @@ namespace iEngr.Hookup.Models
             // 如果是闭合的，添加第一个点
             if (lwPolyline.IsClosed)
             {
-                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position, isInBlock));
             }
 
             System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
@@ -2344,7 +2424,7 @@ namespace iEngr.Hookup.Models
             SetLineType(wpfPolyline, lwPolyline.Linetype);
             _canvas.Children.Add(wpfPolyline);
         }
-        private void RenderVariableWidthPolyline(Polyline2D lwPolyline, Color color)
+        private void RenderVariableWidthPolyline(Polyline2D lwPolyline, Color color, bool isInBlock)
         {
             var brush = new SolidColorBrush(color);
             var geometryGroup = new GeometryGroup();
@@ -2362,13 +2442,13 @@ namespace iEngr.Hookup.Models
                 if (Math.Abs(startWidth - endWidth) < 0.001)
                 {
                     // 宽度相同，使用简单的矩形
-                    var segmentGeometry = CreateConstantWidthSegment(startVertex, endVertex, startWidth);
+                    var segmentGeometry = CreateConstantWidthSegment(startVertex, endVertex, startWidth, isInBlock);
                     geometryGroup.Children.Add(segmentGeometry);
                 }
                 else
                 {
                     // 宽度不同，使用梯形
-                    var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth);
+                    var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth, isInBlock);
                     geometryGroup.Children.Add(segmentGeometry);
                 }
             }
@@ -2382,7 +2462,7 @@ namespace iEngr.Hookup.Models
                 double startWidth = Math.Max(0.1, startVertex.EndWidth);
                 double endWidth = Math.Max(0.1, endVertex.StartWidth);
 
-                var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth);
+                var segmentGeometry = CreateVariableWidthSegment(startVertex, endVertex, startWidth, endWidth, isInBlock);
                 geometryGroup.Children.Add(segmentGeometry);
             }
 
@@ -2396,10 +2476,10 @@ namespace iEngr.Hookup.Models
 
             _canvas.Children.Add(path);
         }
-        private Geometry CreateConstantWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double width)
+        private Geometry CreateConstantWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double width, bool isInBlock)
         {
-            var startPoint = ConvertToCanvasPoint(start.Position);
-            var endPoint = ConvertToCanvasPoint(end.Position);
+            var startPoint = ConvertToCanvasPoint(start.Position, isInBlock);
+            var endPoint = ConvertToCanvasPoint(end.Position, isInBlock);
 
             // 计算垂直方向
             Vector direction = endPoint - startPoint;
@@ -2430,10 +2510,10 @@ namespace iEngr.Hookup.Models
             geometry.Figures.Add(figure);
             return geometry;
         }
-        private Geometry CreateVariableWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double startWidth, double endWidth)
+        private Geometry CreateVariableWidthSegment(Polyline2DVertex start, Polyline2DVertex end, double startWidth, double endWidth, bool isInBlock)
         {
-            var startPoint = ConvertToCanvasPoint(start.Position);
-            var endPoint = ConvertToCanvasPoint(end.Position);
+            var startPoint = ConvertToCanvasPoint(start.Position, isInBlock);
+            var endPoint = ConvertToCanvasPoint(end.Position, isInBlock);
 
             // 计算垂直方向
             Vector direction = endPoint - startPoint;
@@ -2464,7 +2544,7 @@ namespace iEngr.Hookup.Models
             geometry.Figures.Add(figure);
             return geometry;
         }
-        private void RenderLwPolylineWithWidthAndBulge(Polyline2D lwPolyline, Color color)
+        private void RenderLwPolylineWithWidthAndBulge(Polyline2D lwPolyline, Color color, bool isInBlock)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
 
@@ -2472,7 +2552,7 @@ namespace iEngr.Hookup.Models
             var geometryGroup = new GeometryGroup();
 
             // 获取所有线段
-            var segments = GetPolylineSegments(lwPolyline);
+            var segments = GetPolylineSegments(lwPolyline, isInBlock);
 
             foreach (var segment in segments)
             {
@@ -2505,7 +2585,7 @@ namespace iEngr.Hookup.Models
 
             _canvas.Children.Add(path);
         }
-        private List<PolylineSegment> GetPolylineSegments(Polyline2D lwPolyline)
+        private List<PolylineSegment> GetPolylineSegments(Polyline2D lwPolyline, bool isInBlock)
         {
             var segments = new List<PolylineSegment>();
 
@@ -2515,8 +2595,8 @@ namespace iEngr.Hookup.Models
                 var endVertex = lwPolyline.Vertexes[i + 1];
 
                 var segment = new PolylineSegment(
-                    ConvertToCanvasPoint(startVertex.Position),
-                    ConvertToCanvasPoint(endVertex.Position),
+                    ConvertToCanvasPoint(startVertex.Position, isInBlock),
+                    ConvertToCanvasPoint(endVertex.Position, isInBlock),
                     startVertex.EndWidth,  // 使用起始顶点的结束宽度
                     endVertex.StartWidth,  // 使用结束顶点的起始宽度
                     startVertex.Bulge
@@ -2532,8 +2612,8 @@ namespace iEngr.Hookup.Models
                 var endVertex = lwPolyline.Vertexes[0];
 
                 var segment = new PolylineSegment(
-                    ConvertToCanvasPoint(startVertex.Position),
-                    ConvertToCanvasPoint(endVertex.Position),
+                    ConvertToCanvasPoint(startVertex.Position, isInBlock),
+                    ConvertToCanvasPoint(endVertex.Position, isInBlock),
                     startVertex.EndWidth,
                     endVertex.StartWidth,
                     startVertex.Bulge
@@ -2779,15 +2859,20 @@ namespace iEngr.Hookup.Models
                 RenderSimpleLwPolyline(lwPolyline);
             }
         }
-        private void RenderLwPolylineWithBulge(Polyline2D lwPolyline)
+        private void RenderLwPolylineWithBulge(Polyline2D lwPolyline, Insert insert = null)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
 
-            var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
-            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(lwPolyline) :
+                                         !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+            //var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            //var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
 
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ResolveEntityLineWidth(lwPolyline);
 
             var points = new PointCollection();
 
@@ -2798,12 +2883,12 @@ namespace iEngr.Hookup.Models
                 var nextVertex = lwPolyline.Vertexes[(i + 1) % lwPolyline.Vertexes.Count];
 
                 // 添加当前点
-                points.Add(ConvertToCanvasPoint(currentVertex.Position));
+                points.Add(ConvertToCanvasPoint(currentVertex.Position, isInBlock));
 
                 // 处理 bulge（圆弧段）
                 if (currentVertex.Bulge != 0 && i < lwPolyline.Vertexes.Count - 1)
                 {
-                    var bulgePoints = ConvertBulgeToPoints(currentVertex, nextVertex, currentVertex.Bulge);
+                    var bulgePoints = ConvertBulgeToPoints(currentVertex, nextVertex, currentVertex.Bulge, isInBlock);
                     // 修正：使用循环添加点
                     foreach (var point in bulgePoints)
                     {
@@ -2815,7 +2900,7 @@ namespace iEngr.Hookup.Models
             // 如果是闭合的，添加第一个点
             if (lwPolyline.IsClosed)
             {
-                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position, isInBlock));
             }
 
             System.Windows.Shapes.Polyline wpfPolyline = new System.Windows.Shapes.Polyline
@@ -2867,7 +2952,7 @@ namespace iEngr.Hookup.Models
 
         //    return points;
         //}
-        private List<Point> ConvertBulgeToPoints(Polyline2DVertex start, Polyline2DVertex end, double bulge)
+        private List<Point> ConvertBulgeToPoints(Polyline2DVertex start, Polyline2DVertex end, double bulge, bool isInBlock)
         {
             var points = new List<Point>();
 
@@ -2897,7 +2982,7 @@ namespace iEngr.Hookup.Models
 
                 double x = center.X + radius * Math.Cos(angle);
                 double y = center.Y + radius * Math.Sin(angle);
-                points.Add(ConvertToCanvasPoint(new Vector2((float)x, (float)y)));
+                points.Add(ConvertToCanvasPoint(new Vector2((float)x, (float)y), isInBlock));
             }
 
             return points;
@@ -2942,27 +3027,32 @@ namespace iEngr.Hookup.Models
 
             return new Vector2((float)centerX, (float)centerY);
         }
-        private void RenderSimpleLwPolyline(Polyline2D lwPolyline)
+        private void RenderSimpleLwPolyline(Polyline2D lwPolyline, Insert insert = null)
         {
             if (lwPolyline.Vertexes.Count < 2) return;
 
-            var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
-            var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            bool isInBlock = insert != null;
+            var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(lwPolyline) :
+                                         !lwPolyline.Color.IsByLayer && !lwPolyline.Color.IsByBlock ? lwPolyline.Color :
+                                         _styleManager.ResolveEntityColor(insert);
+            //var finalColor = _styleManager.ResolveEntityColor(lwPolyline);
+            //var finalLineweight = _styleManager.ResolveEntityLineweight(lwPolyline);
+            //var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
 
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ResolveEntityLineWidth(lwPolyline);
 
             var points = new PointCollection();
 
 
             foreach (var vertex in lwPolyline.Vertexes)
             {
-                points.Add(ConvertToCanvasPoint(vertex.Position));
+                points.Add(ConvertToCanvasPoint(vertex.Position, isInBlock));
             }
 
             if (lwPolyline.IsClosed && lwPolyline.Vertexes.Count > 0)
             {
-                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position));
+                points.Add(ConvertToCanvasPoint(lwPolyline.Vertexes[0].Position, isInBlock));
             }
 
             CreatePolylineFromPoints(points, lwPolyline, wpfLinewidth, new SolidColorBrush(wpfColor));
@@ -2986,13 +3076,14 @@ namespace iEngr.Hookup.Models
         #endregion
 
         #region Insert 
-        private void RenderInsert(Insert insert)
+        private void RenderInsert(Insert insert, Insert parentInsert = null)
         {
             try
             {
+                bool isInBlock = parentInsert != null;
                 netDxf.Blocks.Block block = _dxfDocument.Blocks[insert.Block.Name];
                 if (block == null || !block.Layer.IsVisible) return;
-                _insert = insert;
+                _parentInsert = insert;
                 TransformGroup transform = new TransformGroup();
 
                 // 检查是否需要镜像
@@ -3032,12 +3123,15 @@ namespace iEngr.Hookup.Models
 
                 // 应用平移
                 TranslateTransform translate = new TranslateTransform(
-                    ConvertToCanvasPointX(insert.Position.X),
-                    ConvertToCanvasPointY(insert.Position.Y)
+                    ConvertToCanvasPointX(insert.Position.X, isInBlock),
+                    ConvertToCanvasPointY(insert.Position.Y, isInBlock)
                 );
                 transform.Children.Add(translate);
 
+                // 渲染块实体
                 RenderBlockEntities(block, transform);
+                // 渲染属性
+                RenderAttributes(insert, transform);
             }
             catch (Exception ex)
             {
@@ -3100,21 +3194,228 @@ namespace iEngr.Hookup.Models
             switch (entity)
             {
                 case Line line:
-                    RenderLine(line, _insert);
+                    RenderLine(line, _parentInsert);
                     break;
                 case Circle circle:
-                    RenderCircle(circle, _insert);
+                    RenderCircle(circle, _parentInsert);
                     break;
                 case Arc arc:
-                    RenderArc(arc, _insert);
+                    RenderArc(arc, _parentInsert);
                     break;
                 case Polyline2D polyline:
-                    RenderPolyline(polyline, _insert);
+                    RenderPolyline(polyline, _parentInsert);
+                    break;
+                case Insert insert:
+                    RenderInsert(insert, _parentInsert);
                     break;
                 default:
                     Console.WriteLine($"Unsupported block entity type: {entity.GetType().Name}");
                     break;
             }
+        }
+        private void RenderAttributes(Insert insert, TransformGroup transform)
+        {
+            try
+            {
+                // 获取块引用中的所有属性
+                var attributes = insert.Attributes;
+                if (attributes == null || attributes.Count == 0)
+                    return;
+
+                // 获取块定义中的属性定义
+                var block = _dxfDocument.Blocks[insert.Block.Name];
+                var attributeDefinitions = block.Entities.OfType<AttributeDefinition>().ToList();
+
+                foreach (var attribute in attributes)
+                {
+                    // 找到对应的属性定义
+                    var attributeDef = attributeDefinitions.FirstOrDefault(ad =>
+                        string.Equals(ad.Tag, attribute.Tag, StringComparison.OrdinalIgnoreCase));
+
+                    if (attributeDef != null)
+                    {
+                        RenderSingleAttribute(attribute, attributeDef, insert, transform);
+                    }
+                    else
+                    {
+                        // 如果没有找到定义，使用默认值渲染
+                        RenderSingleAttribute(attribute, null, insert, transform);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Attributes rendering failed: {ex.Message}");
+            }
+        }
+        private void RenderSingleAttribute(netDxf.Entities.Attribute attribute,
+                                         AttributeDefinition attributeDef,
+                                         Insert insert,
+                                         TransformGroup transform)
+        {
+            try
+            {
+                // 安全地获取属性值
+                string attributeValue = GetAttributeValue(attribute, attributeDef);
+
+                if (string.IsNullOrEmpty(attributeValue))
+                    return;
+
+                // 安全地获取属性位置
+                Vector3 attributePosition = GetAttributePosition(attribute, attributeDef, insert);
+
+                // 安全地获取属性样式
+                double textHeight = GetAttributeTextHeight(attributeDef);
+                double rotation = GetAttributeRotation(attributeDef);
+                var color = GetAttributeColor(attribute, attributeDef);
+
+                // 创建属性文本
+                TextBlock textBlock = new TextBlock
+                {
+                    Text = attributeValue,
+                    Foreground = new SolidColorBrush(_styleManager.ConvertToWpfColor(color)),
+                    FontSize = textHeight * _scale,
+                    FontFamily = new FontFamily("Arial"),
+                    Background = Brushes.Transparent
+                };
+
+                //// 创建属性容器来应用块变换
+                //Canvas attributeContainer = new Canvas();
+                //attributeContainer.RenderTransform = transform;
+
+                // 设置属性在容器中的位置（相对坐标）
+                //Point localPosition = new Point(
+                //    (attributePosition.X + _offsetX) * _scale + _panX,
+                //    (_dxfHeight - (attributePosition.Y + _offsetY)) * _scale + _panY // Y轴翻转
+                //);
+                //double x = (point.X + _offsetX) * _scale + _panX;
+                //double y = (_dxfHeight - (point.Y + _offsetY)) * _scale + _panY;
+                Point localPosition = ConvertToCanvasPoint(attributePosition, false);
+
+                Canvas.SetLeft(textBlock, localPosition.X);
+                Canvas.SetTop(textBlock, localPosition.Y);
+
+                // 应用属性自身的旋转
+                if (Math.Abs(rotation) > 0.001)
+                {
+                    textBlock.RenderTransform = new RotateTransform(rotation);
+                }
+
+                //attributeContainer.Children.Add(textBlock);
+                //_canvas.Children.Add(attributeContainer);
+                _canvas.Children.Add(textBlock);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single attribute rendering failed (Tag: {attribute.Tag}): {ex.Message}");
+            }
+        }
+        private string GetAttributeValue(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            // 优先使用属性的值
+            if (!string.IsNullOrEmpty(attribute.Value))
+                return attribute.Value;
+
+            // 然后使用属性定义的默认值
+            if (attributeDef != null && !string.IsNullOrEmpty(attributeDef.Value))
+                return attributeDef.Value;
+
+            return string.Empty;
+        }
+        private double GetAttributeTextHeight(AttributeDefinition attributeDef)
+        {
+            return attributeDef?.Height ?? 2.5; // 默认文字高度
+        }
+
+        private double GetAttributeRotation(AttributeDefinition attributeDef)
+        {
+            return attributeDef?.Rotation ?? 0.0;
+        }
+
+        private AciColor GetAttributeColor(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            // 方法1: 尝试将AttributeDefinition作为EntityObject处理
+            try
+            {
+                if (attributeDef != null)
+                    return GetAttributeDefinitionColor(attributeDef);
+                else if (attribute != null)
+                    return GetAttributeColor(attribute);
+            }
+            catch
+            {
+                // 如果转换失败
+            }
+            return _defaultAciColor; // 默认颜色
+        }
+        private AciColor GetAttributeDefinitionColor(AttributeDefinition attributeDef)
+        {
+            // 专门处理AttributeDefinition的颜色
+            try
+            {
+                // 尝试直接访问颜色属性
+                if (attributeDef.Color != null && attributeDef.Color.IsByLayer == false)
+                {
+                    return attributeDef.Color;
+                }
+
+                // 如果颜色是ByLayer，尝试从图层获取
+                if (attributeDef.Layer != null)
+                {
+                    return attributeDef.Layer.Color;
+                }
+            }
+            catch
+            {
+                // 如果失败，使用默认颜色
+            }
+            return _defaultAciColor; // 默认颜色
+        }
+        private AciColor GetAttributeColor(netDxf.Entities.Attribute attribute)
+        {
+            // 专门处理Attribute的颜色
+            try
+            {
+                if (attribute.Color != null && attribute.Color.IsByLayer == false)
+                {
+                    return attribute.Color;
+                }
+
+                if (attribute.Layer != null)
+                {
+                    return attribute.Layer.Color;
+                }
+            }
+            catch
+            {
+                // 如果失败，使用默认颜色
+            }
+            return _defaultAciColor; // 默认颜色
+        }
+        private Vector3 GetAttributePosition(netDxf.Entities.Attribute attribute,
+                                           AttributeDefinition attributeDef,
+                                           Insert insert)
+        {
+            Vector3 position;
+
+            // 优先使用属性的位置
+            if (attribute.Position != Vector3.Zero)
+            {
+                position = attribute.Position;
+            }
+            else if (attributeDef != null && attributeDef.Position != Vector3.Zero)
+            {
+                // 然后使用属性定义的位置
+                position = attributeDef.Position;
+            }
+            else
+            {
+                // 默认位置（块插入点）
+                position = insert.Position;
+            }
+
+            return position;
         }
         #endregion
 
@@ -3146,25 +3447,37 @@ namespace iEngr.Hookup.Models
                 shape.StrokeDashArray = new DoubleCollection(new double[] { 1, 2 });
             }
         }
-        private Point ConvertToCanvasPoint(Vector2 point)
+        private Point ConvertToCanvasPoint(Vector2 point, bool isInBlock)
         {
             double x = (point.X + _offsetX) * _scale + _panX;
             double y = (_dxfHeight - (point.Y + _offsetY)) * _scale + _panY;
-            return new Point(x, y);
+            if (!isInBlock)
+                return new Point(x, y);
+            x = point.X * _scale;
+            y = - point.Y  * _scale;
+                return new Point(x, y);
         }
-        private Point ConvertToCanvasPoint(Vector3 point)
+        private Point ConvertToCanvasPoint(Vector3 point, bool isInBlock)
         {
             double x = (point.X + _offsetX) * _scale + _panX;
             double y = (_dxfHeight - (point.Y + _offsetY)) * _scale + _panY;
+            if (!isInBlock)
+                return new Point(x, y);
+            x = point.X * _scale;
+            y = -point.Y * _scale;
             return new Point(x, y);
         }
-        private double ConvertToCanvasPointX(double positionX)
+        private double ConvertToCanvasPointX(double positionX, bool isInBlock)
         {
-            return (positionX + _offsetX) * _scale + _panX;
+            if (!isInBlock)
+                return (positionX + _offsetX) * _scale + _panX;
+            return positionX * _scale;
         }
-        private double ConvertToCanvasPointY(double positionY)
+        private double ConvertToCanvasPointY(double positionY, bool isInBlock)
         {
-            return (_dxfHeight - (positionY + _offsetY)) * _scale + _panY;
+            if (!isInBlock)
+                return (_dxfHeight - (positionY + _offsetY)) * _scale + _panY;
+            return - positionY * _scale;
         }
 
     }
