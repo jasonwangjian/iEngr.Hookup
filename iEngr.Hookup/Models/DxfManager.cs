@@ -1,23 +1,24 @@
-﻿using iEngr.Hookup.Views;
+﻿using ComosQueryInterface;
+using iEngr.Hookup.Views;
 using netDxf;
 using netDxf.Entities;
 using netDxf.Tables;
+using netDxf.Units;
 using PdfiumViewer;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Point = System.Windows.Point;
-using Path = System.Windows.Shapes.Path;
-using TextAlignment = System.Windows.TextAlignment;
-using System.Text.RegularExpressions;
-using netDxf.Units;
-using ComosQueryInterface;
 using System.Windows.Media.Animation;
+using Path = System.Windows.Shapes.Path;
+using Point = System.Windows.Point;
+using TextAlignment = System.Windows.TextAlignment;
 
 
 namespace iEngr.Hookup.Models
@@ -211,7 +212,7 @@ namespace iEngr.Hookup.Models
     public class DxfStyleManager
     {
         private double defaultLineWeight = 0.1;
-        private double defaultMinWeight = 0.02;
+        private double defaultMinWeight = 0.05;
         private DxfDocument _dxfDocument;
         public Dictionary<string, Layer> _layers;
 
@@ -295,7 +296,7 @@ namespace iEngr.Hookup.Models
             }
 
             // Lineweight 值是以毫米为单位的，转换为像素（假设 96 DPI）
-            return value>0? value * 3.78:defaultLineWeight; // 1 mm ≈ 3.78 pixels at 96 DPI
+            return value>0? Math.Max(defaultMinWeight, value * 3.78):defaultLineWeight; // 1 mm ≈ 3.78 pixels at 96 DPI
         }
 
         private AciColor GetLayerColor(string layerName)
@@ -371,6 +372,47 @@ namespace iEngr.Hookup.Models
                 Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}");
             }
         }
+        private void ExploreDrawingEntitiesStructure(DxfDocument _dxfDocument)
+        {
+            try
+            {
+                Console.WriteLine("=== 探索 DrawingEntities 结构 ===");
+
+                Type entitiesType = _dxfDocument.Entities.GetType();
+                Console.WriteLine($"DrawingEntities 类型: {entitiesType.FullName}");
+
+                // 获取所有公共属性
+                Console.WriteLine("\n公共属性:");
+                var properties = entitiesType.GetProperties();
+                foreach (var prop in properties)
+                {
+                    Console.WriteLine($"  {prop.Name} : {prop.PropertyType.Name}");
+                }
+
+                // 获取所有公共方法
+                Console.WriteLine("\n公共方法:");
+                var methods = entitiesType.GetMethods();
+                foreach (var method in methods)
+                {
+                    if (method.DeclaringType == entitiesType && !method.Name.StartsWith("get_") && !method.Name.StartsWith("set_"))
+                    {
+                        Console.WriteLine($"  {method.Name}");
+                    }
+                }
+
+                // 尝试获取 Count（如果有的话）
+                var countProperty = entitiesType.GetProperty("Count");
+                if (countProperty != null)
+                {
+                    int count = (int)countProperty.GetValue(_dxfDocument.Entities);
+                    Console.WriteLine($"\n实体数量: {count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"探索结构时出错: {ex.Message}");
+            }
+        }
         private void DisplayLayerInfo()
         {
             Console.WriteLine("=== DXF 图层信息 ===");
@@ -440,7 +482,7 @@ namespace iEngr.Hookup.Models
             entities.AddRange(dxf.Entities.Dimensions);
             entities.AddRange(dxf.Entities.Inserts);
             EntityObjects = entities.ToArray();
-            AttributeDefinitions = dxf.Entities.OfType<AttributeDefinition>().ToArray();
+            //AttributeDefinitions = dxf.Entities.OfType<AttributeDefinition>().ToArray();
             return entities;
         }
         private void RenderAllEntities(DxfDocument dxf)
@@ -550,7 +592,11 @@ namespace iEngr.Hookup.Models
 
             // 转换为 WPF 格式
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight) / Math.Abs(insert?.Scale.X ?? 1);
+            if (wpfLinewidth !=0.1)
+            {
+
+            }
 
             System.Windows.Shapes.Line wpfLine = new System.Windows.Shapes.Line
             {
@@ -725,7 +771,7 @@ namespace iEngr.Hookup.Models
 
             // 转换为 WPF 格式
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
-            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight);
+            var wpfLinewidth = _styleManager.ConvertToWpfLinewidth(finalLineweight) / Math.Abs(insert?.Scale.X ?? 1);
 
             // 创建Ellipse来表示Circle
             System.Windows.Shapes.Ellipse wpfEllipse = new System.Windows.Shapes.Ellipse
@@ -1860,7 +1906,6 @@ namespace iEngr.Hookup.Models
             var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(text) :
                                          !text.Color.IsByLayer && !text.Color.IsByBlock ? text.Color :
                                          _styleManager.ResolveEntityColor(insert);
-            //var finalColor = _styleManager.ResolveEntityColor(text);
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
             TextBlock textBlock = new TextBlock
@@ -1869,19 +1914,46 @@ namespace iEngr.Hookup.Models
                 FontFamily = new FontFamily(text.Style.FontFamilyName),
                 FontSize = text.Height * _scale * _fontFactor,
                 Foreground = new SolidColorBrush(wpfColor),
-                RenderTransformOrigin = new Point(0.5, 0.5)
+                Background = Brushes.Transparent
             };
             ApplyTextAlignment(textBlock, text);
 
-            // 使用增强的位置计算
-            var position = CalculateTextPosition(text, isInBlock);
-            Canvas.SetLeft(textBlock, position.X);
-            Canvas.SetTop(textBlock, position.Y);
+            // 测量文字尺寸
+            var textSize = MeasureTextSize(text);
+            double textWidth = textSize.Width;
+            double textHeight = textSize.Height;
 
+            // 计算基础位置（考虑块引用）
+            double baseX = ConvertToCanvasPointX(text.Position.X, isInBlock);
+            double baseY = ConvertToCanvasPointY(text.Position.Y, isInBlock);
+
+            // 根据对齐方式计算未旋转时的位置
+            Point unrotatedPosition = CalculateUnrotatedTextPosition(baseX, baseY, textWidth, textHeight, text.Alignment);
+
+            // 创建变换组
+            TransformGroup transformGroup = new TransformGroup();
+
+            // 如果有旋转，设置旋转中心并应用旋转
             if (Math.Abs(text.Rotation) > 0.001)
             {
-                textBlock.RenderTransform = new RotateTransform(-text.Rotation);
+                // 计算旋转中心（基于对齐方式）
+                Point rotationCenter = CalculateRotationCenter(textWidth, textHeight, text.Alignment);
+
+                // 设置渲染原点为旋转中心
+                textBlock.RenderTransformOrigin = new Point(rotationCenter.X / textWidth, rotationCenter.Y / textHeight);
+
+                transformGroup.Children.Add(new RotateTransform(-text.Rotation));
             }
+            else
+            {
+                textBlock.RenderTransformOrigin = new Point(0, 0);
+            }
+
+            textBlock.RenderTransform = transformGroup;
+
+            // 设置位置（这是未旋转时的左上角位置）
+            Canvas.SetLeft(textBlock, unrotatedPosition.X);
+            Canvas.SetTop(textBlock, unrotatedPosition.Y);
 
             _canvas.Children.Add(textBlock);
         }
@@ -1960,21 +2032,13 @@ namespace iEngr.Hookup.Models
                     break;
             }
         }
-        private Point CalculateTextPosition(Text text, bool isInBlock)
+        private Point CalculateUnrotatedTextPosition(double baseX, double baseY, double textWidth, double textHeight, netDxf.Entities.TextAlignment alignment)
         {
-            double baseX = ConvertToCanvasPointX(text.Position.X, isInBlock);
-            double baseY = ConvertToCanvasPointY(text.Position.Y, isInBlock);
-
-            // 测量文字尺寸
-            var textSize = MeasureTextSize(text);
-            double textWidth = textSize.Width;
-            double textHeight = textSize.Height;
-
             double finalX = baseX;
             double finalY = baseY;
 
             // 根据对齐方式调整位置
-            switch (text.Alignment)
+            switch (alignment)
             {
                 // 水平居中
                 case netDxf.Entities.TextAlignment.TopCenter:
@@ -2000,7 +2064,7 @@ namespace iEngr.Hookup.Models
             }
 
             // 垂直位置调整
-            switch (text.Alignment)
+            switch (alignment)
             {
                 // 顶部对齐
                 case netDxf.Entities.TextAlignment.TopLeft:
@@ -2029,7 +2093,7 @@ namespace iEngr.Hookup.Models
                 case netDxf.Entities.TextAlignment.BaselineCenter:
                 case netDxf.Entities.TextAlignment.BaselineRight:
                     // 基线对齐，文字基线在指定位置
-                    finalY = baseY - textHeight * 0.75; // 调整系数以获得更好的基线效果
+                    finalY = baseY - textHeight * 0.75;
                     break;
 
                 // 对齐和拟合模式
@@ -2044,6 +2108,83 @@ namespace iEngr.Hookup.Models
             }
 
             return new Point(finalX, finalY);
+        }
+
+        private Point CalculateRotationCenter(double textWidth, double textHeight, netDxf.Entities.TextAlignment alignment)
+        {
+            double centerX = 0;
+            double centerY = 0;
+
+            // 根据对齐方式计算旋转中心
+            switch (alignment)
+            {
+                // 水平左对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                    centerX = 0;
+                    break;
+
+                // 水平居中
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.Middle:
+                    centerX = textWidth / 2;
+                    break;
+
+                // 水平右对齐
+                case netDxf.Entities.TextAlignment.TopRight:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    centerX = textWidth;
+                    break;
+
+                default:
+                    centerX = 0;
+                    break;
+            }
+
+            switch (alignment)
+            {
+                // 顶部对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.TopRight:
+                    centerY = 0;
+                    break;
+
+                // 垂直居中
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.Middle:
+                    centerY = textHeight / 2;
+                    break;
+
+                // 底部对齐
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                    centerY = textHeight;
+                    break;
+
+                // 基线对齐
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    centerY = textHeight * 0.75;
+                    break;
+
+                default:
+                    centerY = textHeight;
+                    break;
+            }
+
+            return new Point(centerX, centerY);
         }
         private Size MeasureTextSize(Text text)
         {
@@ -2085,18 +2226,16 @@ namespace iEngr.Hookup.Models
             var finalColor = !isInBlock ? _styleManager.ResolveEntityColor(mtext) :
                                          !mtext.Color.IsByLayer && !mtext.Color.IsByBlock ? mtext.Color :
                                          _styleManager.ResolveEntityColor(insert);
-            //var finalColor = _styleManager.ResolveEntityColor(mtext);
             var wpfColor = _styleManager.ConvertToWpfColor(finalColor);
 
             TextBlock textBlock = new TextBlock
             {
-                // Text = ProcessMTextContent(mtext.Value),
                 Text = MTextParser.GetPlainText(mtext.Value),
                 FontFamily = new FontFamily(mtext.Style.FontFamilyName),
                 FontSize = mtext.Height * _scale * _fontFactor,
                 Foreground = new SolidColorBrush(wpfColor),
                 TextWrapping = TextWrapping.Wrap,
-                RenderTransformOrigin = new Point(0.5, 0.5)
+                Background = Brushes.Transparent
             };
 
             // 设置多行文字的宽度（如果有矩形宽度）
@@ -2107,19 +2246,156 @@ namespace iEngr.Hookup.Models
 
             ApplyMTextAlignment(textBlock, mtext);
 
-            // 计算多行文字位置
-            var position = CalculateMTextPosition(mtext, isInBlock);
-            Canvas.SetLeft(textBlock, position.X);
-            Canvas.SetTop(textBlock, position.Y);
+            // 测量多行文字尺寸
+            var textSize = MeasureMTextSize(mtext);
+            double textWidth = textSize.Width;
+            double textHeight = textSize.Height;
 
+            // 计算基础位置
+            double baseX = ConvertToCanvasPointX(mtext.Position.X, isInBlock);
+            double baseY = ConvertToCanvasPointY(mtext.Position.Y, isInBlock);
+
+            // 计算未旋转时的位置
+            Point unrotatedPosition = CalculateUnrotatedMTextPosition(baseX, baseY, textWidth, textHeight, mtext.AttachmentPoint);
+
+            // 设置位置
+            Canvas.SetLeft(textBlock, unrotatedPosition.X);
+            Canvas.SetTop(textBlock, unrotatedPosition.Y);
+
+            // 应用旋转
             if (Math.Abs(mtext.Rotation) > 0.001)
             {
+                // 计算旋转中心（基于对齐方式）
+                Point rotationCenter = CalculateMTextRotationCenter(textWidth, textHeight, mtext.AttachmentPoint);
+
+                // 设置渲染原点为旋转中心
+                textBlock.RenderTransformOrigin = new Point(rotationCenter.X / textWidth, rotationCenter.Y / textHeight);
                 textBlock.RenderTransform = new RotateTransform(-mtext.Rotation);
             }
 
             _canvas.Children.Add(textBlock);
         }
-        // 应用 MText 对齐方式
+
+        private Point CalculateUnrotatedMTextPosition(double baseX, double baseY, double textWidth, double textHeight, MTextAttachmentPoint attachmentPoint)
+        {
+            double finalX = baseX;
+            double finalY = baseY;
+
+            // 水平位置调整
+            switch (attachmentPoint)
+            {
+                case MTextAttachmentPoint.TopCenter:
+                case MTextAttachmentPoint.MiddleCenter:
+                case MTextAttachmentPoint.BottomCenter:
+                    finalX = baseX - textWidth / 2;
+                    break;
+
+                case MTextAttachmentPoint.TopRight:
+                case MTextAttachmentPoint.MiddleRight:
+                case MTextAttachmentPoint.BottomRight:
+                    finalX = baseX - textWidth;
+                    break;
+
+                default: // 左对齐
+                    finalX = baseX;
+                    break;
+            }
+
+            // 垂直位置调整
+            switch (attachmentPoint)
+            {
+                case MTextAttachmentPoint.TopLeft:
+                case MTextAttachmentPoint.TopCenter:
+                case MTextAttachmentPoint.TopRight:
+                    finalY = baseY;
+                    break;
+
+                case MTextAttachmentPoint.MiddleLeft:
+                case MTextAttachmentPoint.MiddleCenter:
+                case MTextAttachmentPoint.MiddleRight:
+                    finalY = baseY - textHeight / 2;
+                    break;
+
+                case MTextAttachmentPoint.BottomLeft:
+                case MTextAttachmentPoint.BottomCenter:
+                case MTextAttachmentPoint.BottomRight:
+                    finalY = baseY - textHeight;
+                    break;
+
+                default:
+                    finalY = baseY;
+                    break;
+            }
+
+            return new Point(finalX, finalY);
+        }
+
+        private Point CalculateMTextRotationCenter(double textWidth, double textHeight, MTextAttachmentPoint attachmentPoint)
+        {
+            double centerX = 0;
+            double centerY = 0;
+
+            // 根据对齐方式计算旋转中心
+            switch (attachmentPoint)
+            {
+                // 水平左对齐
+                case MTextAttachmentPoint.TopLeft:
+                case MTextAttachmentPoint.MiddleLeft:
+                case MTextAttachmentPoint.BottomLeft:
+                    centerX = 0;
+                    break;
+
+                // 水平居中
+                case MTextAttachmentPoint.TopCenter:
+                case MTextAttachmentPoint.MiddleCenter:
+                case MTextAttachmentPoint.BottomCenter:
+                    centerX = textWidth / 2;
+                    break;
+
+                // 水平右对齐
+                case MTextAttachmentPoint.TopRight:
+                case MTextAttachmentPoint.MiddleRight:
+                case MTextAttachmentPoint.BottomRight:
+                    centerX = textWidth;
+                    break;
+
+                default:
+                    centerX = 0;
+                    break;
+            }
+
+            switch (attachmentPoint)
+            {
+                // 顶部对齐
+                case MTextAttachmentPoint.TopLeft:
+                case MTextAttachmentPoint.TopCenter:
+                case MTextAttachmentPoint.TopRight:
+                    centerY = 0;
+                    break;
+
+                // 垂直居中
+                case MTextAttachmentPoint.MiddleLeft:
+                case MTextAttachmentPoint.MiddleCenter:
+                case MTextAttachmentPoint.MiddleRight:
+                    centerY = textHeight / 2;
+                    break;
+
+                // 底部对齐
+                case MTextAttachmentPoint.BottomLeft:
+                case MTextAttachmentPoint.BottomCenter:
+                case MTextAttachmentPoint.BottomRight:
+                    centerY = textHeight;
+                    break;
+
+                default:
+                    centerY = 0;
+                    break;
+            }
+
+            return new Point(centerX, centerY);
+        }
+
+        // 其他方法保持不变...
         private void ApplyMTextAlignment(TextBlock textBlock, MText mtext)
         {
             switch (mtext.AttachmentPoint)
@@ -2169,69 +2445,7 @@ namespace iEngr.Hookup.Models
                     break;
             }
         }
-        // 计算 MText 位置
-        private Point CalculateMTextPosition(MText mtext, bool isInBlock)
-        {
-            double baseX = ConvertToCanvasPointX(mtext.Position.X, isInBlock);
-            double baseY = ConvertToCanvasPointY(mtext.Position.Y, isInBlock);
 
-            // 测量多行文字尺寸
-            var textSize = MeasureMTextSize(mtext);
-            double textWidth = textSize.Width;
-            double textHeight = textSize.Height;
-
-            double finalX = baseX;
-            double finalY = baseY;
-
-            // 水平位置调整
-            switch (mtext.AttachmentPoint)
-            {
-                case MTextAttachmentPoint.TopCenter:
-                case MTextAttachmentPoint.MiddleCenter:
-                case MTextAttachmentPoint.BottomCenter:
-                    finalX = baseX - textWidth / 2;
-                    break;
-
-                case MTextAttachmentPoint.TopRight:
-                case MTextAttachmentPoint.MiddleRight:
-                case MTextAttachmentPoint.BottomRight:
-                    finalX = baseX - textWidth;
-                    break;
-
-                default: // 左对齐
-                    finalX = baseX;
-                    break;
-            }
-
-            // 垂直位置调整
-            switch (mtext.AttachmentPoint)
-            {
-                case MTextAttachmentPoint.TopLeft:
-                case MTextAttachmentPoint.TopCenter:
-                case MTextAttachmentPoint.TopRight:
-                    finalY = baseY;
-                    break;
-
-                case MTextAttachmentPoint.MiddleLeft:
-                case MTextAttachmentPoint.MiddleCenter:
-                case MTextAttachmentPoint.MiddleRight:
-                    finalY = baseY - textHeight / 2;
-                    break;
-
-                case MTextAttachmentPoint.BottomLeft:
-                case MTextAttachmentPoint.BottomCenter:
-                case MTextAttachmentPoint.BottomRight:
-                    finalY = baseY - textHeight;
-                    break;
-
-                default:
-                    finalY = baseY;
-                    break;
-            }
-
-            return new Point(finalX, finalY);
-        }
-        // 测量 MText 尺寸
         private Size MeasureMTextSize(MText mtext)
         {
             try
@@ -2247,7 +2461,6 @@ namespace iEngr.Hookup.Models
 
                 // 如果有矩形宽度限制，使用实际宽度
                 double width = mtext.RectangleWidth > 0 ?
-                    //Math.Min(mtext.RectangleWidth * _scale, formattedText.Width) :
                     mtext.RectangleWidth * _scale :
                     formattedText.Width;
 
@@ -2259,6 +2472,7 @@ namespace iEngr.Hookup.Models
                 return EstimateMTextSize(mtext);
             }
         }
+
         private Size EstimateMTextSize(MText mtext)
         {
             string content = MTextParser.GetPlainText(mtext.Value);
@@ -3261,48 +3475,53 @@ namespace iEngr.Hookup.Models
                 if (string.IsNullOrEmpty(attributeValue))
                     return;
 
-                // 安全地获取属性位置
-                Vector3 attributePosition = GetAttributePosition(attribute, attributeDef, insert);
-
                 // 安全地获取属性样式
-                double textHeight = GetAttributeTextHeight(attributeDef);
-                double rotation = GetAttributeRotation(attributeDef);
+                double textHeight = GetAttributeTextHeight(attribute, attributeDef);
+                double rotation = GetAttributeRotation(attribute, attributeDef);
                 var color = GetAttributeColor(attribute, attributeDef);
+                var alignment = GetAttributeAlignment(attribute, attributeDef);
 
                 // 创建属性文本
                 TextBlock textBlock = new TextBlock
                 {
                     Text = attributeValue,
                     Foreground = new SolidColorBrush(_styleManager.ConvertToWpfColor(color)),
-                    FontSize = textHeight * _scale,
-                    FontFamily = new FontFamily("Arial"),
+                    FontSize = textHeight * _scale * _fontFactor,
+                    FontFamily = new FontFamily(GetAttributeFontFamily(attributeDef)),
                     Background = Brushes.Transparent
                 };
 
-                //// 创建属性容器来应用块变换
-                //Canvas attributeContainer = new Canvas();
-                //attributeContainer.RenderTransform = transform;
+                // 应用文本对齐方式
+                ApplyAttributeAlignment(textBlock, alignment);
 
-                // 设置属性在容器中的位置（相对坐标）
-                //Point localPosition = new Point(
-                //    (attributePosition.X + _offsetX) * _scale + _panX,
-                //    (_dxfHeight - (attributePosition.Y + _offsetY)) * _scale + _panY // Y轴翻转
-                //);
-                //double x = (point.X + _offsetX) * _scale + _panX;
-                //double y = (_dxfHeight - (point.Y + _offsetY)) * _scale + _panY;
-                Point localPosition = ConvertToCanvasPoint(attributePosition, false);
+                // 测量文字尺寸
+                var textSize = MeasureAttributeTextSize(attribute, attributeDef, textBlock);
+                double textWidth = textSize.Width;
+                double measuredTextHeight = textSize.Height;
 
-                Canvas.SetLeft(textBlock, localPosition.X);
-                Canvas.SetTop(textBlock, localPosition.Y);
+                // 使用世界坐标计算位置
+                Vector3 worldPosition = GetAttributeWorldPosition(attribute, attributeDef);
+                double baseX = ConvertToCanvasPointX(worldPosition.X, false);
+                double baseY = ConvertToCanvasPointY(worldPosition.Y, false);
+
+                // 计算未旋转时的位置
+                Point unrotatedPosition = CalculateUnrotatedAttributePosition(baseX, baseY, textWidth, measuredTextHeight, alignment);
+
+                // 设置位置
+                Canvas.SetLeft(textBlock, unrotatedPosition.X);
+                Canvas.SetTop(textBlock, unrotatedPosition.Y);
 
                 // 应用属性自身的旋转
                 if (Math.Abs(rotation) > 0.001)
                 {
-                    textBlock.RenderTransform = new RotateTransform(rotation);
+                    // 计算旋转中心（基于对齐方式）
+                    Point rotationCenter = CalculateAttributeRotationCenter(textWidth, measuredTextHeight, alignment);
+
+                    // 设置渲染原点为旋转中心
+                    textBlock.RenderTransformOrigin = new Point(rotationCenter.X / textWidth, rotationCenter.Y / measuredTextHeight);
+                    textBlock.RenderTransform = new RotateTransform(-rotation);
                 }
 
-                //attributeContainer.Children.Add(textBlock);
-                //_canvas.Children.Add(attributeContainer);
                 _canvas.Children.Add(textBlock);
 
             }
@@ -3310,6 +3529,307 @@ namespace iEngr.Hookup.Models
             {
                 Console.WriteLine($"Single attribute rendering failed (Tag: {attribute.Tag}): {ex.Message}");
             }
+        }
+        private Point CalculateUnrotatedAttributePosition(double baseX, double baseY, double textWidth, double textHeight, netDxf.Entities.TextAlignment alignment)
+        {
+            double finalX = baseX;
+            double finalY = baseY;
+
+            // 根据对齐方式调整位置
+            switch (alignment)
+            {
+                // 水平居中
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.Middle:
+                    finalX = baseX - textWidth / 2;
+                    break;
+
+                // 水平右对齐
+                case netDxf.Entities.TextAlignment.TopRight:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    finalX = baseX - textWidth;
+                    break;
+
+                // 水平左对齐（默认）
+                default:
+                    finalX = baseX;
+                    break;
+            }
+
+            // 垂直位置调整
+            switch (alignment)
+            {
+                // 顶部对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.TopRight:
+                    finalY = baseY;
+                    break;
+
+                // 垂直居中
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.Middle:
+                    finalY = baseY - textHeight / 2;
+                    break;
+
+                // 底部对齐
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                    finalY = baseY - textHeight;
+                    break;
+
+                // 基线对齐
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    // 基线对齐，文字基线在指定位置
+                    finalY = baseY - textHeight * 0.75;
+                    break;
+
+                // 对齐和拟合模式
+                case netDxf.Entities.TextAlignment.Aligned:
+                case netDxf.Entities.TextAlignment.Fit:
+                    finalY = baseY - textHeight;
+                    break;
+
+                default:
+                    finalY = baseY - textHeight;
+                    break;
+            }
+
+            return new Point(finalX, finalY);
+        }
+        private Point CalculateAttributeRotationCenter(double textWidth, double textHeight, netDxf.Entities.TextAlignment alignment)
+        {
+            double centerX = 0;
+            double centerY = 0;
+
+            // 根据对齐方式计算旋转中心
+            switch (alignment)
+            {
+                // 水平左对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                    centerX = 0;
+                    break;
+
+                // 水平居中
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.Middle:
+                    centerX = textWidth / 2;
+                    break;
+
+                // 水平右对齐
+                case netDxf.Entities.TextAlignment.TopRight:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    centerX = textWidth;
+                    break;
+
+                default:
+                    centerX = 0;
+                    break;
+            }
+
+            switch (alignment)
+            {
+                // 顶部对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                case netDxf.Entities.TextAlignment.TopCenter:
+                case netDxf.Entities.TextAlignment.TopRight:
+                    centerY = 0;
+                    break;
+
+                // 垂直居中
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                case netDxf.Entities.TextAlignment.Middle:
+                    centerY = textHeight / 2;
+                    break;
+
+                // 底部对齐
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                case netDxf.Entities.TextAlignment.BottomRight:
+                    centerY = textHeight;
+                    break;
+
+                // 基线对齐
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    centerY = textHeight * 0.75;
+                    break;
+
+                default:
+                    centerY = textHeight;
+                    break;
+            }
+
+            return new Point(centerX, centerY);
+        }
+        private Vector3 GetAttributeWorldPosition(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            // Attribute 的位置已经是世界坐标
+            if (attribute?.Position != null)
+                return attribute.Position;
+
+            // 如果Attribute没有位置，回退到AttributeDefinition的位置
+            // 但这种情况应该很少，因为Attribute在插入时应该已经转换到世界坐标
+            if (attributeDef?.Position != null)
+                return attributeDef.Position;
+
+            return Vector3.Zero;
+        }
+        private void ApplyAttributeAlignment(TextBlock textBlock, netDxf.Entities.TextAlignment alignment)
+        {
+            switch (alignment)
+            {
+                // 顶部对齐
+                case netDxf.Entities.TextAlignment.TopLeft:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Top;
+                    break;
+                case netDxf.Entities.TextAlignment.TopCenter:
+                    textBlock.TextAlignment = TextAlignment.Center;
+                    textBlock.VerticalAlignment = VerticalAlignment.Top;
+                    break;
+                case netDxf.Entities.TextAlignment.TopRight:
+                    textBlock.TextAlignment = TextAlignment.Right;
+                    textBlock.VerticalAlignment = VerticalAlignment.Top;
+                    break;
+
+                // 中间对齐
+                case netDxf.Entities.TextAlignment.MiddleLeft:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Center;
+                    break;
+                case netDxf.Entities.TextAlignment.MiddleCenter:
+                case netDxf.Entities.TextAlignment.Middle:
+                    textBlock.TextAlignment = TextAlignment.Center;
+                    textBlock.VerticalAlignment = VerticalAlignment.Center;
+                    break;
+                case netDxf.Entities.TextAlignment.MiddleRight:
+                    textBlock.TextAlignment = TextAlignment.Right;
+                    textBlock.VerticalAlignment = VerticalAlignment.Center;
+                    break;
+
+                // 底部对齐
+                case netDxf.Entities.TextAlignment.BottomLeft:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+                case netDxf.Entities.TextAlignment.BottomCenter:
+                    textBlock.TextAlignment = TextAlignment.Center;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+                case netDxf.Entities.TextAlignment.BottomRight:
+                    textBlock.TextAlignment = TextAlignment.Right;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+
+                // 基线对齐
+                case netDxf.Entities.TextAlignment.BaselineLeft:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+                case netDxf.Entities.TextAlignment.BaselineCenter:
+                    textBlock.TextAlignment = TextAlignment.Center;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+                case netDxf.Entities.TextAlignment.BaselineRight:
+                    textBlock.TextAlignment = TextAlignment.Right;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+
+                // 特殊对齐方式
+                case netDxf.Entities.TextAlignment.Aligned:
+                case netDxf.Entities.TextAlignment.Fit:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+
+                // 默认情况
+                default:
+                    textBlock.TextAlignment = TextAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                    break;
+            }
+        }
+        private Size MeasureAttributeTextSize(netDxf.Entities.Attribute attribute,
+                                            AttributeDefinition attributeDef,
+                                            TextBlock textBlock)
+        {
+            try
+            {
+                string text = GetAttributeValue(attribute, attributeDef);
+                double fontSize = GetAttributeTextHeight(attribute, attributeDef) * _scale * _fontFactor;
+                string fontFamily = GetAttributeFontFamily(attributeDef);
+
+                // 使用 FormattedText 精确测量
+                var formattedText = new FormattedText(
+                    text,
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface(fontFamily),
+                    fontSize,
+                    Brushes.Black,
+                    VisualTreeHelper.GetDpi(_canvas).PixelsPerDip);
+
+                return new Size(formattedText.Width, formattedText.Height);
+            }
+            catch
+            {
+                // 回退到简化估算
+                return EstimateAttributeTextSize(attribute, attributeDef);
+            }
+        }
+
+        private Size EstimateAttributeTextSize(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            string text = GetAttributeValue(attribute, attributeDef);
+            double textHeight = GetAttributeTextHeight(attribute, attributeDef) * _scale * _fontFactor;
+
+            // 简化估算文字尺寸
+            double averageCharWidth = textHeight * 0.6;
+            double textWidth = text.Length * averageCharWidth;
+
+            return new Size(textWidth, textHeight);
+        }
+
+        // 辅助方法 - 需要根据你的 DXF 库实现这些方法
+        private string GetAttributeFontFamily(AttributeDefinition attributeDef)
+        {
+            return attributeDef?.Style?.FontFamilyName ?? "Arial";
+        }
+
+        private netDxf.Entities.TextAlignment GetAttributeAlignment(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            return attribute?.Alignment ?? attributeDef?.Alignment ?? netDxf.Entities.TextAlignment.BaselineLeft;
+        }
+
+        private double GetAttributeTextHeight(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            return attribute?.Height ?? attributeDef?.Height ?? 1.0;
+        }
+        private double GetAttributeRotation(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
+        {
+            return attribute?.Rotation ?? attributeDef?.Rotation ?? 0.0;
         }
         private string GetAttributeValue(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
         {
@@ -3323,16 +3843,6 @@ namespace iEngr.Hookup.Models
 
             return string.Empty;
         }
-        private double GetAttributeTextHeight(AttributeDefinition attributeDef)
-        {
-            return attributeDef?.Height ?? 2.5; // 默认文字高度
-        }
-
-        private double GetAttributeRotation(AttributeDefinition attributeDef)
-        {
-            return attributeDef?.Rotation ?? 0.0;
-        }
-
         private AciColor GetAttributeColor(netDxf.Entities.Attribute attribute, AttributeDefinition attributeDef)
         {
             // 方法1: 尝试将AttributeDefinition作为EntityObject处理
@@ -3361,9 +3871,9 @@ namespace iEngr.Hookup.Models
                 }
 
                 // 如果颜色是ByLayer，尝试从图层获取
-                if (attributeDef.Layer != null)
+                if (attributeDef.Owner.Layer != null)
                 {
-                    return attributeDef.Layer.Color;
+                    return attributeDef.Owner.Layer.Color;
                 }
             }
             catch
@@ -3382,9 +3892,9 @@ namespace iEngr.Hookup.Models
                     return attribute.Color;
                 }
 
-                if (attribute.Layer != null)
+                if (attribute.Owner.Layer != null)
                 {
-                    return attribute.Layer.Color;
+                    return attribute.Owner.Layer.Color;
                 }
             }
             catch
@@ -3392,30 +3902,6 @@ namespace iEngr.Hookup.Models
                 // 如果失败，使用默认颜色
             }
             return _defaultAciColor; // 默认颜色
-        }
-        private Vector3 GetAttributePosition(netDxf.Entities.Attribute attribute,
-                                           AttributeDefinition attributeDef,
-                                           Insert insert)
-        {
-            Vector3 position;
-
-            // 优先使用属性的位置
-            if (attribute.Position != Vector3.Zero)
-            {
-                position = attribute.Position;
-            }
-            else if (attributeDef != null && attributeDef.Position != Vector3.Zero)
-            {
-                // 然后使用属性定义的位置
-                position = attributeDef.Position;
-            }
-            else
-            {
-                // 默认位置（块插入点）
-                position = insert.Position;
-            }
-
-            return position;
         }
         #endregion
 

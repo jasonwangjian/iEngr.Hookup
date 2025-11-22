@@ -24,7 +24,7 @@
             <TextBlock Text="{Binding PositionY}" Margin="2"/>
         </StackPanel>
         <Border Grid.Row="1"
-                ClipToBounds="True" Background="LightBlue">
+                ClipToBounds="True" Background="Black">
             <!-- 添加右键菜单 -->
             <Border.ContextMenu>
                 <ContextMenu x:Name="imageContextMenu">
