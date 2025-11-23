@@ -160,6 +160,7 @@
     <Compile Include="Models\HKLibTreeNode.cs" />
     <Compile Include="Models\HKLibMatMat.cs" />
     <Compile Include="Models\ObservableDictionary.cs" />
+    <Compile Include="Models\PDFWrapper.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Models\PropertyDictionary.cs" />
@@ -175,6 +176,7 @@
     <Compile Include="ViewModels\DiagGrid2ViewModel.cs" />
     <Compile Include="ViewModels\DiagGridViewModel.cs" />
     <Compile Include="ViewModels\DiagramItem.cs" />
+    <Compile Include="ViewModels\HkDxfPicPdfViewModel.cs" />
     <Compile Include="ViewModels\HkPictureViewModel.cs" />
     <Compile Include="ViewModels\HkTreeItem.cs" />
     <Compile Include="ViewModels\HkTreeViewModel.cs" />
@@ -220,6 +222,9 @@
     </Compile>
     <Compile Include="Views\UcAppliedNode.xaml.cs">
       <DependentUpon>UcAppliedNode.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UcDxfPicPdf.xaml.cs">
+      <DependentUpon>UcDxfPicPdf.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UcDxfViewer.xaml.cs">
       <DependentUpon>UcDxfViewer.xaml</DependentUpon>
@@ -279,6 +284,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -339,6 +345,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UcAppliedNode.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UcDxfPicPdf.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

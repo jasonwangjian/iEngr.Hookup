@@ -21,13 +21,13 @@ using Point = System.Windows.Point;
 
 namespace iEngr.Hookup.Views
 {
-    public enum FileStatus
-    {
-        NotAssigned,
-        NotDxfExtension,
-        ValidedDxf,
-        InValidedDxf
-    }
+    //public enum FileStatus
+    //{
+    //    NotAssigned,
+    //    NotDxfExtension,
+    //    ValidedDxf,
+    //    InValidedDxf
+    //}
     /// <summary>
     /// UcDxfViewer.xaml 的交互逻辑
     /// </summary>

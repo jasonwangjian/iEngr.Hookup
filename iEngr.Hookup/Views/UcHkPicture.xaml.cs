@@ -136,13 +136,11 @@ namespace iEngr.Hookup.Views
                 ResetToCenter();
             }
         }
-
         private void FitToWindow_Click(object sender, RoutedEventArgs e)
         {
             //_autoFitToWindow = false;
             FitToWindow();
         }
-
         private void FitToWindow(bool isAutoFit = false)
         {
             if (contentImage.Source is BitmapSource bitmap)
@@ -162,7 +160,6 @@ namespace iEngr.Hookup.Views
                 }
             }
         }
-
         private void ResetToCenter()
         {
             _currentScale = 1.0;
@@ -170,7 +167,6 @@ namespace iEngr.Hookup.Views
             imageScale.ScaleY = 1.0;
             CenterImage();
         }
-
         private void CenterImage()
         {
             if (contentImage.Source is BitmapSource bitmap)
@@ -182,7 +178,6 @@ namespace iEngr.Hookup.Views
                 imageTranslate.Y = Math.Max(0, (zoomCanvas.ActualHeight - imageHeight) / 2);
             }
         }
-
         private bool IsImageLargerThanWindow()
         {
             if (!(contentImage.Source is BitmapSource bitmap))
@@ -195,9 +190,6 @@ namespace iEngr.Hookup.Views
 
             return imageWidth > canvasWidth || imageHeight > canvasHeight;
         }
-
-
-
         private void CenterImageAfterLoad()
         {
             // 确保在UI线程执行
@@ -240,30 +232,4 @@ namespace iEngr.Hookup.Views
 
     }
 
-    public class PDFWrapper
-    {
-        // 获取 PDF 页数
-        public static int GetPageCount(string filePath)
-        {
-            using (var document = PdfDocument.Load(filePath))
-            {
-                return document.PageCount;
-            }
-        }
-
-        // 获取指定页面的图像
-        public static Bitmap GetImage(string filePath, int pageIndex, int dpi)
-        {
-            using (var document = PdfDocument.Load(filePath))
-            {
-                // Render the PDF page as a System.Drawing.Image
-                var image = document.Render(pageIndex, dpi, dpi, true);
-
-                // Convert the System.Drawing.Image to a System.Drawing.Bitmap
-                var bitmap = new Bitmap(image);
-                return bitmap;
-            }
-        }
-
-    }
 }

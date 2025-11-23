@@ -22,5 +22,29 @@ namespace iEngr.Hookup.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSelectedFileDirectory {
+            get {
+                return ((string)(this["LastSelectedFileDirectory"]));
+            }
+            set {
+                this["LastSelectedFileDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LastFileFilter {
+            get {
+                return ((int)(this["LastFileFilter"]));
+            }
+            set {
+                this["LastFileFilter"] = value;
+            }
+        }
     }
 }

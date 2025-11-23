@@ -12,21 +12,34 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace iEngr.Hookup.ViewModels
 {
-    //public enum AttachTo
-    //{
-    //    ComosAssigned,
-    //    ComosAvailable,
-    //    LibAssigned,
-    //    LibAvailable
-    //}
-    public class HkPictureViewModel : INotifyPropertyChanged
+    public enum FileStatus
     {
-        public HkPictureViewModel()
+        NotAssigned,
+        NotDxfExtension,
+        ValidedDxf,
+        InValidedDxf
+    }
+    public enum AttachTo
+    {
+        ComosAssigned,
+        ComosAvailable,
+        LibAssigned,
+        LibAvailable
+    }
+    public class HkDxfPicPdfViewModel : INotifyPropertyChanged
+    {
+        public DxfRenderer DxfRenderer;
+        private DxfRenderer _renderer;
+        private double _scale = 1.0;
+
+
+        public HkDxfPicPdfViewModel(Canvas dxfCanvas)
         {
             PdfPages = new ObservableCollection<BitmapImage>();
             PreviousPageCommand = new RelayCommand<object>(
@@ -40,6 +53,8 @@ namespace iEngr.Hookup.ViewModels
             _emptyPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/EmptyPicture.png";
             _unfoundPicturePath = "pack://application:,,,/iEngr.Hookup;component/Resources/UnfoundPicture.Png";
             SetImageSource(_emptyPicturePath);
+            _renderer = new DxfRenderer(dxfCanvas);
+            DxfRenderer = _renderer;
         }
         public ICommand PreviousPageCommand { get; }
         public ICommand NextPageCommand { get; }
@@ -80,6 +95,63 @@ namespace iEngr.Hookup.ViewModels
                 OnPropertyChanged();
             }
         }
+        private bool _isDxfFile;
+        public bool IsDxfFile
+        {
+            get => _isDxfFile;
+            set
+            {
+                _isDxfFile = value;
+                OnPropertyChanged();
+            }
+        }
+        private string _picturePath;
+        public string PicturePath
+        {
+            get => _picturePath;
+            set
+            {
+                if (SetField(ref _picturePath, value))
+                {
+                    if (string.IsNullOrEmpty(PicturePath))
+                    {
+                        SetImageSource(_emptyPicturePath);
+                    }
+                    else
+                        OpenFile(PicturePath);
+                }
+            }
+        }
+        private bool IsValidFile
+        {
+            get
+            {
+                return FileStatus == FileStatus.ValidedDxf;
+            }
+        }
+        private FileStatus _fileStatus;
+        public FileStatus FileStatus
+        {
+            get => _fileStatus;
+            set
+            {
+                if (SetField(ref _fileStatus, value))
+                    OnPropertyChanged(nameof(IsValidFile));
+            }
+        }
+        //private async void OpenFile(string filePath)
+        //{
+        //    string fileExtension = Path.GetExtension(filePath).ToLower();
+
+        //    if (fileExtension == ".pdf")
+        //    {
+        //        await OpenPdfFileAsync(filePath);
+        //    }
+        //    else
+        //    {
+        //        OpenImageFile(filePath);
+        //    }
+        //}
         private async void OpenFile(string filePath)
         {
             string fileExtension = Path.GetExtension(filePath).ToLower();
@@ -87,11 +159,30 @@ namespace iEngr.Hookup.ViewModels
             if (fileExtension == ".pdf")
             {
                 await OpenPdfFileAsync(filePath);
+                IsDxfFile = false;
+            }
+            else if (fileExtension == ".dxf")
+            {
+                FileStatus = _renderer.RenderDxf(filePath, _scale);
+                if (FileStatus == FileStatus.InValidedDxf)
+                {
+                    SetImageSource(_unfoundPicturePath);
+                    IsDxfFile = false;
+                }
+                else
+                {
+                    IsDxfFile = true;
+                }
             }
             else
             {
                 OpenImageFile(filePath);
+                IsDxfFile = false;
             }
+            //else
+            //{
+            //    FileStatus = FileStatus.NotDxfExtension; ;
+            //}
         }
         private async Task OpenPdfFileAsync(string filePath)
         {
@@ -250,55 +341,6 @@ namespace iEngr.Hookup.ViewModels
             ImageSource = bitmap;
         }
 
-        #region 属性
-        private FileStatus _fileStatus;
-        public FileStatus FileStatus
-        {
-            get => _fileStatus;
-            set
-            {
-                if (SetField(ref _fileStatus, value))
-                    OnPropertyChanged(nameof(IsValidFile));
-            }
-        }
-        private bool IsValidFile
-        {
-            get
-            {
-                return FileStatus == FileStatus.ValidedDxf;
-            }
-        }
-        private string _picturePath;
-        public string PicturePath
-        {
-            get => _picturePath;
-            set
-            {
-                if (SetField(ref _picturePath, value))
-                {
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        FileStatus = FileStatus.NotAssigned;
-                        //SetImageSource(_emptyPicturePath);
-                    }
-                    else
-                        OpenFile(value);
-                }
-            }
-        }
-        private double _positionX;
-        public double PositionX
-        {
-            get => _positionX;
-            set => SetField(ref _positionX, value);
-        }
-        private double _positionY;
-        public double PositionY
-        {
-            get => _positionY;
-            set => SetField(ref _positionY, value);
-        }
-        #endregion
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
